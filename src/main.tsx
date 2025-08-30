@@ -6,6 +6,9 @@ import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import ProfilePage from './pages/ProfilePage.tsx';
 import TestPage from './pages/TestPage.tsx';
 import { I18nProvider } from './i18n.tsx';
+import LoginPage from './pages/LoginPage.tsx';
+import OtpPage from './pages/OtpPage.tsx';
+import AdminEmployeesPage from './pages/AdminEmployeesPage.tsx';
 
 const router = createBrowserRouter([
   {
@@ -14,6 +17,9 @@ const router = createBrowserRouter([
     children: [
       { index: true, element: <ProfilePage /> },
       { path: 'test', element: <TestPage /> },
+      { path: 'login', element: <LoginPage /> },
+      { path: 'otp', element: <OtpPage /> },
+      { path: 'admin/employees', element: <AdminEmployeesPage /> },
     ],
   },
 ]);

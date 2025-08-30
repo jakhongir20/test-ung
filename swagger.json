@@ -1,0 +1,3014 @@
+{
+    "openapi": "3.0.3",
+    "info": {
+        "title": "Respondent Web API",
+        "version": "1.0.0",
+        "description": "\n    API для веб-приложения проведения опросов и тестирования.\n    \n    ## Основные возможности:\n    - Аутентификация по номеру телефона с OTP\n    - Управление пользователями и модераторами\n    - Создание и прохождение опросов\n    - Детальная статистика и отчеты\n    - Многоязычная поддержка (узбекский, русский)\n    \n    ## Аутентификация:\n    API использует JWT токены для аутентификации. Получить токен можно через эндпоинты:\n    - `/api/auth/send-otp/` - отправка OTP на номер телефона\n    - `/api/auth/verify-otp/` - верификация OTP кода  \n    - `/api/auth/login/` - вход/регистрация с OTP\n    \n    После получения токена добавляйте заголовок: `Authorization: Bearer YOUR_ACCESS_TOKEN`\n    "
+    },
+    "paths": {
+        "/api/auth-token/": {
+            "post": {
+                "operationId": "auth_token_create",
+                "tags": [
+                    "auth-token"
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/x-www-form-urlencoded": {
+                            "schema": {
+                                "$ref": "#/components/schemas/AuthTokenRequest"
+                            }
+                        },
+                        "multipart/form-data": {
+                            "schema": {
+                                "$ref": "#/components/schemas/AuthTokenRequest"
+                            }
+                        },
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/AuthTokenRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "security": [
+                    {
+                        "jwtAuth": []
+                    },
+                    {
+                        "cookieAuth": []
+                    },
+                    {
+                        "tokenAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/AuthToken"
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            }
+        },
+        "/api/auth/login/": {
+            "post": {
+                "operationId": "auth_login_create",
+                "description": "Авторизует пользователя по номеру телефона и OTP коду.\n        \n        Если пользователь с данным номером не существует, создается новый аккаунт.\n        Возвращает JWT токены для дальнейшей аутентификации.",
+                "summary": "Вход/регистрация через номер телефона",
+                "tags": [
+                    "Аутентификация"
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/PhoneLoginRequest"
+                            },
+                            "examples": {
+                                "ВходСуществующегоПользователя": {
+                                    "value": {
+                                        "phone_number": "+998901234567",
+                                        "otp_code": "123456"
+                                    },
+                                    "summary": "Вход существующего пользователя"
+                                },
+                                "РегистрацияНовогоПользователя": {
+                                    "value": {
+                                        "phone_number": "+998901234567",
+                                        "otp_code": "123456",
+                                        "name": "Иван Иванов",
+                                        "branch": "Ташкент",
+                                        "position": "Менеджер"
+                                    },
+                                    "summary": "Регистрация нового пользователя"
+                                }
+                            }
+                        },
+                        "application/x-www-form-urlencoded": {
+                            "schema": {
+                                "$ref": "#/components/schemas/PhoneLoginRequest"
+                            }
+                        },
+                        "multipart/form-data": {
+                            "schema": {
+                                "$ref": "#/components/schemas/PhoneLoginRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "security": [
+                    {
+                        "jwtAuth": []
+                    },
+                    {
+                        "cookieAuth": []
+                    },
+                    {
+                        "tokenAuth": []
+                    },
+                    {}
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/LoginResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "400": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "non_field_errors": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "string"
+                                            },
+                                            "example": [
+                                                "Invalid OTP code"
+                                            ]
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            }
+        },
+        "/api/auth/send-otp/": {
+            "post": {
+                "operationId": "auth_send_otp_create",
+                "description": "Отправляет OTP код на указанный номер телефона для верификации.\n        \n        В режиме разработки возвращает OTP код в ответе для тестирования.\n        В продакшене код отправляется только через SMS.",
+                "summary": "Отправить OTP код",
+                "tags": [
+                    "Аутентификация"
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/SendOTPRequest"
+                            },
+                            "examples": {
+                                "УспешнаяОтправкаOTP": {
+                                    "value": {
+                                        "phone_number": "+998901234567"
+                                    },
+                                    "summary": "Успешная отправка OTP"
+                                }
+                            }
+                        },
+                        "application/x-www-form-urlencoded": {
+                            "schema": {
+                                "$ref": "#/components/schemas/SendOTPRequest"
+                            }
+                        },
+                        "multipart/form-data": {
+                            "schema": {
+                                "$ref": "#/components/schemas/SendOTPRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "security": [
+                    {
+                        "jwtAuth": []
+                    },
+                    {
+                        "cookieAuth": []
+                    },
+                    {
+                        "tokenAuth": []
+                    },
+                    {}
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/OTPResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "400": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "phone_number": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "string"
+                                            },
+                                            "example": [
+                                                "Phone number must be an Uzbek number starting with +998"
+                                            ]
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            }
+        },
+        "/api/auth/token/": {
+            "post": {
+                "operationId": "auth_token_create_2",
+                "description": "Получает пары JWT токенов (access и refresh) для аутентификации.\n    \n    Альтернативный способ получения токенов через стандартный эндпоинт DRF.",
+                "summary": "Получить JWT токены",
+                "tags": [
+                    "Аутентификация"
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CustomTokenObtainPairRequest"
+                            },
+                            "examples": {
+                                "ПолучениеJWTТокенов": {
+                                    "value": {
+                                        "phone_number": "+998901234567",
+                                        "password": "password123"
+                                    },
+                                    "summary": "Получение JWT токенов"
+                                }
+                            }
+                        },
+                        "application/x-www-form-urlencoded": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CustomTokenObtainPairRequest"
+                            }
+                        },
+                        "multipart/form-data": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CustomTokenObtainPairRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/TokenResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "401": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "detail": {
+                                            "type": "string",
+                                            "example": "No active account found with the given credentials"
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            }
+        },
+        "/api/auth/token/refresh/": {
+            "post": {
+                "operationId": "auth_token_refresh_create",
+                "description": "Takes a refresh type JSON web token and returns an access type JSON web\ntoken if the refresh token is valid.",
+                "tags": [
+                    "auth"
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/TokenRefreshRequest"
+                            }
+                        },
+                        "application/x-www-form-urlencoded": {
+                            "schema": {
+                                "$ref": "#/components/schemas/TokenRefreshRequest"
+                            }
+                        },
+                        "multipart/form-data": {
+                            "schema": {
+                                "$ref": "#/components/schemas/TokenRefreshRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/TokenRefresh"
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            }
+        },
+        "/api/auth/verify-otp/": {
+            "post": {
+                "operationId": "auth_verify_otp_create",
+                "description": "Проверяет правильность введенного OTP кода.\n        \n        Код должен быть получен через эндпоинт send-otp и не должен быть просрочен.",
+                "summary": "Верифицировать OTP код",
+                "tags": [
+                    "Аутентификация"
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/VerifyOTPRequest"
+                            },
+                            "examples": {
+                                "ВерификацияOTP": {
+                                    "value": {
+                                        "phone_number": "+998901234567",
+                                        "otp_code": "123456"
+                                    },
+                                    "summary": "Верификация OTP"
+                                }
+                            }
+                        },
+                        "application/x-www-form-urlencoded": {
+                            "schema": {
+                                "$ref": "#/components/schemas/VerifyOTPRequest"
+                            }
+                        },
+                        "multipart/form-data": {
+                            "schema": {
+                                "$ref": "#/components/schemas/VerifyOTPRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "security": [
+                    {
+                        "jwtAuth": []
+                    },
+                    {
+                        "cookieAuth": []
+                    },
+                    {
+                        "tokenAuth": []
+                    },
+                    {}
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "OTP verified successfully"
+                                        },
+                                        "phone_number": {
+                                            "type": "string",
+                                            "example": "+998901234567"
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "400": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "non_field_errors": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "string"
+                                            },
+                                            "example": [
+                                                "Invalid OTP code"
+                                            ]
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            }
+        },
+        "/api/current-session/": {
+            "get": {
+                "operationId": "current_session_retrieve",
+                "description": "Получить информацию о текущей активной сессии пользователя.\n    \n    Если пользователь сейчас не проходит опрос, возвращает null.\n    Автоматически проверяет срок действия сессии.",
+                "summary": "Текущая активная сессия",
+                "tags": [
+                    "Сессии"
+                ],
+                "security": [
+                    {
+                        "jwtAuth": []
+                    },
+                    {
+                        "cookieAuth": []
+                    },
+                    {
+                        "tokenAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "session": {
+                                            "oneOf": [
+                                                {
+                                                    "$ref": "#/components/schemas/SurveySession"
+                                                },
+                                                {
+                                                    "type": "null"
+                                                }
+                                            ],
+                                            "description": "Информация о сессии или null"
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            }
+        },
+        "/api/moderator/dashboard/": {
+            "get": {
+                "operationId": "moderator_dashboard_retrieve",
+                "description": "Получить данные для панели управления модератора.\n    \n    Включает:\n    - Последнюю активность (последние завершенные сессии)\n    - Лучших пользователей по средним баллам\n    - Опросы, требующие внимания (низкий процент прохождения)",
+                "summary": "Панель управления модератора",
+                "tags": [
+                    "Модераторы"
+                ],
+                "security": [
+                    {
+                        "jwtAuth": []
+                    },
+                    {
+                        "cookieAuth": []
+                    },
+                    {
+                        "tokenAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "recent_activity": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object"
+                                            },
+                                            "description": "Последняя активность"
+                                        },
+                                        "top_performers": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object"
+                                            },
+                                            "description": "Лучшие пользователи"
+                                        },
+                                        "surveys_needing_attention": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object"
+                                            },
+                                            "description": "Опросы, требующие внимания"
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            }
+        },
+        "/api/moderator/surveys/": {
+            "get": {
+                "operationId": "moderator_surveys_list",
+                "description": "Получить статистику по всем активным опросам.",
+                "summary": "Статистика опросов",
+                "tags": [
+                    "Модераторы"
+                ],
+                "security": [
+                    {
+                        "jwtAuth": []
+                    },
+                    {
+                        "cookieAuth": []
+                    },
+                    {
+                        "tokenAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "object",
+                                            "properties": {
+                                                "id": {
+                                                    "type": "integer"
+                                                },
+                                                "title": {
+                                                    "type": "string"
+                                                },
+                                                "description": {
+                                                    "type": "string"
+                                                },
+                                                "passing_score": {
+                                                    "type": "integer"
+                                                },
+                                                "total_participants": {
+                                                    "type": "integer"
+                                                },
+                                                "completed_attempts": {
+                                                    "type": "integer"
+                                                },
+                                                "average_score": {
+                                                    "type": "number",
+                                                    "nullable": true
+                                                },
+                                                "pass_rate": {
+                                                    "type": "number",
+                                                    "nullable": true
+                                                },
+                                                "average_duration": {
+                                                    "type": "integer",
+                                                    "nullable": true
+                                                },
+                                                "created_at": {
+                                                    "type": "string",
+                                                    "format": "date-time"
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            }
+        },
+        "/api/moderator/surveys/{id}/": {
+            "get": {
+                "operationId": "moderator_surveys_retrieve",
+                "description": "Получить детальную статистику конкретного опроса.",
+                "summary": "Детальная статистика опроса",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "description": "A unique integer value identifying this Survey.",
+                        "required": true
+                    }
+                ],
+                "tags": [
+                    "Модераторы"
+                ],
+                "security": [
+                    {
+                        "jwtAuth": []
+                    },
+                    {
+                        "cookieAuth": []
+                    },
+                    {
+                        "tokenAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "id": {
+                                            "type": "integer"
+                                        },
+                                        "title": {
+                                            "type": "string"
+                                        },
+                                        "description": {
+                                            "type": "string"
+                                        },
+                                        "passing_score": {
+                                            "type": "integer"
+                                        },
+                                        "total_participants": {
+                                            "type": "integer"
+                                        },
+                                        "completed_attempts": {
+                                            "type": "integer"
+                                        },
+                                        "average_score": {
+                                            "type": "number",
+                                            "nullable": true
+                                        },
+                                        "pass_rate": {
+                                            "type": "number",
+                                            "nullable": true
+                                        },
+                                        "average_duration": {
+                                            "type": "integer",
+                                            "nullable": true
+                                        },
+                                        "created_at": {
+                                            "type": "string",
+                                            "format": "date-time"
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            }
+        },
+        "/api/moderator/surveys/{id}/detailed_results/": {
+            "get": {
+                "operationId": "moderator_surveys_detailed_results_retrieve",
+                "description": "Получить детальные результаты всех сессий конкретного опроса.\n        \n        Включает информацию о всех пользователях, прошедших опрос, с баллами и статистикой.",
+                "summary": "Детальные результаты опроса",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "description": "A unique integer value identifying this Survey.",
+                        "required": true
+                    }
+                ],
+                "tags": [
+                    "Модераторы"
+                ],
+                "security": [
+                    {
+                        "jwtAuth": []
+                    },
+                    {
+                        "cookieAuth": []
+                    },
+                    {
+                        "tokenAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "survey": {
+                                            "type": "object"
+                                        },
+                                        "results": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "session_id": {
+                                                        "type": "string"
+                                                    },
+                                                    "user": {
+                                                        "type": "object"
+                                                    },
+                                                    "score": {
+                                                        "type": "integer"
+                                                    },
+                                                    "percentage": {
+                                                        "type": "number"
+                                                    },
+                                                    "is_passed": {
+                                                        "type": "boolean"
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            }
+        },
+        "/api/moderator/surveys/dashboard_stats/": {
+            "get": {
+                "operationId": "moderator_surveys_dashboard_stats_retrieve",
+                "description": "Получить общую статистику для панели управления модератора.",
+                "summary": "Статистика панели управления",
+                "tags": [
+                    "Модераторы"
+                ],
+                "security": [
+                    {
+                        "jwtAuth": []
+                    },
+                    {
+                        "cookieAuth": []
+                    },
+                    {
+                        "tokenAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "total_users": {
+                                            "type": "integer",
+                                            "description": "Общее количество пользователей"
+                                        },
+                                        "active_users": {
+                                            "type": "integer",
+                                            "description": "Количество активных пользователей"
+                                        },
+                                        "current_active_users": {
+                                            "type": "integer",
+                                            "description": "Пользователи сейчас проходящие опросы"
+                                        },
+                                        "total_surveys": {
+                                            "type": "integer",
+                                            "description": "Общее количество опросов"
+                                        },
+                                        "completed_sessions": {
+                                            "type": "integer",
+                                            "description": "Количество завершенных сессий"
+                                        },
+                                        "average_pass_rate": {
+                                            "type": "number",
+                                            "description": "Средний процент прохождения"
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            }
+        },
+        "/api/moderator/users/": {
+            "get": {
+                "operationId": "moderator_users_list",
+                "description": "Получить список всех пользователей с возможностью фильтрации и поиска.\n        \n        Доступно только модераторам и администраторам.",
+                "summary": "Список пользователей (модератор)",
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "branch",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Фильтр по филиалу"
+                    },
+                    {
+                        "in": "query",
+                        "name": "position",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Фильтр по должности"
+                    },
+                    {
+                        "in": "query",
+                        "name": "search",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Поиск по имени или номеру телефона"
+                    },
+                    {
+                        "in": "query",
+                        "name": "status",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "active",
+                                "completed",
+                                "never_started"
+                            ]
+                        },
+                        "description": "Фильтр по статусу"
+                    }
+                ],
+                "tags": [
+                    "Модераторы"
+                ],
+                "security": [
+                    {
+                        "jwtAuth": []
+                    },
+                    {
+                        "cookieAuth": []
+                    },
+                    {
+                        "tokenAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "object",
+                                            "properties": {
+                                                "id": {
+                                                    "type": "integer"
+                                                },
+                                                "phone_number": {
+                                                    "type": "string"
+                                                },
+                                                "name": {
+                                                    "type": "string"
+                                                },
+                                                "branch": {
+                                                    "type": "string"
+                                                },
+                                                "position": {
+                                                    "type": "string"
+                                                },
+                                                "last_survey_attempt": {
+                                                    "type": "string",
+                                                    "format": "date-time",
+                                                    "nullable": true
+                                                },
+                                                "total_attempts": {
+                                                    "type": "integer"
+                                                },
+                                                "best_score": {
+                                                    "type": "number",
+                                                    "nullable": true
+                                                },
+                                                "status": {
+                                                    "type": "string"
+                                                },
+                                                "is_phone_verified": {
+                                                    "type": "boolean"
+                                                },
+                                                "date_joined": {
+                                                    "type": "string",
+                                                    "format": "date-time"
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            }
+        },
+        "/api/moderator/users/{id}/": {
+            "get": {
+                "operationId": "moderator_users_retrieve",
+                "description": "Получить подробную информацию о пользователе с историей опросов.",
+                "summary": "Детали пользователя (модератор)",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "description": "A unique integer value identifying this foydalanuvchi.",
+                        "required": true
+                    }
+                ],
+                "tags": [
+                    "Модераторы"
+                ],
+                "security": [
+                    {
+                        "jwtAuth": []
+                    },
+                    {
+                        "cookieAuth": []
+                    },
+                    {
+                        "tokenAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "id": {
+                                            "type": "integer"
+                                        },
+                                        "phone_number": {
+                                            "type": "string"
+                                        },
+                                        "name": {
+                                            "type": "string"
+                                        },
+                                        "branch": {
+                                            "type": "string"
+                                        },
+                                        "position": {
+                                            "type": "string"
+                                        },
+                                        "is_phone_verified": {
+                                            "type": "boolean"
+                                        },
+                                        "date_joined": {
+                                            "type": "string",
+                                            "format": "date-time"
+                                        },
+                                        "last_login": {
+                                            "type": "string",
+                                            "format": "date-time",
+                                            "nullable": true
+                                        },
+                                        "survey_history": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object"
+                                            }
+                                        },
+                                        "total_statistics": {
+                                            "type": "object"
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            }
+        },
+        "/api/moderator/users/{id}/grant_retake/": {
+            "post": {
+                "operationId": "moderator_users_grant_retake_create",
+                "description": "Предоставить пользователю разрешение на повторное прохождение опроса.\n        \n        Используется когда пользователь исчерпал лимит попыток.",
+                "summary": "Разрешить повторное прохождение",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "description": "A unique integer value identifying this foydalanuvchi.",
+                        "required": true
+                    }
+                ],
+                "tags": [
+                    "Модераторы"
+                ],
+                "requestBody": {
+                    "content": {
+                        "type": {
+                            "schema": {
+                                "type": "object",
+                                "additionalProperties": {},
+                                "description": "Unspecified request body"
+                            }
+                        },
+                        "properties": {
+                            "schema": {
+                                "survey_id": {
+                                    "type": "integer"
+                                },
+                                "reason": {
+                                    "type": "string",
+                                    "maxLength": 500
+                                }
+                            }
+                        },
+                        "required": {
+                            "schema": {
+                                "type": "object",
+                                "additionalProperties": {},
+                                "description": "Unspecified request body"
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "jwtAuth": []
+                    },
+                    {
+                        "cookieAuth": []
+                    },
+                    {
+                        "tokenAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Retake permission granted successfully"
+                                        },
+                                        "user": {
+                                            "type": "string",
+                                            "example": "Иван Иванов"
+                                        },
+                                        "survey_id": {
+                                            "type": "integer",
+                                            "example": 1
+                                        },
+                                        "reason": {
+                                            "type": "string",
+                                            "example": "Технические проблемы"
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "404": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "No sessions found for this user and survey"
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            }
+        },
+        "/api/moderator/users/{id}/survey_history/": {
+            "get": {
+                "operationId": "moderator_users_survey_history_retrieve",
+                "description": "Получить детальную историю прохождения опросов конкретным пользователем.\n        \n        Включает все ответы, баллы и статистику по каждой сессии.",
+                "summary": "История опросов пользователя",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "description": "A unique integer value identifying this foydalanuvchi.",
+                        "required": true
+                    },
+                    {
+                        "in": "query",
+                        "name": "survey_id",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "description": "Фильтр по ID опроса (опционально)"
+                    }
+                ],
+                "tags": [
+                    "Модераторы"
+                ],
+                "security": [
+                    {
+                        "jwtAuth": []
+                    },
+                    {
+                        "cookieAuth": []
+                    },
+                    {
+                        "tokenAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "object",
+                                        "properties": {
+                                            "id": {
+                                                "type": "string",
+                                                "format": "uuid"
+                                            },
+                                            "survey": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "integer"
+                                                    },
+                                                    "title": {
+                                                        "type": "string"
+                                                    }
+                                                }
+                                            },
+                                            "attempt_number": {
+                                                "type": "integer"
+                                            },
+                                            "status": {
+                                                "type": "string"
+                                            },
+                                            "score": {
+                                                "type": "integer"
+                                            },
+                                            "percentage": {
+                                                "type": "number"
+                                            },
+                                            "answers": {
+                                                "type": "array",
+                                                "items": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "question_id": {
+                                                            "type": "integer"
+                                                        },
+                                                        "question_text": {
+                                                            "type": "string"
+                                                        },
+                                                        "question_type": {
+                                                            "type": "string"
+                                                        },
+                                                        "points_earned": {
+                                                            "type": "integer"
+                                                        },
+                                                        "max_points": {
+                                                            "type": "integer"
+                                                        },
+                                                        "is_correct": {
+                                                            "type": "boolean"
+                                                        },
+                                                        "text_answer": {
+                                                            "type": "string"
+                                                        },
+                                                        "selected_choices": {
+                                                            "type": "array",
+                                                            "items": {
+                                                                "type": "object",
+                                                                "properties": {
+                                                                    "id": {
+                                                                        "type": "integer"
+                                                                    },
+                                                                    "text": {
+                                                                        "type": "string"
+                                                                    },
+                                                                    "is_correct": {
+                                                                        "type": "boolean"
+                                                                    }
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            }
+        },
+        "/api/moderator/users/overview/": {
+            "get": {
+                "operationId": "moderator_users_overview_retrieve",
+                "description": "Получить краткий обзор всех пользователей для панели модератора.",
+                "summary": "Обзор пользователей",
+                "tags": [
+                    "Модераторы"
+                ],
+                "security": [
+                    {
+                        "jwtAuth": []
+                    },
+                    {
+                        "cookieAuth": []
+                    },
+                    {
+                        "tokenAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "object",
+                                        "properties": {
+                                            "id": {
+                                                "type": "integer"
+                                            },
+                                            "name": {
+                                                "type": "string"
+                                            },
+                                            "branch": {
+                                                "type": "string"
+                                            },
+                                            "position": {
+                                                "type": "string"
+                                            },
+                                            "last_score": {
+                                                "type": "number",
+                                                "nullable": true
+                                            },
+                                            "attempts_count": {
+                                                "type": "integer"
+                                            },
+                                            "status": {
+                                                "type": "string"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            }
+        },
+        "/api/schema/": {
+            "get": {
+                "operationId": "schema_retrieve",
+                "description": "OpenApi3 schema for this API. Format can be selected via content negotiation.\n\n- YAML: application/vnd.oai.openapi\n- JSON: application/vnd.oai.openapi+json",
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "format",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "json",
+                                "yaml"
+                            ]
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "lang",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "ru",
+                                "uz",
+                                "uz-cyrl"
+                            ]
+                        }
+                    }
+                ],
+                "tags": [
+                    "schema"
+                ],
+                "security": [
+                    {
+                        "jwtAuth": []
+                    },
+                    {
+                        "cookieAuth": []
+                    },
+                    {
+                        "tokenAuth": []
+                    },
+                    {}
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/vnd.oai.openapi": {
+                                "schema": {
+                                    "type": "object",
+                                    "additionalProperties": {}
+                                }
+                            },
+                            "application/yaml": {
+                                "schema": {
+                                    "type": "object",
+                                    "additionalProperties": {}
+                                }
+                            },
+                            "application/vnd.oai.openapi+json": {
+                                "schema": {
+                                    "type": "object",
+                                    "additionalProperties": {}
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "additionalProperties": {}
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            }
+        },
+        "/api/sessions/{id}/": {
+            "get": {
+                "operationId": "sessions_retrieve",
+                "description": "Получить подробную информацию о сессии прохождения опроса.",
+                "summary": "Детали сессии",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "required": true
+                    }
+                ],
+                "tags": [
+                    "Сессии"
+                ],
+                "security": [
+                    {
+                        "jwtAuth": []
+                    },
+                    {
+                        "cookieAuth": []
+                    },
+                    {
+                        "tokenAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "id": {
+                                            "type": "string",
+                                            "format": "uuid"
+                                        },
+                                        "survey": {
+                                            "type": "object"
+                                        },
+                                        "status": {
+                                            "type": "string"
+                                        },
+                                        "attempt_number": {
+                                            "type": "integer"
+                                        },
+                                        "started_at": {
+                                            "type": "string",
+                                            "format": "date-time"
+                                        },
+                                        "expires_at": {
+                                            "type": "string",
+                                            "format": "date-time"
+                                        },
+                                        "language": {
+                                            "type": "string"
+                                        },
+                                        "progress": {
+                                            "type": "object"
+                                        },
+                                        "time_remaining": {
+                                            "type": "integer"
+                                        },
+                                        "current_question": {
+                                            "type": "object",
+                                            "nullable": true
+                                        },
+                                        "score": {
+                                            "type": "integer",
+                                            "nullable": true
+                                        },
+                                        "total_points": {
+                                            "type": "integer",
+                                            "nullable": true
+                                        },
+                                        "percentage": {
+                                            "type": "number",
+                                            "nullable": true
+                                        },
+                                        "is_passed": {
+                                            "type": "boolean",
+                                            "nullable": true
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            }
+        },
+        "/api/sessions/{id}/cancel/": {
+            "post": {
+                "operationId": "sessions_cancel_create",
+                "description": "Отменить активную сессию прохождения опроса.",
+                "summary": "Отменить сессию",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "required": true
+                    }
+                ],
+                "tags": [
+                    "Сессии"
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/SurveySessionRequest"
+                            }
+                        },
+                        "application/x-www-form-urlencoded": {
+                            "schema": {
+                                "$ref": "#/components/schemas/SurveySessionRequest"
+                            }
+                        },
+                        "multipart/form-data": {
+                            "schema": {
+                                "$ref": "#/components/schemas/SurveySessionRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "security": [
+                    {
+                        "jwtAuth": []
+                    },
+                    {
+                        "cookieAuth": []
+                    },
+                    {
+                        "tokenAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Session cancelled successfully"
+                                        },
+                                        "session": {
+                                            "type": "object"
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "400": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "Cannot cancel this session"
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            }
+        },
+        "/api/sessions/{id}/progress/": {
+            "get": {
+                "operationId": "sessions_progress_retrieve",
+                "description": "Получить детальный прогресс прохождения сессии.\n        \n        Возвращает информацию о всех вопросах сессии, ответах и набранных баллах.",
+                "summary": "Прогресс сессии",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "required": true
+                    }
+                ],
+                "tags": [
+                    "Сессии"
+                ],
+                "security": [
+                    {
+                        "jwtAuth": []
+                    },
+                    {
+                        "cookieAuth": []
+                    },
+                    {
+                        "tokenAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "progress": {
+                                            "type": "object",
+                                            "description": "Общий прогресс сессии"
+                                        },
+                                        "questions": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object"
+                                            },
+                                            "description": "Детальная информация по каждому вопросу"
+                                        },
+                                        "session": {
+                                            "type": "object"
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            }
+        },
+        "/api/sessions/{id}/submit_answer/": {
+            "post": {
+                "operationId": "sessions_submit_answer_create",
+                "description": "Отправить ответ на вопрос в рамках сессии.\n        \n        Поддерживает различные типы вопросов: один вариант, множественный выбор, открытый ответ.\n        Автоматически завершает сессию при ответе на последний вопрос.",
+                "summary": "Отправить ответ",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "required": true
+                    }
+                ],
+                "tags": [
+                    "Сессии"
+                ],
+                "requestBody": {
+                    "content": {
+                        "type": {
+                            "schema": {
+                                "type": "object",
+                                "additionalProperties": {},
+                                "description": "Unspecified request body"
+                            }
+                        },
+                        "properties": {
+                            "schema": {
+                                "question_id": {
+                                    "type": "integer"
+                                },
+                                "choice_ids": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "integer"
+                                    }
+                                },
+                                "text_answer": {
+                                    "type": "string"
+                                }
+                            }
+                        },
+                        "required": {
+                            "schema": {
+                                "type": "object",
+                                "additionalProperties": {},
+                                "description": "Unspecified request body"
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "jwtAuth": []
+                    },
+                    {
+                        "cookieAuth": []
+                    },
+                    {
+                        "tokenAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string"
+                                        },
+                                        "session": {
+                                            "type": "object"
+                                        },
+                                        "final_score": {
+                                            "type": "object",
+                                            "description": "Только при завершении сессии"
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "400": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "non_field_errors": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "string"
+                                            },
+                                            "example": [
+                                                "Session has expired"
+                                            ]
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            }
+        },
+        "/api/surveys/": {
+            "get": {
+                "operationId": "surveys_list",
+                "description": "Получить список активных опросов доступных пользователю.\n        \n        Отображает информацию о количестве попыток пользователя и возможности начать новую попытку.",
+                "summary": "Список опросов",
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "lang",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "ru",
+                                "uz",
+                                "uz-cyrl"
+                            ],
+                            "default": "uz"
+                        },
+                        "description": "Язык для отображения (по умолчанию: uz)"
+                    }
+                ],
+                "tags": [
+                    "Опросы"
+                ],
+                "security": [
+                    {
+                        "jwtAuth": []
+                    },
+                    {
+                        "cookieAuth": []
+                    },
+                    {
+                        "tokenAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "object",
+                                            "properties": {
+                                                "id": {
+                                                    "type": "integer"
+                                                },
+                                                "title": {
+                                                    "type": "string"
+                                                },
+                                                "description": {
+                                                    "type": "string"
+                                                },
+                                                "time_limit_minutes": {
+                                                    "type": "integer"
+                                                },
+                                                "questions_count": {
+                                                    "type": "integer"
+                                                },
+                                                "passing_score": {
+                                                    "type": "integer"
+                                                },
+                                                "max_attempts": {
+                                                    "type": "integer"
+                                                },
+                                                "total_questions": {
+                                                    "type": "integer"
+                                                },
+                                                "user_attempts": {
+                                                    "type": "integer"
+                                                },
+                                                "can_start": {
+                                                    "type": "boolean"
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            }
+        },
+        "/api/surveys/{id}/": {
+            "get": {
+                "operationId": "surveys_retrieve",
+                "description": "Получить подробную информацию об опросе по ID.",
+                "summary": "Детали опроса",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "description": "A unique integer value identifying this Survey.",
+                        "required": true
+                    },
+                    {
+                        "in": "query",
+                        "name": "lang",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "ru",
+                                "uz",
+                                "uz-cyrl"
+                            ],
+                            "default": "uz"
+                        },
+                        "description": "Язык для отображения"
+                    }
+                ],
+                "tags": [
+                    "Опросы"
+                ],
+                "security": [
+                    {
+                        "jwtAuth": []
+                    },
+                    {
+                        "cookieAuth": []
+                    },
+                    {
+                        "tokenAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "id": {
+                                            "type": "integer"
+                                        },
+                                        "title": {
+                                            "type": "string"
+                                        },
+                                        "description": {
+                                            "type": "string"
+                                        },
+                                        "time_limit_minutes": {
+                                            "type": "integer"
+                                        },
+                                        "questions_count": {
+                                            "type": "integer"
+                                        },
+                                        "passing_score": {
+                                            "type": "integer"
+                                        },
+                                        "max_attempts": {
+                                            "type": "integer"
+                                        },
+                                        "total_questions": {
+                                            "type": "integer"
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            }
+        },
+        "/api/surveys/{id}/start/": {
+            "post": {
+                "operationId": "surveys_start_create",
+                "description": "Начать новую сессию прохождения опроса.\n        \n        Создает новую сессию и инициализирует случайные вопросы для прохождения.\n        Пользователь может указать количество вопросов и язык.",
+                "summary": "Начать опрос",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "description": "A unique integer value identifying this Survey.",
+                        "required": true
+                    }
+                ],
+                "tags": [
+                    "Опросы"
+                ],
+                "requestBody": {
+                    "content": {
+                        "type": {
+                            "schema": {
+                                "type": "object",
+                                "additionalProperties": {},
+                                "description": "Unspecified request body"
+                            }
+                        },
+                        "properties": {
+                            "schema": {
+                                "questions_count": {
+                                    "type": "integer",
+                                    "minimum": 1,
+                                    "maximum": 100
+                                },
+                                "language": {
+                                    "type": "string",
+                                    "enum": [
+                                        "uz",
+                                        "uz-cyrl",
+                                        "ru"
+                                    ],
+                                    "default": "uz"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "jwtAuth": []
+                    },
+                    {
+                        "cookieAuth": []
+                    },
+                    {
+                        "tokenAuth": []
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "id": {
+                                            "type": "string",
+                                            "format": "uuid"
+                                        },
+                                        "survey": {
+                                            "type": "object"
+                                        },
+                                        "status": {
+                                            "type": "string"
+                                        },
+                                        "attempt_number": {
+                                            "type": "integer"
+                                        },
+                                        "started_at": {
+                                            "type": "string",
+                                            "format": "date-time"
+                                        },
+                                        "expires_at": {
+                                            "type": "string",
+                                            "format": "date-time"
+                                        },
+                                        "language": {
+                                            "type": "string"
+                                        },
+                                        "progress": {
+                                            "type": "object"
+                                        },
+                                        "time_remaining": {
+                                            "type": "integer"
+                                        },
+                                        "current_question": {
+                                            "type": "object",
+                                            "nullable": true
+                                        },
+                                        "score": {
+                                            "type": "integer",
+                                            "nullable": true
+                                        },
+                                        "total_points": {
+                                            "type": "integer",
+                                            "nullable": true
+                                        },
+                                        "percentage": {
+                                            "type": "number",
+                                            "nullable": true
+                                        },
+                                        "is_passed": {
+                                            "type": "boolean",
+                                            "nullable": true
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "400": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "non_field_errors": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "string"
+                                            },
+                                            "example": [
+                                                "Maximum attempts reached. Contact moderator for permission to retake."
+                                            ]
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            }
+        },
+        "/api/surveys/my_history/": {
+            "get": {
+                "operationId": "surveys_my_history_retrieve",
+                "description": "Получить историю прохождения опросов текущим пользователем.",
+                "summary": "Моя история опросов",
+                "tags": [
+                    "Опросы"
+                ],
+                "security": [
+                    {
+                        "jwtAuth": []
+                    },
+                    {
+                        "cookieAuth": []
+                    },
+                    {
+                        "tokenAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "object",
+                                        "properties": {
+                                            "survey": {
+                                                "type": "object"
+                                            },
+                                            "total_attempts": {
+                                                "type": "integer"
+                                            },
+                                            "best_score": {
+                                                "type": "integer",
+                                                "nullable": true
+                                            },
+                                            "best_percentage": {
+                                                "type": "number",
+                                                "nullable": true
+                                            },
+                                            "last_attempt_at": {
+                                                "type": "string",
+                                                "format": "date-time"
+                                            },
+                                            "is_passed": {
+                                                "type": "boolean"
+                                            },
+                                            "current_status": {
+                                                "type": "string"
+                                            },
+                                            "can_continue": {
+                                                "type": "boolean"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            }
+        },
+        "/api/users/": {
+            "get": {
+                "operationId": "users_list",
+                "description": "Получить список пользователей.\n        \n        Модераторы видят всех пользователей, обычные пользователи - только себя.",
+                "summary": "Список пользователей",
+                "tags": [
+                    "Пользователи"
+                ],
+                "security": [
+                    {
+                        "jwtAuth": []
+                    },
+                    {
+                        "cookieAuth": []
+                    },
+                    {
+                        "tokenAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/User"
+                                    }
+                                },
+                                "examples": {
+                                    "ПримерПользователя": {
+                                        "value": [
+                                            {
+                                                "id": 1,
+                                                "phone_number": "+998901234567",
+                                                "name": "Иван Иванов",
+                                                "branch": "Ташкент",
+                                                "position": "Менеджер",
+                                                "is_moderator": false,
+                                                "is_phone_verified": true
+                                            }
+                                        ],
+                                        "summary": "Пример пользователя"
+                                    }
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            }
+        },
+        "/api/users/{id}/": {
+            "get": {
+                "operationId": "users_retrieve",
+                "description": "Получить подробную информацию о пользователе по ID.",
+                "summary": "Детали пользователя",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "description": "A unique integer value identifying this foydalanuvchi.",
+                        "required": true
+                    }
+                ],
+                "tags": [
+                    "Пользователи"
+                ],
+                "security": [
+                    {
+                        "jwtAuth": []
+                    },
+                    {
+                        "cookieAuth": []
+                    },
+                    {
+                        "tokenAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/User"
+                                },
+                                "examples": {
+                                    "ПримерПользователя": {
+                                        "value": {
+                                            "id": 1,
+                                            "phone_number": "+998901234567",
+                                            "name": "Иван Иванов",
+                                            "branch": "Ташкент",
+                                            "position": "Менеджер",
+                                            "is_moderator": false,
+                                            "is_phone_verified": true
+                                        },
+                                        "summary": "Пример пользователя"
+                                    }
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            },
+            "put": {
+                "operationId": "users_update",
+                "description": "Обновить информацию о пользователе.",
+                "summary": "Обновить пользователя",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "description": "A unique integer value identifying this foydalanuvchi.",
+                        "required": true
+                    }
+                ],
+                "tags": [
+                    "Пользователи"
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UserRequest"
+                            },
+                            "examples": {
+                                "ПримерПользователя": {
+                                    "value": {
+                                        "id": 1,
+                                        "phone_number": "+998901234567",
+                                        "name": "Иван Иванов",
+                                        "branch": "Ташкент",
+                                        "position": "Менеджер",
+                                        "is_moderator": false,
+                                        "is_phone_verified": true
+                                    },
+                                    "summary": "Пример пользователя"
+                                }
+                            }
+                        },
+                        "application/x-www-form-urlencoded": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UserRequest"
+                            }
+                        },
+                        "multipart/form-data": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UserRequest"
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "jwtAuth": []
+                    },
+                    {
+                        "cookieAuth": []
+                    },
+                    {
+                        "tokenAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/User"
+                                },
+                                "examples": {
+                                    "ПримерПользователя": {
+                                        "value": {
+                                            "id": 1,
+                                            "phone_number": "+998901234567",
+                                            "name": "Иван Иванов",
+                                            "branch": "Ташкент",
+                                            "position": "Менеджер",
+                                            "is_moderator": false,
+                                            "is_phone_verified": true
+                                        },
+                                        "summary": "Пример пользователя"
+                                    }
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            },
+            "patch": {
+                "operationId": "users_partial_update",
+                "description": "Частично обновить информацию о пользователе.",
+                "summary": "Частично обновить пользователя",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "description": "A unique integer value identifying this foydalanuvchi.",
+                        "required": true
+                    }
+                ],
+                "tags": [
+                    "Пользователи"
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/PatchedUserRequest"
+                            },
+                            "examples": {
+                                "ПримерПользователя": {
+                                    "value": {
+                                        "id": 1,
+                                        "phone_number": "+998901234567",
+                                        "name": "Иван Иванов",
+                                        "branch": "Ташкент",
+                                        "position": "Менеджер",
+                                        "is_moderator": false,
+                                        "is_phone_verified": true
+                                    },
+                                    "summary": "Пример пользователя"
+                                }
+                            }
+                        },
+                        "application/x-www-form-urlencoded": {
+                            "schema": {
+                                "$ref": "#/components/schemas/PatchedUserRequest"
+                            }
+                        },
+                        "multipart/form-data": {
+                            "schema": {
+                                "$ref": "#/components/schemas/PatchedUserRequest"
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "jwtAuth": []
+                    },
+                    {
+                        "cookieAuth": []
+                    },
+                    {
+                        "tokenAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/User"
+                                },
+                                "examples": {
+                                    "ПримерПользователя": {
+                                        "value": {
+                                            "id": 1,
+                                            "phone_number": "+998901234567",
+                                            "name": "Иван Иванов",
+                                            "branch": "Ташкент",
+                                            "position": "Менеджер",
+                                            "is_moderator": false,
+                                            "is_phone_verified": true
+                                        },
+                                        "summary": "Пример пользователя"
+                                    }
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            }
+        },
+        "/api/users/me/": {
+            "get": {
+                "operationId": "users_me_retrieve",
+                "description": "Получить информацию о текущем аутентифицированном пользователе.",
+                "summary": "Мой профиль",
+                "tags": [
+                    "Пользователи"
+                ],
+                "security": [
+                    {
+                        "jwtAuth": []
+                    },
+                    {
+                        "cookieAuth": []
+                    },
+                    {
+                        "tokenAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/User"
+                                },
+                                "examples": {
+                                    "ПримерПользователя": {
+                                        "value": {
+                                            "id": 1,
+                                            "phone_number": "+998901234567",
+                                            "name": "Иван Иванов",
+                                            "branch": "Ташкент",
+                                            "position": "Менеджер",
+                                            "is_moderator": false,
+                                            "is_phone_verified": true
+                                        },
+                                        "summary": "Пример пользователя"
+                                    }
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            }
+        },
+        "/api/users/search/": {
+            "get": {
+                "operationId": "users_search_retrieve",
+                "description": "Поиск пользователей по имени или номеру телефона.\n        \n        Доступно только модераторам. Возвращает максимум 20 результатов.",
+                "summary": "Поиск пользователей",
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "q",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Поисковый запрос (имя или номер телефона)",
+                        "required": true,
+                        "examples": {
+                            "ПоискПоИмени": {
+                                "value": "Иван",
+                                "summary": "Поиск по имени"
+                            }
+                        }
+                    }
+                ],
+                "tags": [
+                    "Пользователи"
+                ],
+                "security": [
+                    {
+                        "jwtAuth": []
+                    },
+                    {
+                        "cookieAuth": []
+                    },
+                    {
+                        "tokenAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UserSearchResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "403": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "Permission denied"
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "AuthToken": {
+                "type": "object",
+                "properties": {
+                    "token": {
+                        "type": "string",
+                        "readOnly": true
+                    }
+                },
+                "required": [
+                    "token"
+                ]
+            },
+            "AuthTokenRequest": {
+                "type": "object",
+                "properties": {
+                    "username": {
+                        "type": "string",
+                        "writeOnly": true,
+                        "minLength": 1,
+                        "title": "Foydalanuvchi nomi"
+                    },
+                    "password": {
+                        "type": "string",
+                        "writeOnly": true,
+                        "minLength": 1,
+                        "title": "Parol"
+                    }
+                },
+                "required": [
+                    "password",
+                    "username"
+                ]
+            },
+            "CustomTokenObtainPairRequest": {
+                "type": "object",
+                "description": "Кастомный сериализатор для получения JWT токенов.",
+                "properties": {
+                    "phone_number": {
+                        "type": "string",
+                        "minLength": 1,
+                        "description": "Номер телефона"
+                    },
+                    "password": {
+                        "type": "string",
+                        "writeOnly": true,
+                        "minLength": 1
+                    }
+                },
+                "required": [
+                    "password",
+                    "phone_number"
+                ]
+            },
+            "LoginResponse": {
+                "type": "object",
+                "description": "Сериализатор для ответа при входе.",
+                "properties": {
+                    "user": {
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/User"
+                            }
+                        ],
+                        "description": "Информация о пользователе"
+                    },
+                    "tokens": {
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/TokenResponse"
+                            }
+                        ],
+                        "description": "JWT токены"
+                    }
+                },
+                "required": [
+                    "tokens",
+                    "user"
+                ]
+            },
+            "OTPResponse": {
+                "type": "object",
+                "description": "Сериализатор для ответа при отправке OTP.",
+                "properties": {
+                    "message": {
+                        "type": "string",
+                        "description": "Сообщение о статусе"
+                    },
+                    "phone_number": {
+                        "type": "string",
+                        "description": "Номер телефона"
+                    },
+                    "otp_code": {
+                        "type": "string",
+                        "description": "OTP код (только в режиме разработки)"
+                    }
+                },
+                "required": [
+                    "message",
+                    "phone_number"
+                ]
+            },
+            "PatchedUserRequest": {
+                "type": "object",
+                "description": "Сериализатор для модели пользователя.",
+                "properties": {
+                    "phone_number": {
+                        "type": "string",
+                        "nullable": true,
+                        "maxLength": 128
+                    },
+                    "name": {
+                        "type": "string",
+                        "title": "Full Name",
+                        "maxLength": 255
+                    },
+                    "branch": {
+                        "type": "string",
+                        "maxLength": 100
+                    },
+                    "position": {
+                        "type": "string",
+                        "maxLength": 100
+                    },
+                    "is_moderator": {
+                        "type": "boolean"
+                    }
+                }
+            },
+            "PhoneLoginRequest": {
+                "type": "object",
+                "description": "Сериализатор для входа/регистрации по номеру телефона.",
+                "properties": {
+                    "phone_number": {
+                        "type": "string",
+                        "minLength": 1,
+                        "description": "Номер телефона"
+                    },
+                    "otp_code": {
+                        "type": "string",
+                        "minLength": 6,
+                        "description": "6-значный OTP код",
+                        "maxLength": 6
+                    },
+                    "name": {
+                        "type": "string",
+                        "minLength": 1,
+                        "description": "Полное имя (для новых пользователей)",
+                        "maxLength": 255
+                    },
+                    "branch": {
+                        "type": "string",
+                        "minLength": 1,
+                        "description": "Филиал (для новых пользователей)",
+                        "maxLength": 100
+                    },
+                    "position": {
+                        "type": "string",
+                        "minLength": 1,
+                        "description": "Должность (для новых пользователей)",
+                        "maxLength": 100
+                    }
+                },
+                "required": [
+                    "otp_code",
+                    "phone_number"
+                ]
+            },
+            "SendOTPRequest": {
+                "type": "object",
+                "description": "Сериализатор для отправки OTP кода.",
+                "properties": {
+                    "phone_number": {
+                        "type": "string",
+                        "minLength": 1,
+                        "description": "Номер телефона в формате +998XXXXXXXXX"
+                    }
+                },
+                "required": [
+                    "phone_number"
+                ]
+            },
+            "SurveyDetailRequest": {
+                "type": "object",
+                "description": "Serializer for survey detail view.",
+                "properties": {
+                    "title": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 200
+                    },
+                    "description": {
+                        "type": "string"
+                    },
+                    "time_limit_minutes": {
+                        "type": "integer",
+                        "maximum": 240,
+                        "minimum": 1,
+                        "title": "Time Limit (minutes)"
+                    },
+                    "questions_count": {
+                        "type": "integer",
+                        "maximum": 100,
+                        "minimum": 1,
+                        "description": "Number of random questions to show from the pool"
+                    },
+                    "passing_score": {
+                        "type": "integer",
+                        "maximum": 100,
+                        "minimum": 0,
+                        "description": "Minimum score percentage to pass"
+                    },
+                    "max_attempts": {
+                        "type": "integer",
+                        "maximum": 2147483647,
+                        "minimum": 1
+                    }
+                },
+                "required": [
+                    "title"
+                ]
+            },
+            "SurveySessionRequest": {
+                "type": "object",
+                "description": "Serializer for survey sessions.",
+                "properties": {
+                    "status": {
+                        "enum": [
+                            "started",
+                            "in_progress",
+                            "completed",
+                            "expired",
+                            "cancelled"
+                        ],
+                        "type": "string",
+                        "description": "* `started` - Started\n* `in_progress` - In Progress\n* `completed` - Completed\n* `expired` - Expired\n* `cancelled` - Cancelled",
+                        "x-spec-enum-id": "6640b0545727b9d6"
+                    },
+                    "attempt_number": {
+                        "type": "integer",
+                        "maximum": 2147483647,
+                        "minimum": 0
+                    },
+                    "expires_at": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "language": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 10
+                    },
+                    "score": {
+                        "type": "integer",
+                        "maximum": 2147483647,
+                        "minimum": 0,
+                        "nullable": true
+                    },
+                    "total_points": {
+                        "type": "integer",
+                        "maximum": 2147483647,
+                        "minimum": 0,
+                        "nullable": true
+                    },
+                    "percentage": {
+                        "type": "string",
+                        "format": "decimal",
+                        "pattern": "^-?\\d{0,3}(?:\\.\\d{0,2})?$",
+                        "nullable": true
+                    },
+                    "is_passed": {
+                        "type": "boolean",
+                        "nullable": true
+                    }
+                },
+                "required": [
+                    "expires_at"
+                ]
+            },
+            "TokenRefresh": {
+                "type": "object",
+                "properties": {
+                    "access": {
+                        "type": "string",
+                        "readOnly": true
+                    },
+                    "refresh": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "access",
+                    "refresh"
+                ]
+            },
+            "TokenRefreshRequest": {
+                "type": "object",
+                "properties": {
+                    "refresh": {
+                        "type": "string",
+                        "minLength": 1
+                    }
+                },
+                "required": [
+                    "refresh"
+                ]
+            },
+            "TokenResponse": {
+                "type": "object",
+                "description": "Сериализатор для ответа с токенами.",
+                "properties": {
+                    "access": {
+                        "type": "string",
+                        "description": "Access токен"
+                    },
+                    "refresh": {
+                        "type": "string",
+                        "description": "Refresh токен"
+                    }
+                },
+                "required": [
+                    "access",
+                    "refresh"
+                ]
+            },
+            "User": {
+                "type": "object",
+                "description": "Сериализатор для модели пользователя.",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "readOnly": true
+                    },
+                    "phone_number": {
+                        "type": "string",
+                        "nullable": true,
+                        "maxLength": 128
+                    },
+                    "name": {
+                        "type": "string",
+                        "title": "Full Name",
+                        "maxLength": 255
+                    },
+                    "branch": {
+                        "type": "string",
+                        "maxLength": 100
+                    },
+                    "position": {
+                        "type": "string",
+                        "maxLength": 100
+                    },
+                    "is_moderator": {
+                        "type": "boolean"
+                    },
+                    "is_phone_verified": {
+                        "type": "boolean",
+                        "readOnly": true,
+                        "title": "Phone Verified"
+                    }
+                },
+                "required": [
+                    "id",
+                    "is_phone_verified"
+                ]
+            },
+            "UserRequest": {
+                "type": "object",
+                "description": "Сериализатор для модели пользователя.",
+                "properties": {
+                    "phone_number": {
+                        "type": "string",
+                        "nullable": true,
+                        "maxLength": 128
+                    },
+                    "name": {
+                        "type": "string",
+                        "title": "Full Name",
+                        "maxLength": 255
+                    },
+                    "branch": {
+                        "type": "string",
+                        "maxLength": 100
+                    },
+                    "position": {
+                        "type": "string",
+                        "maxLength": 100
+                    },
+                    "is_moderator": {
+                        "type": "boolean"
+                    }
+                }
+            },
+            "UserSearchResponse": {
+                "type": "object",
+                "description": "Сериализатор для ответа поиска пользователей.",
+                "properties": {
+                    "results": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/User"
+                        },
+                        "description": "Результаты поиска"
+                    }
+                },
+                "required": [
+                    "results"
+                ]
+            },
+            "VerifyOTPRequest": {
+                "type": "object",
+                "description": "Сериализатор для проверки OTP кода.",
+                "properties": {
+                    "phone_number": {
+                        "type": "string",
+                        "minLength": 1,
+                        "description": "Номер телефона"
+                    },
+                    "otp_code": {
+                        "type": "string",
+                        "minLength": 6,
+                        "description": "6-значный OTP код",
+                        "maxLength": 6
+                    }
+                },
+                "required": [
+                    "otp_code",
+                    "phone_number"
+                ]
+            }
+        },
+        "securitySchemes": {
+            "cookieAuth": {
+                "type": "apiKey",
+                "in": "cookie",
+                "name": "__Secure-sessionid"
+            },
+            "jwtAuth": {
+                "type": "http",
+                "scheme": "bearer",
+                "bearerFormat": "JWT"
+            },
+            "tokenAuth": {
+                "type": "apiKey",
+                "in": "header",
+                "name": "Authorization",
+                "description": "Token-based authentication with required prefix \"Token\""
+            }
+        }
+    },
+    "servers": [
+        {
+            "url": "https://api.savollar.leetcode.uz",
+            "description": "Production server"
+        }
+    ],
+    "tags": [
+        {
+            "name": "Аутентификация",
+            "description": "Эндпоинты для аутентификации пользователей"
+        },
+        {
+            "name": "Пользователи",
+            "description": "Управление пользователями"
+        },
+        {
+            "name": "Опросы",
+            "description": "Работа с опросами и тестами"
+        },
+        {
+            "name": "Сессии",
+            "description": "Управление сессиями прохождения опросов"
+        },
+        {
+            "name": "Модераторы",
+            "description": "Функции для модераторов и администраторов"
+        }
+    ]
+}
