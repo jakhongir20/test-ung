@@ -1,16 +1,22 @@
 import type { FC } from 'react';
 import { useForm, Controller } from 'react-hook-form';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, useLocation } from 'react-router-dom';
+import { useLogin } from '../api/auth';
 
 type OtpFormValues = { code: string[]; };
 
 const OtpPage: FC = () => {
   const navigate = useNavigate();
+  const location = useLocation() as any;
+  const login = useLogin();
   const { control, handleSubmit, setValue } = useForm<OtpFormValues>({
     defaultValues: { code: ['', '', '', '', '', ''] },
   });
 
-  const onSubmit = () => {
+  const onSubmit = async (values: OtpFormValues) => {
+    const code = values.code.join('');
+    const phone: string = location?.state?.phone?.replace(/\s/g, '') || '';
+    await login.mutateAsync({ phone, code });
     navigate('/');
   };
 

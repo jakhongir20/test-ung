@@ -9,17 +9,36 @@ import { I18nProvider } from './i18n.tsx';
 import LoginPage from './pages/LoginPage.tsx';
 import OtpPage from './pages/OtpPage.tsx';
 import AdminEmployeesPage from './pages/AdminEmployeesPage.tsx';
+import ProtectedRoute from './components/ProtectedRoute.tsx';
 
 const router = createBrowserRouter([
   {
     path: '/',
     element: <App />,
     children: [
-      { index: true, element: <ProfilePage /> },
-      { path: 'test', element: <TestPage /> },
+      {
+        index: true, element: (
+          <ProtectedRoute>
+            <ProfilePage />
+          </ProtectedRoute>
+        )
+      },
+      {
+        path: 'test', element: (
+          <ProtectedRoute>
+            <TestPage />
+          </ProtectedRoute>
+        )
+      },
       { path: 'login', element: <LoginPage /> },
       { path: 'otp', element: <OtpPage /> },
-      { path: 'admin/employees', element: <AdminEmployeesPage /> },
+      {
+        path: 'admin/employees', element: (
+          <ProtectedRoute>
+            <AdminEmployeesPage />
+          </ProtectedRoute>
+        )
+      },
     ],
   },
 ]);

@@ -1,8 +1,8 @@
 import type { FC } from 'react';
-import { useForm, Controller } from 'react-hook-form';
+import { Controller, useForm } from 'react-hook-form';
 import { MaskedInput } from 'antd-mask-input';
 import { useNavigate } from 'react-router-dom';
-import { useI18n } from '../i18n';
+import { useSendOtp } from '../api/auth';
 
 type LoginFormValues = { phone: string; };
 
@@ -14,15 +14,15 @@ const uzPhoneValidate = (val: string) => {
 const authInputStyle = 'mt-1 block w-full rounded-lg border-gray-300 focus:ring-cyan-500 focus:border-cyan-500 px-3 py-2';
 
 const LoginPage: FC = () => {
-  const { t } = useI18n();
   const navigate = useNavigate();
-  const { control, handleSubmit, formState: { errors, isSubmitting } } = useForm<LoginFormValues>({
-    defaultValues: { phone: '' },
+  const sendOtp = useSendOtp();
+  const {control, handleSubmit, formState: {errors, isSubmitting}} = useForm<LoginFormValues>({
+    defaultValues: {phone: ''},
   });
 
-  const onSubmit = async () => {
-    // Here you would call API to send OTP. For now, navigate to OTP.
-    navigate('/otp', { replace: true });
+  const onSubmit = async ({phone}: LoginFormValues) => {
+    await sendOtp.mutateAsync(phone.replace(/\s/g, ''));
+    navigate('/otp', {replace: true, state: {phone}});
   };
 
   return (
@@ -36,8 +36,8 @@ const LoginPage: FC = () => {
               <Controller
                 name="phone"
                 control={control}
-                rules={{ required: 'Поле обязательно', validate: uzPhoneValidate }}
-                render={({ field }) => (
+                rules={{required: 'Поле обязательно', validate: uzPhoneValidate}}
+                render={({field}) => (
                   <MaskedInput
                     {...field}
                     mask="+998 00 000 00 00"
@@ -49,7 +49,10 @@ const LoginPage: FC = () => {
               />
               {errors.phone && <p className="text-red-600 text-sm mt-1">{errors.phone.message}</p>}
             </div>
-            <button type="submit" disabled={isSubmitting} className="w-full rounded-lg bg-cyan-600 text-white py-2 hover:bg-cyan-700 disabled:opacity-50">Получить код</button>
+            <button type="submit" disabled={isSubmitting}
+                    className="w-full rounded-lg bg-cyan-600 text-white py-2 hover:bg-cyan-700 disabled:opacity-50">Получить
+              код
+            </button>
           </form>
         </div>
       </div>
