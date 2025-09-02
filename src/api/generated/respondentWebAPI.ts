@@ -59,8 +59,9 @@ import type {
   ModeratorSurveysRetrieve200,
   ModeratorUsersGrantRetakeCreate200,
   ModeratorUsersGrantRetakeCreate404,
+  ModeratorUsersGrantRetakeCreateBodyFour,
   ModeratorUsersGrantRetakeCreateBodyOne,
-  ModeratorUsersGrantRetakeCreateBodyThree,
+  ModeratorUsersGrantRetakeCreateBodyTwo,
   ModeratorUsersList200ItemItem,
   ModeratorUsersListParams,
   ModeratorUsersOverviewRetrieve200Item,
@@ -76,8 +77,22 @@ import type {
   SchemaRetrieve200Two,
   SchemaRetrieveParams,
   SendOTPRequest,
+  SessionsAllAnswersRetrieve200,
   SessionsCancelCreate200,
   SessionsCancelCreate400,
+  SessionsGetQuestionRetrieve200,
+  SessionsGetQuestionRetrieve404,
+  SessionsGetQuestionRetrieveParams,
+  SessionsModifyAnswerCreate200,
+  SessionsModifyAnswerCreate400,
+  SessionsModifyAnswerCreateBodyOne,
+  SessionsModifyAnswerCreateBodyThree,
+  SessionsNextQuestionByOrderRetrieve200,
+  SessionsNextQuestionByOrderRetrieve404,
+  SessionsNextQuestionByOrderRetrieveParams,
+  SessionsPreviousQuestionRetrieve200,
+  SessionsPreviousQuestionRetrieve404,
+  SessionsPreviousQuestionRetrieveParams,
   SessionsProgressRetrieve200,
   SessionsRetrieve200,
   SessionsSubmitAnswerCreate200,
@@ -93,6 +108,7 @@ import type {
   SurveysStartCreate201,
   SurveysStartCreate400,
   SurveysStartCreateBodyOne,
+  SurveysStartCreateBodyTwo,
   TokenRefresh,
   TokenRefreshRequest,
   TokenResponse,
@@ -107,11 +123,13 @@ import type {
 import { customInstance } from '../mutator/custom-instance';
 
 
+type SecondParameter<T extends (...args: never) => unknown> = Parameters<T>[1];
+
 
 
 export const authTokenCreate = (
     authTokenRequest: AuthTokenRequest,
- signal?: AbortSignal
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
 ) => {
       
       const formUrlEncoded = new URLSearchParams();
@@ -123,21 +141,21 @@ formUrlEncoded.append(`password`, authTokenRequest.password)
       headers: {'Content-Type': 'application/x-www-form-urlencoded', },
        data: formUrlEncoded, signal
     },
-      );
+      options);
     }
   
 
 
 export const getAuthTokenCreateMutationOptions = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof authTokenCreate>>, TError,{data: AuthTokenRequest}, TContext>, }
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof authTokenCreate>>, TError,{data: AuthTokenRequest}, TContext>, request?: SecondParameter<typeof customInstance>}
 ): UseMutationOptions<Awaited<ReturnType<typeof authTokenCreate>>, TError,{data: AuthTokenRequest}, TContext> => {
 
 const mutationKey = ['authTokenCreate'];
-const {mutation: mutationOptions} = options ?
+const {mutation: mutationOptions, request: requestOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
       : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }};
+      : {mutation: { mutationKey, }, request: undefined};
 
       
 
@@ -145,7 +163,7 @@ const {mutation: mutationOptions} = options ?
       const mutationFn: MutationFunction<Awaited<ReturnType<typeof authTokenCreate>>, {data: AuthTokenRequest}> = (props) => {
           const {data} = props ?? {};
 
-          return  authTokenCreate(data,)
+          return  authTokenCreate(data,requestOptions)
         }
 
         
@@ -158,7 +176,7 @@ const {mutation: mutationOptions} = options ?
     export type AuthTokenCreateMutationError = unknown
 
     export const useAuthTokenCreate = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof authTokenCreate>>, TError,{data: AuthTokenRequest}, TContext>, }
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof authTokenCreate>>, TError,{data: AuthTokenRequest}, TContext>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof authTokenCreate>>,
         TError,
@@ -180,7 +198,7 @@ const {mutation: mutationOptions} = options ?
  */
 export const authLoginCreate = (
     phoneLoginRequest: PhoneLoginRequest,
- signal?: AbortSignal
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
 ) => {
       
       
@@ -189,21 +207,21 @@ export const authLoginCreate = (
       headers: {'Content-Type': 'application/json', },
       data: phoneLoginRequest, signal
     },
-      );
+      options);
     }
   
 
 
 export const getAuthLoginCreateMutationOptions = <TError = AuthLoginCreate400,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof authLoginCreate>>, TError,{data: PhoneLoginRequest}, TContext>, }
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof authLoginCreate>>, TError,{data: PhoneLoginRequest}, TContext>, request?: SecondParameter<typeof customInstance>}
 ): UseMutationOptions<Awaited<ReturnType<typeof authLoginCreate>>, TError,{data: PhoneLoginRequest}, TContext> => {
 
 const mutationKey = ['authLoginCreate'];
-const {mutation: mutationOptions} = options ?
+const {mutation: mutationOptions, request: requestOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
       : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }};
+      : {mutation: { mutationKey, }, request: undefined};
 
       
 
@@ -211,7 +229,7 @@ const {mutation: mutationOptions} = options ?
       const mutationFn: MutationFunction<Awaited<ReturnType<typeof authLoginCreate>>, {data: PhoneLoginRequest}> = (props) => {
           const {data} = props ?? {};
 
-          return  authLoginCreate(data,)
+          return  authLoginCreate(data,requestOptions)
         }
 
         
@@ -227,7 +245,7 @@ const {mutation: mutationOptions} = options ?
  * @summary Вход/регистрация через номер телефона
  */
 export const useAuthLoginCreate = <TError = AuthLoginCreate400,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof authLoginCreate>>, TError,{data: PhoneLoginRequest}, TContext>, }
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof authLoginCreate>>, TError,{data: PhoneLoginRequest}, TContext>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof authLoginCreate>>,
         TError,
@@ -249,7 +267,7 @@ export const useAuthLoginCreate = <TError = AuthLoginCreate400,
  */
 export const authSendOtpCreate = (
     sendOTPRequest: SendOTPRequest,
- signal?: AbortSignal
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
 ) => {
       
       
@@ -258,21 +276,21 @@ export const authSendOtpCreate = (
       headers: {'Content-Type': 'application/json', },
       data: sendOTPRequest, signal
     },
-      );
+      options);
     }
   
 
 
 export const getAuthSendOtpCreateMutationOptions = <TError = AuthSendOtpCreate400,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof authSendOtpCreate>>, TError,{data: SendOTPRequest}, TContext>, }
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof authSendOtpCreate>>, TError,{data: SendOTPRequest}, TContext>, request?: SecondParameter<typeof customInstance>}
 ): UseMutationOptions<Awaited<ReturnType<typeof authSendOtpCreate>>, TError,{data: SendOTPRequest}, TContext> => {
 
 const mutationKey = ['authSendOtpCreate'];
-const {mutation: mutationOptions} = options ?
+const {mutation: mutationOptions, request: requestOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
       : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }};
+      : {mutation: { mutationKey, }, request: undefined};
 
       
 
@@ -280,7 +298,7 @@ const {mutation: mutationOptions} = options ?
       const mutationFn: MutationFunction<Awaited<ReturnType<typeof authSendOtpCreate>>, {data: SendOTPRequest}> = (props) => {
           const {data} = props ?? {};
 
-          return  authSendOtpCreate(data,)
+          return  authSendOtpCreate(data,requestOptions)
         }
 
         
@@ -296,7 +314,7 @@ const {mutation: mutationOptions} = options ?
  * @summary Отправить OTP код
  */
 export const useAuthSendOtpCreate = <TError = AuthSendOtpCreate400,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof authSendOtpCreate>>, TError,{data: SendOTPRequest}, TContext>, }
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof authSendOtpCreate>>, TError,{data: SendOTPRequest}, TContext>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof authSendOtpCreate>>,
         TError,
@@ -317,7 +335,7 @@ export const useAuthSendOtpCreate = <TError = AuthSendOtpCreate400,
  */
 export const authTokenCreate2 = (
     customTokenObtainPairRequest: CustomTokenObtainPairRequest,
- signal?: AbortSignal
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
 ) => {
       
       
@@ -326,21 +344,21 @@ export const authTokenCreate2 = (
       headers: {'Content-Type': 'application/json', },
       data: customTokenObtainPairRequest, signal
     },
-      );
+      options);
     }
   
 
 
 export const getAuthTokenCreate2MutationOptions = <TError = AuthTokenCreate2401,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof authTokenCreate2>>, TError,{data: CustomTokenObtainPairRequest}, TContext>, }
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof authTokenCreate2>>, TError,{data: CustomTokenObtainPairRequest}, TContext>, request?: SecondParameter<typeof customInstance>}
 ): UseMutationOptions<Awaited<ReturnType<typeof authTokenCreate2>>, TError,{data: CustomTokenObtainPairRequest}, TContext> => {
 
 const mutationKey = ['authTokenCreate2'];
-const {mutation: mutationOptions} = options ?
+const {mutation: mutationOptions, request: requestOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
       : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }};
+      : {mutation: { mutationKey, }, request: undefined};
 
       
 
@@ -348,7 +366,7 @@ const {mutation: mutationOptions} = options ?
       const mutationFn: MutationFunction<Awaited<ReturnType<typeof authTokenCreate2>>, {data: CustomTokenObtainPairRequest}> = (props) => {
           const {data} = props ?? {};
 
-          return  authTokenCreate2(data,)
+          return  authTokenCreate2(data,requestOptions)
         }
 
         
@@ -364,7 +382,7 @@ const {mutation: mutationOptions} = options ?
  * @summary Получить JWT токены
  */
 export const useAuthTokenCreate2 = <TError = AuthTokenCreate2401,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof authTokenCreate2>>, TError,{data: CustomTokenObtainPairRequest}, TContext>, }
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof authTokenCreate2>>, TError,{data: CustomTokenObtainPairRequest}, TContext>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof authTokenCreate2>>,
         TError,
@@ -383,7 +401,7 @@ token if the refresh token is valid.
  */
 export const authTokenRefreshCreate = (
     tokenRefreshRequest: TokenRefreshRequest,
- signal?: AbortSignal
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
 ) => {
       
       
@@ -392,21 +410,21 @@ export const authTokenRefreshCreate = (
       headers: {'Content-Type': 'application/json', },
       data: tokenRefreshRequest, signal
     },
-      );
+      options);
     }
   
 
 
 export const getAuthTokenRefreshCreateMutationOptions = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof authTokenRefreshCreate>>, TError,{data: TokenRefreshRequest}, TContext>, }
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof authTokenRefreshCreate>>, TError,{data: TokenRefreshRequest}, TContext>, request?: SecondParameter<typeof customInstance>}
 ): UseMutationOptions<Awaited<ReturnType<typeof authTokenRefreshCreate>>, TError,{data: TokenRefreshRequest}, TContext> => {
 
 const mutationKey = ['authTokenRefreshCreate'];
-const {mutation: mutationOptions} = options ?
+const {mutation: mutationOptions, request: requestOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
       : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }};
+      : {mutation: { mutationKey, }, request: undefined};
 
       
 
@@ -414,7 +432,7 @@ const {mutation: mutationOptions} = options ?
       const mutationFn: MutationFunction<Awaited<ReturnType<typeof authTokenRefreshCreate>>, {data: TokenRefreshRequest}> = (props) => {
           const {data} = props ?? {};
 
-          return  authTokenRefreshCreate(data,)
+          return  authTokenRefreshCreate(data,requestOptions)
         }
 
         
@@ -427,7 +445,7 @@ const {mutation: mutationOptions} = options ?
     export type AuthTokenRefreshCreateMutationError = unknown
 
     export const useAuthTokenRefreshCreate = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof authTokenRefreshCreate>>, TError,{data: TokenRefreshRequest}, TContext>, }
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof authTokenRefreshCreate>>, TError,{data: TokenRefreshRequest}, TContext>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof authTokenRefreshCreate>>,
         TError,
@@ -448,7 +466,7 @@ const {mutation: mutationOptions} = options ?
  */
 export const authVerifyOtpCreate = (
     verifyOTPRequest: VerifyOTPRequest,
- signal?: AbortSignal
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
 ) => {
       
       
@@ -457,21 +475,21 @@ export const authVerifyOtpCreate = (
       headers: {'Content-Type': 'application/json', },
       data: verifyOTPRequest, signal
     },
-      );
+      options);
     }
   
 
 
 export const getAuthVerifyOtpCreateMutationOptions = <TError = AuthVerifyOtpCreate400,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof authVerifyOtpCreate>>, TError,{data: VerifyOTPRequest}, TContext>, }
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof authVerifyOtpCreate>>, TError,{data: VerifyOTPRequest}, TContext>, request?: SecondParameter<typeof customInstance>}
 ): UseMutationOptions<Awaited<ReturnType<typeof authVerifyOtpCreate>>, TError,{data: VerifyOTPRequest}, TContext> => {
 
 const mutationKey = ['authVerifyOtpCreate'];
-const {mutation: mutationOptions} = options ?
+const {mutation: mutationOptions, request: requestOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
       : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }};
+      : {mutation: { mutationKey, }, request: undefined};
 
       
 
@@ -479,7 +497,7 @@ const {mutation: mutationOptions} = options ?
       const mutationFn: MutationFunction<Awaited<ReturnType<typeof authVerifyOtpCreate>>, {data: VerifyOTPRequest}> = (props) => {
           const {data} = props ?? {};
 
-          return  authVerifyOtpCreate(data,)
+          return  authVerifyOtpCreate(data,requestOptions)
         }
 
         
@@ -495,7 +513,7 @@ const {mutation: mutationOptions} = options ?
  * @summary Верифицировать OTP код
  */
 export const useAuthVerifyOtpCreate = <TError = AuthVerifyOtpCreate400,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof authVerifyOtpCreate>>, TError,{data: VerifyOTPRequest}, TContext>, }
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof authVerifyOtpCreate>>, TError,{data: VerifyOTPRequest}, TContext>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof authVerifyOtpCreate>>,
         TError,
@@ -517,14 +535,14 @@ export const useAuthVerifyOtpCreate = <TError = AuthVerifyOtpCreate400,
  */
 export const currentSessionRetrieve = (
     
- signal?: AbortSignal
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
 ) => {
       
       
       return customInstance<CurrentSessionRetrieve200>(
       {url: `/api/current-session/`, method: 'GET', signal
     },
-      );
+      options);
     }
   
 
@@ -533,16 +551,16 @@ export const getCurrentSessionRetrieveQueryKey = () => {
     }
 
     
-export const getCurrentSessionRetrieveQueryOptions = <TData = Awaited<ReturnType<typeof currentSessionRetrieve>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof currentSessionRetrieve>>, TError, TData>>, }
+export const getCurrentSessionRetrieveQueryOptions = <TData = Awaited<ReturnType<typeof currentSessionRetrieve>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof currentSessionRetrieve>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
 ) => {
 
-const {query: queryOptions} = options ?? {};
+const {query: queryOptions, request: requestOptions} = options ?? {};
 
   const queryKey =  queryOptions?.queryKey ?? getCurrentSessionRetrieveQueryKey();
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof currentSessionRetrieve>>> = ({ signal }) => currentSessionRetrieve(signal);
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof currentSessionRetrieve>>> = ({ signal }) => currentSessionRetrieve(requestOptions, signal);
 
       
 
@@ -562,7 +580,7 @@ export function useCurrentSessionRetrieve<TData = Awaited<ReturnType<typeof curr
           TError,
           Awaited<ReturnType<typeof currentSessionRetrieve>>
         > , 'initialData'
-      >, }
+      >, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useCurrentSessionRetrieve<TData = Awaited<ReturnType<typeof currentSessionRetrieve>>, TError = unknown>(
@@ -572,11 +590,11 @@ export function useCurrentSessionRetrieve<TData = Awaited<ReturnType<typeof curr
           TError,
           Awaited<ReturnType<typeof currentSessionRetrieve>>
         > , 'initialData'
-      >, }
+      >, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useCurrentSessionRetrieve<TData = Awaited<ReturnType<typeof currentSessionRetrieve>>, TError = unknown>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof currentSessionRetrieve>>, TError, TData>>, }
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof currentSessionRetrieve>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
@@ -584,7 +602,7 @@ export function useCurrentSessionRetrieve<TData = Awaited<ReturnType<typeof curr
  */
 
 export function useCurrentSessionRetrieve<TData = Awaited<ReturnType<typeof currentSessionRetrieve>>, TError = unknown>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof currentSessionRetrieve>>, TError, TData>>, }
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof currentSessionRetrieve>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient 
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
@@ -611,14 +629,14 @@ export function useCurrentSessionRetrieve<TData = Awaited<ReturnType<typeof curr
  */
 export const moderatorDashboardRetrieve = (
     
- signal?: AbortSignal
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
 ) => {
       
       
       return customInstance<ModeratorDashboardRetrieve200>(
       {url: `/api/moderator/dashboard/`, method: 'GET', signal
     },
-      );
+      options);
     }
   
 
@@ -627,16 +645,16 @@ export const getModeratorDashboardRetrieveQueryKey = () => {
     }
 
     
-export const getModeratorDashboardRetrieveQueryOptions = <TData = Awaited<ReturnType<typeof moderatorDashboardRetrieve>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof moderatorDashboardRetrieve>>, TError, TData>>, }
+export const getModeratorDashboardRetrieveQueryOptions = <TData = Awaited<ReturnType<typeof moderatorDashboardRetrieve>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof moderatorDashboardRetrieve>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
 ) => {
 
-const {query: queryOptions} = options ?? {};
+const {query: queryOptions, request: requestOptions} = options ?? {};
 
   const queryKey =  queryOptions?.queryKey ?? getModeratorDashboardRetrieveQueryKey();
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof moderatorDashboardRetrieve>>> = ({ signal }) => moderatorDashboardRetrieve(signal);
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof moderatorDashboardRetrieve>>> = ({ signal }) => moderatorDashboardRetrieve(requestOptions, signal);
 
       
 
@@ -656,7 +674,7 @@ export function useModeratorDashboardRetrieve<TData = Awaited<ReturnType<typeof 
           TError,
           Awaited<ReturnType<typeof moderatorDashboardRetrieve>>
         > , 'initialData'
-      >, }
+      >, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useModeratorDashboardRetrieve<TData = Awaited<ReturnType<typeof moderatorDashboardRetrieve>>, TError = unknown>(
@@ -666,11 +684,11 @@ export function useModeratorDashboardRetrieve<TData = Awaited<ReturnType<typeof 
           TError,
           Awaited<ReturnType<typeof moderatorDashboardRetrieve>>
         > , 'initialData'
-      >, }
+      >, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useModeratorDashboardRetrieve<TData = Awaited<ReturnType<typeof moderatorDashboardRetrieve>>, TError = unknown>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof moderatorDashboardRetrieve>>, TError, TData>>, }
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof moderatorDashboardRetrieve>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
@@ -678,7 +696,7 @@ export function useModeratorDashboardRetrieve<TData = Awaited<ReturnType<typeof 
  */
 
 export function useModeratorDashboardRetrieve<TData = Awaited<ReturnType<typeof moderatorDashboardRetrieve>>, TError = unknown>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof moderatorDashboardRetrieve>>, TError, TData>>, }
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof moderatorDashboardRetrieve>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient 
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
@@ -700,14 +718,14 @@ export function useModeratorDashboardRetrieve<TData = Awaited<ReturnType<typeof 
  */
 export const moderatorSurveysList = (
     
- signal?: AbortSignal
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
 ) => {
       
       
       return customInstance<ModeratorSurveysList200ItemItem[][]>(
       {url: `/api/moderator/surveys/`, method: 'GET', signal
     },
-      );
+      options);
     }
   
 
@@ -716,16 +734,16 @@ export const getModeratorSurveysListQueryKey = () => {
     }
 
     
-export const getModeratorSurveysListQueryOptions = <TData = Awaited<ReturnType<typeof moderatorSurveysList>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof moderatorSurveysList>>, TError, TData>>, }
+export const getModeratorSurveysListQueryOptions = <TData = Awaited<ReturnType<typeof moderatorSurveysList>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof moderatorSurveysList>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
 ) => {
 
-const {query: queryOptions} = options ?? {};
+const {query: queryOptions, request: requestOptions} = options ?? {};
 
   const queryKey =  queryOptions?.queryKey ?? getModeratorSurveysListQueryKey();
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof moderatorSurveysList>>> = ({ signal }) => moderatorSurveysList(signal);
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof moderatorSurveysList>>> = ({ signal }) => moderatorSurveysList(requestOptions, signal);
 
       
 
@@ -745,7 +763,7 @@ export function useModeratorSurveysList<TData = Awaited<ReturnType<typeof modera
           TError,
           Awaited<ReturnType<typeof moderatorSurveysList>>
         > , 'initialData'
-      >, }
+      >, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useModeratorSurveysList<TData = Awaited<ReturnType<typeof moderatorSurveysList>>, TError = unknown>(
@@ -755,11 +773,11 @@ export function useModeratorSurveysList<TData = Awaited<ReturnType<typeof modera
           TError,
           Awaited<ReturnType<typeof moderatorSurveysList>>
         > , 'initialData'
-      >, }
+      >, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useModeratorSurveysList<TData = Awaited<ReturnType<typeof moderatorSurveysList>>, TError = unknown>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof moderatorSurveysList>>, TError, TData>>, }
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof moderatorSurveysList>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
@@ -767,7 +785,7 @@ export function useModeratorSurveysList<TData = Awaited<ReturnType<typeof modera
  */
 
 export function useModeratorSurveysList<TData = Awaited<ReturnType<typeof moderatorSurveysList>>, TError = unknown>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof moderatorSurveysList>>, TError, TData>>, }
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof moderatorSurveysList>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient 
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
@@ -789,14 +807,14 @@ export function useModeratorSurveysList<TData = Awaited<ReturnType<typeof modera
  */
 export const moderatorSurveysRetrieve = (
     id: number,
- signal?: AbortSignal
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
 ) => {
       
       
       return customInstance<ModeratorSurveysRetrieve200>(
       {url: `/api/moderator/surveys/${id}/`, method: 'GET', signal
     },
-      );
+      options);
     }
   
 
@@ -805,16 +823,16 @@ export const getModeratorSurveysRetrieveQueryKey = (id?: number,) => {
     }
 
     
-export const getModeratorSurveysRetrieveQueryOptions = <TData = Awaited<ReturnType<typeof moderatorSurveysRetrieve>>, TError = unknown>(id: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof moderatorSurveysRetrieve>>, TError, TData>>, }
+export const getModeratorSurveysRetrieveQueryOptions = <TData = Awaited<ReturnType<typeof moderatorSurveysRetrieve>>, TError = unknown>(id: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof moderatorSurveysRetrieve>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
 ) => {
 
-const {query: queryOptions} = options ?? {};
+const {query: queryOptions, request: requestOptions} = options ?? {};
 
   const queryKey =  queryOptions?.queryKey ?? getModeratorSurveysRetrieveQueryKey(id);
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof moderatorSurveysRetrieve>>> = ({ signal }) => moderatorSurveysRetrieve(id, signal);
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof moderatorSurveysRetrieve>>> = ({ signal }) => moderatorSurveysRetrieve(id, requestOptions, signal);
 
       
 
@@ -834,7 +852,7 @@ export function useModeratorSurveysRetrieve<TData = Awaited<ReturnType<typeof mo
           TError,
           Awaited<ReturnType<typeof moderatorSurveysRetrieve>>
         > , 'initialData'
-      >, }
+      >, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useModeratorSurveysRetrieve<TData = Awaited<ReturnType<typeof moderatorSurveysRetrieve>>, TError = unknown>(
@@ -844,11 +862,11 @@ export function useModeratorSurveysRetrieve<TData = Awaited<ReturnType<typeof mo
           TError,
           Awaited<ReturnType<typeof moderatorSurveysRetrieve>>
         > , 'initialData'
-      >, }
+      >, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useModeratorSurveysRetrieve<TData = Awaited<ReturnType<typeof moderatorSurveysRetrieve>>, TError = unknown>(
- id: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof moderatorSurveysRetrieve>>, TError, TData>>, }
+ id: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof moderatorSurveysRetrieve>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
@@ -856,7 +874,7 @@ export function useModeratorSurveysRetrieve<TData = Awaited<ReturnType<typeof mo
  */
 
 export function useModeratorSurveysRetrieve<TData = Awaited<ReturnType<typeof moderatorSurveysRetrieve>>, TError = unknown>(
- id: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof moderatorSurveysRetrieve>>, TError, TData>>, }
+ id: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof moderatorSurveysRetrieve>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient 
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
@@ -880,14 +898,14 @@ export function useModeratorSurveysRetrieve<TData = Awaited<ReturnType<typeof mo
  */
 export const moderatorSurveysDetailedResultsRetrieve = (
     id: number,
- signal?: AbortSignal
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
 ) => {
       
       
       return customInstance<ModeratorSurveysDetailedResultsRetrieve200>(
       {url: `/api/moderator/surveys/${id}/detailed_results/`, method: 'GET', signal
     },
-      );
+      options);
     }
   
 
@@ -896,16 +914,16 @@ export const getModeratorSurveysDetailedResultsRetrieveQueryKey = (id?: number,)
     }
 
     
-export const getModeratorSurveysDetailedResultsRetrieveQueryOptions = <TData = Awaited<ReturnType<typeof moderatorSurveysDetailedResultsRetrieve>>, TError = unknown>(id: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof moderatorSurveysDetailedResultsRetrieve>>, TError, TData>>, }
+export const getModeratorSurveysDetailedResultsRetrieveQueryOptions = <TData = Awaited<ReturnType<typeof moderatorSurveysDetailedResultsRetrieve>>, TError = unknown>(id: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof moderatorSurveysDetailedResultsRetrieve>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
 ) => {
 
-const {query: queryOptions} = options ?? {};
+const {query: queryOptions, request: requestOptions} = options ?? {};
 
   const queryKey =  queryOptions?.queryKey ?? getModeratorSurveysDetailedResultsRetrieveQueryKey(id);
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof moderatorSurveysDetailedResultsRetrieve>>> = ({ signal }) => moderatorSurveysDetailedResultsRetrieve(id, signal);
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof moderatorSurveysDetailedResultsRetrieve>>> = ({ signal }) => moderatorSurveysDetailedResultsRetrieve(id, requestOptions, signal);
 
       
 
@@ -925,7 +943,7 @@ export function useModeratorSurveysDetailedResultsRetrieve<TData = Awaited<Retur
           TError,
           Awaited<ReturnType<typeof moderatorSurveysDetailedResultsRetrieve>>
         > , 'initialData'
-      >, }
+      >, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useModeratorSurveysDetailedResultsRetrieve<TData = Awaited<ReturnType<typeof moderatorSurveysDetailedResultsRetrieve>>, TError = unknown>(
@@ -935,11 +953,11 @@ export function useModeratorSurveysDetailedResultsRetrieve<TData = Awaited<Retur
           TError,
           Awaited<ReturnType<typeof moderatorSurveysDetailedResultsRetrieve>>
         > , 'initialData'
-      >, }
+      >, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useModeratorSurveysDetailedResultsRetrieve<TData = Awaited<ReturnType<typeof moderatorSurveysDetailedResultsRetrieve>>, TError = unknown>(
- id: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof moderatorSurveysDetailedResultsRetrieve>>, TError, TData>>, }
+ id: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof moderatorSurveysDetailedResultsRetrieve>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
@@ -947,7 +965,7 @@ export function useModeratorSurveysDetailedResultsRetrieve<TData = Awaited<Retur
  */
 
 export function useModeratorSurveysDetailedResultsRetrieve<TData = Awaited<ReturnType<typeof moderatorSurveysDetailedResultsRetrieve>>, TError = unknown>(
- id: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof moderatorSurveysDetailedResultsRetrieve>>, TError, TData>>, }
+ id: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof moderatorSurveysDetailedResultsRetrieve>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient 
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
@@ -969,14 +987,14 @@ export function useModeratorSurveysDetailedResultsRetrieve<TData = Awaited<Retur
  */
 export const moderatorSurveysDashboardStatsRetrieve = (
     
- signal?: AbortSignal
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
 ) => {
       
       
       return customInstance<ModeratorSurveysDashboardStatsRetrieve200>(
       {url: `/api/moderator/surveys/dashboard_stats/`, method: 'GET', signal
     },
-      );
+      options);
     }
   
 
@@ -985,16 +1003,16 @@ export const getModeratorSurveysDashboardStatsRetrieveQueryKey = () => {
     }
 
     
-export const getModeratorSurveysDashboardStatsRetrieveQueryOptions = <TData = Awaited<ReturnType<typeof moderatorSurveysDashboardStatsRetrieve>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof moderatorSurveysDashboardStatsRetrieve>>, TError, TData>>, }
+export const getModeratorSurveysDashboardStatsRetrieveQueryOptions = <TData = Awaited<ReturnType<typeof moderatorSurveysDashboardStatsRetrieve>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof moderatorSurveysDashboardStatsRetrieve>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
 ) => {
 
-const {query: queryOptions} = options ?? {};
+const {query: queryOptions, request: requestOptions} = options ?? {};
 
   const queryKey =  queryOptions?.queryKey ?? getModeratorSurveysDashboardStatsRetrieveQueryKey();
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof moderatorSurveysDashboardStatsRetrieve>>> = ({ signal }) => moderatorSurveysDashboardStatsRetrieve(signal);
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof moderatorSurveysDashboardStatsRetrieve>>> = ({ signal }) => moderatorSurveysDashboardStatsRetrieve(requestOptions, signal);
 
       
 
@@ -1014,7 +1032,7 @@ export function useModeratorSurveysDashboardStatsRetrieve<TData = Awaited<Return
           TError,
           Awaited<ReturnType<typeof moderatorSurveysDashboardStatsRetrieve>>
         > , 'initialData'
-      >, }
+      >, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useModeratorSurveysDashboardStatsRetrieve<TData = Awaited<ReturnType<typeof moderatorSurveysDashboardStatsRetrieve>>, TError = unknown>(
@@ -1024,11 +1042,11 @@ export function useModeratorSurveysDashboardStatsRetrieve<TData = Awaited<Return
           TError,
           Awaited<ReturnType<typeof moderatorSurveysDashboardStatsRetrieve>>
         > , 'initialData'
-      >, }
+      >, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useModeratorSurveysDashboardStatsRetrieve<TData = Awaited<ReturnType<typeof moderatorSurveysDashboardStatsRetrieve>>, TError = unknown>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof moderatorSurveysDashboardStatsRetrieve>>, TError, TData>>, }
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof moderatorSurveysDashboardStatsRetrieve>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
@@ -1036,7 +1054,7 @@ export function useModeratorSurveysDashboardStatsRetrieve<TData = Awaited<Return
  */
 
 export function useModeratorSurveysDashboardStatsRetrieve<TData = Awaited<ReturnType<typeof moderatorSurveysDashboardStatsRetrieve>>, TError = unknown>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof moderatorSurveysDashboardStatsRetrieve>>, TError, TData>>, }
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof moderatorSurveysDashboardStatsRetrieve>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient 
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
@@ -1060,7 +1078,7 @@ export function useModeratorSurveysDashboardStatsRetrieve<TData = Awaited<Return
  */
 export const moderatorUsersList = (
     params?: ModeratorUsersListParams,
- signal?: AbortSignal
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
 ) => {
       
       
@@ -1068,7 +1086,7 @@ export const moderatorUsersList = (
       {url: `/api/moderator/users/`, method: 'GET',
         params, signal
     },
-      );
+      options);
     }
   
 
@@ -1077,16 +1095,16 @@ export const getModeratorUsersListQueryKey = (params?: ModeratorUsersListParams,
     }
 
     
-export const getModeratorUsersListQueryOptions = <TData = Awaited<ReturnType<typeof moderatorUsersList>>, TError = unknown>(params?: ModeratorUsersListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof moderatorUsersList>>, TError, TData>>, }
+export const getModeratorUsersListQueryOptions = <TData = Awaited<ReturnType<typeof moderatorUsersList>>, TError = unknown>(params?: ModeratorUsersListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof moderatorUsersList>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
 ) => {
 
-const {query: queryOptions} = options ?? {};
+const {query: queryOptions, request: requestOptions} = options ?? {};
 
   const queryKey =  queryOptions?.queryKey ?? getModeratorUsersListQueryKey(params);
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof moderatorUsersList>>> = ({ signal }) => moderatorUsersList(params, signal);
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof moderatorUsersList>>> = ({ signal }) => moderatorUsersList(params, requestOptions, signal);
 
       
 
@@ -1106,7 +1124,7 @@ export function useModeratorUsersList<TData = Awaited<ReturnType<typeof moderato
           TError,
           Awaited<ReturnType<typeof moderatorUsersList>>
         > , 'initialData'
-      >, }
+      >, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useModeratorUsersList<TData = Awaited<ReturnType<typeof moderatorUsersList>>, TError = unknown>(
@@ -1116,11 +1134,11 @@ export function useModeratorUsersList<TData = Awaited<ReturnType<typeof moderato
           TError,
           Awaited<ReturnType<typeof moderatorUsersList>>
         > , 'initialData'
-      >, }
+      >, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useModeratorUsersList<TData = Awaited<ReturnType<typeof moderatorUsersList>>, TError = unknown>(
- params?: ModeratorUsersListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof moderatorUsersList>>, TError, TData>>, }
+ params?: ModeratorUsersListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof moderatorUsersList>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
@@ -1128,7 +1146,7 @@ export function useModeratorUsersList<TData = Awaited<ReturnType<typeof moderato
  */
 
 export function useModeratorUsersList<TData = Awaited<ReturnType<typeof moderatorUsersList>>, TError = unknown>(
- params?: ModeratorUsersListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof moderatorUsersList>>, TError, TData>>, }
+ params?: ModeratorUsersListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof moderatorUsersList>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient 
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
@@ -1150,14 +1168,14 @@ export function useModeratorUsersList<TData = Awaited<ReturnType<typeof moderato
  */
 export const moderatorUsersRetrieve = (
     id: number,
- signal?: AbortSignal
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
 ) => {
       
       
       return customInstance<ModeratorUsersRetrieve200>(
       {url: `/api/moderator/users/${id}/`, method: 'GET', signal
     },
-      );
+      options);
     }
   
 
@@ -1166,16 +1184,16 @@ export const getModeratorUsersRetrieveQueryKey = (id?: number,) => {
     }
 
     
-export const getModeratorUsersRetrieveQueryOptions = <TData = Awaited<ReturnType<typeof moderatorUsersRetrieve>>, TError = unknown>(id: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof moderatorUsersRetrieve>>, TError, TData>>, }
+export const getModeratorUsersRetrieveQueryOptions = <TData = Awaited<ReturnType<typeof moderatorUsersRetrieve>>, TError = unknown>(id: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof moderatorUsersRetrieve>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
 ) => {
 
-const {query: queryOptions} = options ?? {};
+const {query: queryOptions, request: requestOptions} = options ?? {};
 
   const queryKey =  queryOptions?.queryKey ?? getModeratorUsersRetrieveQueryKey(id);
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof moderatorUsersRetrieve>>> = ({ signal }) => moderatorUsersRetrieve(id, signal);
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof moderatorUsersRetrieve>>> = ({ signal }) => moderatorUsersRetrieve(id, requestOptions, signal);
 
       
 
@@ -1195,7 +1213,7 @@ export function useModeratorUsersRetrieve<TData = Awaited<ReturnType<typeof mode
           TError,
           Awaited<ReturnType<typeof moderatorUsersRetrieve>>
         > , 'initialData'
-      >, }
+      >, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useModeratorUsersRetrieve<TData = Awaited<ReturnType<typeof moderatorUsersRetrieve>>, TError = unknown>(
@@ -1205,11 +1223,11 @@ export function useModeratorUsersRetrieve<TData = Awaited<ReturnType<typeof mode
           TError,
           Awaited<ReturnType<typeof moderatorUsersRetrieve>>
         > , 'initialData'
-      >, }
+      >, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useModeratorUsersRetrieve<TData = Awaited<ReturnType<typeof moderatorUsersRetrieve>>, TError = unknown>(
- id: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof moderatorUsersRetrieve>>, TError, TData>>, }
+ id: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof moderatorUsersRetrieve>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
@@ -1217,7 +1235,7 @@ export function useModeratorUsersRetrieve<TData = Awaited<ReturnType<typeof mode
  */
 
 export function useModeratorUsersRetrieve<TData = Awaited<ReturnType<typeof moderatorUsersRetrieve>>, TError = unknown>(
- id: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof moderatorUsersRetrieve>>, TError, TData>>, }
+ id: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof moderatorUsersRetrieve>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient 
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
@@ -1241,8 +1259,8 @@ export function useModeratorUsersRetrieve<TData = Awaited<ReturnType<typeof mode
  */
 export const moderatorUsersGrantRetakeCreate = (
     id: number,
-    moderatorUsersGrantRetakeCreateBody: ModeratorUsersGrantRetakeCreateBodyOne | unknown | ModeratorUsersGrantRetakeCreateBodyThree,
- signal?: AbortSignal
+    moderatorUsersGrantRetakeCreateBody: ModeratorUsersGrantRetakeCreateBodyOne | ModeratorUsersGrantRetakeCreateBodyTwo | unknown | ModeratorUsersGrantRetakeCreateBodyFour,
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
 ) => {
       
       
@@ -1250,29 +1268,29 @@ export const moderatorUsersGrantRetakeCreate = (
       {url: `/api/moderator/users/${id}/grant_retake/`, method: 'POST',
       data: moderatorUsersGrantRetakeCreateBody, signal
     },
-      );
+      options);
     }
   
 
 
 export const getModeratorUsersGrantRetakeCreateMutationOptions = <TError = ModeratorUsersGrantRetakeCreate404,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof moderatorUsersGrantRetakeCreate>>, TError,{id: number;data: ModeratorUsersGrantRetakeCreateBodyOne | unknown | ModeratorUsersGrantRetakeCreateBodyThree}, TContext>, }
-): UseMutationOptions<Awaited<ReturnType<typeof moderatorUsersGrantRetakeCreate>>, TError,{id: number;data: ModeratorUsersGrantRetakeCreateBodyOne | unknown | ModeratorUsersGrantRetakeCreateBodyThree}, TContext> => {
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof moderatorUsersGrantRetakeCreate>>, TError,{id: number;data: ModeratorUsersGrantRetakeCreateBodyOne | ModeratorUsersGrantRetakeCreateBodyTwo | unknown | ModeratorUsersGrantRetakeCreateBodyFour}, TContext>, request?: SecondParameter<typeof customInstance>}
+): UseMutationOptions<Awaited<ReturnType<typeof moderatorUsersGrantRetakeCreate>>, TError,{id: number;data: ModeratorUsersGrantRetakeCreateBodyOne | ModeratorUsersGrantRetakeCreateBodyTwo | unknown | ModeratorUsersGrantRetakeCreateBodyFour}, TContext> => {
 
 const mutationKey = ['moderatorUsersGrantRetakeCreate'];
-const {mutation: mutationOptions} = options ?
+const {mutation: mutationOptions, request: requestOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
       : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }};
+      : {mutation: { mutationKey, }, request: undefined};
 
       
 
 
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof moderatorUsersGrantRetakeCreate>>, {id: number;data: ModeratorUsersGrantRetakeCreateBodyOne | unknown | ModeratorUsersGrantRetakeCreateBodyThree}> = (props) => {
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof moderatorUsersGrantRetakeCreate>>, {id: number;data: ModeratorUsersGrantRetakeCreateBodyOne | ModeratorUsersGrantRetakeCreateBodyTwo | unknown | ModeratorUsersGrantRetakeCreateBodyFour}> = (props) => {
           const {id,data} = props ?? {};
 
-          return  moderatorUsersGrantRetakeCreate(id,data,)
+          return  moderatorUsersGrantRetakeCreate(id,data,requestOptions)
         }
 
         
@@ -1281,18 +1299,18 @@ const {mutation: mutationOptions} = options ?
   return  { mutationFn, ...mutationOptions }}
 
     export type ModeratorUsersGrantRetakeCreateMutationResult = NonNullable<Awaited<ReturnType<typeof moderatorUsersGrantRetakeCreate>>>
-    export type ModeratorUsersGrantRetakeCreateMutationBody = ModeratorUsersGrantRetakeCreateBodyOne | unknown | ModeratorUsersGrantRetakeCreateBodyThree
+    export type ModeratorUsersGrantRetakeCreateMutationBody = ModeratorUsersGrantRetakeCreateBodyOne | ModeratorUsersGrantRetakeCreateBodyTwo | unknown | ModeratorUsersGrantRetakeCreateBodyFour
     export type ModeratorUsersGrantRetakeCreateMutationError = ModeratorUsersGrantRetakeCreate404
 
     /**
  * @summary Разрешить повторное прохождение
  */
 export const useModeratorUsersGrantRetakeCreate = <TError = ModeratorUsersGrantRetakeCreate404,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof moderatorUsersGrantRetakeCreate>>, TError,{id: number;data: ModeratorUsersGrantRetakeCreateBodyOne | unknown | ModeratorUsersGrantRetakeCreateBodyThree}, TContext>, }
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof moderatorUsersGrantRetakeCreate>>, TError,{id: number;data: ModeratorUsersGrantRetakeCreateBodyOne | ModeratorUsersGrantRetakeCreateBodyTwo | unknown | ModeratorUsersGrantRetakeCreateBodyFour}, TContext>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof moderatorUsersGrantRetakeCreate>>,
         TError,
-        {id: number;data: ModeratorUsersGrantRetakeCreateBodyOne | unknown | ModeratorUsersGrantRetakeCreateBodyThree},
+        {id: number;data: ModeratorUsersGrantRetakeCreateBodyOne | ModeratorUsersGrantRetakeCreateBodyTwo | unknown | ModeratorUsersGrantRetakeCreateBodyFour},
         TContext
       > => {
 
@@ -1310,7 +1328,7 @@ export const useModeratorUsersGrantRetakeCreate = <TError = ModeratorUsersGrantR
 export const moderatorUsersSurveyHistoryRetrieve = (
     id: number,
     params?: ModeratorUsersSurveyHistoryRetrieveParams,
- signal?: AbortSignal
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
 ) => {
       
       
@@ -1318,7 +1336,7 @@ export const moderatorUsersSurveyHistoryRetrieve = (
       {url: `/api/moderator/users/${id}/survey_history/`, method: 'GET',
         params, signal
     },
-      );
+      options);
     }
   
 
@@ -1329,16 +1347,16 @@ export const getModeratorUsersSurveyHistoryRetrieveQueryKey = (id?: number,
 
     
 export const getModeratorUsersSurveyHistoryRetrieveQueryOptions = <TData = Awaited<ReturnType<typeof moderatorUsersSurveyHistoryRetrieve>>, TError = unknown>(id: number,
-    params?: ModeratorUsersSurveyHistoryRetrieveParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof moderatorUsersSurveyHistoryRetrieve>>, TError, TData>>, }
+    params?: ModeratorUsersSurveyHistoryRetrieveParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof moderatorUsersSurveyHistoryRetrieve>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
 ) => {
 
-const {query: queryOptions} = options ?? {};
+const {query: queryOptions, request: requestOptions} = options ?? {};
 
   const queryKey =  queryOptions?.queryKey ?? getModeratorUsersSurveyHistoryRetrieveQueryKey(id,params);
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof moderatorUsersSurveyHistoryRetrieve>>> = ({ signal }) => moderatorUsersSurveyHistoryRetrieve(id,params, signal);
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof moderatorUsersSurveyHistoryRetrieve>>> = ({ signal }) => moderatorUsersSurveyHistoryRetrieve(id,params, requestOptions, signal);
 
       
 
@@ -1359,7 +1377,7 @@ export function useModeratorUsersSurveyHistoryRetrieve<TData = Awaited<ReturnTyp
           TError,
           Awaited<ReturnType<typeof moderatorUsersSurveyHistoryRetrieve>>
         > , 'initialData'
-      >, }
+      >, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useModeratorUsersSurveyHistoryRetrieve<TData = Awaited<ReturnType<typeof moderatorUsersSurveyHistoryRetrieve>>, TError = unknown>(
@@ -1370,12 +1388,12 @@ export function useModeratorUsersSurveyHistoryRetrieve<TData = Awaited<ReturnTyp
           TError,
           Awaited<ReturnType<typeof moderatorUsersSurveyHistoryRetrieve>>
         > , 'initialData'
-      >, }
+      >, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useModeratorUsersSurveyHistoryRetrieve<TData = Awaited<ReturnType<typeof moderatorUsersSurveyHistoryRetrieve>>, TError = unknown>(
  id: number,
-    params?: ModeratorUsersSurveyHistoryRetrieveParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof moderatorUsersSurveyHistoryRetrieve>>, TError, TData>>, }
+    params?: ModeratorUsersSurveyHistoryRetrieveParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof moderatorUsersSurveyHistoryRetrieve>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
@@ -1384,7 +1402,7 @@ export function useModeratorUsersSurveyHistoryRetrieve<TData = Awaited<ReturnTyp
 
 export function useModeratorUsersSurveyHistoryRetrieve<TData = Awaited<ReturnType<typeof moderatorUsersSurveyHistoryRetrieve>>, TError = unknown>(
  id: number,
-    params?: ModeratorUsersSurveyHistoryRetrieveParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof moderatorUsersSurveyHistoryRetrieve>>, TError, TData>>, }
+    params?: ModeratorUsersSurveyHistoryRetrieveParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof moderatorUsersSurveyHistoryRetrieve>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient 
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
@@ -1406,14 +1424,14 @@ export function useModeratorUsersSurveyHistoryRetrieve<TData = Awaited<ReturnTyp
  */
 export const moderatorUsersOverviewRetrieve = (
     
- signal?: AbortSignal
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
 ) => {
       
       
       return customInstance<ModeratorUsersOverviewRetrieve200Item[]>(
       {url: `/api/moderator/users/overview/`, method: 'GET', signal
     },
-      );
+      options);
     }
   
 
@@ -1422,16 +1440,16 @@ export const getModeratorUsersOverviewRetrieveQueryKey = () => {
     }
 
     
-export const getModeratorUsersOverviewRetrieveQueryOptions = <TData = Awaited<ReturnType<typeof moderatorUsersOverviewRetrieve>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof moderatorUsersOverviewRetrieve>>, TError, TData>>, }
+export const getModeratorUsersOverviewRetrieveQueryOptions = <TData = Awaited<ReturnType<typeof moderatorUsersOverviewRetrieve>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof moderatorUsersOverviewRetrieve>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
 ) => {
 
-const {query: queryOptions} = options ?? {};
+const {query: queryOptions, request: requestOptions} = options ?? {};
 
   const queryKey =  queryOptions?.queryKey ?? getModeratorUsersOverviewRetrieveQueryKey();
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof moderatorUsersOverviewRetrieve>>> = ({ signal }) => moderatorUsersOverviewRetrieve(signal);
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof moderatorUsersOverviewRetrieve>>> = ({ signal }) => moderatorUsersOverviewRetrieve(requestOptions, signal);
 
       
 
@@ -1451,7 +1469,7 @@ export function useModeratorUsersOverviewRetrieve<TData = Awaited<ReturnType<typ
           TError,
           Awaited<ReturnType<typeof moderatorUsersOverviewRetrieve>>
         > , 'initialData'
-      >, }
+      >, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useModeratorUsersOverviewRetrieve<TData = Awaited<ReturnType<typeof moderatorUsersOverviewRetrieve>>, TError = unknown>(
@@ -1461,11 +1479,11 @@ export function useModeratorUsersOverviewRetrieve<TData = Awaited<ReturnType<typ
           TError,
           Awaited<ReturnType<typeof moderatorUsersOverviewRetrieve>>
         > , 'initialData'
-      >, }
+      >, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useModeratorUsersOverviewRetrieve<TData = Awaited<ReturnType<typeof moderatorUsersOverviewRetrieve>>, TError = unknown>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof moderatorUsersOverviewRetrieve>>, TError, TData>>, }
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof moderatorUsersOverviewRetrieve>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
@@ -1473,7 +1491,7 @@ export function useModeratorUsersOverviewRetrieve<TData = Awaited<ReturnType<typ
  */
 
 export function useModeratorUsersOverviewRetrieve<TData = Awaited<ReturnType<typeof moderatorUsersOverviewRetrieve>>, TError = unknown>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof moderatorUsersOverviewRetrieve>>, TError, TData>>, }
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof moderatorUsersOverviewRetrieve>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient 
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
@@ -1497,7 +1515,7 @@ export function useModeratorUsersOverviewRetrieve<TData = Awaited<ReturnType<typ
  */
 export const schemaRetrieve = (
     params?: SchemaRetrieveParams,
- signal?: AbortSignal
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
 ) => {
       
       
@@ -1505,7 +1523,7 @@ export const schemaRetrieve = (
       {url: `/api/schema/`, method: 'GET',
         params, signal
     },
-      );
+      options);
     }
   
 
@@ -1514,16 +1532,16 @@ export const getSchemaRetrieveQueryKey = (params?: SchemaRetrieveParams,) => {
     }
 
     
-export const getSchemaRetrieveQueryOptions = <TData = Awaited<ReturnType<typeof schemaRetrieve>>, TError = unknown>(params?: SchemaRetrieveParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof schemaRetrieve>>, TError, TData>>, }
+export const getSchemaRetrieveQueryOptions = <TData = Awaited<ReturnType<typeof schemaRetrieve>>, TError = unknown>(params?: SchemaRetrieveParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof schemaRetrieve>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
 ) => {
 
-const {query: queryOptions} = options ?? {};
+const {query: queryOptions, request: requestOptions} = options ?? {};
 
   const queryKey =  queryOptions?.queryKey ?? getSchemaRetrieveQueryKey(params);
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof schemaRetrieve>>> = ({ signal }) => schemaRetrieve(params, signal);
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof schemaRetrieve>>> = ({ signal }) => schemaRetrieve(params, requestOptions, signal);
 
       
 
@@ -1543,7 +1561,7 @@ export function useSchemaRetrieve<TData = Awaited<ReturnType<typeof schemaRetrie
           TError,
           Awaited<ReturnType<typeof schemaRetrieve>>
         > , 'initialData'
-      >, }
+      >, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useSchemaRetrieve<TData = Awaited<ReturnType<typeof schemaRetrieve>>, TError = unknown>(
@@ -1553,16 +1571,16 @@ export function useSchemaRetrieve<TData = Awaited<ReturnType<typeof schemaRetrie
           TError,
           Awaited<ReturnType<typeof schemaRetrieve>>
         > , 'initialData'
-      >, }
+      >, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useSchemaRetrieve<TData = Awaited<ReturnType<typeof schemaRetrieve>>, TError = unknown>(
- params?: SchemaRetrieveParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof schemaRetrieve>>, TError, TData>>, }
+ params?: SchemaRetrieveParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof schemaRetrieve>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 
 export function useSchemaRetrieve<TData = Awaited<ReturnType<typeof schemaRetrieve>>, TError = unknown>(
- params?: SchemaRetrieveParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof schemaRetrieve>>, TError, TData>>, }
+ params?: SchemaRetrieveParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof schemaRetrieve>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient 
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
@@ -1584,14 +1602,14 @@ export function useSchemaRetrieve<TData = Awaited<ReturnType<typeof schemaRetrie
  */
 export const sessionsRetrieve = (
     id: string,
- signal?: AbortSignal
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
 ) => {
       
       
       return customInstance<SessionsRetrieve200>(
       {url: `/api/sessions/${id}/`, method: 'GET', signal
     },
-      );
+      options);
     }
   
 
@@ -1600,16 +1618,16 @@ export const getSessionsRetrieveQueryKey = (id?: string,) => {
     }
 
     
-export const getSessionsRetrieveQueryOptions = <TData = Awaited<ReturnType<typeof sessionsRetrieve>>, TError = unknown>(id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof sessionsRetrieve>>, TError, TData>>, }
+export const getSessionsRetrieveQueryOptions = <TData = Awaited<ReturnType<typeof sessionsRetrieve>>, TError = unknown>(id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof sessionsRetrieve>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
 ) => {
 
-const {query: queryOptions} = options ?? {};
+const {query: queryOptions, request: requestOptions} = options ?? {};
 
   const queryKey =  queryOptions?.queryKey ?? getSessionsRetrieveQueryKey(id);
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof sessionsRetrieve>>> = ({ signal }) => sessionsRetrieve(id, signal);
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof sessionsRetrieve>>> = ({ signal }) => sessionsRetrieve(id, requestOptions, signal);
 
       
 
@@ -1629,7 +1647,7 @@ export function useSessionsRetrieve<TData = Awaited<ReturnType<typeof sessionsRe
           TError,
           Awaited<ReturnType<typeof sessionsRetrieve>>
         > , 'initialData'
-      >, }
+      >, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useSessionsRetrieve<TData = Awaited<ReturnType<typeof sessionsRetrieve>>, TError = unknown>(
@@ -1639,11 +1657,11 @@ export function useSessionsRetrieve<TData = Awaited<ReturnType<typeof sessionsRe
           TError,
           Awaited<ReturnType<typeof sessionsRetrieve>>
         > , 'initialData'
-      >, }
+      >, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useSessionsRetrieve<TData = Awaited<ReturnType<typeof sessionsRetrieve>>, TError = unknown>(
- id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof sessionsRetrieve>>, TError, TData>>, }
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof sessionsRetrieve>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
@@ -1651,11 +1669,102 @@ export function useSessionsRetrieve<TData = Awaited<ReturnType<typeof sessionsRe
  */
 
 export function useSessionsRetrieve<TData = Awaited<ReturnType<typeof sessionsRetrieve>>, TError = unknown>(
- id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof sessionsRetrieve>>, TError, TData>>, }
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof sessionsRetrieve>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient 
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
   const queryOptions = getSessionsRetrieveQueryOptions(id,options)
+
+  const query = useQuery(queryOptions , queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  query.queryKey = queryOptions.queryKey ;
+
+  return query;
+}
+
+
+
+
+/**
+ * Получить все вопросы сессии с ответами пользователя.
+        
+        Возвращает список всех вопросов с информацией об ответах и заработанных баллах.
+ * @summary Все ответы пользователя
+ */
+export const sessionsAllAnswersRetrieve = (
+    id: string,
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+      
+      
+      return customInstance<SessionsAllAnswersRetrieve200>(
+      {url: `/api/sessions/${id}/all_answers/`, method: 'GET', signal
+    },
+      options);
+    }
+  
+
+export const getSessionsAllAnswersRetrieveQueryKey = (id?: string,) => {
+    return [`/api/sessions/${id}/all_answers/`] as const;
+    }
+
+    
+export const getSessionsAllAnswersRetrieveQueryOptions = <TData = Awaited<ReturnType<typeof sessionsAllAnswersRetrieve>>, TError = unknown>(id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof sessionsAllAnswersRetrieve>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getSessionsAllAnswersRetrieveQueryKey(id);
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof sessionsAllAnswersRetrieve>>> = ({ signal }) => sessionsAllAnswersRetrieve(id, requestOptions, signal);
+
+      
+
+      
+
+   return  { queryKey, queryFn, enabled: !!(id), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof sessionsAllAnswersRetrieve>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type SessionsAllAnswersRetrieveQueryResult = NonNullable<Awaited<ReturnType<typeof sessionsAllAnswersRetrieve>>>
+export type SessionsAllAnswersRetrieveQueryError = unknown
+
+
+export function useSessionsAllAnswersRetrieve<TData = Awaited<ReturnType<typeof sessionsAllAnswersRetrieve>>, TError = unknown>(
+ id: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof sessionsAllAnswersRetrieve>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof sessionsAllAnswersRetrieve>>,
+          TError,
+          Awaited<ReturnType<typeof sessionsAllAnswersRetrieve>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useSessionsAllAnswersRetrieve<TData = Awaited<ReturnType<typeof sessionsAllAnswersRetrieve>>, TError = unknown>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof sessionsAllAnswersRetrieve>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof sessionsAllAnswersRetrieve>>,
+          TError,
+          Awaited<ReturnType<typeof sessionsAllAnswersRetrieve>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useSessionsAllAnswersRetrieve<TData = Awaited<ReturnType<typeof sessionsAllAnswersRetrieve>>, TError = unknown>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof sessionsAllAnswersRetrieve>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Все ответы пользователя
+ */
+
+export function useSessionsAllAnswersRetrieve<TData = Awaited<ReturnType<typeof sessionsAllAnswersRetrieve>>, TError = unknown>(
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof sessionsAllAnswersRetrieve>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getSessionsAllAnswersRetrieveQueryOptions(id,options)
 
   const query = useQuery(queryOptions , queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 
@@ -1674,7 +1783,7 @@ export function useSessionsRetrieve<TData = Awaited<ReturnType<typeof sessionsRe
 export const sessionsCancelCreate = (
     id: string,
     surveySessionRequest: SurveySessionRequest,
- signal?: AbortSignal
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
 ) => {
       
       
@@ -1683,21 +1792,21 @@ export const sessionsCancelCreate = (
       headers: {'Content-Type': 'application/json', },
       data: surveySessionRequest, signal
     },
-      );
+      options);
     }
   
 
 
 export const getSessionsCancelCreateMutationOptions = <TError = SessionsCancelCreate400,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof sessionsCancelCreate>>, TError,{id: string;data: SurveySessionRequest}, TContext>, }
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof sessionsCancelCreate>>, TError,{id: string;data: SurveySessionRequest}, TContext>, request?: SecondParameter<typeof customInstance>}
 ): UseMutationOptions<Awaited<ReturnType<typeof sessionsCancelCreate>>, TError,{id: string;data: SurveySessionRequest}, TContext> => {
 
 const mutationKey = ['sessionsCancelCreate'];
-const {mutation: mutationOptions} = options ?
+const {mutation: mutationOptions, request: requestOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
       : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }};
+      : {mutation: { mutationKey, }, request: undefined};
 
       
 
@@ -1705,7 +1814,7 @@ const {mutation: mutationOptions} = options ?
       const mutationFn: MutationFunction<Awaited<ReturnType<typeof sessionsCancelCreate>>, {id: string;data: SurveySessionRequest}> = (props) => {
           const {id,data} = props ?? {};
 
-          return  sessionsCancelCreate(id,data,)
+          return  sessionsCancelCreate(id,data,requestOptions)
         }
 
         
@@ -1721,7 +1830,7 @@ const {mutation: mutationOptions} = options ?
  * @summary Отменить сессию
  */
 export const useSessionsCancelCreate = <TError = SessionsCancelCreate400,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof sessionsCancelCreate>>, TError,{id: string;data: SurveySessionRequest}, TContext>, }
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof sessionsCancelCreate>>, TError,{id: string;data: SurveySessionRequest}, TContext>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof sessionsCancelCreate>>,
         TError,
@@ -1735,6 +1844,371 @@ export const useSessionsCancelCreate = <TError = SessionsCancelCreate400,
     }
     
 /**
+ * Получить конкретный вопрос сессии по его порядковому номеру.
+        
+        Возвращает вопрос с возможностью навигации к предыдущему и следующему вопросу.
+ * @summary Получить вопрос по номеру
+ */
+export const sessionsGetQuestionRetrieve = (
+    id: string,
+    params: SessionsGetQuestionRetrieveParams,
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+      
+      
+      return customInstance<SessionsGetQuestionRetrieve200>(
+      {url: `/api/sessions/${id}/get_question/`, method: 'GET',
+        params, signal
+    },
+      options);
+    }
+  
+
+export const getSessionsGetQuestionRetrieveQueryKey = (id?: string,
+    params?: SessionsGetQuestionRetrieveParams,) => {
+    return [`/api/sessions/${id}/get_question/`, ...(params ? [params]: [])] as const;
+    }
+
+    
+export const getSessionsGetQuestionRetrieveQueryOptions = <TData = Awaited<ReturnType<typeof sessionsGetQuestionRetrieve>>, TError = SessionsGetQuestionRetrieve404>(id: string,
+    params: SessionsGetQuestionRetrieveParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof sessionsGetQuestionRetrieve>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getSessionsGetQuestionRetrieveQueryKey(id,params);
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof sessionsGetQuestionRetrieve>>> = ({ signal }) => sessionsGetQuestionRetrieve(id,params, requestOptions, signal);
+
+      
+
+      
+
+   return  { queryKey, queryFn, enabled: !!(id), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof sessionsGetQuestionRetrieve>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type SessionsGetQuestionRetrieveQueryResult = NonNullable<Awaited<ReturnType<typeof sessionsGetQuestionRetrieve>>>
+export type SessionsGetQuestionRetrieveQueryError = SessionsGetQuestionRetrieve404
+
+
+export function useSessionsGetQuestionRetrieve<TData = Awaited<ReturnType<typeof sessionsGetQuestionRetrieve>>, TError = SessionsGetQuestionRetrieve404>(
+ id: string,
+    params: SessionsGetQuestionRetrieveParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof sessionsGetQuestionRetrieve>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof sessionsGetQuestionRetrieve>>,
+          TError,
+          Awaited<ReturnType<typeof sessionsGetQuestionRetrieve>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useSessionsGetQuestionRetrieve<TData = Awaited<ReturnType<typeof sessionsGetQuestionRetrieve>>, TError = SessionsGetQuestionRetrieve404>(
+ id: string,
+    params: SessionsGetQuestionRetrieveParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof sessionsGetQuestionRetrieve>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof sessionsGetQuestionRetrieve>>,
+          TError,
+          Awaited<ReturnType<typeof sessionsGetQuestionRetrieve>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useSessionsGetQuestionRetrieve<TData = Awaited<ReturnType<typeof sessionsGetQuestionRetrieve>>, TError = SessionsGetQuestionRetrieve404>(
+ id: string,
+    params: SessionsGetQuestionRetrieveParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof sessionsGetQuestionRetrieve>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Получить вопрос по номеру
+ */
+
+export function useSessionsGetQuestionRetrieve<TData = Awaited<ReturnType<typeof sessionsGetQuestionRetrieve>>, TError = SessionsGetQuestionRetrieve404>(
+ id: string,
+    params: SessionsGetQuestionRetrieveParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof sessionsGetQuestionRetrieve>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getSessionsGetQuestionRetrieveQueryOptions(id,params,options)
+
+  const query = useQuery(queryOptions , queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  query.queryKey = queryOptions.queryKey ;
+
+  return query;
+}
+
+
+
+
+/**
+ * Изменить уже данный ответ на вопрос.
+        
+        Доступно только для активных сессий и отвеченных вопросов.
+ * @summary Изменить ответ
+ */
+export const sessionsModifyAnswerCreate = (
+    id: string,
+    sessionsModifyAnswerCreateBody: SessionsModifyAnswerCreateBodyOne | unknown | SessionsModifyAnswerCreateBodyThree,
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+      
+      
+      return customInstance<SessionsModifyAnswerCreate200>(
+      {url: `/api/sessions/${id}/modify_answer/`, method: 'POST',
+      data: sessionsModifyAnswerCreateBody, signal
+    },
+      options);
+    }
+  
+
+
+export const getSessionsModifyAnswerCreateMutationOptions = <TError = SessionsModifyAnswerCreate400,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof sessionsModifyAnswerCreate>>, TError,{id: string;data: SessionsModifyAnswerCreateBodyOne | unknown | SessionsModifyAnswerCreateBodyThree}, TContext>, request?: SecondParameter<typeof customInstance>}
+): UseMutationOptions<Awaited<ReturnType<typeof sessionsModifyAnswerCreate>>, TError,{id: string;data: SessionsModifyAnswerCreateBodyOne | unknown | SessionsModifyAnswerCreateBodyThree}, TContext> => {
+
+const mutationKey = ['sessionsModifyAnswerCreate'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof sessionsModifyAnswerCreate>>, {id: string;data: SessionsModifyAnswerCreateBodyOne | unknown | SessionsModifyAnswerCreateBodyThree}> = (props) => {
+          const {id,data} = props ?? {};
+
+          return  sessionsModifyAnswerCreate(id,data,requestOptions)
+        }
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type SessionsModifyAnswerCreateMutationResult = NonNullable<Awaited<ReturnType<typeof sessionsModifyAnswerCreate>>>
+    export type SessionsModifyAnswerCreateMutationBody = SessionsModifyAnswerCreateBodyOne | unknown | SessionsModifyAnswerCreateBodyThree
+    export type SessionsModifyAnswerCreateMutationError = SessionsModifyAnswerCreate400
+
+    /**
+ * @summary Изменить ответ
+ */
+export const useSessionsModifyAnswerCreate = <TError = SessionsModifyAnswerCreate400,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof sessionsModifyAnswerCreate>>, TError,{id: string;data: SessionsModifyAnswerCreateBodyOne | unknown | SessionsModifyAnswerCreateBodyThree}, TContext>, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof sessionsModifyAnswerCreate>>,
+        TError,
+        {id: string;data: SessionsModifyAnswerCreateBodyOne | unknown | SessionsModifyAnswerCreateBodyThree},
+        TContext
+      > => {
+
+      const mutationOptions = getSessionsModifyAnswerCreateMutationOptions(options);
+
+      return useMutation(mutationOptions , queryClient);
+    }
+    
+/**
+ * Получить следующий вопрос в сессии по порядковому номеру.
+        
+        Возвращает следующий вопрос по порядку, независимо от того, отвечен он или нет.
+ * @summary Следующий вопрос по порядку
+ */
+export const sessionsNextQuestionByOrderRetrieve = (
+    id: string,
+    params: SessionsNextQuestionByOrderRetrieveParams,
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+      
+      
+      return customInstance<SessionsNextQuestionByOrderRetrieve200>(
+      {url: `/api/sessions/${id}/next_question_by_order/`, method: 'GET',
+        params, signal
+    },
+      options);
+    }
+  
+
+export const getSessionsNextQuestionByOrderRetrieveQueryKey = (id?: string,
+    params?: SessionsNextQuestionByOrderRetrieveParams,) => {
+    return [`/api/sessions/${id}/next_question_by_order/`, ...(params ? [params]: [])] as const;
+    }
+
+    
+export const getSessionsNextQuestionByOrderRetrieveQueryOptions = <TData = Awaited<ReturnType<typeof sessionsNextQuestionByOrderRetrieve>>, TError = SessionsNextQuestionByOrderRetrieve404>(id: string,
+    params: SessionsNextQuestionByOrderRetrieveParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof sessionsNextQuestionByOrderRetrieve>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getSessionsNextQuestionByOrderRetrieveQueryKey(id,params);
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof sessionsNextQuestionByOrderRetrieve>>> = ({ signal }) => sessionsNextQuestionByOrderRetrieve(id,params, requestOptions, signal);
+
+      
+
+      
+
+   return  { queryKey, queryFn, enabled: !!(id), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof sessionsNextQuestionByOrderRetrieve>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type SessionsNextQuestionByOrderRetrieveQueryResult = NonNullable<Awaited<ReturnType<typeof sessionsNextQuestionByOrderRetrieve>>>
+export type SessionsNextQuestionByOrderRetrieveQueryError = SessionsNextQuestionByOrderRetrieve404
+
+
+export function useSessionsNextQuestionByOrderRetrieve<TData = Awaited<ReturnType<typeof sessionsNextQuestionByOrderRetrieve>>, TError = SessionsNextQuestionByOrderRetrieve404>(
+ id: string,
+    params: SessionsNextQuestionByOrderRetrieveParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof sessionsNextQuestionByOrderRetrieve>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof sessionsNextQuestionByOrderRetrieve>>,
+          TError,
+          Awaited<ReturnType<typeof sessionsNextQuestionByOrderRetrieve>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useSessionsNextQuestionByOrderRetrieve<TData = Awaited<ReturnType<typeof sessionsNextQuestionByOrderRetrieve>>, TError = SessionsNextQuestionByOrderRetrieve404>(
+ id: string,
+    params: SessionsNextQuestionByOrderRetrieveParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof sessionsNextQuestionByOrderRetrieve>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof sessionsNextQuestionByOrderRetrieve>>,
+          TError,
+          Awaited<ReturnType<typeof sessionsNextQuestionByOrderRetrieve>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useSessionsNextQuestionByOrderRetrieve<TData = Awaited<ReturnType<typeof sessionsNextQuestionByOrderRetrieve>>, TError = SessionsNextQuestionByOrderRetrieve404>(
+ id: string,
+    params: SessionsNextQuestionByOrderRetrieveParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof sessionsNextQuestionByOrderRetrieve>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Следующий вопрос по порядку
+ */
+
+export function useSessionsNextQuestionByOrderRetrieve<TData = Awaited<ReturnType<typeof sessionsNextQuestionByOrderRetrieve>>, TError = SessionsNextQuestionByOrderRetrieve404>(
+ id: string,
+    params: SessionsNextQuestionByOrderRetrieveParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof sessionsNextQuestionByOrderRetrieve>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getSessionsNextQuestionByOrderRetrieveQueryOptions(id,params,options)
+
+  const query = useQuery(queryOptions , queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  query.queryKey = queryOptions.queryKey ;
+
+  return query;
+}
+
+
+
+
+/**
+ * Получить предыдущий вопрос в сессии.
+        
+        Возвращает предыдущий вопрос по порядку, независимо от того, отвечен он или нет.
+ * @summary Предыдущий вопрос
+ */
+export const sessionsPreviousQuestionRetrieve = (
+    id: string,
+    params: SessionsPreviousQuestionRetrieveParams,
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+      
+      
+      return customInstance<SessionsPreviousQuestionRetrieve200>(
+      {url: `/api/sessions/${id}/previous_question/`, method: 'GET',
+        params, signal
+    },
+      options);
+    }
+  
+
+export const getSessionsPreviousQuestionRetrieveQueryKey = (id?: string,
+    params?: SessionsPreviousQuestionRetrieveParams,) => {
+    return [`/api/sessions/${id}/previous_question/`, ...(params ? [params]: [])] as const;
+    }
+
+    
+export const getSessionsPreviousQuestionRetrieveQueryOptions = <TData = Awaited<ReturnType<typeof sessionsPreviousQuestionRetrieve>>, TError = SessionsPreviousQuestionRetrieve404>(id: string,
+    params: SessionsPreviousQuestionRetrieveParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof sessionsPreviousQuestionRetrieve>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getSessionsPreviousQuestionRetrieveQueryKey(id,params);
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof sessionsPreviousQuestionRetrieve>>> = ({ signal }) => sessionsPreviousQuestionRetrieve(id,params, requestOptions, signal);
+
+      
+
+      
+
+   return  { queryKey, queryFn, enabled: !!(id), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof sessionsPreviousQuestionRetrieve>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type SessionsPreviousQuestionRetrieveQueryResult = NonNullable<Awaited<ReturnType<typeof sessionsPreviousQuestionRetrieve>>>
+export type SessionsPreviousQuestionRetrieveQueryError = SessionsPreviousQuestionRetrieve404
+
+
+export function useSessionsPreviousQuestionRetrieve<TData = Awaited<ReturnType<typeof sessionsPreviousQuestionRetrieve>>, TError = SessionsPreviousQuestionRetrieve404>(
+ id: string,
+    params: SessionsPreviousQuestionRetrieveParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof sessionsPreviousQuestionRetrieve>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof sessionsPreviousQuestionRetrieve>>,
+          TError,
+          Awaited<ReturnType<typeof sessionsPreviousQuestionRetrieve>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useSessionsPreviousQuestionRetrieve<TData = Awaited<ReturnType<typeof sessionsPreviousQuestionRetrieve>>, TError = SessionsPreviousQuestionRetrieve404>(
+ id: string,
+    params: SessionsPreviousQuestionRetrieveParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof sessionsPreviousQuestionRetrieve>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof sessionsPreviousQuestionRetrieve>>,
+          TError,
+          Awaited<ReturnType<typeof sessionsPreviousQuestionRetrieve>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useSessionsPreviousQuestionRetrieve<TData = Awaited<ReturnType<typeof sessionsPreviousQuestionRetrieve>>, TError = SessionsPreviousQuestionRetrieve404>(
+ id: string,
+    params: SessionsPreviousQuestionRetrieveParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof sessionsPreviousQuestionRetrieve>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Предыдущий вопрос
+ */
+
+export function useSessionsPreviousQuestionRetrieve<TData = Awaited<ReturnType<typeof sessionsPreviousQuestionRetrieve>>, TError = SessionsPreviousQuestionRetrieve404>(
+ id: string,
+    params: SessionsPreviousQuestionRetrieveParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof sessionsPreviousQuestionRetrieve>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getSessionsPreviousQuestionRetrieveQueryOptions(id,params,options)
+
+  const query = useQuery(queryOptions , queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  query.queryKey = queryOptions.queryKey ;
+
+  return query;
+}
+
+
+
+
+/**
  * Получить детальный прогресс прохождения сессии.
         
         Возвращает информацию о всех вопросах сессии, ответах и набранных баллах.
@@ -1742,14 +2216,14 @@ export const useSessionsCancelCreate = <TError = SessionsCancelCreate400,
  */
 export const sessionsProgressRetrieve = (
     id: string,
- signal?: AbortSignal
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
 ) => {
       
       
       return customInstance<SessionsProgressRetrieve200>(
       {url: `/api/sessions/${id}/progress/`, method: 'GET', signal
     },
-      );
+      options);
     }
   
 
@@ -1758,16 +2232,16 @@ export const getSessionsProgressRetrieveQueryKey = (id?: string,) => {
     }
 
     
-export const getSessionsProgressRetrieveQueryOptions = <TData = Awaited<ReturnType<typeof sessionsProgressRetrieve>>, TError = unknown>(id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof sessionsProgressRetrieve>>, TError, TData>>, }
+export const getSessionsProgressRetrieveQueryOptions = <TData = Awaited<ReturnType<typeof sessionsProgressRetrieve>>, TError = unknown>(id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof sessionsProgressRetrieve>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
 ) => {
 
-const {query: queryOptions} = options ?? {};
+const {query: queryOptions, request: requestOptions} = options ?? {};
 
   const queryKey =  queryOptions?.queryKey ?? getSessionsProgressRetrieveQueryKey(id);
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof sessionsProgressRetrieve>>> = ({ signal }) => sessionsProgressRetrieve(id, signal);
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof sessionsProgressRetrieve>>> = ({ signal }) => sessionsProgressRetrieve(id, requestOptions, signal);
 
       
 
@@ -1787,7 +2261,7 @@ export function useSessionsProgressRetrieve<TData = Awaited<ReturnType<typeof se
           TError,
           Awaited<ReturnType<typeof sessionsProgressRetrieve>>
         > , 'initialData'
-      >, }
+      >, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useSessionsProgressRetrieve<TData = Awaited<ReturnType<typeof sessionsProgressRetrieve>>, TError = unknown>(
@@ -1797,11 +2271,11 @@ export function useSessionsProgressRetrieve<TData = Awaited<ReturnType<typeof se
           TError,
           Awaited<ReturnType<typeof sessionsProgressRetrieve>>
         > , 'initialData'
-      >, }
+      >, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useSessionsProgressRetrieve<TData = Awaited<ReturnType<typeof sessionsProgressRetrieve>>, TError = unknown>(
- id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof sessionsProgressRetrieve>>, TError, TData>>, }
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof sessionsProgressRetrieve>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
@@ -1809,7 +2283,7 @@ export function useSessionsProgressRetrieve<TData = Awaited<ReturnType<typeof se
  */
 
 export function useSessionsProgressRetrieve<TData = Awaited<ReturnType<typeof sessionsProgressRetrieve>>, TError = unknown>(
- id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof sessionsProgressRetrieve>>, TError, TData>>, }
+ id: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof sessionsProgressRetrieve>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient 
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
@@ -1835,7 +2309,7 @@ export function useSessionsProgressRetrieve<TData = Awaited<ReturnType<typeof se
 export const sessionsSubmitAnswerCreate = (
     id: string,
     sessionsSubmitAnswerCreateBody: SessionsSubmitAnswerCreateBodyOne | unknown | SessionsSubmitAnswerCreateBodyThree,
- signal?: AbortSignal
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
 ) => {
       
       
@@ -1843,21 +2317,21 @@ export const sessionsSubmitAnswerCreate = (
       {url: `/api/sessions/${id}/submit_answer/`, method: 'POST',
       data: sessionsSubmitAnswerCreateBody, signal
     },
-      );
+      options);
     }
   
 
 
 export const getSessionsSubmitAnswerCreateMutationOptions = <TError = SessionsSubmitAnswerCreate400,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof sessionsSubmitAnswerCreate>>, TError,{id: string;data: SessionsSubmitAnswerCreateBodyOne | unknown | SessionsSubmitAnswerCreateBodyThree}, TContext>, }
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof sessionsSubmitAnswerCreate>>, TError,{id: string;data: SessionsSubmitAnswerCreateBodyOne | unknown | SessionsSubmitAnswerCreateBodyThree}, TContext>, request?: SecondParameter<typeof customInstance>}
 ): UseMutationOptions<Awaited<ReturnType<typeof sessionsSubmitAnswerCreate>>, TError,{id: string;data: SessionsSubmitAnswerCreateBodyOne | unknown | SessionsSubmitAnswerCreateBodyThree}, TContext> => {
 
 const mutationKey = ['sessionsSubmitAnswerCreate'];
-const {mutation: mutationOptions} = options ?
+const {mutation: mutationOptions, request: requestOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
       : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }};
+      : {mutation: { mutationKey, }, request: undefined};
 
       
 
@@ -1865,7 +2339,7 @@ const {mutation: mutationOptions} = options ?
       const mutationFn: MutationFunction<Awaited<ReturnType<typeof sessionsSubmitAnswerCreate>>, {id: string;data: SessionsSubmitAnswerCreateBodyOne | unknown | SessionsSubmitAnswerCreateBodyThree}> = (props) => {
           const {id,data} = props ?? {};
 
-          return  sessionsSubmitAnswerCreate(id,data,)
+          return  sessionsSubmitAnswerCreate(id,data,requestOptions)
         }
 
         
@@ -1881,7 +2355,7 @@ const {mutation: mutationOptions} = options ?
  * @summary Отправить ответ
  */
 export const useSessionsSubmitAnswerCreate = <TError = SessionsSubmitAnswerCreate400,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof sessionsSubmitAnswerCreate>>, TError,{id: string;data: SessionsSubmitAnswerCreateBodyOne | unknown | SessionsSubmitAnswerCreateBodyThree}, TContext>, }
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof sessionsSubmitAnswerCreate>>, TError,{id: string;data: SessionsSubmitAnswerCreateBodyOne | unknown | SessionsSubmitAnswerCreateBodyThree}, TContext>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof sessionsSubmitAnswerCreate>>,
         TError,
@@ -1902,7 +2376,7 @@ export const useSessionsSubmitAnswerCreate = <TError = SessionsSubmitAnswerCreat
  */
 export const surveysList = (
     params?: SurveysListParams,
- signal?: AbortSignal
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
 ) => {
       
       
@@ -1910,7 +2384,7 @@ export const surveysList = (
       {url: `/api/surveys/`, method: 'GET',
         params, signal
     },
-      );
+      options);
     }
   
 
@@ -1919,16 +2393,16 @@ export const getSurveysListQueryKey = (params?: SurveysListParams,) => {
     }
 
     
-export const getSurveysListQueryOptions = <TData = Awaited<ReturnType<typeof surveysList>>, TError = unknown>(params?: SurveysListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof surveysList>>, TError, TData>>, }
+export const getSurveysListQueryOptions = <TData = Awaited<ReturnType<typeof surveysList>>, TError = unknown>(params?: SurveysListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof surveysList>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
 ) => {
 
-const {query: queryOptions} = options ?? {};
+const {query: queryOptions, request: requestOptions} = options ?? {};
 
   const queryKey =  queryOptions?.queryKey ?? getSurveysListQueryKey(params);
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof surveysList>>> = ({ signal }) => surveysList(params, signal);
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof surveysList>>> = ({ signal }) => surveysList(params, requestOptions, signal);
 
       
 
@@ -1948,7 +2422,7 @@ export function useSurveysList<TData = Awaited<ReturnType<typeof surveysList>>, 
           TError,
           Awaited<ReturnType<typeof surveysList>>
         > , 'initialData'
-      >, }
+      >, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useSurveysList<TData = Awaited<ReturnType<typeof surveysList>>, TError = unknown>(
@@ -1958,11 +2432,11 @@ export function useSurveysList<TData = Awaited<ReturnType<typeof surveysList>>, 
           TError,
           Awaited<ReturnType<typeof surveysList>>
         > , 'initialData'
-      >, }
+      >, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useSurveysList<TData = Awaited<ReturnType<typeof surveysList>>, TError = unknown>(
- params?: SurveysListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof surveysList>>, TError, TData>>, }
+ params?: SurveysListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof surveysList>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
@@ -1970,7 +2444,7 @@ export function useSurveysList<TData = Awaited<ReturnType<typeof surveysList>>, 
  */
 
 export function useSurveysList<TData = Awaited<ReturnType<typeof surveysList>>, TError = unknown>(
- params?: SurveysListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof surveysList>>, TError, TData>>, }
+ params?: SurveysListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof surveysList>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient 
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
@@ -1993,7 +2467,7 @@ export function useSurveysList<TData = Awaited<ReturnType<typeof surveysList>>, 
 export const surveysRetrieve = (
     id: number,
     params?: SurveysRetrieveParams,
- signal?: AbortSignal
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
 ) => {
       
       
@@ -2001,7 +2475,7 @@ export const surveysRetrieve = (
       {url: `/api/surveys/${id}/`, method: 'GET',
         params, signal
     },
-      );
+      options);
     }
   
 
@@ -2012,16 +2486,16 @@ export const getSurveysRetrieveQueryKey = (id?: number,
 
     
 export const getSurveysRetrieveQueryOptions = <TData = Awaited<ReturnType<typeof surveysRetrieve>>, TError = unknown>(id: number,
-    params?: SurveysRetrieveParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof surveysRetrieve>>, TError, TData>>, }
+    params?: SurveysRetrieveParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof surveysRetrieve>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
 ) => {
 
-const {query: queryOptions} = options ?? {};
+const {query: queryOptions, request: requestOptions} = options ?? {};
 
   const queryKey =  queryOptions?.queryKey ?? getSurveysRetrieveQueryKey(id,params);
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof surveysRetrieve>>> = ({ signal }) => surveysRetrieve(id,params, signal);
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof surveysRetrieve>>> = ({ signal }) => surveysRetrieve(id,params, requestOptions, signal);
 
       
 
@@ -2042,7 +2516,7 @@ export function useSurveysRetrieve<TData = Awaited<ReturnType<typeof surveysRetr
           TError,
           Awaited<ReturnType<typeof surveysRetrieve>>
         > , 'initialData'
-      >, }
+      >, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useSurveysRetrieve<TData = Awaited<ReturnType<typeof surveysRetrieve>>, TError = unknown>(
@@ -2053,12 +2527,12 @@ export function useSurveysRetrieve<TData = Awaited<ReturnType<typeof surveysRetr
           TError,
           Awaited<ReturnType<typeof surveysRetrieve>>
         > , 'initialData'
-      >, }
+      >, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useSurveysRetrieve<TData = Awaited<ReturnType<typeof surveysRetrieve>>, TError = unknown>(
  id: number,
-    params?: SurveysRetrieveParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof surveysRetrieve>>, TError, TData>>, }
+    params?: SurveysRetrieveParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof surveysRetrieve>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
@@ -2067,7 +2541,7 @@ export function useSurveysRetrieve<TData = Awaited<ReturnType<typeof surveysRetr
 
 export function useSurveysRetrieve<TData = Awaited<ReturnType<typeof surveysRetrieve>>, TError = unknown>(
  id: number,
-    params?: SurveysRetrieveParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof surveysRetrieve>>, TError, TData>>, }
+    params?: SurveysRetrieveParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof surveysRetrieve>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient 
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
@@ -2092,8 +2566,8 @@ export function useSurveysRetrieve<TData = Awaited<ReturnType<typeof surveysRetr
  */
 export const surveysStartCreate = (
     id: number,
-    surveysStartCreateBody: SurveysStartCreateBodyOne | unknown,
- signal?: AbortSignal
+    surveysStartCreateBody: SurveysStartCreateBodyOne | SurveysStartCreateBodyTwo | unknown,
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
 ) => {
       
       
@@ -2101,29 +2575,29 @@ export const surveysStartCreate = (
       {url: `/api/surveys/${id}/start/`, method: 'POST',
       data: surveysStartCreateBody, signal
     },
-      );
+      options);
     }
   
 
 
 export const getSurveysStartCreateMutationOptions = <TError = SurveysStartCreate400,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof surveysStartCreate>>, TError,{id: number;data: SurveysStartCreateBodyOne | unknown}, TContext>, }
-): UseMutationOptions<Awaited<ReturnType<typeof surveysStartCreate>>, TError,{id: number;data: SurveysStartCreateBodyOne | unknown}, TContext> => {
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof surveysStartCreate>>, TError,{id: number;data: SurveysStartCreateBodyOne | SurveysStartCreateBodyTwo | unknown}, TContext>, request?: SecondParameter<typeof customInstance>}
+): UseMutationOptions<Awaited<ReturnType<typeof surveysStartCreate>>, TError,{id: number;data: SurveysStartCreateBodyOne | SurveysStartCreateBodyTwo | unknown}, TContext> => {
 
 const mutationKey = ['surveysStartCreate'];
-const {mutation: mutationOptions} = options ?
+const {mutation: mutationOptions, request: requestOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
       : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }};
+      : {mutation: { mutationKey, }, request: undefined};
 
       
 
 
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof surveysStartCreate>>, {id: number;data: SurveysStartCreateBodyOne | unknown}> = (props) => {
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof surveysStartCreate>>, {id: number;data: SurveysStartCreateBodyOne | SurveysStartCreateBodyTwo | unknown}> = (props) => {
           const {id,data} = props ?? {};
 
-          return  surveysStartCreate(id,data,)
+          return  surveysStartCreate(id,data,requestOptions)
         }
 
         
@@ -2132,18 +2606,18 @@ const {mutation: mutationOptions} = options ?
   return  { mutationFn, ...mutationOptions }}
 
     export type SurveysStartCreateMutationResult = NonNullable<Awaited<ReturnType<typeof surveysStartCreate>>>
-    export type SurveysStartCreateMutationBody = SurveysStartCreateBodyOne | unknown
+    export type SurveysStartCreateMutationBody = SurveysStartCreateBodyOne | SurveysStartCreateBodyTwo | unknown
     export type SurveysStartCreateMutationError = SurveysStartCreate400
 
     /**
  * @summary Начать опрос
  */
 export const useSurveysStartCreate = <TError = SurveysStartCreate400,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof surveysStartCreate>>, TError,{id: number;data: SurveysStartCreateBodyOne | unknown}, TContext>, }
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof surveysStartCreate>>, TError,{id: number;data: SurveysStartCreateBodyOne | SurveysStartCreateBodyTwo | unknown}, TContext>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof surveysStartCreate>>,
         TError,
-        {id: number;data: SurveysStartCreateBodyOne | unknown},
+        {id: number;data: SurveysStartCreateBodyOne | SurveysStartCreateBodyTwo | unknown},
         TContext
       > => {
 
@@ -2158,14 +2632,14 @@ export const useSurveysStartCreate = <TError = SurveysStartCreate400,
  */
 export const surveysMyHistoryRetrieve = (
     
- signal?: AbortSignal
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
 ) => {
       
       
       return customInstance<SurveysMyHistoryRetrieve200Item[]>(
       {url: `/api/surveys/my_history/`, method: 'GET', signal
     },
-      );
+      options);
     }
   
 
@@ -2174,16 +2648,16 @@ export const getSurveysMyHistoryRetrieveQueryKey = () => {
     }
 
     
-export const getSurveysMyHistoryRetrieveQueryOptions = <TData = Awaited<ReturnType<typeof surveysMyHistoryRetrieve>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof surveysMyHistoryRetrieve>>, TError, TData>>, }
+export const getSurveysMyHistoryRetrieveQueryOptions = <TData = Awaited<ReturnType<typeof surveysMyHistoryRetrieve>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof surveysMyHistoryRetrieve>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
 ) => {
 
-const {query: queryOptions} = options ?? {};
+const {query: queryOptions, request: requestOptions} = options ?? {};
 
   const queryKey =  queryOptions?.queryKey ?? getSurveysMyHistoryRetrieveQueryKey();
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof surveysMyHistoryRetrieve>>> = ({ signal }) => surveysMyHistoryRetrieve(signal);
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof surveysMyHistoryRetrieve>>> = ({ signal }) => surveysMyHistoryRetrieve(requestOptions, signal);
 
       
 
@@ -2203,7 +2677,7 @@ export function useSurveysMyHistoryRetrieve<TData = Awaited<ReturnType<typeof su
           TError,
           Awaited<ReturnType<typeof surveysMyHistoryRetrieve>>
         > , 'initialData'
-      >, }
+      >, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useSurveysMyHistoryRetrieve<TData = Awaited<ReturnType<typeof surveysMyHistoryRetrieve>>, TError = unknown>(
@@ -2213,11 +2687,11 @@ export function useSurveysMyHistoryRetrieve<TData = Awaited<ReturnType<typeof su
           TError,
           Awaited<ReturnType<typeof surveysMyHistoryRetrieve>>
         > , 'initialData'
-      >, }
+      >, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useSurveysMyHistoryRetrieve<TData = Awaited<ReturnType<typeof surveysMyHistoryRetrieve>>, TError = unknown>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof surveysMyHistoryRetrieve>>, TError, TData>>, }
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof surveysMyHistoryRetrieve>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
@@ -2225,7 +2699,7 @@ export function useSurveysMyHistoryRetrieve<TData = Awaited<ReturnType<typeof su
  */
 
 export function useSurveysMyHistoryRetrieve<TData = Awaited<ReturnType<typeof surveysMyHistoryRetrieve>>, TError = unknown>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof surveysMyHistoryRetrieve>>, TError, TData>>, }
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof surveysMyHistoryRetrieve>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient 
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
@@ -2249,14 +2723,14 @@ export function useSurveysMyHistoryRetrieve<TData = Awaited<ReturnType<typeof su
  */
 export const usersList = (
     
- signal?: AbortSignal
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
 ) => {
       
       
       return customInstance<User[]>(
       {url: `/api/users/`, method: 'GET', signal
     },
-      );
+      options);
     }
   
 
@@ -2265,16 +2739,16 @@ export const getUsersListQueryKey = () => {
     }
 
     
-export const getUsersListQueryOptions = <TData = Awaited<ReturnType<typeof usersList>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof usersList>>, TError, TData>>, }
+export const getUsersListQueryOptions = <TData = Awaited<ReturnType<typeof usersList>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof usersList>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
 ) => {
 
-const {query: queryOptions} = options ?? {};
+const {query: queryOptions, request: requestOptions} = options ?? {};
 
   const queryKey =  queryOptions?.queryKey ?? getUsersListQueryKey();
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof usersList>>> = ({ signal }) => usersList(signal);
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof usersList>>> = ({ signal }) => usersList(requestOptions, signal);
 
       
 
@@ -2294,7 +2768,7 @@ export function useUsersList<TData = Awaited<ReturnType<typeof usersList>>, TErr
           TError,
           Awaited<ReturnType<typeof usersList>>
         > , 'initialData'
-      >, }
+      >, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useUsersList<TData = Awaited<ReturnType<typeof usersList>>, TError = unknown>(
@@ -2304,11 +2778,11 @@ export function useUsersList<TData = Awaited<ReturnType<typeof usersList>>, TErr
           TError,
           Awaited<ReturnType<typeof usersList>>
         > , 'initialData'
-      >, }
+      >, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useUsersList<TData = Awaited<ReturnType<typeof usersList>>, TError = unknown>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof usersList>>, TError, TData>>, }
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof usersList>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
@@ -2316,7 +2790,7 @@ export function useUsersList<TData = Awaited<ReturnType<typeof usersList>>, TErr
  */
 
 export function useUsersList<TData = Awaited<ReturnType<typeof usersList>>, TError = unknown>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof usersList>>, TError, TData>>, }
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof usersList>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient 
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
@@ -2338,14 +2812,14 @@ export function useUsersList<TData = Awaited<ReturnType<typeof usersList>>, TErr
  */
 export const usersRetrieve = (
     id: number,
- signal?: AbortSignal
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
 ) => {
       
       
       return customInstance<User>(
       {url: `/api/users/${id}/`, method: 'GET', signal
     },
-      );
+      options);
     }
   
 
@@ -2354,16 +2828,16 @@ export const getUsersRetrieveQueryKey = (id?: number,) => {
     }
 
     
-export const getUsersRetrieveQueryOptions = <TData = Awaited<ReturnType<typeof usersRetrieve>>, TError = unknown>(id: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof usersRetrieve>>, TError, TData>>, }
+export const getUsersRetrieveQueryOptions = <TData = Awaited<ReturnType<typeof usersRetrieve>>, TError = unknown>(id: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof usersRetrieve>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
 ) => {
 
-const {query: queryOptions} = options ?? {};
+const {query: queryOptions, request: requestOptions} = options ?? {};
 
   const queryKey =  queryOptions?.queryKey ?? getUsersRetrieveQueryKey(id);
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof usersRetrieve>>> = ({ signal }) => usersRetrieve(id, signal);
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof usersRetrieve>>> = ({ signal }) => usersRetrieve(id, requestOptions, signal);
 
       
 
@@ -2383,7 +2857,7 @@ export function useUsersRetrieve<TData = Awaited<ReturnType<typeof usersRetrieve
           TError,
           Awaited<ReturnType<typeof usersRetrieve>>
         > , 'initialData'
-      >, }
+      >, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useUsersRetrieve<TData = Awaited<ReturnType<typeof usersRetrieve>>, TError = unknown>(
@@ -2393,11 +2867,11 @@ export function useUsersRetrieve<TData = Awaited<ReturnType<typeof usersRetrieve
           TError,
           Awaited<ReturnType<typeof usersRetrieve>>
         > , 'initialData'
-      >, }
+      >, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useUsersRetrieve<TData = Awaited<ReturnType<typeof usersRetrieve>>, TError = unknown>(
- id: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof usersRetrieve>>, TError, TData>>, }
+ id: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof usersRetrieve>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
@@ -2405,7 +2879,7 @@ export function useUsersRetrieve<TData = Awaited<ReturnType<typeof usersRetrieve
  */
 
 export function useUsersRetrieve<TData = Awaited<ReturnType<typeof usersRetrieve>>, TError = unknown>(
- id: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof usersRetrieve>>, TError, TData>>, }
+ id: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof usersRetrieve>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient 
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
@@ -2428,7 +2902,7 @@ export function useUsersRetrieve<TData = Awaited<ReturnType<typeof usersRetrieve
 export const usersUpdate = (
     id: number,
     userRequest: UserRequest,
- ) => {
+ options?: SecondParameter<typeof customInstance>,) => {
       
       
       return customInstance<User>(
@@ -2436,21 +2910,21 @@ export const usersUpdate = (
       headers: {'Content-Type': 'application/json', },
       data: userRequest
     },
-      );
+      options);
     }
   
 
 
 export const getUsersUpdateMutationOptions = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof usersUpdate>>, TError,{id: number;data: UserRequest}, TContext>, }
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof usersUpdate>>, TError,{id: number;data: UserRequest}, TContext>, request?: SecondParameter<typeof customInstance>}
 ): UseMutationOptions<Awaited<ReturnType<typeof usersUpdate>>, TError,{id: number;data: UserRequest}, TContext> => {
 
 const mutationKey = ['usersUpdate'];
-const {mutation: mutationOptions} = options ?
+const {mutation: mutationOptions, request: requestOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
       : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }};
+      : {mutation: { mutationKey, }, request: undefined};
 
       
 
@@ -2458,7 +2932,7 @@ const {mutation: mutationOptions} = options ?
       const mutationFn: MutationFunction<Awaited<ReturnType<typeof usersUpdate>>, {id: number;data: UserRequest}> = (props) => {
           const {id,data} = props ?? {};
 
-          return  usersUpdate(id,data,)
+          return  usersUpdate(id,data,requestOptions)
         }
 
         
@@ -2474,7 +2948,7 @@ const {mutation: mutationOptions} = options ?
  * @summary Обновить пользователя
  */
 export const useUsersUpdate = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof usersUpdate>>, TError,{id: number;data: UserRequest}, TContext>, }
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof usersUpdate>>, TError,{id: number;data: UserRequest}, TContext>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof usersUpdate>>,
         TError,
@@ -2494,7 +2968,7 @@ export const useUsersUpdate = <TError = unknown,
 export const usersPartialUpdate = (
     id: number,
     patchedUserRequest: PatchedUserRequest,
- ) => {
+ options?: SecondParameter<typeof customInstance>,) => {
       
       
       return customInstance<User>(
@@ -2502,21 +2976,21 @@ export const usersPartialUpdate = (
       headers: {'Content-Type': 'application/json', },
       data: patchedUserRequest
     },
-      );
+      options);
     }
   
 
 
 export const getUsersPartialUpdateMutationOptions = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof usersPartialUpdate>>, TError,{id: number;data: PatchedUserRequest}, TContext>, }
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof usersPartialUpdate>>, TError,{id: number;data: PatchedUserRequest}, TContext>, request?: SecondParameter<typeof customInstance>}
 ): UseMutationOptions<Awaited<ReturnType<typeof usersPartialUpdate>>, TError,{id: number;data: PatchedUserRequest}, TContext> => {
 
 const mutationKey = ['usersPartialUpdate'];
-const {mutation: mutationOptions} = options ?
+const {mutation: mutationOptions, request: requestOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
       : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }};
+      : {mutation: { mutationKey, }, request: undefined};
 
       
 
@@ -2524,7 +2998,7 @@ const {mutation: mutationOptions} = options ?
       const mutationFn: MutationFunction<Awaited<ReturnType<typeof usersPartialUpdate>>, {id: number;data: PatchedUserRequest}> = (props) => {
           const {id,data} = props ?? {};
 
-          return  usersPartialUpdate(id,data,)
+          return  usersPartialUpdate(id,data,requestOptions)
         }
 
         
@@ -2540,7 +3014,7 @@ const {mutation: mutationOptions} = options ?
  * @summary Частично обновить пользователя
  */
 export const useUsersPartialUpdate = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof usersPartialUpdate>>, TError,{id: number;data: PatchedUserRequest}, TContext>, }
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof usersPartialUpdate>>, TError,{id: number;data: PatchedUserRequest}, TContext>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof usersPartialUpdate>>,
         TError,
@@ -2559,14 +3033,14 @@ export const useUsersPartialUpdate = <TError = unknown,
  */
 export const usersMeRetrieve = (
     
- signal?: AbortSignal
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
 ) => {
       
       
       return customInstance<User>(
       {url: `/api/users/me/`, method: 'GET', signal
     },
-      );
+      options);
     }
   
 
@@ -2575,16 +3049,16 @@ export const getUsersMeRetrieveQueryKey = () => {
     }
 
     
-export const getUsersMeRetrieveQueryOptions = <TData = Awaited<ReturnType<typeof usersMeRetrieve>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof usersMeRetrieve>>, TError, TData>>, }
+export const getUsersMeRetrieveQueryOptions = <TData = Awaited<ReturnType<typeof usersMeRetrieve>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof usersMeRetrieve>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
 ) => {
 
-const {query: queryOptions} = options ?? {};
+const {query: queryOptions, request: requestOptions} = options ?? {};
 
   const queryKey =  queryOptions?.queryKey ?? getUsersMeRetrieveQueryKey();
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof usersMeRetrieve>>> = ({ signal }) => usersMeRetrieve(signal);
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof usersMeRetrieve>>> = ({ signal }) => usersMeRetrieve(requestOptions, signal);
 
       
 
@@ -2604,7 +3078,7 @@ export function useUsersMeRetrieve<TData = Awaited<ReturnType<typeof usersMeRetr
           TError,
           Awaited<ReturnType<typeof usersMeRetrieve>>
         > , 'initialData'
-      >, }
+      >, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useUsersMeRetrieve<TData = Awaited<ReturnType<typeof usersMeRetrieve>>, TError = unknown>(
@@ -2614,11 +3088,11 @@ export function useUsersMeRetrieve<TData = Awaited<ReturnType<typeof usersMeRetr
           TError,
           Awaited<ReturnType<typeof usersMeRetrieve>>
         > , 'initialData'
-      >, }
+      >, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useUsersMeRetrieve<TData = Awaited<ReturnType<typeof usersMeRetrieve>>, TError = unknown>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof usersMeRetrieve>>, TError, TData>>, }
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof usersMeRetrieve>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
@@ -2626,7 +3100,7 @@ export function useUsersMeRetrieve<TData = Awaited<ReturnType<typeof usersMeRetr
  */
 
 export function useUsersMeRetrieve<TData = Awaited<ReturnType<typeof usersMeRetrieve>>, TError = unknown>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof usersMeRetrieve>>, TError, TData>>, }
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof usersMeRetrieve>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient 
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
@@ -2650,7 +3124,7 @@ export function useUsersMeRetrieve<TData = Awaited<ReturnType<typeof usersMeRetr
  */
 export const usersSearchRetrieve = (
     params: UsersSearchRetrieveParams,
- signal?: AbortSignal
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
 ) => {
       
       
@@ -2658,7 +3132,7 @@ export const usersSearchRetrieve = (
       {url: `/api/users/search/`, method: 'GET',
         params, signal
     },
-      );
+      options);
     }
   
 
@@ -2667,16 +3141,16 @@ export const getUsersSearchRetrieveQueryKey = (params?: UsersSearchRetrieveParam
     }
 
     
-export const getUsersSearchRetrieveQueryOptions = <TData = Awaited<ReturnType<typeof usersSearchRetrieve>>, TError = UsersSearchRetrieve403>(params: UsersSearchRetrieveParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof usersSearchRetrieve>>, TError, TData>>, }
+export const getUsersSearchRetrieveQueryOptions = <TData = Awaited<ReturnType<typeof usersSearchRetrieve>>, TError = UsersSearchRetrieve403>(params: UsersSearchRetrieveParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof usersSearchRetrieve>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
 ) => {
 
-const {query: queryOptions} = options ?? {};
+const {query: queryOptions, request: requestOptions} = options ?? {};
 
   const queryKey =  queryOptions?.queryKey ?? getUsersSearchRetrieveQueryKey(params);
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof usersSearchRetrieve>>> = ({ signal }) => usersSearchRetrieve(params, signal);
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof usersSearchRetrieve>>> = ({ signal }) => usersSearchRetrieve(params, requestOptions, signal);
 
       
 
@@ -2696,7 +3170,7 @@ export function useUsersSearchRetrieve<TData = Awaited<ReturnType<typeof usersSe
           TError,
           Awaited<ReturnType<typeof usersSearchRetrieve>>
         > , 'initialData'
-      >, }
+      >, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useUsersSearchRetrieve<TData = Awaited<ReturnType<typeof usersSearchRetrieve>>, TError = UsersSearchRetrieve403>(
@@ -2706,11 +3180,11 @@ export function useUsersSearchRetrieve<TData = Awaited<ReturnType<typeof usersSe
           TError,
           Awaited<ReturnType<typeof usersSearchRetrieve>>
         > , 'initialData'
-      >, }
+      >, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useUsersSearchRetrieve<TData = Awaited<ReturnType<typeof usersSearchRetrieve>>, TError = UsersSearchRetrieve403>(
- params: UsersSearchRetrieveParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof usersSearchRetrieve>>, TError, TData>>, }
+ params: UsersSearchRetrieveParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof usersSearchRetrieve>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
@@ -2718,7 +3192,7 @@ export function useUsersSearchRetrieve<TData = Awaited<ReturnType<typeof usersSe
  */
 
 export function useUsersSearchRetrieve<TData = Awaited<ReturnType<typeof usersSearchRetrieve>>, TError = UsersSearchRetrieve403>(
- params: UsersSearchRetrieveParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof usersSearchRetrieve>>, TError, TData>>, }
+ params: UsersSearchRetrieveParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof usersSearchRetrieve>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient 
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 

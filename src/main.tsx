@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client';
 import './index.css';
 import App from './App.tsx';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import ProfilePage from './pages/ProfilePage.tsx';
 import TestPage from './pages/TestPage.tsx';
 import { I18nProvider } from './i18n.tsx';
@@ -10,6 +11,7 @@ import LoginPage from './pages/LoginPage.tsx';
 import OtpPage from './pages/OtpPage.tsx';
 import AdminEmployeesPage from './pages/AdminEmployeesPage.tsx';
 import ProtectedRoute from './components/ProtectedRoute.tsx';
+import AuthLayout from './layouts/AuthLayout.tsx';
 
 const router = createBrowserRouter([
   {
@@ -30,8 +32,6 @@ const router = createBrowserRouter([
           </ProtectedRoute>
         )
       },
-      { path: 'login', element: <LoginPage /> },
-      { path: 'otp', element: <OtpPage /> },
       {
         path: 'admin/employees', element: (
           <ProtectedRoute>
@@ -41,12 +41,24 @@ const router = createBrowserRouter([
       },
     ],
   },
+  {
+    path: '/',
+    element: <AuthLayout />,
+    children: [
+      { path: 'login', element: <LoginPage /> },
+      { path: 'otp', element: <OtpPage /> },
+    ],
+  },
 ]);
+
+const queryClient = new QueryClient();
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <I18nProvider>
-      <RouterProvider router={router} />
+      <QueryClientProvider client={queryClient}>
+        <RouterProvider router={router} />
+      </QueryClientProvider>
     </I18nProvider>
   </StrictMode>,
 );

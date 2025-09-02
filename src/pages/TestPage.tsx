@@ -1,131 +1,409 @@
 import type { FC } from 'react';
-import { useMemo, useState } from 'react';
-import { QuestionNavigator, QuestionCard, type Option } from '../components/test';
+import { useEffect, useMemo, useState, useRef } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import { CachedTimer, type Option, QuestionCard, QuestionNavigator } from '../components/test';
+import { useSessionDetails, useSessionProgress, useSubmitAnswer, useGetQuestion } from '../api/surveys';
 
-type Question = {
-  id: number;
+type BuiltQuestion = {
   title: string;
   options: Option[];
-  multiple?: boolean;
+  multiple: boolean;
+  isOpen: boolean;
+  choiceLetterToId: Record<string, number>;
   mediaUrl?: string;
 };
 
+
 const TestPage: FC = () => {
-  const questions: Question[] = useMemo(() => ([
-    {
-      id: 1,
-      title: "Python dasturlash tili qanday til?",
-      options: [
-        { key: 'A', label: 'Python juda yaxshi til' },
-        { key: 'B', label: "Python yangi o\'rganayotganlarga qulay til" },
-        { key: 'C', label: "Hamma javoblar to\'g\'ri" },
-      ],
-    },
-    {
-      id: 2,
-      title: 'What are the main activities of the small company Uzbekneftegaz?',
-      options: [
-        { key: 'A', label: 'Agricultural machinery production' },
-        { key: 'B', label: 'Oil and gas production and processing' },
-        { key: 'C', label: 'Consumer electronics production' },
-        { key: 'D', label: 'Food trade' },
-      ],
-      mediaUrl: 'https://images.unsplash.com/photo-1542326237-94b1c5a538d8?q=80&w=1200&auto=format&fit=crop',
-    },
-    {
-      id: 3,
-      title: 'Where to contact regarding cooperation and contract conclusion?',
-      options: [
-        { key: 'A', label: "To the company's HR department" },
-        { key: 'B', label: 'To the technical department for well servicing' },
-        { key: 'C', label: 'To the department for working with partners and contracts' },
-        { key: 'D', label: "To the company's accounting department" },
-      ],
-      mediaUrl: 'https://images.unsplash.com/photo-1498146831523-fbe41acdc5ad?q=80&w=1200&auto=format&fit=crop',
-      multiple: true,
-    },
-  ]), []);
+  // Build questions dynamically from session/progress; cache loaded question details by order
+  const [byOrder, setByOrder] = useState<Record<number, BuiltQuestion>>({});
+  const [isExpired, setExpired] = useState(false);
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
 
-  const total = questions.length;
-  const [current, setCurrent] = useState(0);
-  const [answers, setAnswers] = useState<Record<number, string[]>>({});
+  // Get sessionId from URL params or localStorage
+  const sessionId = useMemo(() => {
+    // First try URL params
+    const urlSessionId = searchParams.get('sessionId');
+    if (urlSessionId) {
+      return urlSessionId;
+    }
+
+    // Fallback to localStorage
+    try {
+      const session = JSON.parse(localStorage.getItem('currentSurveySession') || 'null');
+      return session?.id as string | undefined;
+    } catch {
+      return undefined;
+    }
+  }, [searchParams]);
+
+  // Use session details endpoint when we have a sessionId, fallback to progress endpoint
+  const sessionQuery = useSessionDetails(sessionId);
+  const progressQuery = useSessionProgress(sessionId);
+
+  // Prefer session details data over progress data
+  const sessionData = sessionQuery.data as any;
+  const progressData = progressQuery.data as any;
+
+  const total = sessionData?.progress?.total_questions ?? progressData?.progress?.total_questions ?? 0;
+
+  const [current, setCurrent] = useState<number | null>(null); // Will be set when session data loads
+  const [answers, setAnswers] = useState<Record<number, string[]>>({}); // key: order → selected letters
+  const [textAnswers, setTextAnswers] = useState<Record<number, string>>({}); // key: order → text answer
+  const submitAnswer = useSubmitAnswer();
   const [navOpen, setNavOpen] = useState(false);
+  const hasInitialized = useRef(false); // Track if we've already initialized the current order
 
-  const question = questions[current];
-  const selected = answers[question.id] || [];
+  // Get current question using the navigation endpoint - only call when we have valid data
+  const questionQuery = useGetQuestion(sessionId, current ?? undefined);
+
+  // Get question data from the navigation endpoint
+  const questionData = questionQuery.data as any;
+  const currentQuestionFromNav = questionData?.question;
+  const navigationData = questionData?.navigation;
+  const existingAnswer = questionData?.answer;
+
+  // Handle loading and error states
+  const isLoading = sessionQuery.isLoading || progressQuery.isLoading || questionQuery.isLoading;
+  const hasError = sessionQuery.error || progressQuery.error || questionQuery.error;
+
+  // drive timer/expiration from API response
+  const expiresAtIso = (sessionData?.expires_at ?? progressData?.session?.expires_at) as string | undefined;
+  const expiresAtMs = useMemo(() => expiresAtIso ? new Date(expiresAtIso).getTime() : undefined, [expiresAtIso]);
+
+  useEffect(() => {
+    if (!expiresAtMs) return;
+    const now = Date.now();
+    if (now >= expiresAtMs) {
+      setExpired(true);
+    }
+  }, [expiresAtMs]);
+
+  // No periodic refresh needed - only fetch when navigating or submitting answers
+
+
+
+  // Initialize current order when session data becomes available (only once)
+  useEffect(() => {
+    if (!hasInitialized.current && current === null) {
+      const sessionCurrentOrder = sessionData?.current_question?.order ?? progressData?.session?.current_question?.order;
+      if (sessionCurrentOrder) {
+        console.log('Initializing current order to:', sessionCurrentOrder);
+        setCurrent(sessionCurrentOrder);
+        hasInitialized.current = true;
+      }
+    }
+  }, [sessionData, progressData, current]);
+
+  // When expired, cleanup and push to profile
+  useEffect(() => {
+    if (isExpired) {
+      localStorage.removeItem('currentSurveySession');
+      navigate('/');
+    }
+  }, [isExpired, navigate]);
+
+  // Initialize questions from navigation endpoint or fallback sources
+  useEffect(() => {
+    // First try navigation endpoint data
+    if (currentQuestionFromNav && !byOrder[currentQuestionFromNav.order]) {
+      const built = buildQuestionFrom(currentQuestionFromNav);
+      setByOrder((prev) => ({ ...prev, [currentQuestionFromNav.order]: built }));
+
+      // Load existing answer if available
+      if (existingAnswer) {
+        if (built.isOpen && existingAnswer.text_answer) {
+          setTextAnswers((prev) => ({ ...prev, [currentQuestionFromNav.order]: existingAnswer.text_answer }));
+        } else if (existingAnswer.choice_ids && existingAnswer.choice_ids.length > 0) {
+          // Convert choice IDs back to letters
+          const letters = Object.keys(built.choiceLetterToId).filter(letter =>
+            existingAnswer.choice_ids.includes(built.choiceLetterToId[letter])
+          );
+          setAnswers((prev) => ({ ...prev, [currentQuestionFromNav.order]: letters }));
+        }
+      }
+      return;
+    }
+
+    // Fallback to session data
+    const currentQ = sessionData?.current_question;
+    if (currentQ && !byOrder[currentQ.order]) {
+      const built = buildQuestionFrom(currentQ);
+      setByOrder((prev) => ({ ...prev, [currentQ.order]: built }));
+      setCurrent(currentQ.order);
+      return;
+    }
+
+    // Final fallback to localStorage
+    try {
+      const storedSession = JSON.parse(localStorage.getItem('currentSurveySession') || 'null');
+      const startQ = (storedSession as any)?.current_question;
+      if (startQ && !byOrder[startQ.order]) {
+        const built = buildQuestionFrom(startQ);
+        setByOrder((prev) => ({ ...prev, [startQ.order]: built }));
+        setCurrent(startQ.order);
+      }
+    } catch {
+      // Ignore parsing errors
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentQuestionFromNav, existingAnswer, sessionData, sessionId]);
+
+  function buildQuestionFrom(qObj: any): BuiltQuestion {
+    const q = qObj.question ?? qObj; // accept either wrapper or plain
+    const isOpen = q.question_type === 'open';
+    const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
+    const choiceLetterToId: Record<string, number> = {};
+    const options: Option[] = isOpen ? [] : (q.choices ?? []).sort((a: any, b: any) => (a.order ?? 0) - (b.order ?? 0)).map((c: any, idx: number) => {
+      const key = letters[idx] ?? String(idx + 1);
+      choiceLetterToId[key] = c.id;
+      return { key, label: c.text };
+    });
+    return {
+      title: q.text,
+      options,
+      multiple: q.question_type === 'multiple',
+      isOpen,
+      choiceLetterToId,
+      mediaUrl: q.image ?? undefined
+    };
+  }
+
+  // Use navigation endpoint data as primary source, fallback to session data
+  const currentQuestion = currentQuestionFromNav ?? sessionData?.current_question ?? progressData?.session?.current_question;
+  const order = currentQuestion?.order ?? current ?? 1;
+  const built = byOrder[order];
+  const selected = answers[order] || [];
+  const textAnswer = textAnswers[order] || '';
+
+  // Check if current question has any answers selected
+  const hasAnswers = built?.isOpen ? textAnswer.trim().length > 0 : selected.length > 0;
 
   function toggleOption(key: string) {
     setAnswers((prev) => {
-      const cur = prev[question.id] || [];
-      const next = question.multiple
+      const cur = prev[order] || [];
+      const next = (built?.multiple ?? false)
         ? cur.includes(key) ? cur.filter((k) => k !== key) : [...cur, key]
         : [key];
-      return { ...prev, [question.id]: next };
+      return { ...prev, [order]: next };
     });
   }
 
-  function go(delta: number) {
-    setCurrent((c) => Math.min(Math.max(c + delta, 0), total - 1));
+  function handleTextChange(value: string) {
+    setTextAnswers((prev) => ({ ...prev, [order]: value }));
   }
 
-  const answeredFlags = questions.map((q) => (answers[q.id]?.length ?? 0) > 0);
+  async function go(delta: number) {
+    if (delta > 0) {
+      // Submit current answer if we have one and session exists
+      if (sessionId && hasAnswers && built) {
+        // Use the question ID from the current question data (from get_question endpoint)
+        const currentQuestionId = currentQuestionFromNav?.question?.id ?? currentQuestion?.question?.id;
+
+        if (!currentQuestionId) {
+          console.error('No question ID found for submission');
+          return;
+        }
+
+        let payload: any = {
+          question_id: currentQuestionId
+        };
+
+        if (built.isOpen) {
+          // For open-ended questions, submit text answer
+          const trimmedAnswer = textAnswer.trim();
+          if (trimmedAnswer.length === 0) {
+            console.error('Empty text answer');
+            return;
+          }
+          payload.text_answer = trimmedAnswer;
+        } else {
+          // For multiple choice questions, submit choice IDs
+          const choiceIds = selected.map((letter) => built.choiceLetterToId[letter]).filter(Boolean);
+          if (choiceIds.length === 0) {
+            console.error('No valid choice IDs');
+            return;
+          }
+          payload.choice_ids = choiceIds;
+        }
+
+        try {
+          console.log('Submitting answer:', { sessionId, payload });
+          const res: any = await submitAnswer.mutateAsync({ sessionId, payload });
+          console.log('Submit response:', res);
+
+          // Update navigation based on response
+          if (res?.session?.current_question) {
+            const nextQ = res.session.current_question;
+            if (nextQ.order) {
+              const bq = buildQuestionFrom(nextQ);
+              setByOrder((prev) => ({ ...prev, [nextQ.order]: bq }));
+              setCurrent(nextQ.order);
+            }
+          }
+
+          // Refresh data
+          await sessionQuery.refetch();
+          await progressQuery.refetch();
+        } catch (error) {
+          console.error('Submit answer error:', error);
+          // Don't proceed if submission failed
+          return;
+        }
+      }
+    }
+
+    // Update current based on navigation data (for backward navigation or when no submission needed)
+    if (navigationData) {
+      if (delta > 0 && navigationData.has_next && navigationData.next_order) {
+        setCurrent(navigationData.next_order);
+      } else if (delta < 0 && navigationData.has_previous && navigationData.previous_order) {
+        setCurrent(navigationData.previous_order);
+      }
+    }
+  }
+
+  const questionsData = progressData?.questions ?? [];
+  const answeredFlags = Array.from({ length: Math.max(total, 0) }).map((_, i) => !!answers[i + 1]?.length || !!questionsData[i]?.is_answered);
+
+
+
+  // Show error state
+  if (hasError) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="max-w-md mx-auto bg-white rounded-lg shadow-lg p-6 text-center">
+          <div className="w-16 h-16 mx-auto mb-4 bg-red-100 rounded-full flex items-center justify-center">
+            <svg className="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+            </svg>
+          </div>
+          <h2 className="text-xl font-semibold text-gray-900 mb-2">Connection Error</h2>
+          <p className="text-gray-600 mb-4">
+            Unable to load test data. Please check your connection and try again.
+          </p>
+          <button
+            onClick={() => window.location.reload()}
+            className="bg-cyan-600 text-white px-4 py-2 rounded-lg hover:bg-cyan-700"
+          >
+            Retry
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // Show loading state
+  if (isLoading || current === null) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="max-w-md mx-auto bg-white rounded-lg shadow-lg p-6 text-center">
+          <div className="w-16 h-16 mx-auto mb-4 bg-cyan-100 rounded-full flex items-center justify-center">
+            <svg className="w-8 h-8 text-cyan-600 animate-spin" fill="none" viewBox="0 0 24 24">
+              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+          </div>
+          <h2 className="text-xl font-semibold text-gray-900 mb-2">Loading Test</h2>
+          <p className="text-gray-600">
+            Please wait while we load your test...
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6 relative">
+      {/* Debug panel - remove in production */}
+      {process.env.NODE_ENV === 'development' && (
+        <div className="bg-gray-100 p-4 rounded-lg text-xs">
+          <div><strong>Debug Info:</strong></div>
+          <div>Current Order: {current}</div>
+          <div>Session ID: {sessionId}</div>
+          <div>Question ID: {currentQuestionFromNav?.question?.id}</div>
+          <div>Navigation: {JSON.stringify(navigationData)}</div>
+          <div>Has Answers: {hasAnswers}</div>
+          <div>Selected: {JSON.stringify(selected)}</div>
+          <div>Text Answer: {textAnswer}</div>
+        </div>
+      )}
+
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="inline-flex items-center gap-2 rounded-full bg-cyan-50 px-3 py-1 text-cyan-700 ring-1 ring-cyan-200">
-            <svg viewBox="0 0 24 24" className="h-4 w-4" fill="currentColor"><path d="M12 22a10 10 0 1 1 0-20 10 10 0 0 1 0 20Zm1-10V7h-2v7h6v-2h-4Z" /></svg>
-            <span className="text-sm">30:24 min</span>
+          <div
+            className="inline-flex items-center gap-2 rounded-full bg-cyan-50 px-3 py-1 text-cyan-700 ring-1 ring-cyan-200">
+            <svg viewBox="0 0 24 24" className="h-4 w-4" fill="currentColor">
+              <path d="M12 22a10 10 0 1 1 0-20 10 10 0 0 1 0 20Zm1-10V7h-2v7h6v-2h-4Z" />
+            </svg>
+            <span className="text-sm">
+              {!isExpired && expiresAtMs && (
+                // @ts-ignore pass target time to timer component
+                <CachedTimer key={sessionId} endTime={expiresAtMs} onExpire={() => setExpired(true)} />
+              )}
+            </span>
           </div>
         </div>
-        <button className="inline-flex items-center rounded-lg border px-3 py-2 text-sm hover:bg-gray-50">Finish test</button>
+        <button className="inline-flex items-center rounded-lg border px-3 py-2 text-sm hover:bg-gray-50">Finish test
+        </button>
       </div>
 
-      <QuestionCard
-        index={current + 1}
-        title={question.title}
-        options={question.options}
-        selectedKeys={selected}
-        multiple={question.multiple}
-        onToggle={toggleOption}
-        media={question.mediaUrl ? (
-          <div className="mt-6 grid gap-6 md:grid-cols-2">
-            <div className="aspect-video rounded-xl overflow-hidden bg-gray-100">
-              <img src={question.mediaUrl} className="h-full w-full object-cover" alt="media" />
+      {built ? (
+        <QuestionCard
+          index={order}
+          title={built.title}
+          options={built.options}
+          selectedKeys={selected}
+          multiple={built.multiple}
+          isOpen={built.isOpen}
+          textAnswer={textAnswer}
+          onToggle={toggleOption}
+          onTextChange={handleTextChange}
+          media={built.mediaUrl ? (
+            <div className="mt-6 grid gap-6 md:grid-cols-2">
+              <div className="aspect-video rounded-xl overflow-hidden bg-gray-100">
+                <img src={built.mediaUrl} className="h-full w-full object-cover" alt="media" />
+              </div>
             </div>
-          </div>
-        ) : null}
-      />
+          ) : null}
+        />
+      ) : (
+        <section className="rounded-2xl bg-white shadow-sm ring-1 ring-gray-200 p-6">Loading question...</section>
+      )}
 
       <div className="relative">
         <div className="flex justify-between items-center rounded-2xl bg-white ring-1 ring-gray-200 p-3">
-          <button onClick={() => setNavOpen((v) => !v)} className="rounded-xl px-3 py-2 text-sm ring-1 ring-gray-200 hover:bg-gray-50">Question {current + 1} of {total}</button>
+          <button onClick={() => setNavOpen((v) => !v)}
+            className="rounded-xl px-3 py-2 text-sm ring-1 ring-gray-200 hover:bg-gray-50">Question {order} of {total}</button>
           <div className="flex items-center gap-2">
-            <button onClick={() => go(-1)} className="rounded-lg border px-3 py-2 text-sm hover:bg-gray-50">Prev</button>
-            <button onClick={() => go(1)} className="rounded-lg bg-cyan-600 text-white px-3 py-2 text-sm hover:bg-cyan-700">Next</button>
+            <button
+              disabled={isExpired || !navigationData?.has_previous}
+              onClick={() => go(-1)}
+              className="rounded-lg border px-3 py-2 text-sm hover:bg-gray-50 disabled:opacity-50">
+              Prev
+            </button>
+            <button
+              disabled={isExpired || !hasAnswers || !navigationData?.has_next}
+              onClick={() => go(1)}
+              className="rounded-lg bg-cyan-600 text-white px-3 py-2 text-sm hover:bg-cyan-700 disabled:opacity-50 disabled:bg-gray-400">
+              Next
+            </button>
           </div>
         </div>
 
         <QuestionNavigator
           total={total}
-          currentIndex={current}
+          currentIndex={Math.max(order - 1, 0)} // Convert order to zero-based index for navigator
           answered={answeredFlags}
           open={navOpen}
           onClose={() => setNavOpen(false)}
-          onSelect={(i) => setCurrent(i)}
+          onSelect={(i) => setCurrent(i + 1)} // Convert zero-based index back to order
           // @ts-ignore supply popup variant
           variant="popup"
         />
 
-        <QuestionNavigator
-          total={total}
-          currentIndex={current}
-          answered={answeredFlags}
-          open={navOpen}
-          onClose={() => setNavOpen(false)}
-          onSelect={(i) => setCurrent(i)}
-        />
+        {/* Docked or second navigator removed */}
       </div>
     </div>
   );

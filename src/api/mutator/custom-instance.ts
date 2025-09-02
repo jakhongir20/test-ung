@@ -1,5 +1,4 @@
-import axios, { type AxiosInstance, type AxiosRequestConfig } from 'axios';
-import Cookies from 'js-cookie';
+import axios, { type AxiosInstance, type AxiosRequestConfig, type AxiosResponse } from 'axios';
 import { BASE_URL } from '../config';
 
 let instance: AxiosInstance | null = null;
@@ -31,7 +30,7 @@ function getInstance(): AxiosInstance {
     } catch {
     }
 
-    const token = Cookies.get('accessToken');
+    const token = localStorage.getItem('accessToken');
     if (token) {
       config.headers = config.headers ?? {};
       config.headers['Authorization'] = `Bearer ${token}` as string;
@@ -41,50 +40,48 @@ function getInstance(): AxiosInstance {
   });
 
   instance.interceptors.response.use(
-    (response) => response.data,
+    (response: AxiosResponse) => response,
     async (error) => {
       const originalRequest = error?.config;
-      if (error?.response?.status === 401 && originalRequest && !originalRequest._retry) {
+      if (error?.response?.status === 401 && originalRequest && !(originalRequest as any)._retry) {
         if (isRefreshing) {
           return new Promise((resolve, reject) => {
             failedQueue.push({resolve, reject});
           }).then((token) => {
-            if (token) originalRequest.headers['Authorization'] = `Bearer ${token}`;
+            if (token) (originalRequest.headers = originalRequest.headers ?? {}, originalRequest.headers['Authorization'] = `Bearer ${token}`);
             return instance!(originalRequest);
           }).catch((err) => Promise.reject(err));
         }
 
-        originalRequest._retry = true;
+        (originalRequest as any)._retry = true;
         isRefreshing = true;
 
-        const refreshToken = Cookies.get('refreshToken');
+        const refreshToken = localStorage.getItem('refreshToken');
         if (!refreshToken) {
-          Cookies.remove('accessToken');
-          Cookies.remove('refreshToken');
+          localStorage.removeItem('accessToken');
+          localStorage.removeItem('refreshToken');
           processQueue(new Error('No refresh token'), null);
           isRefreshing = false;
           return Promise.reject(error);
         }
 
         try {
-          const refreshUrl = `${BASE_URL}/api/v1/auth/refresh`;
-          const res = await axios.post(refreshUrl, {refreshToken});
-          const {accessToken, refreshToken: newRefreshToken} = res.data?.data || {};
+          const refreshUrl = `${BASE_URL}/api/auth/token/refresh/`;
+          const res = await axios.post(refreshUrl, { refresh: refreshToken });
+          const access = res.data?.access as string | undefined;
+          const newRefresh = (res.data?.refresh as string | undefined) ?? refreshToken;
 
-          if (accessToken) {
-            Cookies.set('accessToken', accessToken, {secure: true, sameSite: 'strict'});
-          }
-          if (newRefreshToken) {
-            Cookies.set('refreshToken', newRefreshToken, {secure: true, sameSite: 'strict'});
-          }
+          if (access) localStorage.setItem('accessToken', access);
+          if (newRefresh) localStorage.setItem('refreshToken', newRefresh);
 
-          originalRequest.headers['Authorization'] = `Bearer ${accessToken}`;
-          processQueue(null, accessToken);
+          originalRequest.headers = originalRequest.headers ?? {};
+          originalRequest.headers['Authorization'] = `Bearer ${access}`;
+          processQueue(null, access ?? null);
           isRefreshing = false;
           return instance!(originalRequest);
         } catch (refreshErr) {
-          Cookies.remove('accessToken');
-          Cookies.remove('refreshToken');
+          localStorage.removeItem('accessToken');
+          localStorage.removeItem('refreshToken');
           processQueue(refreshErr, null);
           isRefreshing = false;
           return Promise.reject(refreshErr);
@@ -103,5 +100,6 @@ export const customInstance = async <T>(
 ): Promise<T> => {
   const axiosInstance = getInstance();
   const response = await axiosInstance({...config, ...options});
-  return response.data as T;
+  // response is an AxiosResponse because response interceptor returns the raw response
+  return (response as AxiosResponse).data as T;
 };

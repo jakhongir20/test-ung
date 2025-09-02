@@ -507,25 +507,29 @@
                             "application/json": {
                                 "schema": {
                                     "type": "object",
+                                    "title": "ModeratorDashboard",
                                     "properties": {
                                         "recent_activity": {
                                             "type": "array",
                                             "items": {
-                                                "type": "object"
+                                                "type": "object",
+                                                "title": "RecentActivity"
                                             },
                                             "description": "Последняя активность"
                                         },
                                         "top_performers": {
                                             "type": "array",
                                             "items": {
-                                                "type": "object"
+                                                "type": "object",
+                                                "title": "TopPerformer"
                                             },
                                             "description": "Лучшие пользователи"
                                         },
                                         "surveys_needing_attention": {
                                             "type": "array",
                                             "items": {
-                                                "type": "object"
+                                                "type": "object",
+                                                "title": "SurveyAttention"
                                             },
                                             "description": "Опросы, требующие внимания"
                                         }
@@ -567,6 +571,7 @@
                                         "type": "array",
                                         "items": {
                                             "type": "object",
+                                            "title": "SurveyStatisticsItem",
                                             "properties": {
                                                 "id": {
                                                     "type": "integer"
@@ -649,6 +654,7 @@
                             "application/json": {
                                 "schema": {
                                     "type": "object",
+                                    "title": "SurveyStatisticsDetail",
                                     "properties": {
                                         "id": {
                                             "type": "integer"
@@ -731,18 +737,21 @@
                                     "type": "object",
                                     "properties": {
                                         "survey": {
-                                            "type": "object"
+                                            "type": "object",
+                                            "title": "SurveyStatistics"
                                         },
                                         "results": {
                                             "type": "array",
                                             "items": {
                                                 "type": "object",
+                                                "title": "DetailedResult",
                                                 "properties": {
                                                     "session_id": {
                                                         "type": "string"
                                                     },
                                                     "user": {
-                                                        "type": "object"
+                                                        "type": "object",
+                                                        "title": "UserBasic"
                                                     },
                                                     "score": {
                                                         "type": "integer"
@@ -790,6 +799,7 @@
                             "application/json": {
                                 "schema": {
                                     "type": "object",
+                                    "title": "DashboardStats",
                                     "properties": {
                                         "total_users": {
                                             "type": "integer",
@@ -892,6 +902,7 @@
                                         "type": "array",
                                         "items": {
                                             "type": "object",
+                                            "title": "ModeratorUserList",
                                             "properties": {
                                                 "id": {
                                                     "type": "integer"
@@ -977,6 +988,7 @@
                             "application/json": {
                                 "schema": {
                                     "type": "object",
+                                    "title": "ModeratorUserDetail",
                                     "properties": {
                                         "id": {
                                             "type": "integer"
@@ -1008,11 +1020,13 @@
                                         "survey_history": {
                                             "type": "array",
                                             "items": {
-                                                "type": "object"
+                                                "type": "object",
+                                                "title": "SurveyHistoryItem"
                                             }
                                         },
                                         "total_statistics": {
-                                            "type": "object"
+                                            "type": "object",
+                                            "title": "UserStatistics"
                                         }
                                     }
                                 }
@@ -1045,6 +1059,13 @@
                 "requestBody": {
                     "content": {
                         "type": {
+                            "schema": {
+                                "type": "object",
+                                "additionalProperties": {},
+                                "description": "Unspecified request body"
+                            }
+                        },
+                        "title": {
                             "schema": {
                                 "type": "object",
                                 "additionalProperties": {},
@@ -1183,6 +1204,7 @@
                                             },
                                             "survey": {
                                                 "type": "object",
+                                                "title": "SurveyBasic",
                                                 "properties": {
                                                     "id": {
                                                         "type": "integer"
@@ -1208,6 +1230,7 @@
                                                 "type": "array",
                                                 "items": {
                                                     "type": "object",
+                                                    "title": "DetailedAnswer",
                                                     "properties": {
                                                         "question_id": {
                                                             "type": "integer"
@@ -1234,6 +1257,7 @@
                                                             "type": "array",
                                                             "items": {
                                                                 "type": "object",
+                                                                "title": "ChoiceDetail",
                                                                 "properties": {
                                                                     "id": {
                                                                         "type": "integer"
@@ -1287,6 +1311,7 @@
                                     "type": "array",
                                     "items": {
                                         "type": "object",
+                                        "title": "ModeratorUserOverview",
                                         "properties": {
                                             "id": {
                                                 "type": "integer"
@@ -1492,6 +1517,84 @@
                 }
             }
         },
+        "/api/sessions/{id}/all_answers/": {
+            "get": {
+                "operationId": "sessions_all_answers_retrieve",
+                "description": "Получить все вопросы сессии с ответами пользователя.\n        \n        Возвращает список всех вопросов с информацией об ответах и заработанных баллах.",
+                "summary": "Все ответы пользователя",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "required": true
+                    }
+                ],
+                "tags": [
+                    "Сессии"
+                ],
+                "security": [
+                    {
+                        "jwtAuth": []
+                    },
+                    {
+                        "cookieAuth": []
+                    },
+                    {
+                        "tokenAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "questions": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "question": {
+                                                        "type": "object",
+                                                        "description": "Информация о вопросе"
+                                                    },
+                                                    "answer": {
+                                                        "type": "object",
+                                                        "nullable": true,
+                                                        "description": "Ответ пользователя"
+                                                    },
+                                                    "points_earned": {
+                                                        "type": "number",
+                                                        "description": "Заработанные баллы"
+                                                    },
+                                                    "max_points": {
+                                                        "type": "number",
+                                                        "description": "Максимальные баллы"
+                                                    }
+                                                }
+                                            }
+                                        },
+                                        "total_points": {
+                                            "type": "number",
+                                            "description": "Общее количество заработанных баллов"
+                                        },
+                                        "max_total_points": {
+                                            "type": "number",
+                                            "description": "Максимально возможные баллы"
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            }
+        },
         "/api/sessions/{id}/cancel/": {
             "post": {
                 "operationId": "sessions_cancel_create",
@@ -1553,7 +1656,8 @@
                                             "example": "Session cancelled successfully"
                                         },
                                         "session": {
-                                            "type": "object"
+                                            "type": "object",
+                                            "title": "Session"
                                         }
                                     }
                                 }
@@ -1570,6 +1674,365 @@
                                         "error": {
                                             "type": "string",
                                             "example": "Cannot cancel this session"
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            }
+        },
+        "/api/sessions/{id}/get_question/": {
+            "get": {
+                "operationId": "sessions_get_question_retrieve",
+                "description": "Получить конкретный вопрос сессии по его порядковому номеру.\n        \n        Возвращает вопрос с возможностью навигации к предыдущему и следующему вопросу.",
+                "summary": "Получить вопрос по номеру",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "required": true
+                    },
+                    {
+                        "in": "query",
+                        "name": "order",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "description": "Порядковый номер вопроса",
+                        "required": true
+                    }
+                ],
+                "tags": [
+                    "Сессии"
+                ],
+                "security": [
+                    {
+                        "jwtAuth": []
+                    },
+                    {
+                        "cookieAuth": []
+                    },
+                    {
+                        "tokenAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "question": {
+                                            "type": "object",
+                                            "description": "Информация о вопросе"
+                                        },
+                                        "navigation": {
+                                            "type": "object",
+                                            "properties": {
+                                                "has_previous": {
+                                                    "type": "boolean"
+                                                },
+                                                "has_next": {
+                                                    "type": "boolean"
+                                                },
+                                                "previous_order": {
+                                                    "type": "integer",
+                                                    "nullable": true
+                                                },
+                                                "next_order": {
+                                                    "type": "integer",
+                                                    "nullable": true
+                                                }
+                                            }
+                                        },
+                                        "answer": {
+                                            "type": "object",
+                                            "nullable": true,
+                                            "description": "Ответ пользователя на этот вопрос (если есть)"
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "404": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "Question not found"
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            }
+        },
+        "/api/sessions/{id}/modify_answer/": {
+            "post": {
+                "operationId": "sessions_modify_answer_create",
+                "description": "Изменить уже данный ответ на вопрос.\n        \n        Доступно только для активных сессий и отвеченных вопросов.",
+                "summary": "Изменить ответ",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "required": true
+                    }
+                ],
+                "tags": [
+                    "Сессии"
+                ],
+                "requestBody": {
+                    "content": {
+                        "type": {
+                            "schema": {
+                                "type": "object",
+                                "additionalProperties": {},
+                                "description": "Unspecified request body"
+                            }
+                        },
+                        "properties": {
+                            "schema": {
+                                "question_id": {
+                                    "type": "integer"
+                                },
+                                "choice_ids": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "integer"
+                                    }
+                                },
+                                "text_answer": {
+                                    "type": "string"
+                                }
+                            }
+                        },
+                        "required": {
+                            "schema": {
+                                "type": "object",
+                                "additionalProperties": {},
+                                "description": "Unspecified request body"
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "jwtAuth": []
+                    },
+                    {
+                        "cookieAuth": []
+                    },
+                    {
+                        "tokenAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string"
+                                        },
+                                        "answer": {
+                                            "type": "object"
+                                        },
+                                        "session": {
+                                            "type": "object"
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "400": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            }
+        },
+        "/api/sessions/{id}/next_question_by_order/": {
+            "get": {
+                "operationId": "sessions_next_question_by_order_retrieve",
+                "description": "Получить следующий вопрос в сессии по порядковому номеру.\n        \n        Возвращает следующий вопрос по порядку, независимо от того, отвечен он или нет.",
+                "summary": "Следующий вопрос по порядку",
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "current_order",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "description": "Порядковый номер текущего вопроса",
+                        "required": true
+                    },
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "required": true
+                    }
+                ],
+                "tags": [
+                    "Сессии"
+                ],
+                "security": [
+                    {
+                        "jwtAuth": []
+                    },
+                    {
+                        "cookieAuth": []
+                    },
+                    {
+                        "tokenAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "question": {
+                                            "type": "object",
+                                            "description": "Информация о следующем вопросе"
+                                        },
+                                        "answer": {
+                                            "type": "object",
+                                            "nullable": true,
+                                            "description": "Ответ пользователя на этот вопрос (если есть)"
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "404": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "No next question"
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            }
+        },
+        "/api/sessions/{id}/previous_question/": {
+            "get": {
+                "operationId": "sessions_previous_question_retrieve",
+                "description": "Получить предыдущий вопрос в сессии.\n        \n        Возвращает предыдущий вопрос по порядку, независимо от того, отвечен он или нет.",
+                "summary": "Предыдущий вопрос",
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "current_order",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "description": "Порядковый номер текущего вопроса",
+                        "required": true
+                    },
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "required": true
+                    }
+                ],
+                "tags": [
+                    "Сессии"
+                ],
+                "security": [
+                    {
+                        "jwtAuth": []
+                    },
+                    {
+                        "cookieAuth": []
+                    },
+                    {
+                        "tokenAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "question": {
+                                            "type": "object",
+                                            "description": "Информация о предыдущем вопросе"
+                                        },
+                                        "answer": {
+                                            "type": "object",
+                                            "nullable": true,
+                                            "description": "Ответ пользователя на этот вопрос (если есть)"
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "404": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "No previous question"
                                         }
                                     }
                                 }
@@ -1628,7 +2091,8 @@
                                             "description": "Детальная информация по каждому вопросу"
                                         },
                                         "session": {
-                                            "type": "object"
+                                            "type": "object",
+                                            "title": "Session"
                                         }
                                     }
                                 }
@@ -1713,7 +2177,8 @@
                                             "type": "string"
                                         },
                                         "session": {
-                                            "type": "object"
+                                            "type": "object",
+                                            "title": "Session"
                                         },
                                         "final_score": {
                                             "type": "object",
@@ -1794,6 +2259,7 @@
                                         "type": "array",
                                         "items": {
                                             "type": "object",
+                                            "title": "SurveyList",
                                             "properties": {
                                                 "id": {
                                                     "type": "integer"
@@ -1886,6 +2352,7 @@
                             "application/json": {
                                 "schema": {
                                     "type": "object",
+                                    "title": "SurveyDetail",
                                     "properties": {
                                         "id": {
                                             "type": "integer"
@@ -1948,6 +2415,13 @@
                                 "description": "Unspecified request body"
                             }
                         },
+                        "title": {
+                            "schema": {
+                                "type": "object",
+                                "additionalProperties": {},
+                                "description": "Unspecified request body"
+                            }
+                        },
                         "properties": {
                             "schema": {
                                 "questions_count": {
@@ -1985,13 +2459,15 @@
                             "application/json": {
                                 "schema": {
                                     "type": "object",
+                                    "title": "SurveySession",
                                     "properties": {
                                         "id": {
                                             "type": "string",
                                             "format": "uuid"
                                         },
                                         "survey": {
-                                            "type": "object"
+                                            "type": "object",
+                                            "title": "Survey"
                                         },
                                         "status": {
                                             "type": "string"
@@ -2011,13 +2487,15 @@
                                             "type": "string"
                                         },
                                         "progress": {
-                                            "type": "object"
+                                            "type": "object",
+                                            "title": "Progress"
                                         },
                                         "time_remaining": {
                                             "type": "integer"
                                         },
                                         "current_question": {
                                             "type": "object",
+                                            "title": "Question",
                                             "nullable": true
                                         },
                                         "score": {
