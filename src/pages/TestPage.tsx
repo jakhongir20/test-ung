@@ -2,7 +2,7 @@ import type { FC } from 'react';
 import { useEffect, useMemo, useState, useRef } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { CachedTimer, type Option, QuestionCard, QuestionNavigator } from '../components/test';
-import { useSessionDetails, useSessionProgress, useSubmitAnswer, useGetQuestion } from '../api/surveys';
+import { useSessionDetails, useSessionProgress, useSubmitAnswer, useGetQuestion, useFinishSession } from '../api/surveys';
 
 type BuiltQuestion = {
   title: string;
@@ -52,6 +52,7 @@ const TestPage: FC = () => {
   const [answers, setAnswers] = useState<Record<number, string[]>>({}); // key: order → selected letters
   const [textAnswers, setTextAnswers] = useState<Record<number, string>>({}); // key: order → text answer
   const submitAnswer = useSubmitAnswer();
+  const finishSession = useFinishSession();
   const [navOpen, setNavOpen] = useState(false);
   const hasInitialized = useRef(false); // Track if we've already initialized the current order
 
@@ -180,6 +181,9 @@ const TestPage: FC = () => {
   // Check if current question has any answers selected
   const hasAnswers = built?.isOpen ? textAnswer.trim().length > 0 : selected.length > 0;
 
+  // Check if this is the last question
+  const isLastQuestion = !navigationData?.has_next || order === total;
+
   function toggleOption(key: string) {
     setAnswers((prev) => {
       const cur = prev[order] || [];
@@ -192,6 +196,25 @@ const TestPage: FC = () => {
 
   function handleTextChange(value: string) {
     setTextAnswers((prev) => ({ ...prev, [order]: value }));
+  }
+
+  async function finishTest() {
+    if (!sessionId) return;
+
+    try {
+      console.log('Manually finishing session:', sessionId);
+      const finishRes = await finishSession.mutateAsync(sessionId);
+      console.log('Manual finish response:', finishRes);
+
+      // Clean up and navigate to main page
+      localStorage.removeItem('currentSurveySession');
+      navigate('/');
+    } catch (error) {
+      console.error('Manual finish error:', error);
+      // Still navigate even if finish fails
+      localStorage.removeItem('currentSurveySession');
+      navigate('/');
+    }
   }
 
   async function go(delta: number) {
@@ -233,7 +256,37 @@ const TestPage: FC = () => {
           const res: any = await submitAnswer.mutateAsync({ sessionId, payload });
           console.log('Submit response:', res);
 
-          // Update navigation based on response
+          // Check if this was the last question and if the session was automatically finished
+          if (isLastQuestion) {
+            // If final_score is present in the response, the session was automatically finished
+            if (res?.final_score) {
+              console.log('Session automatically finished by submit_answer');
+              // Clean up and navigate to main page
+              localStorage.removeItem('currentSurveySession');
+              navigate('/');
+              return;
+            } else {
+              // Manually finish the session if it wasn't automatically finished
+              try {
+                console.log('Manually finishing session:', sessionId);
+                const finishRes = await finishSession.mutateAsync(sessionId);
+                console.log('Finish response:', finishRes);
+
+                // Clean up and navigate to main page
+                localStorage.removeItem('currentSurveySession');
+                navigate('/');
+                return;
+              } catch (finishError) {
+                console.error('Finish session error:', finishError);
+                // Still try to navigate even if finish fails
+                localStorage.removeItem('currentSurveySession');
+                navigate('/');
+                return;
+              }
+            }
+          }
+
+          // Update navigation based on response (for non-last questions)
           if (res?.session?.current_question) {
             const nextQ = res.session.current_question;
             if (nextQ.order) {
@@ -327,6 +380,10 @@ const TestPage: FC = () => {
           <div>Has Answers: {hasAnswers}</div>
           <div>Selected: {JSON.stringify(selected)}</div>
           <div>Text Answer: {textAnswer}</div>
+          <div>Is Last Question: {isLastQuestion}</div>
+          <div>Expires At: {expiresAtIso}</div>
+          <div>Expires At Ms: {expiresAtMs}</div>
+          <div>Time Remaining: {expiresAtMs ? Math.max(0, Math.floor((expiresAtMs - Date.now()) / 1000 / 60)) : 'N/A'} minutes</div>
         </div>
       )}
 
@@ -345,7 +402,10 @@ const TestPage: FC = () => {
             </span>
           </div>
         </div>
-        <button className="inline-flex items-center rounded-lg border px-3 py-2 text-sm hover:bg-gray-50">Finish test
+        <button
+          onClick={finishTest}
+          className="inline-flex items-center rounded-lg border px-3 py-2 text-sm hover:bg-gray-50">
+          Finish test
         </button>
       </div>
 
@@ -384,10 +444,10 @@ const TestPage: FC = () => {
               Prev
             </button>
             <button
-              disabled={isExpired || !hasAnswers || !navigationData?.has_next}
+              disabled={isExpired || !hasAnswers}
               onClick={() => go(1)}
               className="rounded-lg bg-cyan-600 text-white px-3 py-2 text-sm hover:bg-cyan-700 disabled:opacity-50 disabled:bg-gray-400">
-              Next
+              {isLastQuestion ? 'Finish' : 'Next'}
             </button>
           </div>
         </div>

@@ -1,4 +1,4 @@
-import { useSurveysStartCreate, useSessionsProgressRetrieve, useSessionsSubmitAnswerCreate, useCurrentSessionRetrieve, useSessionsRetrieve, useSessionsGetQuestionRetrieve } from './generated/respondentWebAPI'
+import { useSurveysStartCreate, useSessionsProgressRetrieve, useSessionsSubmitAnswerCreate, useCurrentSessionRetrieve, useSessionsRetrieve, useSessionsGetQuestionRetrieve, useSessionsFinishCreate } from './generated/respondentWebAPI'
 import { useMutation } from '@tanstack/react-query'
 
 export function useStartSurvey() {
@@ -51,6 +51,13 @@ export function useGetQuestion(sessionId?: string, order?: number) {
       } 
     }
   )
+}
+
+export function useFinishSession() {
+  const m = useSessionsFinishCreate()
+  return useMutation({
+    mutationFn: (sessionId: string) => m.mutateAsync({ id: sessionId, data: {} }),
+  })
 }
 
 

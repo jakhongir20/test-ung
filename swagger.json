@@ -1684,6 +1684,120 @@
                 }
             }
         },
+        "/api/sessions/{id}/finish/": {
+            "post": {
+                "operationId": "sessions_finish_create",
+                "description": "Принудительно завершить опрос и рассчитать финальный результат.\n        \n        Завершает сессию независимо от количества отвеченных вопросов.\n        Рассчитывает финальный балл на основе отвеченных вопросов.\n        Обновляет историю пользователя.",
+                "summary": "Завершить опрос",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "required": true
+                    }
+                ],
+                "tags": [
+                    "Сессии"
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/SurveySessionRequest"
+                            }
+                        },
+                        "application/x-www-form-urlencoded": {
+                            "schema": {
+                                "$ref": "#/components/schemas/SurveySessionRequest"
+                            }
+                        },
+                        "multipart/form-data": {
+                            "schema": {
+                                "$ref": "#/components/schemas/SurveySessionRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "security": [
+                    {
+                        "jwtAuth": []
+                    },
+                    {
+                        "cookieAuth": []
+                    },
+                    {
+                        "tokenAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Survey finished successfully"
+                                        },
+                                        "session": {
+                                            "type": "object",
+                                            "title": "Session"
+                                        },
+                                        "final_score": {
+                                            "type": "object",
+                                            "description": "Финальный результат опроса"
+                                        },
+                                        "completion_stats": {
+                                            "type": "object",
+                                            "properties": {
+                                                "total_questions": {
+                                                    "type": "integer",
+                                                    "description": "Общее количество вопросов"
+                                                },
+                                                "answered_questions": {
+                                                    "type": "integer",
+                                                    "description": "Количество отвеченных вопросов"
+                                                },
+                                                "unanswered_questions": {
+                                                    "type": "integer",
+                                                    "description": "Количество неотвеченных вопросов"
+                                                },
+                                                "completion_percentage": {
+                                                    "type": "number",
+                                                    "description": "Процент завершения"
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "400": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "Cannot finish this session"
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            }
+        },
         "/api/sessions/{id}/get_question/": {
             "get": {
                 "operationId": "sessions_get_question_retrieve",
@@ -1785,8 +1899,8 @@
         "/api/sessions/{id}/modify_answer/": {
             "post": {
                 "operationId": "sessions_modify_answer_create",
-                "description": "Изменить уже данный ответ на вопрос.\n        \n        Доступно только для активных сессий и отвеченных вопросов.",
-                "summary": "Изменить ответ",
+                "description": "Обновить уже данный ответ на вопрос.\n        \n        Доступно только для активных сессий и отвеченных вопросов.\n        Альтернативно можно использовать submit_answer для обновления ответов.",
+                "summary": "Обновить ответ",
                 "parameters": [
                     {
                         "in": "path",
@@ -2106,8 +2220,8 @@
         "/api/sessions/{id}/submit_answer/": {
             "post": {
                 "operationId": "sessions_submit_answer_create",
-                "description": "Отправить ответ на вопрос в рамках сессии.\n        \n        Поддерживает различные типы вопросов: один вариант, множественный выбор, открытый ответ.\n        Автоматически завершает сессию при ответе на последний вопрос.",
-                "summary": "Отправить ответ",
+                "description": "Отправить ответ на вопрос в рамках сессии.\n        \n        Поддерживает различные типы вопросов: один вариант, множественный выбор, открытый ответ.\n        Позволяет обновлять уже данные ответы, если пользователь передумал.\n        Автоматически завершает сессию при ответе на последний вопрос.\n        Поддерживает принудительное завершение опроса.",
+                "summary": "Отправить/обновить ответ",
                 "parameters": [
                     {
                         "in": "path",
@@ -2143,6 +2257,10 @@
                                 },
                                 "text_answer": {
                                     "type": "string"
+                                },
+                                "force_finish": {
+                                    "type": "boolean",
+                                    "description": "Принудительно завершить опрос после этого ответа"
                                 }
                             }
                         },

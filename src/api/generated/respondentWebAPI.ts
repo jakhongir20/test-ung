@@ -80,6 +80,8 @@ import type {
   SessionsAllAnswersRetrieve200,
   SessionsCancelCreate200,
   SessionsCancelCreate400,
+  SessionsFinishCreate200,
+  SessionsFinishCreate400,
   SessionsGetQuestionRetrieve200,
   SessionsGetQuestionRetrieve404,
   SessionsGetQuestionRetrieveParams,
@@ -1844,6 +1846,77 @@ export const useSessionsCancelCreate = <TError = SessionsCancelCreate400,
     }
     
 /**
+ * Принудительно завершить опрос и рассчитать финальный результат.
+        
+        Завершает сессию независимо от количества отвеченных вопросов.
+        Рассчитывает финальный балл на основе отвеченных вопросов.
+        Обновляет историю пользователя.
+ * @summary Завершить опрос
+ */
+export const sessionsFinishCreate = (
+    id: string,
+    surveySessionRequest: SurveySessionRequest,
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+      
+      
+      return customInstance<SessionsFinishCreate200>(
+      {url: `/api/sessions/${id}/finish/`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: surveySessionRequest, signal
+    },
+      options);
+    }
+  
+
+
+export const getSessionsFinishCreateMutationOptions = <TError = SessionsFinishCreate400,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof sessionsFinishCreate>>, TError,{id: string;data: SurveySessionRequest}, TContext>, request?: SecondParameter<typeof customInstance>}
+): UseMutationOptions<Awaited<ReturnType<typeof sessionsFinishCreate>>, TError,{id: string;data: SurveySessionRequest}, TContext> => {
+
+const mutationKey = ['sessionsFinishCreate'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof sessionsFinishCreate>>, {id: string;data: SurveySessionRequest}> = (props) => {
+          const {id,data} = props ?? {};
+
+          return  sessionsFinishCreate(id,data,requestOptions)
+        }
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type SessionsFinishCreateMutationResult = NonNullable<Awaited<ReturnType<typeof sessionsFinishCreate>>>
+    export type SessionsFinishCreateMutationBody = SurveySessionRequest
+    export type SessionsFinishCreateMutationError = SessionsFinishCreate400
+
+    /**
+ * @summary Завершить опрос
+ */
+export const useSessionsFinishCreate = <TError = SessionsFinishCreate400,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof sessionsFinishCreate>>, TError,{id: string;data: SurveySessionRequest}, TContext>, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof sessionsFinishCreate>>,
+        TError,
+        {id: string;data: SurveySessionRequest},
+        TContext
+      > => {
+
+      const mutationOptions = getSessionsFinishCreateMutationOptions(options);
+
+      return useMutation(mutationOptions , queryClient);
+    }
+    
+/**
  * Получить конкретный вопрос сессии по его порядковому номеру.
         
         Возвращает вопрос с возможностью навигации к предыдущему и следующему вопросу.
@@ -1943,10 +2016,11 @@ export function useSessionsGetQuestionRetrieve<TData = Awaited<ReturnType<typeof
 
 
 /**
- * Изменить уже данный ответ на вопрос.
+ * Обновить уже данный ответ на вопрос.
         
         Доступно только для активных сессий и отвеченных вопросов.
- * @summary Изменить ответ
+        Альтернативно можно использовать submit_answer для обновления ответов.
+ * @summary Обновить ответ
  */
 export const sessionsModifyAnswerCreate = (
     id: string,
@@ -1994,7 +2068,7 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
     export type SessionsModifyAnswerCreateMutationError = SessionsModifyAnswerCreate400
 
     /**
- * @summary Изменить ответ
+ * @summary Обновить ответ
  */
 export const useSessionsModifyAnswerCreate = <TError = SessionsModifyAnswerCreate400,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof sessionsModifyAnswerCreate>>, TError,{id: string;data: SessionsModifyAnswerCreateBodyOne | unknown | SessionsModifyAnswerCreateBodyThree}, TContext>, request?: SecondParameter<typeof customInstance>}
@@ -2303,8 +2377,10 @@ export function useSessionsProgressRetrieve<TData = Awaited<ReturnType<typeof se
  * Отправить ответ на вопрос в рамках сессии.
         
         Поддерживает различные типы вопросов: один вариант, множественный выбор, открытый ответ.
+        Позволяет обновлять уже данные ответы, если пользователь передумал.
         Автоматически завершает сессию при ответе на последний вопрос.
- * @summary Отправить ответ
+        Поддерживает принудительное завершение опроса.
+ * @summary Отправить/обновить ответ
  */
 export const sessionsSubmitAnswerCreate = (
     id: string,
@@ -2352,7 +2428,7 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
     export type SessionsSubmitAnswerCreateMutationError = SessionsSubmitAnswerCreate400
 
     /**
- * @summary Отправить ответ
+ * @summary Отправить/обновить ответ
  */
 export const useSessionsSubmitAnswerCreate = <TError = SessionsSubmitAnswerCreate400,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof sessionsSubmitAnswerCreate>>, TError,{id: string;data: SessionsSubmitAnswerCreateBodyOne | unknown | SessionsSubmitAnswerCreateBodyThree}, TContext>, request?: SecondParameter<typeof customInstance>}

@@ -3,53 +3,58 @@ import { useEffect } from "react";
 import { useTimer } from "react-timer-hook";
 
 interface Props {
+  endTime: number; // Unix timestamp in milliseconds
   onExpire: () => void;
 }
 
-const STORAGE_KEY = "my-timer-expiry";
-const DURATION_SEC = 59;
+export const CachedTimer: FC<Props> = ({ endTime, onExpire }) => {
+  // Validate endTime
+  if (!endTime || endTime <= 0) {
+    return (
+      <div className="flex items-center justify-center gap-1 text-sm font-medium text-gray">
+        <span style={{ fontFamily: "monospace" }}>--:-- min</span>
+      </div>
+    );
+  }
 
-const makeExpiry = () => {
-  const d = new Date();
-  d.setSeconds(d.getSeconds() + DURATION_SEC);
-  return d;
-};
+  // Convert endTime to Date object for useTimer
+  const expiryDate = new Date(endTime);
 
-export const CachedTimer: FC<Props> = ({onExpire}) => {
-  const stored = localStorage.getItem(STORAGE_KEY);
-  const expiry = stored ? new Date(stored) : makeExpiry();
-
-  const {seconds, minutes, restart} = useTimer({
-    expiryTimestamp: expiry,
+  const { seconds, minutes, hours, restart } = useTimer({
+    expiryTimestamp: expiryDate,
     onExpire: onExpire,
   });
-  /* eslint-disable @typescript-eslint/no-unused-vars */
 
-  const resetTimer = () => {
-    const next = makeExpiry();
-    localStorage.setItem(STORAGE_KEY, next.toISOString());
-    restart(next);
-  };
-
+  // Update timer when endTime changes
   useEffect(() => {
+    const newExpiry = new Date(endTime);
     const now = Date.now();
-    if (expiry.getTime() <= now) {
-      const next = makeExpiry();
-      localStorage.setItem(STORAGE_KEY, next.toISOString());
-      restart(next);
+
+    if (endTime <= now) {
+      // Already expired
+      onExpire();
     } else {
-      localStorage.setItem(STORAGE_KEY, expiry.toISOString());
+      // Restart timer with new expiry
+      restart(newExpiry);
     }
-  }, []);
+  }, [endTime, onExpire, restart]);
+
+  // Calculate total minutes remaining (including hours)
+  const totalMinutes = hours * 60 + minutes;
+
+  // Handle edge case where time is very low
+  if (totalMinutes <= 0 && seconds <= 0) {
+    return (
+      <div className="flex items-center justify-center gap-1 text-sm font-medium text-red-600">
+        <span style={{ fontFamily: "monospace" }}>00:00 min</span>
+      </div>
+    );
+  }
 
   return (
-    <div
-      className={
-        "flex items-center justify-center gap-1 text-sm font-medium text-gray"
-      }
-    >
-      <span style={{fontFamily: "monospace"}}>
-        {String(minutes).padStart(2, "0")}:{String(seconds).padStart(2, "0")} min
+    <div className="flex items-center justify-center gap-1 text-sm font-medium text-gray">
+      <span style={{ fontFamily: "monospace" }}>
+        {String(totalMinutes).padStart(2, "0")}:{String(seconds).padStart(2, "0")} min
       </span>
     </div>
   );
