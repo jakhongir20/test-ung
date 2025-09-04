@@ -107,7 +107,7 @@ const ProfilePage: FC = () => {
                 }
               }
             }}
-            className="inline-flex items-center rounded-lg bg-cyan-600 px-3 py-2 text-white text-sm hover:bg-cyan-700"
+            className="inline-flex items-center rounded-xl bg-[#00A2DE] px-8 h-[46px] text-white text-sm hover:bg-cyan-700"
           >
             {t('profile.newTest')}
           </button>

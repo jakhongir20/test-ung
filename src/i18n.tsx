@@ -23,6 +23,7 @@ const dictionary: Dictionary = {
   'profile.newTest': {uz: 'Yangi test', ru: 'Новый тест'},
   'profile.scoreDetails': {uz: 'Ball tafsilotlari', ru: 'Детали балла'},
   'card.totalAnswers': {uz: "Umumiy to'liq javoblar", ru: 'Всего верных ответов'},
+  'test.finishTest': {uz: "Testni yakunlash", ru: 'Завершить тест'},
 };
 
 type I18nContextValue = {
