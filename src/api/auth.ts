@@ -33,6 +33,31 @@ export const tokenStorage = {
   },
 }
 
+// Utility function to handle authentication errors
+export const handleAuthError = (error: any) => {
+  // Check if it's an authentication error
+  if (error?.response?.status === 401 || 
+      error?.response?.data?.non_field_errors?.includes('Invalid or inactive session') ||
+      error?.response?.data?.detail === 'Token is invalid or expired') {
+    
+    // Clear tokens and user data
+    tokenStorage.clear();
+    useAuthStore.getState().setUser(null);
+    
+    // Remove any session data
+    localStorage.removeItem('currentSurveySession');
+    
+    // Redirect to login page
+    if (typeof window !== 'undefined') {
+      window.location.href = '/login';
+    }
+    
+    return true; // Indicates this was an auth error
+  }
+  
+  return false; // Not an auth error
+};
+
 export function useSendOtp() {
   const m = useAuthSendOtpCreate()
   return useMutation({

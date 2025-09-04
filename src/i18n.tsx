@@ -1,28 +1,28 @@
-import { createContext, useContext, useMemo, useState, type FC, type ReactNode, useEffect } from 'react';
+import { createContext, type FC, type ReactNode, useContext, useEffect, useMemo, useState } from 'react';
 
 export type LanguageCode = 'uz' | 'ru';
 
 type Dictionary = Record<string, Record<LanguageCode, string>>;
 
 const dictionary: Dictionary = {
-  'language.uz': { uz: "O'zbek", ru: "Узбекский" },
-  'language.ru': { uz: 'Rus', ru: 'Русский' },
-  'role.worker': { uz: 'Ishchi', ru: 'Работник' },
-  'header.profile': { uz: 'Profil', ru: 'Профиль' },
-  'header.test': { uz: 'Test', ru: 'Тест' },
-  'profile.title': { uz: 'Mening profilim', ru: 'Мой профиль' },
+  'language.uz': {uz: "O'zbek", ru: "Узбекский"},
+  'language.ru': {uz: 'Rus', ru: 'Русский'},
+  'role.worker': {uz: 'Ishchi', ru: 'Работник'},
+  'header.profile': {uz: 'Profil', ru: 'Профиль'},
+  'header.test': {uz: 'Test', ru: 'Тест'},
+  'profile.title': {uz: 'Mening profilim', ru: 'Мой профиль'},
   'profile.subtitle': {
-    uz: "Mashq test natijalaringizni ko'rib chiqing, kuchli tomonlaringizni biling.",
-    ru: 'Просматривайте результаты практических тестов и узнавайте свои сильные стороны.'
+    uz: "Mashq test natijalaringizni ko'rib chiqing, sinov kunidan oldin kuchli tomonlaringizni bilib oling.",
+    ru: 'Просмотрите результаты своего теста с упражнениями, чтобы узнать свои сильные стороны перед днем теста.'
   },
-  'profile.myDetails': { uz: 'Mening maʼlumotlarim', ru: 'Мои данные' },
-  'profile.fio': { uz: 'FISH', ru: 'ФИО' },
-  'profile.branch': { uz: 'Filial', ru: 'Филиал' },
-  'profile.position': { uz: 'Lavozim', ru: 'Должность' },
-  'profile.results': { uz: 'So‘nggi test natijalari', ru: 'Мои последние результаты' },
-  'profile.newTest': { uz: 'Yangi test', ru: 'Новый тест' },
-  'profile.scoreDetails': { uz: 'Ball tafsilotlari', ru: 'Детали балла' },
-  'card.totalAnswers': { uz: "Umumiy to'liq javoblar", ru: 'Всего верных ответов' },
+  'profile.myDetails': {uz: 'Mening maʼlumotlarim', ru: 'Мои данные'},
+  'profile.fio': {uz: 'FISH', ru: 'ФИО'},
+  'profile.branch': {uz: 'Filial', ru: 'Филиал'},
+  'profile.position': {uz: 'Lavozim', ru: 'Должность'},
+  'profile.results': {uz: 'So‘nggi test natijalari', ru: 'Мои последние результаты'},
+  'profile.newTest': {uz: 'Yangi test', ru: 'Новый тест'},
+  'profile.scoreDetails': {uz: 'Ball tafsilotlari', ru: 'Детали балла'},
+  'card.totalAnswers': {uz: "Umumiy to'liq javoblar", ru: 'Всего верных ответов'},
 };
 
 type I18nContextValue = {
@@ -33,7 +33,7 @@ type I18nContextValue = {
 
 const I18nContext = createContext<I18nContextValue | undefined>(undefined);
 
-export const I18nProvider: FC<{ children: ReactNode; }> = ({ children }) => {
+export const I18nProvider: FC<{ children: ReactNode; }> = ({children}) => {
   const [lang, setLangState] = useState<LanguageCode>('uz');
 
   useEffect(() => {

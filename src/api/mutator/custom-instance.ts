@@ -43,7 +43,9 @@ function getInstance(): AxiosInstance {
     (response: AxiosResponse) => response,
     async (error) => {
       const originalRequest = error?.config;
-      if (error?.response?.status === 401 && originalRequest && !(originalRequest as any)._retry) {
+      if ((error?.response?.status === 401 || 
+           error?.response?.data?.non_field_errors?.includes('Invalid or inactive session')) && 
+          originalRequest && !(originalRequest as any)._retry) {
         if (isRefreshing) {
           return new Promise((resolve, reject) => {
             failedQueue.push({resolve, reject});
@@ -84,6 +86,12 @@ function getInstance(): AxiosInstance {
           localStorage.removeItem('refreshToken');
           processQueue(refreshErr, null);
           isRefreshing = false;
+          
+          // If refresh fails, redirect to login
+          if (typeof window !== 'undefined') {
+            window.location.href = '/login';
+          }
+          
           return Promise.reject(refreshErr);
         }
       }

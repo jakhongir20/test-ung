@@ -1,6 +1,7 @@
-import { Fragment, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import { Listbox, Transition } from "@headlessui/react";
 import { ChevronDownIcon } from "@heroicons/react/20/solid";
+import { useI18n } from "../i18n.tsx";
 
 const languages = [
   {
@@ -17,12 +18,19 @@ const languages = [
 
 export const LanguageSelect = () => {
   const [selected, setSelected] = useState(languages[0]);
+  const {setLang} = useI18n();
+
+  useEffect(() => {
+    if (selected) {
+      setLang(selected.id as 'uz' | 'ru');
+    }
+  }, [selected]);
 
   return (
     <Listbox value={selected} onChange={setSelected}>
       <div className="relative">
         <Listbox.Button
-          className="flex cursor-pointer w-full text-[#314158] gap-2 items-center justify-between rounded-lg  bg-white px-3 py-2 text-sm font-medium   hover:bg-gray-50">
+          className="flex cursor-pointer w-full text-[#314158] gap-2 items-center justify-between rounded-lg   px-3 py-2 text-sm font-medium   hover:bg-gray-50">
           <div className="flex items-center gap-2">
             <img src={selected.flag} alt="" className="h-4 w-6 rounded-sm"/>
             <span>{selected.name}</span>

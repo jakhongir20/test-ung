@@ -1,8 +1,15 @@
 import type { FC } from 'react';
-import { useEffect, useMemo, useState, useRef } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { CachedTimer, type Option, QuestionCard, QuestionNavigator } from '../components/test';
-import { useSessionDetails, useSessionProgress, useSubmitAnswer, useGetQuestion, useFinishSession } from '../api/surveys';
+import {
+  useFinishSession,
+  useGetQuestion,
+  useSessionDetails,
+  useSessionProgress,
+  useSubmitAnswer
+} from '../api/surveys';
+import { handleAuthError } from '../api/auth';
 
 type BuiltQuestion = {
   title: string;
@@ -69,6 +76,16 @@ const TestPage: FC = () => {
   const isLoading = sessionQuery.isLoading || progressQuery.isLoading || questionQuery.isLoading;
   const hasError = sessionQuery.error || progressQuery.error || questionQuery.error;
 
+  // Handle authentication errors from session queries
+  useEffect(() => {
+    const errors = [sessionQuery.error, progressQuery.error, questionQuery.error];
+    for (const error of errors) {
+      if (error && handleAuthError(error)) {
+        return; // Already redirected to login
+      }
+    }
+  }, [sessionQuery.error, progressQuery.error, questionQuery.error]);
+
   // drive timer/expiration from API response
   const expiresAtIso = (sessionData?.expires_at ?? progressData?.session?.expires_at) as string | undefined;
   const expiresAtMs = useMemo(() => expiresAtIso ? new Date(expiresAtIso).getTime() : undefined, [expiresAtIso]);
@@ -82,7 +99,6 @@ const TestPage: FC = () => {
   }, [expiresAtMs]);
 
   // No periodic refresh needed - only fetch when navigating or submitting answers
-
 
 
   // Initialize current order when session data becomes available (only once)
@@ -211,6 +227,12 @@ const TestPage: FC = () => {
       navigate('/');
     } catch (error) {
       console.error('Manual finish error:', error);
+
+      // Check if it's an authentication error and handle it
+      if (handleAuthError(error)) {
+        return; // Already redirected to login
+      }
+
       // Still navigate even if finish fails
       localStorage.removeItem('currentSurveySession');
       navigate('/');
@@ -229,7 +251,7 @@ const TestPage: FC = () => {
           return;
         }
 
-        let payload: any = {
+        const payload: any = {
           question_id: currentQuestionId
         };
 
@@ -278,6 +300,12 @@ const TestPage: FC = () => {
                 return;
               } catch (finishError) {
                 console.error('Finish session error:', finishError);
+
+                // Check if it's an authentication error and handle it
+                if (handleAuthError(finishError)) {
+                  return; // Already redirected to login
+                }
+
                 // Still try to navigate even if finish fails
                 localStorage.removeItem('currentSurveySession');
                 navigate('/');
@@ -301,6 +329,12 @@ const TestPage: FC = () => {
           await progressQuery.refetch();
         } catch (error) {
           console.error('Submit answer error:', error);
+
+          // Check if it's an authentication error and handle it
+          if (handleAuthError(error)) {
+            return; // Already redirected to login
+          }
+
           // Don't proceed if submission failed
           return;
         }
@@ -321,7 +355,6 @@ const TestPage: FC = () => {
   const answeredFlags = Array.from({ length: Math.max(total, 0) }).map((_, i) => !!answers[i + 1]?.length || !!questionsData[i]?.is_answered);
 
 
-
   // Show error state
   if (hasError) {
     return (
@@ -329,7 +362,8 @@ const TestPage: FC = () => {
         <div className="max-w-md mx-auto bg-white rounded-lg shadow-lg p-6 text-center">
           <div className="w-16 h-16 mx-auto mb-4 bg-red-100 rounded-full flex items-center justify-center">
             <svg className="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
             </svg>
           </div>
           <h2 className="text-xl font-semibold text-gray-900 mb-2">Connection Error</h2>
@@ -355,7 +389,8 @@ const TestPage: FC = () => {
           <div className="w-16 h-16 mx-auto mb-4 bg-cyan-100 rounded-full flex items-center justify-center">
             <svg className="w-8 h-8 text-cyan-600 animate-spin" fill="none" viewBox="0 0 24 24">
               <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              <path className="opacity-75" fill="currentColor"
+                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
             </svg>
           </div>
           <h2 className="text-xl font-semibold text-gray-900 mb-2">Loading Test</h2>
@@ -383,7 +418,9 @@ const TestPage: FC = () => {
           <div>Is Last Question: {isLastQuestion}</div>
           <div>Expires At: {expiresAtIso}</div>
           <div>Expires At Ms: {expiresAtMs}</div>
-          <div>Time Remaining: {expiresAtMs ? Math.max(0, Math.floor((expiresAtMs - Date.now()) / 1000 / 60)) : 'N/A'} minutes</div>
+          <div>Time
+            Remaining: {expiresAtMs ? Math.max(0, Math.floor((expiresAtMs - Date.now()) / 1000 / 60)) : 'N/A'} minutes
+          </div>
         </div>
       )}
 
@@ -405,7 +442,7 @@ const TestPage: FC = () => {
         <button
           onClick={finishTest}
           className="inline-flex items-center rounded-lg border px-3 py-2 text-sm hover:bg-gray-50">
-          Finish test
+          Finish test 1
         </button>
       </div>
 
