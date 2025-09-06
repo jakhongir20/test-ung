@@ -11,6 +11,7 @@ import {
 } from '../api/surveys';
 import { handleAuthError } from '../api/auth';
 import { useI18n } from "../i18n.tsx";
+import { ACTION_BTN_STYLES, CARD_STYLES } from "../components/test/test.data.ts";
 
 type BuiltQuestion = {
   title: string;
@@ -405,7 +406,7 @@ const TestPage: FC = () => {
   }
 
   return (
-    <div className="space-y-6 relative">
+    <div className="space-y-4 relative py-4">
       {/* Debug panel - remove in production */}
       {/*{process.env.NODE_ENV === 'development' && (*/}
       {/*  <div className="bg-gray-100 p-4 rounded-lg text-xs">*/}
@@ -426,26 +427,25 @@ const TestPage: FC = () => {
       {/*  </div>*/}
       {/*)}*/}
 
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
+      <div
+        className={`${CARD_STYLES} !flex-row items-center py-6`}>
+        <div className="flex items-center gap-2">
           <div
-            className="inline-flex items-center gap-2 rounded-full bg-cyan-50 px-3 py-1 text-cyan-700 ring-1 ring-cyan-200">
-            <svg viewBox="0 0 24 24" className="h-4 w-4" fill="currentColor">
-              <path d="M12 22a10 10 0 1 1 0-20 10 10 0 0 1 0 20Zm1-10V7h-2v7h6v-2h-4Z"/>
-            </svg>
-            <span className="text-sm">
+            className="flex items-center justify-center border border-[#E2E8F0] rounded-xl w-12 h-12 bg-white ">
+            <img src="/icon/clock.svg" alt=""/>
+          </div>
+          <span className="text-sm">
               {!isExpired && expiresAtMs && (
-                // @ts-ignore pass target time to timer component
                 <CachedTimer key={sessionId} endTime={expiresAtMs} onExpire={() => setExpired(true)}/>
               )}
             </span>
-          </div>
         </div>
         <button
           onClick={finishTest}
-          className="inline-flex items-center rounded-lg border px-3 py-2 text-sm hover:bg-gray-50"
+          className={ACTION_BTN_STYLES}
         >
           {t('test.finishTest')}
+          <img src="/icon/check-circle.svg" alt=""/>
         </button>
       </div>
 
@@ -461,11 +461,15 @@ const TestPage: FC = () => {
           onToggle={toggleOption}
           onTextChange={handleTextChange}
           media={built.mediaUrl ? (
-            <div className="mt-6 grid gap-6 md:grid-cols-2">
-              <div className="aspect-video rounded-xl overflow-hidden bg-gray-100">
-                <img src={built.mediaUrl} className="h-full w-full object-cover" alt="media"/>
-              </div>
-            </div>
+            <div className="aspect-video w-full h-full rounded-xl overflow-hidden bg-gray-100">
+              <img
+                src={built.mediaUrl}
+                onError={e => {
+                  (e.currentTarget as HTMLImageElement).src = '/test-image.png';
+                }}
+                className="h-full w-full object-cover"
+                alt="media"
+              /></div>
           ) : null}
         />
       ) : (
@@ -473,21 +477,26 @@ const TestPage: FC = () => {
       )}
 
       <div className="relative">
-        <div className="flex justify-between items-center rounded-2xl bg-white ring-1 ring-gray-200 p-3">
-          <button onClick={() => setNavOpen((v) => !v)}
-                  className="rounded-xl px-3 py-2 text-sm ring-1 ring-gray-200 hover:bg-gray-50">Question {order} of {total}</button>
+        <div className={`${CARD_STYLES} !flex-row !py-6`}>
+          <button
+            onClick={() => setNavOpen((v) => !v)}
+            className={ACTION_BTN_STYLES}>
+            Question {order} of {total}
+            <img src="/icon/arrow-t.svg" alt=""/>
+          </button>
           <div className="flex items-center gap-2">
             <button
               disabled={isExpired || !navigationData?.has_previous}
               onClick={() => go(-1)}
-              className="rounded-lg border px-3 py-2 text-sm hover:bg-gray-50 disabled:opacity-50">
-              Prev
+              className={ACTION_BTN_STYLES}>
+              <img src={'/icon/arrow-l.svg'} alt={'icon left'}/>
             </button>
             <button
               disabled={isExpired || !hasAnswers}
               onClick={() => go(1)}
-              className="rounded-lg bg-cyan-600 text-white px-3 py-2 text-sm hover:bg-cyan-700 disabled:opacity-50 disabled:bg-gray-400">
+              className={`${ACTION_BTN_STYLES} !text-[#00A2DE] !text-base ${isExpired || !hasAnswers ? 'opacity-50 cursor-not-allowed' : ''}`}>
               {isLastQuestion ? 'Finish' : 'Next'}
+              {!isLastQuestion && <img src={'/icon/arrow-r.svg'} alt={'icon left'}/>}
             </button>
           </div>
         </div>
