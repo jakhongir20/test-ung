@@ -31,7 +31,7 @@ const QuestionCard: FC<Props> = ({
   return (
     <section
       className={CARD_STYLES}>
-      <div className={'border-b space-y-4 pb-8 md:mb-10 mb-6 border-[#E2E8F0] mx-auto  w-[80%]'}>
+      <div className={'border-b space-y-4 md:pb-8 pb-6 md:mb-10 mb-6 border-[#E2E8F0] mx-auto w-full  md:w-[80%]'}>
         <p className="text-sm font-medium text-[#334155] ">Question {index}</p>
         <h2 className="text-lg md:text-xl font-medium text-black">{title}</h2>
       </div>
@@ -63,7 +63,7 @@ const QuestionCard: FC<Props> = ({
                 <span
                   className={`text-[18px] p-3 w-20 border-r border-[#F1F5F9] grid place-items-center  font-normal ${checked ? '' : 'text-[#475569]'}`}>{opt.key}</span>
                   <input type={multiple ? 'checkbox' : 'radio'} name={`q-${index}`}
-                         className="accent-[#00A2DE] absolute top-1/2 -translate-y-1/2 right-5"
+                         className="accent-[#00A2DE] absolute top-1/2 -translate-y-1/2 right-5 focus:ring-1 focus:ring-[#00A2DE] focus:outline-none"
                          checked={checked} onChange={() => onToggle(opt.key)}/>
                   <span className="flex-1 p-3 pr-12">{opt.label}</span>
                 </label>

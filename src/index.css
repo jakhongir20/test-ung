@@ -6,6 +6,16 @@ html, body {
   font-family: "Nunito Sans", sans-serif;
 }
 
+[type='checkbox'], [type='radio'] {
+  border-color: #CBD5E1;
+}
+
 [type='checkbox']:checked, [type='radio']:checked {
   background-color: #00A2DE !important;
+}
+
+[type='checkbox']:focus, [type='radio']:focus {
+  border-color: #00A2DE !important;
+  outline-color: #00A2DE !important;
+  outline-width: 1px !important;
 }

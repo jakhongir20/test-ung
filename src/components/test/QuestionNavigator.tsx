@@ -17,12 +17,12 @@ const dot = (cls: string) => (
 const QuestionNavigator: FC<Props> = ({total, currentIndex, answered, open, onClose, onSelect, variant = 'popup'}) => {
   if (variant === 'popup' && !open) return null;
   const containerClass = variant === 'popup'
-    ? 'absolute left-[32px] bottom-20 z-20 w-[min(472px,95vw)] rounded-xl border border-[#E2E8F0] bg-white p-4'
+    ? 'absolute md:left-[32px] left-[16px] bottom-20 z-20 md:w-[min(472px,95vw)] rounded-xl border border-[#E2E8F0] bg-white p-4'
     : 'rounded-xl bg-white shadow-sm p-4';
   return (
     <div className={containerClass}>
       <div className={''}>
-        <div className="flex items-center gap-6 text-sm text-[#475569]">
+        <div className="flex items-center md:gap-6 gap-4 text-sm text-[#475569]">
           <span
             className="inline-flex items-center gap-1.5">{dot('bg-transparent border border-[#00A2DE]')} Answered</span>
           <span
@@ -32,7 +32,7 @@ const QuestionNavigator: FC<Props> = ({total, currentIndex, answered, open, onCl
         </div>
         <div className={'w-full h-[1px] mb-4 mt-3 bg-[#F1F5F9]'}></div>
       </div>
-      <div className="grid grid-cols-10 gap-2">
+      <div className="grid grid-cols-7 md:grid-cols-10 gap-2">
         {Array.from({length: total}).map((_, i) => {
           const isCurrent = i === currentIndex;
           const isAnswered = answered[i];
