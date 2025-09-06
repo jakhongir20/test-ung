@@ -82,7 +82,7 @@ const ProfilePage: FC = () => {
   return (
     <div className="space-y-6">
       <section
-        className="rounded-[16px] h-[250px] flex flex-col justify-center bg-[#00A2DE] text-white p-6 md:p-10 relative overflow-hidden">
+        className="rounded-[16px] h-[180px] md:h-[250px] flex flex-col justify-center bg-[#00A2DE] text-white p-6 md:p-10 relative overflow-hidden">
         <img className={'absolute end-0 sm:end-[36px] sm:w-auto sm:h-auto h-full object-cover w-full top-0'}
              src="/bg/profile-bg.png" alt=""/>
         <h2 className="text-2xl md:text-[32px] mb-3 uppercase font-medium tracking-widest">{t('profile.title')}</h2>
@@ -91,7 +91,8 @@ const ProfilePage: FC = () => {
         </p>
         <div className="absolute -right-24 -top-24 w-96 h-96 rounded-full bg-cyan-400/20 blur-3xl"/>
       </section>
-      <section className="rounded-2xl bg-white shadow-sm ring-1 ring-gray-200 p-4 md:p-6">
+      <section
+        className={`flex md:gap-4 gap-2.5 flex-col p-4 md:p-8 justify-between bg-[#F8FAFC] border border-[#F1F5F9] rounded-[16px]`}>
         <div className="flex items-center justify-between">
           <h3 className="text-base md:text-lg font-semibold">{t('profile.results')}</h3>
           <button
@@ -107,14 +108,14 @@ const ProfilePage: FC = () => {
                 }
               }
             }}
-            className="inline-flex items-center rounded-xl bg-[#00A2DE] px-8 h-[46px] text-white text-sm hover:bg-cyan-700"
+            className="inline-flex items-center rounded-xl bg-[#00A2DE] px-4 h-10 md:h-[46px] md:px-5  text-white text-sm hover:bg-cyan-700"
           >
             {t('profile.newTest')}
           </button>
         </div>
 
         {surveyHistory.length === 0 ? (
-          <div className="mt-8 text-center py-12">
+          <div className="text-center py-12">
             <div className="w-16 h-16 mx-auto mb-4 bg-gray-100 rounded-full flex items-center justify-center">
               <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}

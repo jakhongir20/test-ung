@@ -17,7 +17,7 @@ const uzPhoneValidate = (val: string) => {
   return onlyDigits.length === 12 && onlyDigits.startsWith('998') || 'Неверный номер';
 };
 
-export const authInputStyle = 'block w-full !text-[#64748B] focus:!text-black !text-sm !h-11 !rounded-xl border-[#E2E8F0] focus:ring-cyan-500 focus:border-cyan-500 px-3 py-2';
+export const authInputStyle = 'block !border-1 w-full !text-[#64748B] focus:!text-black !text-sm !h-11 !rounded-xl border-[#E2E8F0] focus:ring-[#00A2DE] focus:border-[#00A2DE] px-3 py-2';
 
 
 export const LoginForm: FC<Props> = ({}) => {

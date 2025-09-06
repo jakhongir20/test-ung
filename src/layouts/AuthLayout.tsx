@@ -6,9 +6,9 @@ export default function AuthLayout() {
     <div className="grid min-h-screen grid-cols-1 gap-4 p-4 md:grid-cols-[1fr_1.3fr]">
 
       <div className="flex flex-col justify-between items-center  rounded-xl">
-        <div className="flex items-center w-full justify-between  px-7 py-2">
+        <div className="flex items-center w-full justify-between  md:px-7 py-2">
           <div className="flex items-center gap-2 text-xl font-bold text-orange-600">
-            <img src="/logo.svg" className="w-[162px]" alt="logo"/>
+            <img src="/logo.svg" className="w-[120px] md:w-[162px]" alt="logo"/>
           </div>
           <LanguageSelect/>
         </div>
