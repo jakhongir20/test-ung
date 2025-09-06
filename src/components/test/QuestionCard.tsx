@@ -38,12 +38,12 @@ const QuestionCard: FC<Props> = ({
 
       {isOpen ? (
         // Open-ended question with text input
-        <div className="mt-6">
+        <div className="w-full max-w-[840px] mx-auto">
           <textarea
             value={textAnswer}
             onChange={(e) => onTextChange?.(e.target.value)}
             placeholder="Type your answer here..."
-            className="w-full min-h-[120px] rounded-lg border border-gray-300 p-3 text-sm focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 resize-y"
+            className="w-full min-h-[120px] rounded-lg border border-[#E2E8F0] p-3 text-sm focus:border-[#00A2DE] resize-y"
           />
         </div>
       ) : (
@@ -63,7 +63,7 @@ const QuestionCard: FC<Props> = ({
                 <span
                   className={`text-[18px] p-3 w-20 border-r border-[#F1F5F9] grid place-items-center  font-normal ${checked ? '' : 'text-[#475569]'}`}>{opt.key}</span>
                   <input type={multiple ? 'checkbox' : 'radio'} name={`q-${index}`}
-                         className="accent-cyan-600 absolute top-1/2 -translate-y-1/2 right-5"
+                         className="accent-[#00A2DE] absolute top-1/2 -translate-y-1/2 right-5"
                          checked={checked} onChange={() => onToggle(opt.key)}/>
                   <span className="flex-1 p-3 pr-12">{opt.label}</span>
                 </label>

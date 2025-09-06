@@ -508,7 +508,6 @@ const TestPage: FC = () => {
           open={navOpen}
           onClose={() => setNavOpen(false)}
           onSelect={(i) => setCurrent(i + 1)} // Convert zero-based index back to order
-          // @ts-ignore supply popup variant
           variant="popup"
         />
 
