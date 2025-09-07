@@ -29,7 +29,7 @@ const TestPage: FC = () => {
   const [isExpired, setExpired] = useState(false);
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const {t} = useI18n()
+  const {t} = useI18n();
 
   // Get sessionId from URL params or localStorage
   const sessionId = useMemo(() => {
@@ -369,15 +369,15 @@ const TestPage: FC = () => {
                     d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"/>
             </svg>
           </div>
-          <h2 className="text-xl font-semibold text-gray-900 mb-2">Connection Error</h2>
+          <h2 className="text-xl font-semibold text-gray-900 mb-2">{t('error.connection')}</h2>
           <p className="text-gray-600 mb-4">
-            Unable to load test data. Please check your connection and try again.
+            {t('error.testData')}
           </p>
           <button
             onClick={() => window.location.reload()}
             className="bg-cyan-600 text-white px-4 py-2 rounded-lg hover:bg-cyan-700"
           >
-            Retry
+            {t('retry')}
           </button>
         </div>
       </div>
@@ -396,9 +396,9 @@ const TestPage: FC = () => {
                     d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
             </svg>
           </div>
-          <h2 className="text-xl font-semibold text-gray-900 mb-2">Loading Test</h2>
+          <h2 className="text-xl font-semibold text-gray-900 mb-2">{t('loading.test')}</h2>
           <p className="text-gray-600">
-            Please wait while we load your test...
+            {t('loading.testDesc')}
           </p>
         </div>
       </div>
@@ -431,14 +431,14 @@ const TestPage: FC = () => {
         className={`${CARD_STYLES} !flex-row items-center py-6`}>
         <div className="flex items-center gap-2">
           <div
-            className="flex items-center justify-center border border-[#E2E8F0] rounded-xl w-12 h-12 bg-white ">
+            className="flex items-center justify-center border border-[#E2E8F0] rounded-xl w-10 h-10 md:w-12 md:h-12 bg-white ">
             <img src="/icon/clock.svg" alt=""/>
           </div>
           <span className="text-sm">
-              {!isExpired && expiresAtMs && (
-                <CachedTimer key={sessionId} endTime={expiresAtMs} onExpire={() => setExpired(true)}/>
-              )}
-            </span>
+            {!isExpired && expiresAtMs && (
+              <CachedTimer key={sessionId} endTime={expiresAtMs} onExpire={() => setExpired(true)}/>
+            )}
+          </span>
         </div>
         <button
           onClick={finishTest}
@@ -473,7 +473,8 @@ const TestPage: FC = () => {
           ) : null}
         />
       ) : (
-        <section className="rounded-2xl bg-white shadow-sm ring-1 ring-gray-200 p-6">Loading question...</section>
+        <section
+          className="rounded-2xl bg-white shadow-sm ring-1 ring-gray-200 p-6">{t('test.loadingQuestion')}</section>
       )}
 
       <div className="relative">
@@ -481,7 +482,7 @@ const TestPage: FC = () => {
           <button
             onClick={() => setNavOpen((v) => !v)}
             className={ACTION_BTN_STYLES}>
-            Question {order} of {total}
+            {t('test.questionOf', {current: order, total})}
             <img src="/icon/arrow-t.svg" alt=""/>
           </button>
           <div className="flex items-center gap-2">
@@ -495,7 +496,7 @@ const TestPage: FC = () => {
               disabled={isExpired || !hasAnswers}
               onClick={() => go(1)}
               className={`${ACTION_BTN_STYLES} !text-[#00A2DE] !text-base ${isExpired || !hasAnswers ? 'opacity-50 cursor-not-allowed' : ''}`}>
-              {isLastQuestion ? 'Finish' : 'Next'}
+              {isLastQuestion ? t('test.finish') : t('test.next')}
               {!isLastQuestion && <img src={'/icon/arrow-r.svg'} alt={'icon left'}/>}
             </button>
           </div>

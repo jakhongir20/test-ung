@@ -4,6 +4,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useLogin } from "../../api/auth.ts";
 import { FormButton } from "./FormButton.tsx";
 import { ArrowLeftIcon } from "@heroicons/react/20/solid";
+import { useI18n } from "../../i18n";
 
 interface Props {
   className?: string;
@@ -19,7 +20,7 @@ const OtpInput: FC<{
   hasError: boolean;
   index: number;
   onClearError: () => void;
-}> = ({value, onChange, onPaste, hasError, index, onClearError}) => {
+}> = ({ value, onChange, onPaste, hasError, index, onClearError }) => {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const inputValue = e.target.value.replace(/\D/g, '').slice(0, 1);
     onChange(inputValue);
@@ -78,9 +79,9 @@ const OtpInput: FC<{
         focus:outline-none focus:ring-2 focus:ring-[#00A2DE] focus:border-transparent
         transition-colors duration-200
         ${hasError
-        ? 'border-red-500 bg-red-50 text-red-700'
-        : 'border-gray-300 bg-white text-gray-900 hover:border-gray-400'
-      }
+          ? 'border-red-500 bg-red-50 text-red-700'
+          : 'border-gray-300 bg-white text-gray-900 hover:border-gray-400'
+        }
       `}
     />
   );
@@ -90,21 +91,22 @@ export const OtpForm: FC<Props> = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const login = useLogin();
+  const { t } = useI18n();
 
   const {
     control,
     handleSubmit,
     setValue,
-    formState: {errors},
+    formState: { errors },
     setError,
     clearErrors
   } = useForm<OtpFormValues>({
-    defaultValues: {code: ['', '', '', '', '', '']},
+    defaultValues: { code: ['', '', '', '', '', ''] },
     mode: 'onSubmit' // Only validate on submit, not onChange
   });
 
   // Watch the code array for form state
-  useWatch({control, name: 'code'});
+  useWatch({ control, name: 'code' });
 
   // Function to clear errors when user interacts with inputs
   const clearError = () => {
@@ -118,7 +120,7 @@ export const OtpForm: FC<Props> = () => {
     if (codeString.length !== 6) {
       setError('code', {
         type: 'manual',
-        message: 'Введите все 6 цифр кода'
+        message: t('otp.enterAllDigits')
       });
       return;
     }
@@ -127,7 +129,7 @@ export const OtpForm: FC<Props> = () => {
     if (!/^\d{6}$/.test(codeString)) {
       setError('code', {
         type: 'manual',
-        message: 'Код должен содержать только цифры'
+        message: t('otp.onlyDigits')
       });
       return;
     }
@@ -138,24 +140,24 @@ export const OtpForm: FC<Props> = () => {
       // Clear any previous errors before API call
       clearErrors('code');
 
-      await login.mutateAsync({phone, code: codeString});
+      await login.mutateAsync({ phone, code: codeString });
       navigate('/');
     } catch (error: any) {
       // Handle login errors
       if (error?.response?.data?.non_field_errors?.includes('Invalid OTP code')) {
         setError('code', {
           type: 'manual',
-          message: 'Неверный код подтверждения'
+          message: t('otp.invalidCode')
         });
       } else if (error?.response?.data?.otp_code) {
         setError('code', {
           type: 'manual',
-          message: error.response.data.otp_code[0] || 'Ошибка с кодом'
+          message: error.response.data.otp_code[0] || t('otp.codeError')
         });
       } else {
         setError('code', {
           type: 'manual',
-          message: 'Произошла ошибка при входе'
+          message: t('otp.loginError')
         });
       }
     }
@@ -185,19 +187,19 @@ export const OtpForm: FC<Props> = () => {
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
       <div className="space-y-4">
         <div className="grid grid-cols-6 gap-3 justify-center">
-          {Array.from({length: 6}).map((_, idx) => (
+          {Array.from({ length: 6 }).map((_, idx) => (
             <Controller
               key={idx}
               name={`code.${idx}` as const}
               control={control}
               rules={{
-                required: 'Код обязателен',
+                required: t('otp.codeRequired'),
                 pattern: {
                   value: /^\d$/,
-                  message: 'Только цифры'
+                  message: t('otp.onlyNumbers')
                 }
               }}
-              render={({field}) => (
+              render={({ field }) => (
                 <OtpInput
                   value={field.value || ''}
                   onChange={field.onChange}
@@ -221,10 +223,10 @@ export const OtpForm: FC<Props> = () => {
         )}
       </div>
 
-      <FormButton isLoading={login.isPending} title={'Подтвердить'}/>
+      <FormButton isLoading={login.isPending} title={t('otp.confirm')} />
 
       <div className="text-sm text-gray-600 text-center">
-        Код не пришел?
+        {t('otp.codeNotReceived')}
         <button
           type="button"
           className="text-cyan-700 cursor-pointer ml-2 hover:underline font-medium"
@@ -236,14 +238,14 @@ export const OtpForm: FC<Props> = () => {
             firstInput?.focus();
           }}
         >
-          Отправить заново
+          {t('otp.resend')}
         </button>
       </div>
 
       <Link to="/login"
-            className="text-cyan-700 flex items-center justify-center text-sm w-max mx-auto gap-1.5 hover:underline">
-        <ArrowLeftIcon className={'w-4 text-cyan-700'}/>
-        Назад
+        className="text-cyan-700 flex items-center justify-center text-sm w-max mx-auto gap-1.5 hover:underline">
+        <ArrowLeftIcon className={'w-4 text-cyan-700'} />
+        {t('otp.back')}
       </Link>
     </form>
   );

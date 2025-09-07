@@ -1,6 +1,7 @@
 import type { FC } from 'react';
 import { useMemo, useState } from 'react';
 import { useModeratorUsers, useModeratorUserDetails } from '../api/moderator';
+import { useI18n } from '../i18n';
 
 type Employee = {
   id: number;
@@ -22,6 +23,7 @@ const statusBadge: Record<string, string> = {
 };
 
 const AdminEmployeesPage: FC = () => {
+  const { t } = useI18n();
   const [branch, setBranch] = useState<string>('');
   const [position, setPosition] = useState<string>('');
   const [testStatus, setTestStatus] = useState<string>('');
@@ -126,9 +128,9 @@ const AdminEmployeesPage: FC = () => {
               <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
             </svg>
           </div>
-          <h2 className="text-xl font-semibold text-gray-900 mb-2">Loading Employees</h2>
+          <h2 className="text-xl font-semibold text-gray-900 mb-2">{t('loading.employees')}</h2>
           <p className="text-gray-600">
-            Please wait while we load the employee data...
+            {t('loading.employeesDesc')}
           </p>
         </div>
       </div>
@@ -145,15 +147,15 @@ const AdminEmployeesPage: FC = () => {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
             </svg>
           </div>
-          <h2 className="text-xl font-semibold text-gray-900 mb-2">Connection Error</h2>
+          <h2 className="text-xl font-semibold text-gray-900 mb-2">{t('error.connection')}</h2>
           <p className="text-gray-600 mb-4">
-            Unable to load employee data. Please check your connection and try again.
+            {t('error.employeeData')}
           </p>
           <button
             onClick={() => usersQuery.refetch()}
             className="bg-cyan-600 text-white px-4 py-2 rounded-lg hover:bg-cyan-700"
           >
-            Retry
+            {t('retry')}
           </button>
         </div>
       </div>
@@ -172,26 +174,26 @@ const AdminEmployeesPage: FC = () => {
 
       <section className="rounded-2xl bg-white shadow-sm ring-1 ring-gray-200">
         <div className="p-4 md:p-6">
-          <h3 className="text-base md:text-lg font-semibold">All employees</h3>
+          <h3 className="text-base md:text-lg font-semibold">{t('admin.employees')}</h3>
 
           <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
             <input
               type="text"
-              placeholder="Search by name or phone..."
+              placeholder={t('admin.searchPlaceholder')}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="rounded-lg border-gray-300 focus:ring-cyan-500 focus:border-cyan-500"
             />
             <select value={branch} onChange={(e) => setBranch(e.target.value)} className="rounded-lg border-gray-300 focus:ring-cyan-500 focus:border-cyan-500">
-              <option value="">All Branches</option>
+              <option value="">{t('admin.allBranches')}</option>
               {branches.map((b) => <option key={b} value={b}>{b}</option>)}
             </select>
             <select value={position} onChange={(e) => setPosition(e.target.value)} className="rounded-lg border-gray-300 focus:ring-cyan-500 focus:border-cyan-500">
-              <option value="">All Positions</option>
+              <option value="">{t('admin.allPositions')}</option>
               {positions.map((p) => <option key={p} value={p}>{p}</option>)}
             </select>
             <select value={testStatus} onChange={(e) => setTestStatus(e.target.value)} className="rounded-lg border-gray-300 focus:ring-cyan-500 focus:border-cyan-500">
-              <option value="">All Statuses</option>
+              <option value="">{t('admin.allStatuses')}</option>
               {(['Refunded', 'Passed', 'Failed'] as const).map((s) => <option key={s} value={s}>{s}</option>)}
             </select>
           </div>
@@ -200,33 +202,33 @@ const AdminEmployeesPage: FC = () => {
             <table className="min-w-full text-sm">
               <thead>
                 <tr className="text-left text-gray-500 border-b">
-                  <th className="py-3 pr-4">Ф.И.О.</th>
-                  <th className="py-3 pr-4">Филиал</th>
-                  <th className="py-3 pr-4">Должность</th>
-                  <th className="py-3 pr-4">Последний балл</th>
-                  <th className="py-3 pr-4">Количество попыток</th>
-                  <th className="py-3 pr-4">Статус</th>
+                  <th className="py-3 pr-4">{t('table.name')}</th>
+                  <th className="py-3 pr-4">{t('table.branch')}</th>
+                  <th className="py-3 pr-4">{t('table.position')}</th>
+                  <th className="py-3 pr-4">{t('table.lastScore')}</th>
+                  <th className="py-3 pr-4">{t('table.attempts')}</th>
+                  <th className="py-3 pr-4">{t('table.status')}</th>
                   <th className="py-3 pr-4" />
                 </tr>
               </thead>
               <tbody>
                 {currentUsers.map((user: any) => (
                   <tr key={user.id} className="border-b last:border-0">
-                    <td className="py-3 pr-4">{user.name || 'N/A'}</td>
-                    <td className="py-3 pr-4">{user.branch || 'N/A'}</td>
-                    <td className="py-3 pr-4">{user.position || 'N/A'}</td>
+                    <td className="py-3 pr-4">{user.name || t('admin.na')}</td>
+                    <td className="py-3 pr-4">{user.branch || t('admin.na')}</td>
+                    <td className="py-3 pr-4">{user.position || t('admin.na')}</td>
                     <td className="py-3 pr-4">{user.best_score || 0}</td>
                     <td className="py-3 pr-4">{user.total_attempts || 0}</td>
                     <td className="py-3 pr-4">
                       <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium ring-1 ${statusBadge[user.status] || 'bg-gray-50 text-gray-700 ring-gray-200'}`}>
-                        {user.status || 'Unknown'}
+                        {user.status || t('admin.unknown')}
                       </span>
                     </td>
                     <td className="py-3 pr-4">
                       <button
                         onClick={() => setSelectedUserId(user.id)}
                         className="inline-flex h-8 w-8 items-center justify-center rounded-lg ring-1 ring-gray-200 hover:bg-gray-50"
-                        aria-label="View"
+                        aria-label={t('admin.aboutEmployee')}
                       >
                         <svg viewBox="0 0 24 24" className="h-4 w-4" fill="currentColor">
                           <path d="M12 5c-7 0-10 7-10 7s3 7 10 7 10-7 10-7-3-7-10-7Zm0 12a5 5 0 1 1 0-10 5 5 0 0 1 0 10Z" />
@@ -245,7 +247,7 @@ const AdminEmployeesPage: FC = () => {
               disabled={currentPage === 1}
               className="rounded-lg ring-1 ring-gray-200 px-2.5 py-1 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Previous
+              {t('admin.previous')}
             </button>
 
             {getPageNumbers().map((pageNum, index) => (
@@ -254,10 +256,10 @@ const AdminEmployeesPage: FC = () => {
                 onClick={() => typeof pageNum === 'number' ? goToPage(pageNum) : null}
                 disabled={typeof pageNum !== 'number'}
                 className={`h-8 w-8 rounded-lg ring-1 ${typeof pageNum === 'number'
-                    ? currentPage === pageNum
-                      ? 'bg-cyan-600 text-white ring-cyan-600'
-                      : 'ring-gray-200 hover:bg-gray-50'
-                    : 'ring-gray-200 cursor-default'
+                  ? currentPage === pageNum
+                    ? 'bg-cyan-600 text-white ring-cyan-600'
+                    : 'ring-gray-200 hover:bg-gray-50'
+                  : 'ring-gray-200 cursor-default'
                   }`}
               >
                 {pageNum}
@@ -269,11 +271,11 @@ const AdminEmployeesPage: FC = () => {
               disabled={currentPage === totalPages}
               className="rounded-lg ring-1 ring-gray-200 px-2.5 py-1 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Next
+              {t('admin.next')}
             </button>
 
             <div className="ml-auto">
-              Showing {startIndex + 1}-{Math.min(endIndex, totalItems)} of {totalItems} results
+              {t('admin.showingResults', { start: startIndex + 1, end: Math.min(endIndex, totalItems), total: totalItems })}
             </div>
           </div>
         </div>
@@ -289,72 +291,72 @@ const AdminEmployeesPage: FC = () => {
               </div>
             ) : userDetailsQuery.error ? (
               <div className="text-center text-red-600">
-                Error loading user details
+                {t('admin.errorLoadingDetails')}
               </div>
             ) : selectedUser ? (
               <>
                 <div className="flex items-start justify-between">
-                  <h4 className="text-lg font-semibold">About employee</h4>
+                  <h4 className="text-lg font-semibold">{t('admin.aboutEmployee')}</h4>
                   <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium ring-1 ${statusBadge[selectedUser.status] || 'bg-gray-50 text-gray-700 ring-gray-200'}`}>
-                    {selectedUser.status || 'Unknown'}
+                    {selectedUser.status || t('admin.unknown')}
                   </span>
                 </div>
 
                 <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-3">
                   <div className="rounded-xl ring-1 ring-gray-200 p-3">
-                    <div className="text-xs text-gray-500">Ф.И.О.</div>
-                    <div className="font-medium">{selectedUser.name || 'N/A'}</div>
+                    <div className="text-xs text-gray-500">{t('table.name')}</div>
+                    <div className="font-medium">{selectedUser.name || t('admin.na')}</div>
                   </div>
                   <div className="rounded-xl ring-1 ring-gray-200 p-3">
-                    <div className="text-xs text-gray-500">Филиал</div>
-                    <div className="font-medium">{selectedUser.branch || 'N/A'}</div>
+                    <div className="text-xs text-gray-500">{t('table.branch')}</div>
+                    <div className="font-medium">{selectedUser.branch || t('admin.na')}</div>
                   </div>
                   <div className="rounded-xl ring-1 ring-gray-200 p-3">
-                    <div className="text-xs text-gray-500">Должность</div>
-                    <div className="font-medium">{selectedUser.position || 'N/A'}</div>
+                    <div className="text-xs text-gray-500">{t('table.position')}</div>
+                    <div className="font-medium">{selectedUser.position || t('admin.na')}</div>
                   </div>
                   <div className="rounded-xl ring-1 ring-gray-200 p-3">
-                    <div className="text-xs text-gray-500">Телефон</div>
-                    <div className="font-medium">{selectedUser.phone_number || 'N/A'}</div>
+                    <div className="text-xs text-gray-500">{t('table.phone')}</div>
+                    <div className="font-medium">{selectedUser.phone_number || t('admin.na')}</div>
                   </div>
                   <div className="rounded-xl ring-1 ring-gray-200 p-3">
-                    <div className="text-xs text-gray-500">Дата регистрации</div>
+                    <div className="text-xs text-gray-500">{t('table.dateJoined')}</div>
                     <div className="font-medium">
-                      {selectedUser.date_joined ? new Date(selectedUser.date_joined).toLocaleDateString() : 'N/A'}
+                      {selectedUser.date_joined ? new Date(selectedUser.date_joined).toLocaleDateString() : t('admin.na')}
                     </div>
                   </div>
                   <div className="rounded-xl ring-1 ring-gray-200 p-3">
-                    <div className="text-xs text-gray-500">Последний вход</div>
+                    <div className="text-xs text-gray-500">{t('table.lastLogin')}</div>
                     <div className="font-medium">
-                      {selectedUser.last_login ? new Date(selectedUser.last_login).toLocaleDateString() : 'N/A'}
+                      {selectedUser.last_login ? new Date(selectedUser.last_login).toLocaleDateString() : t('admin.na')}
                     </div>
                   </div>
                 </div>
 
                 {selectedUser.total_statistics && (
                   <div className="mt-6">
-                    <h5 className="text-sm font-semibold mb-3">Общая статистика</h5>
+                    <h5 className="text-sm font-semibold mb-3">{t('admin.totalStatistics')}</h5>
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                       <div className="rounded-xl ring-1 ring-gray-200 p-3 text-center">
-                        <div className="text-xs text-gray-500">Всего попыток</div>
+                        <div className="text-xs text-gray-500">{t('admin.totalAttempts')}</div>
                         <div className="text-2xl font-bold text-cyan-700">
                           {selectedUser.total_statistics.total_attempts || 0}
                         </div>
                       </div>
                       <div className="rounded-xl ring-1 ring-gray-200 p-3 text-center">
-                        <div className="text-xs text-gray-500">Лучший балл</div>
+                        <div className="text-xs text-gray-500">{t('admin.bestScore')}</div>
                         <div className="text-2xl font-bold text-cyan-700">
                           {selectedUser.total_statistics.best_score || 0}
                         </div>
                       </div>
                       <div className="rounded-xl ring-1 ring-gray-200 p-3 text-center">
-                        <div className="text-xs text-gray-500">Пройдено тестов</div>
+                        <div className="text-xs text-gray-500">{t('admin.completedTests')}</div>
                         <div className="text-2xl font-bold text-cyan-700">
                           {selectedUser.total_statistics.completed_surveys || 0}
                         </div>
                       </div>
                       <div className="rounded-xl ring-1 ring-gray-200 p-3 text-center">
-                        <div className="text-xs text-gray-500">Средний балл</div>
+                        <div className="text-xs text-gray-500">{t('admin.averageScore')}</div>
                         <div className="text-2xl font-bold text-cyan-700">
                           {selectedUser.total_statistics.average_score || 0}
                         </div>
@@ -365,7 +367,7 @@ const AdminEmployeesPage: FC = () => {
 
                 {selectedUser.survey_history && selectedUser.survey_history.length > 0 && (
                   <div className="mt-6">
-                    <h5 className="text-sm font-semibold mb-3">История тестов</h5>
+                    <h5 className="text-sm font-semibold mb-3">{t('admin.testHistory')}</h5>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       {selectedUser.survey_history.map((survey: any, index: number) => (
                         <article key={index} className="rounded-xl overflow-hidden ring-1 ring-gray-200 bg-white">
@@ -376,9 +378,9 @@ const AdminEmployeesPage: FC = () => {
                             </div>
                           </div>
                           <div className="p-6 grid place-items-center">
-                            <div className="text-xs text-gray-500">Балл</div>
+                            <div className="text-xs text-gray-500">{t('admin.score')}</div>
                             <div className="text-5xl font-bold text-cyan-700">{survey.score || 0}</div>
-                            <div className="text-xs text-gray-500">из {survey.total_questions || 30}</div>
+                            <div className="text-xs text-gray-500">{t('admin.of')} {survey.total_questions || 30}</div>
                           </div>
                         </article>
                       ))}
@@ -388,7 +390,7 @@ const AdminEmployeesPage: FC = () => {
               </>
             ) : (
               <div className="text-center text-gray-600">
-                No user details available
+                {t('admin.noDetailsAvailable')}
               </div>
             )}
           </div>

@@ -30,7 +30,7 @@ const QuestionCard: FC<Props> = ({
                                  }) => {
   return (
     <section
-      className={CARD_STYLES}>
+      className={`${CARD_STYLES} md:!py-10 pt-6`}>
       <div className={'border-b space-y-4 md:pb-8 pb-6 md:mb-10 mb-6 border-[#E2E8F0] mx-auto w-full  md:w-[80%]'}>
         <p className="text-sm font-medium text-[#334155] ">Question {index}</p>
         <h2 className="text-lg md:text-xl font-medium text-black">{title}</h2>
