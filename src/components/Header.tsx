@@ -61,7 +61,7 @@ export default function Header() {
                 <div
                   className="absolute right-0 w-[150px] md:w-[200px] bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50">
                   <Link
-                    to="/myprofile"
+                    to="/"
                     onClick={() => setIsDropdownOpen(false)}
                     className="flex items-center md:px-4 px-2 py-1.5 md:py-3 text-xs md:text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-200"
                   >

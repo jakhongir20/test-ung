@@ -83,6 +83,7 @@ const ProfilePage: FC = () => {
   return (
     <div className="space-y-6">
       <MyProfileBanner/>
+      {/*<MyDetailsForm />*/}
       <section
         className={`flex md:gap-4 gap-2.5 flex-col p-4 md:p-8 justify-between bg-[#F8FAFC] border border-[#F1F5F9] rounded-[16px]`}>
         <div className="flex items-center justify-between">

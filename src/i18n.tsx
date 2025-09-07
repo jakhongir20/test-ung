@@ -156,6 +156,11 @@ const dictionary: Dictionary = {
   // Header Dropdown
   'header.myProfile': { uz: 'Mening profilim', ru: 'Мой профиль' },
   'header.adminEmployees': { uz: 'Xodimlar boshqaruvi', ru: 'Управление сотрудниками' },
+
+  // Profile Form
+  'profile.save': { uz: 'Saqlash', ru: 'Сохранить' },
+  'profile.saveSuccess': { uz: 'Ma\'lumotlar muvaffaqiyatli saqlandi', ru: 'Данные успешно сохранены' },
+  'profile.saveError': { uz: 'Ma\'lumotlarni saqlashda xatolik', ru: 'Ошибка при сохранении данных' },
 };
 
 type I18nContextValue = {
