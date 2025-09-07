@@ -4,9 +4,10 @@ import { useI18n } from '../i18n';
 import { useNavigate } from "react-router-dom";
 import { useCurrentSession, useMyHistory, useStartSurvey } from '../api/surveys';
 import { handleAuthError } from '../api/auth';
+import { MyProfileBanner } from "../components/MyProfileBanner.tsx";
 
 const ProfilePage: FC = () => {
-  const { t } = useI18n();
+  const {t} = useI18n();
   const navigate = useNavigate();
   const startSurvey = useStartSurvey();
   const currentSession = useCurrentSession();
@@ -41,7 +42,7 @@ const ProfilePage: FC = () => {
             <svg className="w-8 h-8 text-cyan-600 animate-spin" fill="none" viewBox="0 0 24 24">
               <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
               <path className="opacity-75" fill="currentColor"
-                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
             </svg>
           </div>
           <h2 className="text-xl font-semibold text-gray-900 mb-2">{t('loading.profile')}</h2>
@@ -61,7 +62,7 @@ const ProfilePage: FC = () => {
           <div className="w-16 h-16 mx-auto mb-4 bg-red-100 rounded-full flex items-center justify-center">
             <svg className="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"/>
             </svg>
           </div>
           <h2 className="text-xl font-semibold text-gray-900 mb-2">{t('error.connection')}</h2>
@@ -81,33 +82,13 @@ const ProfilePage: FC = () => {
 
   return (
     <div className="space-y-6">
-      <section
-        className="rounded-[16px] h-[180px] md:h-[250px] flex flex-col justify-center bg-[#00A2DE] text-white p-6 md:p-10 relative overflow-hidden">
-        <img className={'absolute end-0 sm:end-[36px] sm:w-auto sm:h-auto h-full object-cover w-full top-0'}
-          src="/bg/profile-bg.png" alt="" />
-        <h2 className="text-2xl md:text-[32px] mb-3 uppercase font-medium tracking-widest">{t('profile.title')}</h2>
-        <p className="mt-2 max-w-sm text-white/90 text-sm">
-          {t('profile.subtitle')}
-        </p>
-        <div className="absolute -right-24 -top-24 w-96 h-96 rounded-full bg-cyan-400/20 blur-3xl" />
-      </section>
+      <MyProfileBanner/>
       <section
         className={`flex md:gap-4 gap-2.5 flex-col p-4 md:p-8 justify-between bg-[#F8FAFC] border border-[#F1F5F9] rounded-[16px]`}>
         <div className="flex items-center justify-between">
           <h3 className="text-base md:text-lg font-semibold">{t('profile.results')}</h3>
           <button
-            onClick={async () => {
-              try {
-                const res = await startSurvey.mutateAsync({ id: 1, count: 30 });
-                localStorage.setItem('currentSurveySession', JSON.stringify(res));
-                navigate(`/test?sessionId=${res.id}`);
-              } catch (error) {
-                // Check if it's an authentication error and handle it
-                if (handleAuthError(error)) {
-                  return; // Already redirected to login
-                }
-              }
-            }}
+            onClick={() => navigate('/rules')}
             className="inline-flex items-center rounded-xl bg-[#00A2DE] px-4 h-10 md:h-[46px] md:px-5  text-white text-sm hover:bg-cyan-700"
           >
             {t('profile.newTest')}
@@ -119,7 +100,7 @@ const ProfilePage: FC = () => {
             <div className="w-16 h-16 mx-auto mb-4 bg-gray-100 rounded-full flex items-center justify-center">
               <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                  d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                      d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
               </svg>
             </div>
             <h3 className="text-lg font-medium text-gray-900 mb-2">{t('empty.noTestHistory')}</h3>
@@ -129,7 +110,7 @@ const ProfilePage: FC = () => {
             <button
               onClick={async () => {
                 try {
-                  const res = await startSurvey.mutateAsync({ id: 1, count: 30 });
+                  const res = await startSurvey.mutateAsync({id: 1, count: 30});
                   localStorage.setItem('currentSurveySession', JSON.stringify(res));
                   navigate(`/test?sessionId=${res.id}`);
                 } catch (error) {
@@ -147,12 +128,12 @@ const ProfilePage: FC = () => {
           <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 auto-rows-fr">
             {surveyHistory.map((survey: any, index: number) => (
               <article key={index}
-                className="rounded-xl overflow-hidden bg-white border border-[#E2E8F0] flex flex-col h-full">
+                       className="rounded-xl overflow-hidden bg-white border border-[#E2E8F0] flex flex-col h-full">
                 {/* Blue Header Section */}
                 <div className="bg-[#00A2DE] text-white p-4 relative overflow-hidden flex-shrink-0">
                   {/* Decorative pattern in top right */}
                   <div className="absolute top-0 right-0 h-full opacity-100">
-                    <img className={'h-full object-cover'} src="/bg/bg-card.png" alt="bgcard" />
+                    <img className={'h-full object-cover'} src="/bg/bg-card.png" alt="bgcard"/>
                   </div>
 
                   <div className="relative z-10">

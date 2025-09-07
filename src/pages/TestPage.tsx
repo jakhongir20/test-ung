@@ -461,7 +461,7 @@ const TestPage: FC = () => {
           onToggle={toggleOption}
           onTextChange={handleTextChange}
           media={built.mediaUrl ? (
-            <div className="aspect-video w-full h-full rounded-xl overflow-hidden bg-gray-100">
+            <div className="aspect-video mb-4 md:mb-0 w-full h-full rounded-xl overflow-hidden bg-gray-100">
               <img
                 src={built.mediaUrl}
                 onError={e => {

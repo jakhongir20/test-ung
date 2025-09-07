@@ -10,6 +10,7 @@ import { I18nProvider } from './i18n.tsx';
 import LoginPage from './pages/LoginPage.tsx';
 import OtpPage from './pages/OtpPage.tsx';
 import AdminEmployeesPage from './pages/AdminEmployeesPage.tsx';
+import PageRules from './pages/PageRules.tsx';
 import ProtectedRoute from './components/ProtectedRoute.tsx';
 import AuthLayout from './layouts/AuthLayout.tsx';
 
@@ -36,6 +37,13 @@ const router = createBrowserRouter([
         path: 'admin/employees', element: (
           <ProtectedRoute>
             <AdminEmployeesPage />
+          </ProtectedRoute>
+        )
+      },
+      {
+        path: 'rules', element: (
+          <ProtectedRoute>
+            <PageRules />
           </ProtectedRoute>
         )
       },

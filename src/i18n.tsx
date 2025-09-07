@@ -82,6 +82,7 @@ const dictionary: Dictionary = {
   'test.loadingQuestion': {uz: 'Savol yuklanmoqda...', ru: 'Загрузка вопроса...'},
   'test.questionOf': {uz: 'Savol {current} dan {total}', ru: 'Вопрос {current} из {total}'},
   'test.next': {uz: 'Keyingi', ru: 'След.'},
+  'test.start': {uz: 'Testni boshlash', ru: 'Запуск теста'},
   'test.finish': {uz: 'Yakunlash', ru: 'Завершить'},
   'test.previous': {uz: 'Oldingi', ru: 'Предыдущий'},
   'test.answered': {uz: 'Javob berilgan', ru: 'Отвечено'},
@@ -126,6 +127,31 @@ const dictionary: Dictionary = {
   'table.phone': {uz: 'Telefon', ru: 'Телефон'},
   'table.dateJoined': {uz: 'Ro\'yxatdan o\'tgan sana', ru: 'Дата регистрации'},
   'table.lastLogin': {uz: 'Oxirgi kirish', ru: 'Последний вход'},
+
+  // Test Rules Page
+  'rules.title': {uz: 'Test qoidalari', ru: 'Правила теста'},
+  'rules.timing': {uz: 'Vaqt', ru: 'Время'},
+  'rules.timingDesc': {
+    uz: 'Mashq testlari vaqt bilan cheklangan, lekin siz ularni pauza qilishingiz mumkin. Boshqa qurilmada davom ettirish uchun qaytadan boshlashingiz kerak. Biz to\'liq bo\'lmagan mashq testlarini 90 kundan keyin o\'chiramiz.',
+    ru: 'Практические тесты ограничены по времени, но вы можете их приостанавливать. Чтобы продолжить на другом устройстве, вам нужно начать заново. Мы удаляем незавершенные практические тесты через 90 дней.'
+  },
+  'rules.scores': {uz: 'Balllar', ru: 'Баллы'},
+  'rules.scoresDesc': {
+    uz: 'Mashq testini tugatganda, ballaringizni ko\'rish va shaxsiylashtirilgan o\'quv maslahatlarini olish uchun "Mening mashqlarim"ga o\'ting. Biz to\'liq bo\'lmagan mashq testlarini 90 kundan keyin o\'chiramiz.',
+    ru: 'Когда вы завершите практический тест, перейдите в "Мои практики", чтобы увидеть свои баллы и получить персонализированные советы по обучению. Мы удаляем незавершенные практические тесты через 90 дней.'
+  },
+  'rules.assistiveTech': {uz: 'Yordamchi texnologiya (YT)', ru: 'Вспомогательные технологии (ВТ)'},
+  'rules.assistiveTechDesc': {
+    uz: 'Test uchun foydalanadigan har qanday YT bilan mashq qilishni unutmang. Agar siz bu yerda YT sozlamalarini sozlasangiz, test kunida bu qadamni takrorlashingiz kerak bo\'lishi mumkin.',
+    ru: 'Обязательно практикуйтесь с любыми ВТ, которые вы используете для тестирования. Если вы настроите параметры ВТ здесь, вам может потребоваться повторить этот шаг в день теста.'
+  },
+  'rules.noDeviceLock': {uz: 'Qurilma qulfi yo\'q', ru: 'Блокировка устройства отсутствует'},
+  'rules.noDeviceLockDesc': {
+    uz: 'Biz mashq paytida qurilmangizni qulflamaymiz. Test kunida siz boshqa dasturlar yoki ilovalardan foydalanishdan cheklanadi.',
+    ru: 'Мы не блокируем ваше устройство во время практики. В день теста вам будет запрещено использовать другие программы или приложения.'
+  },
+  'rules.previous': {uz: 'Oldingi', ru: 'Предыдущий'},
+  'rules.next': {uz: 'Keyingi', ru: 'Следующий'},
 };
 
 type I18nContextValue = {
