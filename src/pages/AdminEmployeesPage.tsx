@@ -6,6 +6,8 @@ import { MyProfileBanner } from "../components/MyProfileBanner.tsx";
 import type { Column } from "../components/DataTable.tsx";
 import { DataTable } from "../components/DataTable.tsx";
 import { CARD_STYLES } from "../components/test/test.data.ts";
+import { StatusBadge } from "../components/StatusBadge.tsx";
+import { ProfileCardItem } from "../components/ProfileCardItem.tsx";
 
 type Employee = {
   id: number;
@@ -17,14 +19,6 @@ type Employee = {
   status: 'Refunded' | 'Passed' | 'Failed';
 };
 
-const statusBadge: Record<string, string> = {
-  Refunded: 'bg-emerald-50 text-emerald-700 ring-emerald-200',
-  Passed: 'bg-blue-50 text-blue-700 ring-blue-200',
-  Failed: 'bg-rose-50 text-rose-700 ring-rose-200',
-  'refunded': 'bg-emerald-50 text-emerald-700 ring-emerald-200',
-  'passed': 'bg-blue-50 text-blue-700 ring-blue-200',
-  'failed': 'bg-rose-50 text-rose-700 ring-rose-200',
-};
 
 const AdminEmployeesPage: FC = () => {
   const {t} = useI18n();
@@ -49,7 +43,8 @@ const AdminEmployeesPage: FC = () => {
 
   // Fetch selected user details
   const userDetailsQuery = useModeratorUserDetails(selectedUserId ?? undefined);
-  const selectedUser = userDetailsQuery.data as any;
+  console.log('userDetailsQuery', userDetailsQuery);
+  const selectedUser = userDetailsQuery.data;
 
   // Extract unique branches and positions from the data
   const branches = useMemo(() => {
@@ -104,14 +99,7 @@ const AdminEmployeesPage: FC = () => {
       key: 'status',
       title: t('table.status'),
       sortable: true,
-      render: (value) => (
-        <span
-          className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium ring-1 ${statusBadge[value] || 'bg-gray-50 text-gray-700 ring-gray-200'
-          }`}
-        >
-          {value || t('admin.unknown')}
-        </span>
-      )
+      render: (value) => <StatusBadge status={value || 'unknown'}/>
     },
     {
       key: 'actions',
@@ -122,10 +110,7 @@ const AdminEmployeesPage: FC = () => {
           className="inline-flex h-8 w-8 items-center justify-center rounded-lg ring-1 ring-gray-200 hover:bg-gray-50"
           aria-label={t('admin.aboutEmployee')}
         >
-          <svg viewBox="0 0 24 24" className="h-4 w-4" fill="currentColor">
-            <path
-              d="M12 5c-7 0-10 7-10 7s3 7 10 7 10-7 10-7-3-7-10-7Zm0 12a5 5 0 1 1 0-10 5 5 0 0 1 0 10Z"/>
-          </svg>
+          <img src="/icon/eye.svg" alt=""/>
         </button>
       )
     }
@@ -179,8 +164,9 @@ const AdminEmployeesPage: FC = () => {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="">
       <MyProfileBanner/>
+      <br/>
 
       <section className={CARD_STYLES}>
         <div className="">
@@ -220,7 +206,7 @@ const AdminEmployeesPage: FC = () => {
         <div className="fixed inset-0 z-30">
           <div className="absolute inset-0 bg-black/30" onClick={() => setSelectedUserId(null)}/>
           <div
-            className="absolute right-4 top-4 bottom-4 w-[min(760px,95vw)] overflow-auto rounded-2xl bg-white ring-1 ring-gray-200 shadow-xl p-6">
+            className="absolute right-4 top-4 bottom-4 w-[min(760px,95vw)] overflow-auto rounded-xl md:rounded-[16px] bg-white ring-1 ring-gray-200 shadow-xl p-6">
             {userDetailsQuery.isLoading ? (
               <div className="flex items-center justify-center h-32">
                 <div className="w-8 h-8 border-2 border-cyan-600 border-t-transparent rounded-full animate-spin"></div>
@@ -232,11 +218,17 @@ const AdminEmployeesPage: FC = () => {
             ) : selectedUser ? (
               <>
                 <div className="flex items-start justify-between">
-                  <h4 className="text-lg font-semibold">{t('admin.aboutEmployee')}</h4>
-                  <span
-                    className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium ring-1 ${statusBadge[selectedUser.status] || 'bg-gray-50 text-gray-700 ring-gray-200'}`}>
-                    {selectedUser.status || t('admin.unknown')}
-                  </span>
+                  <div className={'flex items-center gap-4'}>
+                    <h4 className="text-lg font-semibold">{t('admin.aboutEmployee')}</h4>
+                    <StatusBadge status={selectedUser.status || 'unknown'}/>
+                  </div>
+                  <button
+                    onClick={() => setSelectedUserId(null)}
+                    className="inline-flex h-6 w-6 items-center justify-center rounded ring-1 ring-gray-200 hover:bg-gray-50"
+                    aria-label={t('close')}
+                  >
+                    <span aria-hidden="true">&times;</span>
+                  </button>
                 </div>
 
                 <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -277,25 +269,25 @@ const AdminEmployeesPage: FC = () => {
                       <div className="rounded-xl ring-1 ring-gray-200 p-3 text-center">
                         <div className="text-xs text-gray-500">{t('admin.totalAttempts')}</div>
                         <div className="text-2xl font-bold text-cyan-700">
-                          {selectedUser.total_statistics.total_attempts || 0}
+                          {selectedUser.total_statistics?.total_attempts || 0}
                         </div>
                       </div>
                       <div className="rounded-xl ring-1 ring-gray-200 p-3 text-center">
                         <div className="text-xs text-gray-500">{t('admin.bestScore')}</div>
                         <div className="text-2xl font-bold text-cyan-700">
-                          {selectedUser.total_statistics.best_score || 0}
+                          {Number(selectedUser.total_statistics?.best_score)?.toFixed(2) || 0}
                         </div>
                       </div>
                       <div className="rounded-xl ring-1 ring-gray-200 p-3 text-center">
                         <div className="text-xs text-gray-500">{t('admin.completedTests')}</div>
                         <div className="text-2xl font-bold text-cyan-700">
-                          {selectedUser.total_statistics.completed_surveys || 0}
+                          {selectedUser.total_statistics?.completed_surveys || 0}
                         </div>
                       </div>
                       <div className="rounded-xl ring-1 ring-gray-200 p-3 text-center">
                         <div className="text-xs text-gray-500">{t('admin.averageScore')}</div>
                         <div className="text-2xl font-bold text-cyan-700">
-                          {selectedUser.total_statistics.average_score || 0}
+                          {Number(selectedUser.total_statistics?.average_score).toFixed(2) || 0}
                         </div>
                       </div>
                     </div>
@@ -307,19 +299,13 @@ const AdminEmployeesPage: FC = () => {
                     <h5 className="text-sm font-semibold mb-3">{t('admin.testHistory')}</h5>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       {selectedUser.survey_history.map((survey: any, index: number) => (
-                        <article key={index} className="rounded-xl overflow-hidden ring-1 ring-gray-200 bg-white">
-                          <div className="p-4 bg-gradient-to-r from-cyan-500 to-cyan-600 text-white">
-                            <div className="text-sm font-semibold">Test #{index + 1}</div>
-                            <div className="text-xs text-cyan-100">
-                              {survey.completed_at ? new Date(survey.completed_at).toLocaleDateString() : 'N/A'}
-                            </div>
-                          </div>
-                          <div className="p-6 grid place-items-center">
-                            <div className="text-xs text-gray-500">{t('admin.score')}</div>
-                            <div className="text-5xl font-bold text-cyan-700">{survey.score || 0}</div>
-                            <div className="text-xs text-gray-500">{t('admin.of')} {survey.total_questions || 30}</div>
-                          </div>
-                        </article>
+                        <ProfileCardItem
+                          key={survey.id || index}
+                          survey={survey}
+                          index={index}
+                          variant="history"
+                          noButton
+                        />
                       ))}
                     </div>
                   </div>

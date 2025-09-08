@@ -29,18 +29,79 @@ interface Session {
   is_passed: boolean;
 }
 
-interface Props {
-  className?: string;
-  survey: Session;
-  index: number;
+// Type for survey history data from admin API
+interface SurveyHistoryItem {
+  id?: string;
+  score?: number;
+  total_questions?: number;
+  completed_at?: string;
+  survey?: {
+    title?: string;
+    questions_count?: number;
+  };
+  status?: string;
+  attempt_number?: number;
 }
 
-export const ProfileCardItem: FC<Props> = ({ survey, index }) => {
-  const { t } = useI18n();
+interface Props {
+  className?: string;
+  survey: Session | SurveyHistoryItem;
+  index: number;
+  noButton: boolean;
+  variant?: 'session' | 'history'; // Add variant to distinguish between different data types
+}
+
+export const ProfileCardItem: FC<Props> = ({survey, index, variant = 'session', noButton = false}) => {
+  const {t} = useI18n();
   const navigate = useNavigate();
 
+  // Helper function to check if survey is Session type
+  const isSession = (survey: Session | SurveyHistoryItem): survey is Session => {
+    return 'started_at' in survey && 'expires_at' in survey;
+  };
+
+  // Helper function to get survey title
+  const getSurveyTitle = () => {
+    if (isSession(survey)) {
+      return survey?.survey?.title || `Test #${index + 1}`;
+    } else {
+      return survey?.survey?.title || `Test #${index + 1}`;
+    }
+  };
+
+  // Helper function to get date
+  const getDate = () => {
+    if (isSession(survey)) {
+      return survey?.started_at ? new Date(survey.started_at).toLocaleDateString() : 'N/A';
+    } else {
+      return survey?.completed_at ? new Date(survey.completed_at).toLocaleDateString() : 'N/A';
+    }
+  };
+
+  // Helper function to get score
+  const getScore = () => {
+    return survey?.score || 0;
+  };
+
+  // Helper function to get total questions
+  const getTotalQuestions = () => {
+    if (isSession(survey)) {
+      return survey?.survey?.questions_count || 30;
+    } else {
+      return survey?.survey?.questions_count || survey?.total_questions || 30;
+    }
+  };
+
+  // Helper function to get session ID
+  const getSessionId = () => {
+    return survey?.id || '';
+  };
+
   const handleScoreDetailsClick = () => {
-    navigate(`/session/${survey.id}`);
+    const sessionId = getSessionId();
+    if (sessionId) {
+      navigate(`/session/${sessionId}`);
+    }
   };
 
   return (
@@ -50,18 +111,15 @@ export const ProfileCardItem: FC<Props> = ({ survey, index }) => {
       <div className="bg-[#00A2DE] text-white p-4 relative overflow-hidden flex-shrink-0">
         {/* Decorative pattern in top right */}
         <div className="absolute top-0 right-0 h-full opacity-100">
-          <img className={'h-full object-cover'} src="/bg/bg-card.png" alt="bgcard" />
+          <img className={'h-full object-cover'} src="/bg/bg-card.png" alt="bgcard"/>
         </div>
 
         <div className="relative z-10">
           <div className="text-lg leading-5 font-bold mb-1">
-            {survey?.survey?.title || `Test #${index + 1}`}
+            {getSurveyTitle()}
           </div>
           <div className="text-sm text-[#BFDBFE]">
-            {survey?.started_at ?
-              new Date(survey.started_at).toLocaleDateString() :
-              'N/A'
-            }
+            {getDate()}
           </div>
         </div>
       </div>
@@ -74,19 +132,19 @@ export const ProfileCardItem: FC<Props> = ({ survey, index }) => {
             {t('card.totalAnswers')}
           </div>
           <div className="text-6xl font-semibold text-[#00A2DE]">
-            {survey?.score || 0}
+            {getScore()}
           </div>
           <div className="text-sm text-[#64748B] underline">
-            1-{survey?.survey?.questions_count || 30}
+            1-{getTotalQuestions()}
           </div>
         </div>
 
         {/* Score Details Button */}
-        <button
+        {!noButton && <button
           onClick={handleScoreDetailsClick}
           className="w-full rounded-[12px] border-2 border-[#00A2DE] h-12 text-[#00A2DE] bg-white hover:bg-[#00A2DE] hover:text-white transition-colors duration-200 py-2 text-base font-semibold flex-shrink-0">
           {t('profile.scoreDetails')}
-        </button>
+        </button>}
       </div>
     </article>
   );

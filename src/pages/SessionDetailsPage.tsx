@@ -8,10 +8,11 @@ import { MyProfileBanner } from "../components/MyProfileBanner.tsx";
 import type { Column } from "../components/DataTable.tsx";
 import { DataTable } from "../components/DataTable.tsx";
 import { CARD_STYLES } from "../components/test/test.data.ts";
+import { StatusBadge } from "../components/StatusBadge.tsx";
 
 const SessionDetailsPage: FC = () => {
-  const {t} = useI18n();
-  const {id} = useParams<{ id: string; }>();
+  const { t } = useI18n();
+  const { id } = useParams<{ id: string; }>();
 
   // Fetch session details
   const sessionQuery = useSessionsRetrieve(id || '', {
@@ -48,7 +49,7 @@ const SessionDetailsPage: FC = () => {
             <svg className="w-8 h-8 text-cyan-600 animate-spin" fill="none" viewBox="0 0 24 24">
               <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
               <path className="opacity-75" fill="currentColor"
-                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
             </svg>
           </div>
           <h2 className="text-xl font-semibold text-gray-900 mb-2">{t('loading.sessionDetails')}</h2>
@@ -68,7 +69,7 @@ const SessionDetailsPage: FC = () => {
           <div className="w-16 h-16 mx-auto mb-4 bg-red-100 rounded-full flex items-center justify-center">
             <svg className="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"/>
+                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
             </svg>
           </div>
           <h2 className="text-xl font-semibold text-gray-900 mb-2">{t('error.connection')}</h2>
@@ -98,7 +99,7 @@ const SessionDetailsPage: FC = () => {
   const incorrectAnswers = totalQuestions - correctAnswers;
 
   const getAnswerStatus = (question: any) => {
-    if (!question.answer) return {status: 'incorrect', text: t('session.incorrect')};
+    if (!question.answer) return { status: 'incorrect', text: t('session.incorrect') };
     const isCorrect = question.answer.is_correct;
     return {
       status: isCorrect ? 'correct' : 'incorrect',
@@ -185,12 +186,7 @@ const SessionDetailsPage: FC = () => {
             <span className="font-medium">
               {getAnswerLetter(question.answer, question)}
             </span>
-            <span className={`px-2 py-1 rounded-full text-xs font-medium ${answerStatus.status === 'correct'
-              ? 'bg-green-100 text-green-800'
-              : 'bg-red-100 text-red-800'
-            }`}>
-              {answerStatus.text}
-            </span>
+            <StatusBadge status={answerStatus.status} />
           </div>
         );
       }
@@ -208,12 +204,12 @@ const SessionDetailsPage: FC = () => {
 
   return (
     <div className="min-h-screen ">
-      <MyProfileBanner title={t('session.scoreDetails')} description={t('session.scoreDetailsDesc')}/>
-      <br/>
+      <MyProfileBanner title={t('session.scoreDetails')} description={t('session.scoreDetailsDesc')} />
+      <br />
       <div className={CARD_STYLES}>
         <div className="">
           <h2 className="text-2xl font-bold text-gray-900 mb-2">
-            {t('session.testNumber', {number: 1})}
+            {t('session.testNumber', { number: 1 })}
           </h2>
           <p className="text-gray-600 mb-6">
             {t('session.testDesc')}
