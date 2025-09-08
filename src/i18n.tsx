@@ -102,6 +102,7 @@ const dictionary: Dictionary = {
     ru: 'Показано {start}-{end} из {total} результатов'
   },
   'admin.aboutEmployee': { uz: 'Xodim haqida', ru: 'О сотруднике' },
+  'admin.noEmployees': { uz: 'Xodimlar topilmadi', ru: 'Сотрудники не найдены' },
   'admin.errorLoadingDetails': { uz: 'Xodim tafsilotlarini yuklashda xatolik', ru: 'Ошибка загрузки деталей сотрудника' },
   'admin.noDetailsAvailable': { uz: 'Xodim tafsilotlari mavjud emas', ru: 'Детали сотрудника недоступны' },
   'admin.totalAttempts': { uz: 'Jami urinishlar', ru: 'Всего попыток' },
@@ -185,6 +186,7 @@ const dictionary: Dictionary = {
   // Loading states for session details
   'loading.sessionDetails': { uz: 'Session tafsilotlari yuklanmoqda', ru: 'Загрузка деталей сессии' },
   'loading.sessionDetailsDesc': { uz: 'Session ma\'lumotlari yuklanmoqda, iltimos kuting...', ru: 'Загружаются данные сессии, пожалуйста подождите...' },
+  'session.noQuestions': { uz: 'Savollar topilmadi', ru: 'Вопросы не найдены' },
 };
 
 type I18nContextValue = {
