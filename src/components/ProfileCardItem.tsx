@@ -1,14 +1,41 @@
 import type { FC } from 'react';
 import { useI18n } from "../i18n.tsx";
 
+// Type for session data from the API
+interface Session {
+  id: string;
+  survey: {
+    id: number;
+    title: string;
+    description: string;
+    time_limit_minutes: number;
+    questions_count: number;
+    passing_score: number;
+    max_attempts: number;
+    total_questions: string;
+  };
+  status: "started" | "completed" | "cancelled" | "expired";
+  attempt_number: number;
+  started_at: string;
+  expires_at: string;
+  language: string;
+  progress: string;
+  time_remaining: string;
+  current_question: string;
+  score: number;
+  total_points: number;
+  percentage: string;
+  is_passed: boolean;
+}
+
 interface Props {
   className?: string;
-  survey: any;
+  survey: Session;
   index: number;
 }
 
-export const ProfileCardItem: FC<Props> = ({survey, index}) => {
-  const {t} = useI18n()
+export const ProfileCardItem: FC<Props> = ({ survey, index }) => {
+  const { t } = useI18n();
   return (
     <article
       className="rounded-xl overflow-hidden bg-white border border-[#E2E8F0] flex flex-col h-full">
@@ -16,7 +43,7 @@ export const ProfileCardItem: FC<Props> = ({survey, index}) => {
       <div className="bg-[#00A2DE] text-white p-4 relative overflow-hidden flex-shrink-0">
         {/* Decorative pattern in top right */}
         <div className="absolute top-0 right-0 h-full opacity-100">
-          <img className={'h-full object-cover'} src="/bg/bg-card.png" alt="bgcard"/>
+          <img className={'h-full object-cover'} src="/bg/bg-card.png" alt="bgcard" />
         </div>
 
         <div className="relative z-10">
@@ -24,8 +51,8 @@ export const ProfileCardItem: FC<Props> = ({survey, index}) => {
             {survey?.survey?.title || `Test #${index + 1}`}
           </div>
           <div className="text-sm text-[#BFDBFE]">
-            {survey?.last_attempt_at ?
-              new Date(survey.last_attempt_at).toLocaleDateString() :
+            {survey?.started_at ?
+              new Date(survey.started_at).toLocaleDateString() :
               'N/A'
             }
           </div>
@@ -40,7 +67,7 @@ export const ProfileCardItem: FC<Props> = ({survey, index}) => {
             {t('card.totalAnswers')}
           </div>
           <div className="text-6xl font-semibold text-[#00A2DE]">
-            {survey?.best_score || 0}
+            {survey?.score || 0}
           </div>
           <div className="text-sm text-[#64748B] underline">
             1-{survey?.survey?.questions_count || 30}

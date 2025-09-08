@@ -1,5 +1,6 @@
-import { useSurveysStartCreate, useSessionsProgressRetrieve, useSessionsSubmitAnswerCreate, useCurrentSessionRetrieve, useSessionsRetrieve, useSessionsGetQuestionRetrieve, useSessionsFinishCreate, useSurveysMyHistoryRetrieve } from './generated/respondentWebAPI'
-import { useMutation } from '@tanstack/react-query'
+import { useSurveysStartCreate, useSessionsProgressRetrieve, useSessionsSubmitAnswerCreate, useCurrentSessionRetrieve, useSessionsRetrieve, useSessionsGetQuestionRetrieve, useSessionsFinishCreate } from './generated/respondentWebAPI'
+import { useMutation, useQuery } from '@tanstack/react-query'
+import { customInstance } from './mutator/custom-instance'
 
 export function useStartSurvey() {
   const m = useSurveysStartCreate()
@@ -56,18 +57,55 @@ export function useGetQuestion(sessionId?: string, order?: number) {
 export function useFinishSession() {
   const m = useSessionsFinishCreate()
   return useMutation({
-    mutationFn: (sessionId: string) => m.mutateAsync({ id: sessionId, data: {} }),
+    mutationFn: (sessionId: string) => m.mutateAsync({ id: sessionId, data: { expires_at: new Date().toISOString() } }),
   })
 }
 
+// Custom sessions API implementation since orval didn't generate it
+interface SessionSurvey {
+  id: number;
+  title: string;
+  description: string;
+  time_limit_minutes: number;
+  questions_count: number;
+  passing_score: number;
+  max_attempts: number;
+  total_questions: string;
+}
+
+interface Session {
+  id: string;
+  survey: SessionSurvey;
+  status: "started" | "completed" | "cancelled" | "expired";
+  attempt_number: number;
+  started_at: string;
+  expires_at: string;
+  language: string;
+  progress: string;
+  time_remaining: string;
+  current_question: string;
+  score: number;
+  total_points: number;
+  percentage: string;
+  is_passed: boolean;
+}
+
+// Custom API function to fetch sessions using axios with proper configuration
+async function fetchSessions(): Promise<Session[]> {
+  return customInstance<Session[]>({
+    method: 'GET',
+    url: '/api/sessions/',
+  });
+}
+
 export function useMyHistory() {
-  return useSurveysMyHistoryRetrieve({
-    query: {
-      enabled: true,
-      retry: 1,
-      retryDelay: 1000
-    }
-  })
+  return useQuery({
+    queryKey: ['sessions-history'],
+    queryFn: fetchSessions,
+    enabled: true,
+    retry: 1,
+    retryDelay: 1000
+  });
 }
 
 
