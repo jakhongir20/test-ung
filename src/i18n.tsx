@@ -12,7 +12,7 @@ const dictionary: Dictionary = {
   'header.test': {uz: 'Test', ru: 'Тест'},
   'profile.title': {uz: 'Mening profilim', ru: 'Мой профиль'},
   'profile.subtitle': {
-    uz: "Mashq test natijalaringizni ko'rib chiqing, sinov kunidan oldin kuchli tomonlaringizni bilib oling.",
+    uz: "Mashq test natijalaringizni ko'rib chiqing, sinov kunidan oldin kuchli tomonlaringizni bilib oling. (test)",
     ru: 'Просмотрите результаты своего теста с упражнениями, чтобы узнать свои сильные стороны перед днем теста.'
   },
   'profile.myDetails': {uz: 'Mening maʼlumotlarim', ru: 'Мои данные'},
