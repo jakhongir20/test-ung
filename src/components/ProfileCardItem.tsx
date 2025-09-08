@@ -1,4 +1,5 @@
 import type { FC } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useI18n } from "../i18n.tsx";
 
 // Type for session data from the API
@@ -36,6 +37,12 @@ interface Props {
 
 export const ProfileCardItem: FC<Props> = ({ survey, index }) => {
   const { t } = useI18n();
+  const navigate = useNavigate();
+
+  const handleScoreDetailsClick = () => {
+    navigate(`/session/${survey.id}`);
+  };
+
   return (
     <article
       className="rounded-xl overflow-hidden bg-white border border-[#E2E8F0] flex flex-col h-full">
@@ -76,6 +83,7 @@ export const ProfileCardItem: FC<Props> = ({ survey, index }) => {
 
         {/* Score Details Button */}
         <button
+          onClick={handleScoreDetailsClick}
           className="w-full rounded-[12px] border-2 border-[#00A2DE] h-12 text-[#00A2DE] bg-white hover:bg-[#00A2DE] hover:text-white transition-colors duration-200 py-2 text-base font-semibold flex-shrink-0">
           {t('profile.scoreDetails')}
         </button>

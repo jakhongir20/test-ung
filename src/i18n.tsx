@@ -161,6 +161,30 @@ const dictionary: Dictionary = {
   'profile.save': { uz: 'Saqlash', ru: 'Сохранить' },
   'profile.saveSuccess': { uz: 'Ma\'lumotlar muvaffaqiyatli saqlandi', ru: 'Данные успешно сохранены' },
   'profile.saveError': { uz: 'Ma\'lumotlarni saqlashda xatolik', ru: 'Ошибка при сохранении данных' },
+
+  // Session Details Page
+  'session.scoreDetails': { uz: 'BAHOLASH TAFSILOTLARI', ru: 'ДЕТАЛИ ОЦЕНКИ' },
+  'session.scoreDetailsDesc': { uz: 'Amaliy test natijalaringizni ko\'rib chiqing, ishlash darajangizni chuqurroq o\'rganing va test kunidan oldin kuchli tomonlaringizni biling.', ru: 'Просмотрите результаты практического теста, углубитесь в свою производительность и изучите свои сильные стороны перед днем теста.' },
+  'session.testNumber': { uz: 'Test #{number}', ru: 'Тест #{number}' },
+  'session.testDesc': { uz: 'Bu yerda siz test natijalaringizni bilib olishingiz mumkin.', ru: 'Здесь вы можете узнать результаты вашего теста.' },
+  'session.totalQuestions': { uz: 'Jami savollar', ru: 'Всего вопросов' },
+  'session.correctAnswers': { uz: 'To\'g\'ri javoblar', ru: 'Правильные ответы' },
+  'session.incorrectAnswers': { uz: 'Noto\'g\'ri javoblar', ru: 'Неправильные ответы' },
+  'session.questions': { uz: 'SAVOLLAR', ru: 'ВОПРОСЫ' },
+  'session.questionTitle': { uz: 'SAVOL MATNI', ru: 'ТЕКСТ ВОПРОСА' },
+  'session.correctAnswer': { uz: 'TO\'G\'RI JAVOB', ru: 'ПРАВИЛЬНЫЙ ОТВЕТ' },
+  'session.yourAnswer': { uz: 'SIZNING JAVOBINGIZ', ru: 'ВАШ ОТВЕТ' },
+  'session.correct': { uz: 'To\'g\'ri', ru: 'Правильно' },
+  'session.incorrect': { uz: 'Noto\'g\'ri', ru: 'Неправильно' },
+  'session.viewDetails': { uz: 'Tafsilotlarni ko\'rish', ru: 'Просмотр деталей' },
+  'session.pageNumber': { uz: 'Sahifa raqami', ru: 'Номер страницы' },
+  'session.previous': { uz: 'Avvalgi', ru: 'Предыдущий' },
+  'session.next': { uz: 'Keyingi', ru: 'Следующий' },
+  'session.results': { uz: 'Natijalar: {showing} ta {total} tadan', ru: 'Результаты: {showing} из {total}' },
+
+  // Loading states for session details
+  'loading.sessionDetails': { uz: 'Session tafsilotlari yuklanmoqda', ru: 'Загрузка деталей сессии' },
+  'loading.sessionDetailsDesc': { uz: 'Session ma\'lumotlari yuklanmoqda, iltimos kuting...', ru: 'Загружаются данные сессии, пожалуйста подождите...' },
 };
 
 type I18nContextValue = {

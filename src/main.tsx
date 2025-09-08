@@ -6,6 +6,7 @@ import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import ProfilePage from './pages/ProfilePage.tsx';
 import TestPage from './pages/TestPage.tsx';
+import SessionDetailsPage from './pages/SessionDetailsPage.tsx';
 import { I18nProvider } from './i18n.tsx';
 import LoginPage from './pages/LoginPage.tsx';
 import OtpPage from './pages/OtpPage.tsx';
@@ -51,6 +52,13 @@ const router = createBrowserRouter([
         path: 'myprofile', element: (
           <ProtectedRoute>
             <ProfilePage />
+          </ProtectedRoute>
+        )
+      },
+      {
+        path: 'session/:id', element: (
+          <ProtectedRoute>
+            <SessionDetailsPage />
           </ProtectedRoute>
         )
       },
