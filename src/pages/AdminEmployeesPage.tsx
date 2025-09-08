@@ -3,8 +3,9 @@ import { useMemo, useState } from 'react';
 import { useModeratorUserDetails, useModeratorUsers } from '../api/moderator';
 import { useI18n } from '../i18n';
 import { MyProfileBanner } from "../components/MyProfileBanner.tsx";
-import { DataTable } from "../components/DataTable.tsx";
 import type { Column } from "../components/DataTable.tsx";
+import { DataTable } from "../components/DataTable.tsx";
+import { CARD_STYLES } from "../components/test/test.data.ts";
 
 type Employee = {
   id: number;
@@ -26,7 +27,7 @@ const statusBadge: Record<string, string> = {
 };
 
 const AdminEmployeesPage: FC = () => {
-  const { t } = useI18n();
+  const {t} = useI18n();
   const [branch, setBranch] = useState<string>('');
   const [position, setPosition] = useState<string>('');
   const [testStatus, setTestStatus] = useState<string>('');
@@ -106,7 +107,7 @@ const AdminEmployeesPage: FC = () => {
       render: (value) => (
         <span
           className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium ring-1 ${statusBadge[value] || 'bg-gray-50 text-gray-700 ring-gray-200'
-            }`}
+          }`}
         >
           {value || t('admin.unknown')}
         </span>
@@ -123,7 +124,7 @@ const AdminEmployeesPage: FC = () => {
         >
           <svg viewBox="0 0 24 24" className="h-4 w-4" fill="currentColor">
             <path
-              d="M12 5c-7 0-10 7-10 7s3 7 10 7 10-7 10-7-3-7-10-7Zm0 12a5 5 0 1 1 0-10 5 5 0 0 1 0 10Z" />
+              d="M12 5c-7 0-10 7-10 7s3 7 10 7 10-7 10-7-3-7-10-7Zm0 12a5 5 0 1 1 0-10 5 5 0 0 1 0 10Z"/>
           </svg>
         </button>
       )
@@ -139,7 +140,7 @@ const AdminEmployeesPage: FC = () => {
             <svg className="w-8 h-8 text-cyan-600 animate-spin" fill="none" viewBox="0 0 24 24">
               <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
               <path className="opacity-75" fill="currentColor"
-                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
             </svg>
           </div>
           <h2 className="text-xl font-semibold text-gray-900 mb-2">{t('loading.employees')}</h2>
@@ -159,7 +160,7 @@ const AdminEmployeesPage: FC = () => {
           <div className="w-16 h-16 mx-auto mb-4 bg-red-100 rounded-full flex items-center justify-center">
             <svg className="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"/>
             </svg>
           </div>
           <h2 className="text-xl font-semibold text-gray-900 mb-2">{t('error.connection')}</h2>
@@ -179,32 +180,25 @@ const AdminEmployeesPage: FC = () => {
 
   return (
     <div className="space-y-6">
-      <MyProfileBanner />
+      <MyProfileBanner/>
 
-      <section className="rounded-2xl bg-white shadow-sm ring-1 ring-gray-200">
-        <div className="p-4 md:p-6">
-          <h3 className="text-base md:text-lg font-semibold">{t('admin.employees')}</h3>
+      <section className={CARD_STYLES}>
+        <div className="">
+          <h3 className="text-xl md:text-2xl font-semibold mb-6">{t('admin.employees')}</h3>
 
-          <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
-            <input
-              type="text"
-              placeholder={t('admin.searchPlaceholder')}
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="rounded-lg border-gray-300 focus:ring-cyan-500 focus:border-cyan-500"
-            />
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
             <select value={branch} onChange={(e) => setBranch(e.target.value)}
-              className="rounded-lg border-gray-300 focus:ring-cyan-500 focus:border-cyan-500">
+                    className="rounded-lg border-gray-300 focus:ring-cyan-500 focus:border-cyan-500">
               <option value="">{t('admin.allBranches')}</option>
               {branches.map((b) => <option key={b} value={b}>{b}</option>)}
             </select>
             <select value={position} onChange={(e) => setPosition(e.target.value)}
-              className="rounded-lg border-gray-300 focus:ring-cyan-500 focus:border-cyan-500">
+                    className="rounded-lg border-gray-300 focus:ring-cyan-500 focus:border-cyan-500">
               <option value="">{t('admin.allPositions')}</option>
               {positions.map((p) => <option key={p} value={p}>{p}</option>)}
             </select>
             <select value={testStatus} onChange={(e) => setTestStatus(e.target.value)}
-              className="rounded-lg border-gray-300 focus:ring-cyan-500 focus:border-cyan-500">
+                    className="rounded-lg border-gray-300 focus:ring-cyan-500 focus:border-cyan-500">
               <option value="">{t('admin.allStatuses')}</option>
               {(['Refunded', 'Passed', 'Failed'] as const).map((s) => <option key={s} value={s}>{s}</option>)}
             </select>
@@ -216,7 +210,6 @@ const AdminEmployeesPage: FC = () => {
               columns={columns}
               itemsPerPage={10}
               showPagination={true}
-              showPageInput={false}
               emptyMessage={t('admin.noEmployees')}
             />
           </div>
@@ -225,7 +218,7 @@ const AdminEmployeesPage: FC = () => {
 
       {selectedUserId && (
         <div className="fixed inset-0 z-30">
-          <div className="absolute inset-0 bg-black/30" onClick={() => setSelectedUserId(null)} />
+          <div className="absolute inset-0 bg-black/30" onClick={() => setSelectedUserId(null)}/>
           <div
             className="absolute right-4 top-4 bottom-4 w-[min(760px,95vw)] overflow-auto rounded-2xl bg-white ring-1 ring-gray-200 shadow-xl p-6">
             {userDetailsQuery.isLoading ? (
