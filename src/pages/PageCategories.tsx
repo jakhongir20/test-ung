@@ -8,45 +8,42 @@ import { useNavigate } from "react-router-dom";
 const PageCategories: FC = () => {
   const {t} = useI18n();
   const startSurvey = useStartSurvey();
-  const navigate = useNavigate()
+  const navigate = useNavigate();
 
   const categories = [
     {
       id: 'timing',
-      title: t('rules.timing'),
-      description: t('rules.timingDesc'),
+      title: t('categories.iqQuestions'),
+      description: t('categories.iqQuestionsDesc'),
       color: 'bg-[#FDFFF6]',
-      icon: <img className={'w-full'} src="/vite.svg" alt=""/>
     },
     {
       id: 'scores',
-      title: t('rules.scores'),
-      description: t('rules.scoresDesc'),
+      title: t('categories.mainQuestions'),
+      description: t('categories.mainQuestionsDesc'),
       color: 'bg-[#F6FEFF]',
-      icon: <img className={'w-full'} src="/rule-2.png" alt=""/>
     },
     {
       id: 'assistiveTech',
-      title: t('rules.assistiveTech'),
-      description: t('rules.assistiveTechDesc'),
+      title: t('categories.additionalQuestions'),
+      description: t('categories.additionalQuestionsDesc'),
       color: 'bg-[#F8F6FF]',
     },
     {
       id: 'noDeviceLock',
-      title: t('rules.noDeviceLock'),
-      description: t('rules.noDeviceLockDesc'),
+      title: t('categories.regionalGasSupply'),
+      description: t('categories.regionalGasSupplyDesc'),
       color: 'bg-[#F6FFF9]',
     }
   ];
 
   return (
     <div className="min-h-screen ">
-      <main className="max-w-7xl mx-auto lg:px-8 py-8">
+      <main className="max-w-7xl mx-auto lg:px-8 py-6 md:py-8">
         <h1 className="text-2xl font-bold text-[#1E293B] mb-4 md:mb-6">
-          {t('rules.title')}
+          {t('categories.title')}
         </h1>
 
-        {/* Rules Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 mb-6 md:mb-8">
           {categories.map((rule) => (
             <div

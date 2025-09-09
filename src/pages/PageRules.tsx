@@ -1,7 +1,6 @@
 import type { FC } from 'react';
 import { useI18n } from '../i18n';
 import { ACTION_BTN_STYLES, CARD_STYLES } from "../components/test/test.data.ts";
-import { handleAuthError } from "../api/auth.ts";
 import { useStartSurvey } from "../api/surveys.ts";
 import { useNavigate } from "react-router-dom";
 
@@ -43,7 +42,7 @@ const PageRules: FC = () => {
 
   return (
     <div className="min-h-screen ">
-      <main className="max-w-7xl mx-auto lg:px-8 py-8">
+      <main className="max-w-7xl mx-auto lg:px-8 py-6 md:py-8">
         <h1 className="text-2xl font-bold text-[#1E293B] mb-4 md:mb-6">
           {t('rules.title')}
         </h1>
@@ -84,20 +83,9 @@ const PageRules: FC = () => {
               <img src={'/icon/arrow-l.svg'} alt={'icon left'}/>
             </button>
             <button
-              onClick={async () => {
-                try {
-                  const res = await startSurvey.mutateAsync({id: 1, count: 30});
-                  localStorage.setItem('currentSurveySession', JSON.stringify(res));
-                  navigate(`/test?sessionId=${res.id}`);
-                } catch (error) {
-                  // Check if it's an authentication error and handle it
-                  if (handleAuthError(error)) {
-                    return; // Already redirected to login
-                  }
-                }
-              }}
+              onClick={() => navigate('/categories')}
               className={`${ACTION_BTN_STYLES} !text-[#00A2DE] !text-base`}>
-              {t('test.start')}
+              {t('test.next')}
             </button>
           </div>
         </div>

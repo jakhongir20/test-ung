@@ -228,6 +228,29 @@ const dictionary: Dictionary = {
   'success': { uz: 'Muvaffaqiyatli', ru: 'Успешно' },
   'warning': { uz: 'Ogohlantirish', ru: 'Предупреждение' },
   'info': { uz: 'Ma\'lumot', ru: 'Информация' },
+
+  // Categories Page
+  'categories.title': { uz: 'Kategoriyalar', ru: 'Категории' },
+  'categories.iqQuestions': { uz: 'IQ savollari', ru: 'IQ вопросы' },
+  'categories.iqQuestionsDesc': {
+    uz: 'Amaliy testlar vaqt bilan cheklangan, lekin siz ularni pauza qilishingiz mumkin. Boshqa qurilmada davom ettirish uchun qaytadan boshlashingiz kerak. Biz to\'liq bo\'lmagan amaliy testlarni 90 kundan keyin o\'chiramiz.',
+    ru: 'Практические тесты ограничены по времени, но вы можете их приостанавливать. Чтобы продолжить на другом устройстве, вам нужно начать заново. Мы удаляем незавершенные практические тесты через 90 дней.'
+  },
+  'categories.mainQuestions': { uz: 'Asosiy savollar', ru: 'Основные вопросы' },
+  'categories.mainQuestionsDesc': {
+    uz: 'Amaliy testni tugatganda, ballaringizni ko\'rish va shaxsiylashtirilgan o\'quv maslahatlarini olish uchun "Mening amaliyotlarim"ga o\'ting. Biz to\'liq bo\'lmagan amaliy testlarni 90 kundan keyin o\'chiramiz.',
+    ru: 'Когда вы завершите практический тест, перейдите в "Мои практики", чтобы увидеть свои баллы и получить персонализированные советы по обучению. Мы удаляем незавершенные практические тесты через 90 дней.'
+  },
+  'categories.additionalQuestions': { uz: 'Qo\'shimcha savollar', ru: 'Дополнительные вопросы' },
+  'categories.additionalQuestionsDesc': {
+    uz: 'Test uchun foydalanadigan har qanday YT bilan mashq qilishni unutmang. Agar siz bu yerda YT sozlamalarini sozlasangiz, test kunida bu qadamni takrorlashingiz kerak bo\'lishi mumkin.',
+    ru: 'Обязательно практикуйтесь с любыми ВТ, которые вы используете для тестирования. Если вы настроите параметры ВТ здесь, вам может потребоваться повторить этот шаг в день теста.'
+  },
+  'categories.regionalGasSupply': { uz: 'Hududiy Gaz Ta\'minotiga aloqadar', ru: 'Связано с региональным газоснабжением' },
+  'categories.regionalGasSupplyDesc': {
+    uz: 'Biz mashq paytida qurilmangizni qulflamaymiz. Test kunida siz boshqa dasturlar yoki ilovalardan foydalanishdan cheklanadi.',
+    ru: 'Мы не блокируем ваше устройство во время практики. В день теста вам будет запрещено использовать другие программы или приложения.'
+  },
 };
 
 type I18nContextValue = {
