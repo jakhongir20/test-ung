@@ -31,8 +31,8 @@ export const LanguageSelect = () => {
       {({open}) => (
         <div className="relative">
           <Listbox.Button
-            className="flex cursor-pointer w-full text-[#314158] gap-2 items-center justify-between rounded-lg px-1.5 md:px-3 py-2 text-sm font-medium hover:bg-gray-50">
-            <div className="flex items-center gap-2">
+            className="flex cursor-pointer w-full text-[#314158] md:gap-2 gap-1 items-center justify-between rounded-lg px-1.5 md:px-3 py-2 text-sm font-medium hover:bg-gray-50">
+            <div className="flex items-center gap-2 text-sm">
               <img src={selected.flag} alt="" className="h-4 w-6 rounded-sm"/>
               <span>{selected.name}</span>
             </div>

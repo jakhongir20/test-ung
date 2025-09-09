@@ -30,14 +30,14 @@ export default function Header() {
       <div className={'max-w-7xl mx-auto px-4 md:px-8'}>
         <div className="flex  items-center w-full justify-between py-3">
           <Link to={'/'} className="flex items-center gap-2 text-xl font-bold text-orange-600">
-            <img className=" w-[120px] md:w-[162px]" alt="logo" src="/logo.svg"/>
+            <img className=" w-[150px] md:w-[252px]" alt="logo" src="/logo.svg"/>
           </Link>
-          <div className={'flex items-center gap-1 md:gap-4'}>
+          <div className={'flex items-center gap-0 md:gap-4'}>
             <LanguageSelect/>
             <div className="relative" ref={dropdownRef}>
               <button
                 onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                className="flex items-center md:gap-3 gap-1.5 hover:bg-gray-50 rounded-lg p-2 transition-colors duration-200"
+                className="flex items-center md:gap-3 gap-1 hover:bg-gray-50 rounded-lg md:p-2 p-1 transition-colors duration-200"
               >
                 <img
                   className="h-9 w-9 rounded-full object-cover"

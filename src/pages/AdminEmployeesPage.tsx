@@ -9,23 +9,14 @@ import { CARD_STYLES } from "../components/test/test.data.ts";
 import { StatusBadge } from "../components/StatusBadge.tsx";
 import { ProfileCardItem } from "../components/ProfileCardItem.tsx";
 
-type Employee = {
-  id: number;
-  name: string;
-  branch: string;
-  position: string;
-  lastScore: number;
-  attempts: number;
-  status: 'Refunded' | 'Passed' | 'Failed';
-};
 
 
 const AdminEmployeesPage: FC = () => {
-  const {t} = useI18n();
+  const { t } = useI18n();
   const [branch, setBranch] = useState<string>('');
   const [position, setPosition] = useState<string>('');
   const [testStatus, setTestStatus] = useState<string>('');
-  const [search, setSearch] = useState<string>('');
+  const [search] = useState<string>('');
   const [selectedUserId, setSelectedUserId] = useState<number | null>(null);
 
   // API query parameters
@@ -99,7 +90,7 @@ const AdminEmployeesPage: FC = () => {
       key: 'status',
       title: t('table.status'),
       sortable: true,
-      render: (value) => <StatusBadge status={value || 'unknown'}/>
+      render: (value) => <StatusBadge status={value || 'unknown'} />
     },
     {
       key: 'actions',
@@ -110,7 +101,7 @@ const AdminEmployeesPage: FC = () => {
           className="inline-flex h-8 w-8 items-center justify-center rounded-lg ring-1 ring-gray-200 hover:bg-gray-50"
           aria-label={t('admin.aboutEmployee')}
         >
-          <img src="/icon/eye.svg" alt=""/>
+          <img src="/icon/eye.svg" alt="" />
         </button>
       )
     }
@@ -125,7 +116,7 @@ const AdminEmployeesPage: FC = () => {
             <svg className="w-8 h-8 text-cyan-600 animate-spin" fill="none" viewBox="0 0 24 24">
               <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
               <path className="opacity-75" fill="currentColor"
-                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
             </svg>
           </div>
           <h2 className="text-xl font-semibold text-gray-900 mb-2">{t('loading.employees')}</h2>
@@ -145,7 +136,7 @@ const AdminEmployeesPage: FC = () => {
           <div className="w-16 h-16 mx-auto mb-4 bg-red-100 rounded-full flex items-center justify-center">
             <svg className="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"/>
+                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
             </svg>
           </div>
           <h2 className="text-xl font-semibold text-gray-900 mb-2">{t('error.connection')}</h2>
@@ -165,8 +156,8 @@ const AdminEmployeesPage: FC = () => {
 
   return (
     <div className="">
-      <MyProfileBanner/>
-      <br/>
+      <MyProfileBanner />
+      <br />
 
       <section className={CARD_STYLES}>
         <div className="">
@@ -174,19 +165,21 @@ const AdminEmployeesPage: FC = () => {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
             <select value={branch} onChange={(e) => setBranch(e.target.value)}
-                    className="rounded-lg border-gray-300 focus:ring-cyan-500 focus:border-cyan-500">
+              className="rounded-lg border-gray-300 focus:ring-cyan-500 focus:border-cyan-500">
               <option value="">{t('admin.allBranches')}</option>
               {branches.map((b) => <option key={b} value={b}>{b}</option>)}
             </select>
             <select value={position} onChange={(e) => setPosition(e.target.value)}
-                    className="rounded-lg border-gray-300 focus:ring-cyan-500 focus:border-cyan-500">
+              className="rounded-lg border-gray-300 focus:ring-cyan-500 focus:border-cyan-500">
               <option value="">{t('admin.allPositions')}</option>
               {positions.map((p) => <option key={p} value={p}>{p}</option>)}
             </select>
             <select value={testStatus} onChange={(e) => setTestStatus(e.target.value)}
-                    className="rounded-lg border-gray-300 focus:ring-cyan-500 focus:border-cyan-500">
+              className="rounded-lg border-gray-300 focus:ring-cyan-500 focus:border-cyan-500">
               <option value="">{t('admin.allStatuses')}</option>
-              {(['Refunded', 'Passed', 'Failed'] as const).map((s) => <option key={s} value={s}>{s}</option>)}
+              {(['Refunded', 'Passed', 'Failed'] as const).map((s) => (
+                <option key={s} value={s}>{t(`status.${s.toLowerCase()}` as any)}</option>
+              ))}
             </select>
           </div>
 
@@ -204,7 +197,7 @@ const AdminEmployeesPage: FC = () => {
 
       {selectedUserId && (
         <div className="fixed inset-0 z-30">
-          <div className="absolute inset-0 bg-black/30" onClick={() => setSelectedUserId(null)}/>
+          <div className="absolute inset-0 bg-black/30" onClick={() => setSelectedUserId(null)} />
           <div
             className="absolute right-4 top-4 bottom-4 w-[min(760px,95vw)] overflow-auto rounded-xl md:rounded-[16px] bg-white ring-1 ring-gray-200 shadow-xl p-6">
             {userDetailsQuery.isLoading ? (
@@ -220,7 +213,7 @@ const AdminEmployeesPage: FC = () => {
                 <div className="flex items-start justify-between">
                   <div className={'flex items-center gap-4'}>
                     <h4 className="text-lg font-semibold">{t('admin.aboutEmployee')}</h4>
-                    <StatusBadge status={selectedUser.status || 'unknown'}/>
+                    <StatusBadge status={(selectedUser as any).status || 'unknown'} />
                   </div>
                   <button
                     onClick={() => setSelectedUserId(null)}
@@ -269,25 +262,25 @@ const AdminEmployeesPage: FC = () => {
                       <div className="rounded-xl ring-1 ring-gray-200 p-3 text-center">
                         <div className="text-xs text-gray-500">{t('admin.totalAttempts')}</div>
                         <div className="text-2xl font-bold text-cyan-700">
-                          {selectedUser.total_statistics?.total_attempts || 0}
+                          {String(selectedUser.total_statistics?.total_attempts || 0)}
                         </div>
                       </div>
                       <div className="rounded-xl ring-1 ring-gray-200 p-3 text-center">
                         <div className="text-xs text-gray-500">{t('admin.bestScore')}</div>
                         <div className="text-2xl font-bold text-cyan-700">
-                          {Number(selectedUser.total_statistics?.best_score)?.toFixed(2) || 0}
+                          {Number(selectedUser.total_statistics?.best_score || 0).toFixed(2)}
                         </div>
                       </div>
                       <div className="rounded-xl ring-1 ring-gray-200 p-3 text-center">
                         <div className="text-xs text-gray-500">{t('admin.completedTests')}</div>
                         <div className="text-2xl font-bold text-cyan-700">
-                          {selectedUser.total_statistics?.completed_surveys || 0}
+                          {String(selectedUser.total_statistics?.completed_surveys || 0)}
                         </div>
                       </div>
                       <div className="rounded-xl ring-1 ring-gray-200 p-3 text-center">
                         <div className="text-xs text-gray-500">{t('admin.averageScore')}</div>
                         <div className="text-2xl font-bold text-cyan-700">
-                          {Number(selectedUser.total_statistics?.average_score).toFixed(2) || 0}
+                          {Number(selectedUser.total_statistics?.average_score || 0).toFixed(2)}
                         </div>
                       </div>
                     </div>

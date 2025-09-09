@@ -12,8 +12,8 @@ export const MyProfileBanner: FC<Props> = ({title, description}) => {
   return (
     <section
       className="rounded-[16px]  md:h-[250px] flex flex-col justify-center bg-[#00A2DE] text-white p-6 md:p-10 relative overflow-hidden">
-      <img className={'absolute end-0 sm:end-[36px] sm:w-auto sm:h-auto h-full object-cover w-full top-0'}
-           src="/bg/profile-bg.png" alt=""/>
+      <img className={'absolute end-0 sm:w-auto sm:h-auto h-full object-cover w-full top-0'}
+           src="/bg/lines.svg" alt=""/>
       <h2
         className="text-2xl md:text-[32px] mb-1 md:mb-3 uppercase font-medium tracking-widest">{title ?? t('profile.title')}</h2>
       <p className="mt-2 max-w-sm text-white/90 text-sm">

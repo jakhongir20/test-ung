@@ -51,8 +51,8 @@ interface Props {
   variant?: 'session' | 'history'; // Add variant to distinguish between different data types
 }
 
-export const ProfileCardItem: FC<Props> = ({survey, index, variant = 'session', noButton = false}) => {
-  const {t} = useI18n();
+export const ProfileCardItem: FC<Props> = ({ survey, index, noButton = false }) => {
+  const { t } = useI18n();
   const navigate = useNavigate();
 
   // Helper function to check if survey is Session type
@@ -72,9 +72,9 @@ export const ProfileCardItem: FC<Props> = ({survey, index, variant = 'session', 
   // Helper function to get date
   const getDate = () => {
     if (isSession(survey)) {
-      return survey?.started_at ? new Date(survey.started_at).toLocaleDateString() : 'N/A';
+      return survey?.started_at ? new Date(survey.started_at).toLocaleDateString() : t('na');
     } else {
-      return survey?.completed_at ? new Date(survey.completed_at).toLocaleDateString() : 'N/A';
+      return survey?.completed_at ? new Date(survey.completed_at).toLocaleDateString() : t('na');
     }
   };
 
@@ -108,17 +108,17 @@ export const ProfileCardItem: FC<Props> = ({survey, index, variant = 'session', 
     <article
       className="rounded-xl overflow-hidden bg-white border border-[#E2E8F0] flex flex-col h-full">
       {/* Blue Header Section */}
-      <div className="bg-[#00A2DE] text-white p-4 relative overflow-hidden flex-shrink-0">
+      <div className="bg-[#F58634] text-white p-4 relative overflow-hidden flex-shrink-0">
         {/* Decorative pattern in top right */}
         <div className="absolute top-0 right-0 h-full opacity-100">
-          <img className={'h-full object-cover'} src="/bg/bg-card.png" alt="bgcard"/>
+          <img className={'h-full object-cover'} src="/bg/bg-card.png" alt="bgcard" />
         </div>
 
         <div className="relative z-10">
           <div className="text-lg leading-5 font-bold mb-1">
             {getSurveyTitle()}
           </div>
-          <div className="text-sm text-[#BFDBFE]">
+          <div className="text-sm text-gray-100">
             {getDate()}
           </div>
         </div>
@@ -131,7 +131,7 @@ export const ProfileCardItem: FC<Props> = ({survey, index, variant = 'session', 
           <div className="text-base text-[#1E293B] font-semibold">
             {t('card.totalAnswers')}
           </div>
-          <div className="text-6xl font-semibold text-[#00A2DE]">
+          <div className="text-6xl font-semibold text-[#F58634]">
             {getScore()}
           </div>
           <div className="text-sm text-[#64748B] underline">
