@@ -120,13 +120,28 @@ export function useUpdateUserProfile() {
     mutationFn: updateUserProfile,
     onSuccess: (data) => {
       // Update user in store with new data
-      if (data) {
-        setUser(data)
+      if (data && typeof data === 'object' && 'id' in data) {
+        setUser(data as any)
       }
       // Invalidate user queries to refresh data
       qc.invalidateQueries({queryKey: ['/api/users/me/']})
     },
   })
 }
+
+// Logout function
+export const logout = () => {
+  // Clear tokens and user data
+  tokenStorage.clear();
+  useAuthStore.getState().setUser(null);
+  
+  // Remove any session data
+  localStorage.removeItem('currentSurveySession');
+  
+  // Redirect to login page
+  if (typeof window !== 'undefined') {
+    window.location.href = '/login';
+  }
+};
 
 

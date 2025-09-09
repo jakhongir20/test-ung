@@ -267,6 +267,18 @@ const dictionary: Dictionary = {
   'profileCompletion.positionRequired': { uz: 'Lavozim kiritilishi shart', ru: 'Должность обязательна' },
   'profileCompletion.saveSuccess': { uz: 'Profil muvaffaqiyatli saqlandi', ru: 'Профиль успешно сохранен' },
   'profileCompletion.saveError': { uz: 'Profilni saqlashda xatolik', ru: 'Ошибка при сохранении профиля' },
+
+  // Logout
+  'logout': { uz: 'Chiqish', ru: 'Выйти' },
+
+  // Auth Pages
+  'auth.login': { uz: 'Kirish', ru: 'Войти' },
+  'auth.phoneNumber': { uz: 'Telefon raqami', ru: 'Номер телефона' },
+  'auth.getCode': { uz: 'Kod olish', ru: 'Получить код' },
+  'auth.fieldRequired': { uz: 'Maydon majburiy', ru: 'Поле обязательно' },
+  'auth.invalidPhone': { uz: 'Noto\'g\'ri raqam', ru: 'Неверный номер' },
+  'auth.phonePlaceholder': { uz: '+998', ru: '+998' },
+  'auth.confirmLogin': { uz: 'Kirishni tasdiqlash', ru: 'Подтверждение входа' },
 };
 
 type I18nContextValue = {
