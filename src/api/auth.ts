@@ -1,6 +1,7 @@
 import { useAuthLoginCreate, useAuthSendOtpCreate, useAuthTokenRefreshCreate } from './generated/respondentWebAPI'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useAuthStore } from '../stores/authStore'
+import { customInstance } from './mutator/custom-instance'
 
 export type Tokens = { access: string; refresh: string }
 
@@ -36,25 +37,25 @@ export const tokenStorage = {
 // Utility function to handle authentication errors
 export const handleAuthError = (error: any) => {
   // Check if it's an authentication error
-  if (error?.response?.status === 401 || 
-      error?.response?.data?.non_field_errors?.includes('Invalid or inactive session') ||
-      error?.response?.data?.detail === 'Token is invalid or expired') {
-    
+  if (error?.response?.status === 401 ||
+    error?.response?.data?.non_field_errors?.includes('Invalid or inactive session') ||
+    error?.response?.data?.detail === 'Token is invalid or expired') {
+
     // Clear tokens and user data
     tokenStorage.clear();
     useAuthStore.getState().setUser(null);
-    
+
     // Remove any session data
     localStorage.removeItem('currentSurveySession');
-    
+
     // Redirect to login page
     if (typeof window !== 'undefined') {
       window.location.href = '/login';
     }
-    
+
     return true; // Indicates this was an auth error
   }
-  
+
   return false; // Not an auth error
 };
 
@@ -94,6 +95,37 @@ export function useRefresh() {
       tokenStorage.setTokens({access: res.access, refresh: res.refresh ?? tokenStorage.refresh})
     },
     onError: () => tokenStorage.clear(),
+  })
+}
+
+// Custom API function for updating user profile
+export const updateUserProfile = async (data: {
+  name: string;
+  branch: string;
+  position: string;
+}) => {
+  return customInstance({
+    method: 'POST',
+    url: '/api/users/me/update/',
+    data,
+  });
+};
+
+// Hook for updating user profile
+export function useUpdateUserProfile() {
+  const qc = useQueryClient()
+  const setUser = useAuthStore((s) => s.setUser)
+
+  return useMutation({
+    mutationFn: updateUserProfile,
+    onSuccess: (data) => {
+      // Update user in store with new data
+      if (data) {
+        setUser(data)
+      }
+      // Invalidate user queries to refresh data
+      qc.invalidateQueries({queryKey: ['/api/users/me/']})
+    },
   })
 }
 

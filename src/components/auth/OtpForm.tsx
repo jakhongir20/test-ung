@@ -2,6 +2,7 @@ import type { FC } from 'react';
 import { Controller, useForm, useWatch } from "react-hook-form";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useLogin } from "../../api/auth.ts";
+import { useUsersMeRetrieve } from "../../api/generated/respondentWebAPI";
 import { FormButton } from "./FormButton.tsx";
 import { ArrowLeftIcon } from "@heroicons/react/20/solid";
 import { useI18n } from "../../i18n";
@@ -92,6 +93,7 @@ export const OtpForm: FC<Props> = () => {
   const location = useLocation();
   const login = useLogin();
   const { t } = useI18n();
+  const { refetch: refetchUser } = useUsersMeRetrieve();
 
   const {
     control,
@@ -141,7 +143,24 @@ export const OtpForm: FC<Props> = () => {
       clearErrors('code');
 
       await login.mutateAsync({ phone, code: codeString });
-      navigate('/');
+
+      // After successful login, check if user has complete profile
+      try {
+        const userResponse = await refetchUser();
+        const user = userResponse.data;
+
+        // Check if user has complete profile (name, branch, position)
+        if (user && user.name && user.branch && user.position) {
+          // User has complete profile, redirect to main page
+          navigate('/');
+        } else {
+          // User needs to complete profile, redirect to profile completion page
+          navigate('/profile-completion');
+        }
+      } catch (userError) {
+        // If we can't fetch user data, redirect to profile completion as fallback
+        navigate('/profile-completion');
+      }
     } catch (error: any) {
       // Handle login errors
       if (error?.response?.data?.non_field_errors?.includes('Invalid OTP code')) {

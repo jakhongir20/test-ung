@@ -15,58 +15,59 @@ import PageRules from './pages/PageRules.tsx';
 import ProtectedRoute from './components/ProtectedRoute.tsx';
 import AuthLayout from './layouts/AuthLayout.tsx';
 import PageCategories from "./pages/PageCategories.tsx";
+import ProfileCompletionPage from "./pages/ProfileCompletionPage.tsx";
 
 const router = createBrowserRouter([
   {
     path: '/',
-    element: <App/>,
+    element: <App />,
     children: [
       {
         index: true, element: (
           <ProtectedRoute>
-            <ProfilePage/>
+            <ProfilePage />
           </ProtectedRoute>
         )
       },
       {
         path: 'test', element: (
           <ProtectedRoute>
-            <TestPage/>
+            <TestPage />
           </ProtectedRoute>
         )
       },
       {
         path: 'admin/employees', element: (
           <ProtectedRoute>
-            <AdminEmployeesPage/>
+            <AdminEmployeesPage />
           </ProtectedRoute>
         )
       },
       {
         path: 'rules', element: (
           <ProtectedRoute>
-            <PageRules/>
+            <PageRules />
           </ProtectedRoute>
         )
       },
       {
         path: 'categories', element: (
           <ProtectedRoute>
-            <PageCategories/>
+            <PageCategories />
           </ProtectedRoute>
         )
       },
       {
         path: 'myprofile', element: (
           <ProtectedRoute>
-            <ProfilePage/>
+            <ProfilePage />
           </ProtectedRoute>
         )
       },
       {
         path: 'session/:id', element: (
           <ProtectedRoute>
-            <SessionDetailsPage/>
+            <SessionDetailsPage />
           </ProtectedRoute>
         )
       },
@@ -74,10 +75,11 @@ const router = createBrowserRouter([
   },
   {
     path: '/',
-    element: <AuthLayout/>,
+    element: <AuthLayout />,
     children: [
-      {path: 'login', element: <LoginPage/>},
-      {path: 'otp', element: <OtpPage/>},
+      { path: 'login', element: <LoginPage /> },
+      { path: 'otp', element: <OtpPage /> },
+      { path: 'profile-completion', element: <ProfileCompletionPage /> },
     ],
   },
 ]);
@@ -88,7 +90,7 @@ createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <I18nProvider>
       <QueryClientProvider client={queryClient}>
-        <RouterProvider router={router}/>
+        <RouterProvider router={router} />
       </QueryClientProvider>
     </I18nProvider>
   </StrictMode>,

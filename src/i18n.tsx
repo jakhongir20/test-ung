@@ -251,6 +251,22 @@ const dictionary: Dictionary = {
     uz: 'Biz mashq paytida qurilmangizni qulflamaymiz. Test kunida siz boshqa dasturlar yoki ilovalardan foydalanishdan cheklanadi.',
     ru: 'Мы не блокируем ваше устройство во время практики. В день теста вам будет запрещено использовать другие программы или приложения.'
   },
+
+  // User Profile Completion
+  'profileCompletion.title': { uz: 'Profilni to\'ldiring', ru: 'Заполните профиль' },
+  'profileCompletion.subtitle': { uz: 'Iltimos, o\'z ma\'lumotlaringizni kiriting', ru: 'Пожалуйста, введите свои данные' },
+  'profileCompletion.name': { uz: 'To\'liq ism', ru: 'Полное имя' },
+  'profileCompletion.namePlaceholder': { uz: 'Ismingizni kiriting', ru: 'Введите ваше имя' },
+  'profileCompletion.branch': { uz: 'Filial', ru: 'Филиал' },
+  'profileCompletion.branchPlaceholder': { uz: 'Filial nomini kiriting', ru: 'Введите название филиала' },
+  'profileCompletion.position': { uz: 'Lavozim', ru: 'Должность' },
+  'profileCompletion.positionPlaceholder': { uz: 'Lavozimingizni kiriting', ru: 'Введите вашу должность' },
+  'profileCompletion.save': { uz: 'Saqlash', ru: 'Сохранить' },
+  'profileCompletion.nameRequired': { uz: 'Ism kiritilishi shart', ru: 'Имя обязательно' },
+  'profileCompletion.branchRequired': { uz: 'Filial kiritilishi shart', ru: 'Филиал обязателен' },
+  'profileCompletion.positionRequired': { uz: 'Lavozim kiritilishi shart', ru: 'Должность обязательна' },
+  'profileCompletion.saveSuccess': { uz: 'Profil muvaffaqiyatli saqlandi', ru: 'Профиль успешно сохранен' },
+  'profileCompletion.saveError': { uz: 'Profilni saqlashda xatolik', ru: 'Ошибка при сохранении профиля' },
 };
 
 type I18nContextValue = {
