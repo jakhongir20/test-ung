@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { useSendOtp } from "../../api/auth.ts";
 import { FormButton } from "./FormButton.tsx";
 import { useI18n } from "../../i18n";
+import { useEffect, useRef } from "react";
 
 interface Props {
   className?: string;
@@ -24,10 +25,28 @@ export const authInputStyle = 'block !border-1 w-full !text-[#64748B] focus:!tex
 export const LoginForm: FC<Props> = ({ }) => {
   const navigate = useNavigate();
   const sendOtp = useSendOtp();
-  const { t } = useI18n();
-  const { control, handleSubmit, formState: { errors, isSubmitting } } = useForm<LoginFormValues>({
+  const { t, lang } = useI18n();
+  const { control, handleSubmit, formState: { errors, isSubmitting }, clearErrors, trigger } = useForm<LoginFormValues>({
     defaultValues: { phone: '' },
   });
+
+  const prevLangRef = useRef(lang);
+
+  // Update validation messages when language changes
+  useEffect(() => {
+    if (prevLangRef.current !== lang && errors.phone) {
+      // Clear existing errors and re-trigger validation with new language
+      clearErrors('phone');
+      trigger('phone');
+      prevLangRef.current = lang;
+    }
+  }, [lang, clearErrors, trigger, errors.phone]);
+
+  // Create reactive validation rules
+  const validationRules = {
+    required: t('auth.fieldRequired'),
+    validate: (val: string) => uzPhoneValidate(val, t)
+  };
 
   const onSubmit = async ({ phone }: LoginFormValues) => {
     await sendOtp.mutateAsync(phone.replace(/\s/g, ''));
@@ -40,7 +59,7 @@ export const LoginForm: FC<Props> = ({ }) => {
         <Controller
           name="phone"
           control={control}
-          rules={{ required: t('auth.fieldRequired'), validate: (val) => uzPhoneValidate(val, t) }}
+          rules={validationRules}
           render={({ field }) => (
             <MaskedInput
               {...field}

@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { useUpdateUserProfile } from "../../api/auth.ts";
 import { FormButton } from "./FormButton.tsx";
 import { useI18n } from "../../i18n";
+import { useEffect, useRef } from "react";
 
 interface Props {
   className?: string;
@@ -22,14 +23,15 @@ export const authInputStyle = 'block !border-1 w-full !text-[#64748B] focus:!tex
 export const ProfileCompletionForm: FC<Props> = () => {
   const navigate = useNavigate();
   const updateProfile = useUpdateUserProfile();
-  const { t } = useI18n();
+  const { t, lang } = useI18n();
 
   const {
     control,
     handleSubmit,
     formState: { errors, isSubmitting },
     setError,
-    clearErrors
+    clearErrors,
+    trigger
   } = useForm<ProfileFormValues>({
     defaultValues: {
       name: '',
@@ -40,6 +42,19 @@ export const ProfileCompletionForm: FC<Props> = () => {
     },
     mode: 'onSubmit'
   });
+
+  const prevLangRef = useRef(lang);
+
+  // Update validation messages when language changes
+  useEffect(() => {
+    const hasErrors = Object.keys(errors).length > 0;
+    if (prevLangRef.current !== lang && hasErrors) {
+      // Clear existing errors and re-trigger validation with new language
+      clearErrors();
+      trigger();
+      prevLangRef.current = lang;
+    }
+  }, [lang, clearErrors, trigger, errors]);
 
   const onSubmit = async (values: ProfileFormValues) => {
     try {

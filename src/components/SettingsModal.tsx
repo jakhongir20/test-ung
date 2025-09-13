@@ -1,5 +1,5 @@
 import type { FC } from 'react';
-import React from 'react';
+import React, { useRef } from 'react';
 import { Controller, useForm } from "react-hook-form";
 import { useI18n } from "../i18n";
 import { logout, useUpdateUserProfile } from "../api/auth";
@@ -18,18 +18,19 @@ type SettingsFormValues = {
   work_domain: 'natural_gas' | 'lpg_gas';
 };
 
-export const SettingsModal: FC<Props> = ({isOpen, onClose}) => {
-  const {t} = useI18n();
-  const {data: user} = useUsersMeRetrieve();
+export const SettingsModal: FC<Props> = ({ isOpen, onClose }) => {
+  const { t, lang } = useI18n();
+  const { data: user } = useUsersMeRetrieve();
   const updateProfile = useUpdateUserProfile();
 
   const {
     control,
     handleSubmit,
-    formState: {errors, isSubmitting},
+    formState: { errors, isSubmitting },
     setError,
     clearErrors,
-    reset
+    reset,
+    trigger
   } = useForm<SettingsFormValues>({
     defaultValues: {
       name: user?.name || '',
@@ -39,6 +40,8 @@ export const SettingsModal: FC<Props> = ({isOpen, onClose}) => {
       work_domain: ((user as any)?.work_domain as 'natural_gas' | 'lpg_gas') || 'natural_gas'
     },
   });
+
+  const prevLangRef = useRef(lang);
 
   // Reset form when user data changes
   React.useEffect(() => {
@@ -52,6 +55,17 @@ export const SettingsModal: FC<Props> = ({isOpen, onClose}) => {
       });
     }
   }, [user, reset]);
+
+  // Update validation messages when language changes
+  React.useEffect(() => {
+    const hasErrors = Object.keys(errors).length > 0;
+    if (prevLangRef.current !== lang && hasErrors) {
+      // Clear existing errors and re-trigger validation with new language
+      clearErrors();
+      trigger();
+      prevLangRef.current = lang;
+    }
+  }, [lang, clearErrors, trigger, errors]);
 
   const onSubmit = async (data: SettingsFormValues) => {
     try {
@@ -125,7 +139,7 @@ export const SettingsModal: FC<Props> = ({isOpen, onClose}) => {
   return (
     <div className="fixed inset-0 h-screen w-full top-0 bottom-0 left-0 right-0 z-20 bg-white">
       {/* Backdrop */}
-      <div className="absolute inset-0 bg-black/30" onClick={onClose}/>
+      <div className="absolute inset-0 bg-black/30" onClick={onClose} />
 
       {/* Drawer */}
       <div
@@ -152,8 +166,8 @@ export const SettingsModal: FC<Props> = ({isOpen, onClose}) => {
                 <Controller
                   name="name"
                   control={control}
-                  rules={{required: t('settings.fullNameRequired')}}
-                  render={({field}) => (
+                  rules={{ required: t('settings.fullNameRequired') }}
+                  render={({ field }) => (
                     <input
                       {...field}
                       type="text"
@@ -173,8 +187,8 @@ export const SettingsModal: FC<Props> = ({isOpen, onClose}) => {
                 <Controller
                   name="branch"
                   control={control}
-                  rules={{required: t('settings.branchRequired')}}
-                  render={({field}) => (
+                  rules={{ required: t('settings.branchRequired') }}
+                  render={({ field }) => (
                     <select
                       {...field}
                       className={`w-full px-4 py-3 border border-gray-300 rounded-lg text-base focus:outline-none focus:ring-2 focus:ring-[#00A2DE] focus:border-[#00A2DE] bg-white ${errors.branch ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : ''}`}
@@ -206,8 +220,8 @@ export const SettingsModal: FC<Props> = ({isOpen, onClose}) => {
                 <Controller
                   name="position"
                   control={control}
-                  rules={{required: t('settings.positionRequired')}}
-                  render={({field}) => (
+                  rules={{ required: t('settings.positionRequired') }}
+                  render={({ field }) => (
                     <select
                       {...field}
                       className={`w-full px-4 py-3 border border-gray-300 rounded-lg text-base focus:outline-none focus:ring-2 focus:ring-[#00A2DE] focus:border-[#00A2DE] bg-white ${errors.position ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : ''}`}
@@ -234,8 +248,8 @@ export const SettingsModal: FC<Props> = ({isOpen, onClose}) => {
                 <Controller
                   name="employee_level"
                   control={control}
-                  rules={{required: t('settings.employeeLevelRequired')}}
-                  render={({field}) => (
+                  rules={{ required: t('settings.employeeLevelRequired') }}
+                  render={({ field }) => (
                     <select
                       {...field}
                       className={`w-full px-4 py-3 border border-gray-300 rounded-lg text-base focus:outline-none focus:ring-2 focus:ring-[#00A2DE] focus:border-[#00A2DE] bg-white ${errors.employee_level ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : ''}`}
@@ -257,8 +271,8 @@ export const SettingsModal: FC<Props> = ({isOpen, onClose}) => {
                 <Controller
                   name="work_domain"
                   control={control}
-                  rules={{required: t('settings.workDomainRequired')}}
-                  render={({field}) => (
+                  rules={{ required: t('settings.workDomainRequired') }}
+                  render={({ field }) => (
                     <select
                       {...field}
                       className={`w-full px-4 py-3 border border-gray-300 rounded-lg text-base focus:outline-none focus:ring-2 focus:ring-[#00A2DE] focus:border-[#00A2DE] bg-white ${errors.work_domain ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : ''}`}
@@ -295,7 +309,7 @@ export const SettingsModal: FC<Props> = ({isOpen, onClose}) => {
               >
                 <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                        d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+                    d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
                 </svg>
                 {t('settings.logout')}
               </button>
@@ -311,7 +325,7 @@ export const SettingsModal: FC<Props> = ({isOpen, onClose}) => {
                   <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
                 ) : (
                   <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7"/>
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                   </svg>
                 )}
                 {t('settings.save')}
