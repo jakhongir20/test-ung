@@ -51,8 +51,8 @@ interface Props {
   variant?: 'session' | 'history'; // Add variant to distinguish between different data types
 }
 
-export const ProfileCardItem: FC<Props> = ({ survey, index, noButton = false }) => {
-  const { t } = useI18n();
+export const ProfileCardItem: FC<Props> = ({survey, index, noButton = false}) => {
+  const {t} = useI18n();
   const navigate = useNavigate();
 
   // Helper function to check if survey is Session type
@@ -111,10 +111,10 @@ export const ProfileCardItem: FC<Props> = ({ survey, index, noButton = false }) 
       <div className="bg-[#F58634] text-white p-4 relative overflow-hidden flex-shrink-0">
         {/* Decorative pattern in top right */}
         <div className="absolute top-0 right-0 h-full opacity-100">
-          <img className={'h-full object-cover'} src="/bg/bg-card.png" alt="bgcard" />
+          <img className={'h-full object-cover'} src="/bg/bg-card.png" alt="bgcard"/>
         </div>
 
-        <div className="relative z-10">
+        <div className="relative">
           <div className="text-lg leading-5 font-bold mb-1">
             {getSurveyTitle()}
           </div>

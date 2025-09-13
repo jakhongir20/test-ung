@@ -137,17 +137,7 @@ const ProfilePage: FC = () => {
               {t('empty.noTestHistoryDesc')}
             </p>
             <button
-              onClick={async () => {
-                try {
-                  const res = await startSurvey.mutateAsync({id: 1, count: 30});
-                  localStorage.setItem('currentSurveySession', JSON.stringify(res));
-                  navigate(`/test?sessionId=${res.id}`);
-                } catch (error) {
-                  if (handleAuthError(error)) {
-                    return;
-                  }
-                }
-              }}
+              onClick={() => navigate(`/rules`)}
               className="bg-cyan-600 text-white px-6 py-3 rounded-lg hover:bg-cyan-700 font-medium"
             >
               {t('empty.startFirstTest')}
