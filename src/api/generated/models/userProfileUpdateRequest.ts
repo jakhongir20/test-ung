@@ -33,6 +33,6 @@ export interface UserProfileUpdateRequest {
   branch: string;
   /** @maxLength 100 */
   position: string;
-  employee_level: 'junior' | 'engineer' | 'senior';
+  employee_level: 'junior' | 'engineer';
   work_domain: 'natural_gas' | 'lpg_gas';
 }

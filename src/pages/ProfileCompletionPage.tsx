@@ -8,13 +8,13 @@ import { useI18n } from '../i18n';
 
 const ProfileCompletionPage: FC = () => {
   const navigate = useNavigate();
-  const { t } = useI18n();
-  const { data: user, isLoading, error } = useUsersMeRetrieve();
+  const {t} = useI18n();
+  const {data: user, isLoading, error} = useUsersMeRetrieve();
 
   useEffect(() => {
     // If user data is loaded and user has all required fields, redirect to main page
     if (user && user.name && user.branch && user.position && user.employee_level && user.work_domain) {
-      navigate('/', { replace: true });
+      navigate('/', {replace: true});
     }
   }, [user, navigate]);
 
@@ -32,24 +32,19 @@ const ProfileCompletionPage: FC = () => {
 
   // If there's an error, redirect to login
   if (error) {
-    navigate('/login', { replace: true });
+    navigate('/login', {replace: true});
     return null;
   }
 
   // If user already has complete profile, redirect to main page
   if (user && user.name && user.branch && user.position && user.employee_level && user.work_domain) {
-    navigate('/', { replace: true });
+    navigate('/', {replace: true});
     return null;
   }
 
   return (
     <FormContainer title={t('profileCompletion.title')}>
-      <div className="text-center mb-6">
-        <p className="text-gray-600 text-sm">
-          {t('profileCompletion.subtitle')}
-        </p>
-      </div>
-      <ProfileCompletionForm />
+      <ProfileCompletionForm/>
     </FormContainer>
   );
 };

@@ -137,7 +137,7 @@ export const SettingsModal: FC<Props> = ({ isOpen, onClose }) => {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 h-screen w-full top-0 bottom-0 left-0 right-0 z-20 bg-white">
+    <div className="fixed inset-0 h-screen w-full top-0 bottom-0 left-0 right-0 z-20 ">
       {/* Backdrop */}
       <div className="absolute inset-0 bg-black/30" onClick={onClose} />
 
@@ -189,24 +189,12 @@ export const SettingsModal: FC<Props> = ({ isOpen, onClose }) => {
                   control={control}
                   rules={{ required: t('settings.branchRequired') }}
                   render={({ field }) => (
-                    <select
+                    <input
                       {...field}
-                      className={`w-full px-4 py-3 border border-gray-300 rounded-lg text-base focus:outline-none focus:ring-2 focus:ring-[#00A2DE] focus:border-[#00A2DE] bg-white ${errors.branch ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : ''}`}
-                    >
-                      <option value="">{t('settings.branchPlaceholder')}</option>
-                      <option value="tashkent">{t('region.tashkent')}</option>
-                      <option value="samarkand">{t('region.samarkand')}</option>
-                      <option value="bukhara">{t('region.bukhara')}</option>
-                      <option value="namangan">{t('region.namangan')}</option>
-                      <option value="andijan">{t('region.andijan')}</option>
-                      <option value="fergana">{t('region.fergana')}</option>
-                      <option value="kashkadarya">{t('region.kashkadarya')}</option>
-                      <option value="surkhandarya">{t('region.surkhandarya')}</option>
-                      <option value="khorezm">{t('region.khorezm')}</option>
-                      <option value="karakalpakstan">{t('region.karakalpakstan')}</option>
-                      <option value="jizzakh">{t('region.jizzakh')}</option>
-                      <option value="sirdarya">{t('region.sirdarya')}</option>
-                    </select>
+                      type="text"
+                      placeholder={t('settings.branchPlaceholder')}
+                      className={`w-full px-4 py-3 border border-gray-300 rounded-lg text-base focus:outline-none focus:ring-2 focus:ring-[#00A2DE] focus:border-[#00A2DE] ${errors.branch ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : ''}`}
+                    />
                   )}
                 />
                 {errors.branch && (
@@ -222,19 +210,12 @@ export const SettingsModal: FC<Props> = ({ isOpen, onClose }) => {
                   control={control}
                   rules={{ required: t('settings.positionRequired') }}
                   render={({ field }) => (
-                    <select
+                    <input
                       {...field}
-                      className={`w-full px-4 py-3 border border-gray-300 rounded-lg text-base focus:outline-none focus:ring-2 focus:ring-[#00A2DE] focus:border-[#00A2DE] bg-white ${errors.position ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : ''}`}
-                    >
-                      <option value="">{t('settings.positionPlaceholder')}</option>
-                      <option value="manager">{t('position.manager')}</option>
-                      <option value="engineer">{t('position.engineer')}</option>
-                      <option value="technician">{t('position.technician')}</option>
-                      <option value="supervisor">{t('position.supervisor')}</option>
-                      <option value="operator">{t('position.operator')}</option>
-                      <option value="specialist">{t('position.specialist')}</option>
-                      <option value="analyst">{t('position.analyst')}</option>
-                    </select>
+                      type="text"
+                      placeholder={t('settings.positionPlaceholder')}
+                      className={`w-full px-4 py-3 border border-gray-300 rounded-lg text-base focus:outline-none focus:ring-2 focus:ring-[#00A2DE] focus:border-[#00A2DE] ${errors.position ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : ''}`}
+                    />
                   )}
                 />
                 {errors.position && (
@@ -244,7 +225,7 @@ export const SettingsModal: FC<Props> = ({ isOpen, onClose }) => {
 
               {/* Employee Level Field */}
               <div>
-                <div className="text-sm text-gray-500 mb-2">Должность</div>
+                <div className="text-sm text-gray-500 mb-2">{t('settings.employeeLevel')}</div>
                 <Controller
                   name="employee_level"
                   control={control}
@@ -254,7 +235,7 @@ export const SettingsModal: FC<Props> = ({ isOpen, onClose }) => {
                       {...field}
                       className={`w-full px-4 py-3 border border-gray-300 rounded-lg text-base focus:outline-none focus:ring-2 focus:ring-[#00A2DE] focus:border-[#00A2DE] bg-white ${errors.employee_level ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : ''}`}
                     >
-                      <option value="">Выберите должность</option>
+                      <option value="">{t('settings.selectPosition')}</option>
                       <option value="junior">Junior</option>
                       <option value="engineer">Engineer</option>
                     </select>
@@ -267,7 +248,7 @@ export const SettingsModal: FC<Props> = ({ isOpen, onClose }) => {
 
               {/* Work Domain Field */}
               <div>
-                <div className="text-sm text-gray-500 mb-2">Gas turi</div>
+                <div className="text-sm text-gray-500 mb-2">{t('settings.workDomain')}</div>
                 <Controller
                   name="work_domain"
                   control={control}

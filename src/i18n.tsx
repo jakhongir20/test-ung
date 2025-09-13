@@ -21,7 +21,11 @@ const dictionary: Dictionary = {
   'profile.fio': { uz: 'FISH', 'uz-cyrl': 'ФИШ', ru: 'ФИО' },
   'profile.branch': { uz: 'Filial', 'uz-cyrl': 'Филиал', ru: 'Филиал' },
   'profile.position': { uz: 'Lavozim', 'uz-cyrl': 'Лавозим', ru: 'Должность' },
-  'profile.results': { uz: 'So\'nggi test natijalari', 'uz-cyrl': 'Сўнгги тест натижалари', ru: 'Мои последние результаты' },
+  'profile.results': {
+    uz: 'So\'nggi test natijalari',
+    'uz-cyrl': 'Сўнгги тест натижалари',
+    ru: 'Мои последние результаты'
+  },
   'profile.newTest': { uz: 'Yangi test', 'uz-cyrl': 'Янги тест', ru: 'Новый тест' },
   'profile.scoreDetails': { uz: 'Ball tafsilotlari', 'uz-cyrl': 'Балл тафсилотлари', ru: 'Детали балла' },
   'card.totalAnswers': { uz: "Umumiy to'liq javoblar", 'uz-cyrl': 'Умумий тўлиқ жавоблар', ru: 'Всего верных ответов' },
@@ -66,30 +70,58 @@ const dictionary: Dictionary = {
   'retry': { uz: 'Qayta urinish', 'uz-cyrl': 'Қайта уриниш', ru: 'Повторить' },
 
   // Empty States
-  'empty.noTestHistory': { uz: 'Hali test tarixi yo\'q', 'uz-cyrl': 'Ҳали тест тарихи йўқ', ru: 'Истории тестов пока нет' },
+  'empty.noTestHistory': {
+    uz: 'Hali test tarixi yo\'q',
+    'uz-cyrl': 'Ҳали тест тарихи йўқ',
+    ru: 'Истории тестов пока нет'
+  },
   'empty.noTestHistoryDesc': {
     uz: 'Natijalaringizni ko\'rish uchun birinchi testni boshlang.',
     'uz-cyrl': 'Натижаларингизни кўриш учун биринчи тестни бошланг.',
     ru: 'Начните свой первый тест, чтобы увидеть результаты здесь.'
   },
-  'empty.startFirstTest': { uz: 'Birinchi testni boshlash', 'uz-cyrl': 'Биринчи тестни бошлаш', ru: 'Начать первый тест' },
+  'empty.startFirstTest': {
+    uz: 'Birinchi testni boshlash',
+    'uz-cyrl': 'Биринчи тестни бошлаш',
+    ru: 'Начать первый тест'
+  },
 
   // OTP Form
   'otp.confirm': { uz: 'Tasdiqlash', 'uz-cyrl': 'Тасдиқлаш', ru: 'Подтвердить' },
   'otp.codeNotReceived': { uz: 'Kod kelmadi?', 'uz-cyrl': 'Код келмади?', ru: 'Код не пришел?' },
   'otp.resend': { uz: 'Qayta yuborish', 'uz-cyrl': 'Қайта юбориш', ru: 'Отправить заново' },
   'otp.back': { uz: 'Orqaga', 'uz-cyrl': 'Орқага', ru: 'Назад' },
-  'otp.enterAllDigits': { uz: 'Barcha 6 raqamni kiriting', 'uz-cyrl': 'Барча 6 рақамни киритинг', ru: 'Введите все 6 цифр кода' },
-  'otp.onlyDigits': { uz: 'Kod faqat raqamlardan iborat bo\'lishi kerak', 'uz-cyrl': 'Код фақат рақамлардан иборат бўлиши керак', ru: 'Код должен содержать только цифры' },
+  'otp.enterAllDigits': {
+    uz: 'Barcha 6 raqamni kiriting',
+    'uz-cyrl': 'Барча 6 рақамни киритинг',
+    ru: 'Введите все 6 цифр кода'
+  },
+  'otp.onlyDigits': {
+    uz: 'Kod faqat raqamlardan iborat bo\'lishi kerak',
+    'uz-cyrl': 'Код фақат рақамлардан иборат бўлиши керак',
+    ru: 'Код должен содержать только цифры'
+  },
   'otp.codeRequired': { uz: 'Kod majburiy', 'uz-cyrl': 'Код мажбурий', ru: 'Код обязателен' },
   'otp.onlyNumbers': { uz: 'Faqat raqamlar', 'uz-cyrl': 'Фақат рақамлар', ru: 'Только цифры' },
-  'otp.invalidCode': { uz: 'Noto\'g\'ri tasdiqlash kodi', 'uz-cyrl': 'Нотўғри тасдиқлаш коди', ru: 'Неверный код подтверждения' },
+  'otp.invalidCode': {
+    uz: 'Noto\'g\'ri tasdiqlash kodi',
+    'uz-cyrl': 'Нотўғри тасдиқлаш коди',
+    ru: 'Неверный код подтверждения'
+  },
   'otp.codeError': { uz: 'Kod bilan xatolik', 'uz-cyrl': 'Код билан хато', ru: 'Ошибка с кодом' },
-  'otp.loginError': { uz: 'Kirishda xatolik yuz berdi', 'uz-cyrl': 'Киришда хато юз берди', ru: 'Произошла ошибка при входе' },
+  'otp.loginError': {
+    uz: 'Kirishda xatolik yuz berdi',
+    'uz-cyrl': 'Киришда хато юз берди',
+    ru: 'Произошла ошибка при входе'
+  },
 
   // Test Page
   'test.loadingQuestion': { uz: 'Savol yuklanmoqda...', 'uz-cyrl': 'Савол юкланмоқда...', ru: 'Загрузка вопроса...' },
-  'test.questionOf': { uz: 'Savol {current} dan {total}', 'uz-cyrl': 'Савол {current} дан {total}', ru: 'Вопрос {current} из {total}' },
+  'test.questionOf': {
+    uz: 'Savol {current} dan {total}',
+    'uz-cyrl': 'Савол {current} дан {total}',
+    ru: 'Вопрос {current} из {total}'
+  },
   'test.next': { uz: 'Keyingi', 'uz-cyrl': 'Кейинги', ru: 'След.' },
   'test.start': { uz: 'Testni boshlash', 'uz-cyrl': 'Тестни бошлаш', ru: 'Запуск теста' },
   'test.finish': { uz: 'Yakunlash', 'uz-cyrl': 'Якунлаш', ru: 'Завершить' },
@@ -100,7 +132,11 @@ const dictionary: Dictionary = {
 
   // Admin Employees Page
   'admin.employees': { uz: 'Barcha xodimlar', 'uz-cyrl': 'Барча ходимлар', ru: 'Все сотрудники' },
-  'admin.searchPlaceholder': { uz: 'Ism yoki telefon bo\'yicha qidirish...', 'uz-cyrl': 'Исм ёки телефон бўйича қидириш...', ru: 'Поиск по имени или телефону...' },
+  'admin.searchPlaceholder': {
+    uz: 'Ism yoki telefon bo\'yicha qidirish...',
+    'uz-cyrl': 'Исм ёки телефон бўйича қидириш...',
+    ru: 'Поиск по имени или телефону...'
+  },
   'admin.allBranches': { uz: 'Barcha filiallar', 'uz-cyrl': 'Барча филиаллар', ru: 'Все филиалы' },
   'admin.allPositions': { uz: 'Barcha lavozimlar', 'uz-cyrl': 'Барча лавозимлар', ru: 'Все должности' },
   'admin.allStatuses': { uz: 'Barcha holatlar', 'uz-cyrl': 'Барча ҳолатлар', ru: 'Все статусы' },
@@ -113,8 +149,16 @@ const dictionary: Dictionary = {
   },
   'admin.aboutEmployee': { uz: 'Xodim haqida', 'uz-cyrl': 'Ходим ҳақида', ru: 'О сотруднике' },
   'admin.noEmployees': { uz: 'Xodimlar topilmadi', 'uz-cyrl': 'Ходимлар топилмади', ru: 'Сотрудники не найдены' },
-  'admin.errorLoadingDetails': { uz: 'Xodim tafsilotlarini yuklashda xatolik', 'uz-cyrl': 'Ходим тафсилотларини юклашда хато', ru: 'Ошибка загрузки деталей сотрудника' },
-  'admin.noDetailsAvailable': { uz: 'Xodim tafsilotlari mavjud emas', 'uz-cyrl': 'Ходим тафсилотлари мавжуд эмас', ru: 'Детали сотрудника недоступны' },
+  'admin.errorLoadingDetails': {
+    uz: 'Xodim tafsilotlarini yuklashda xatolik',
+    'uz-cyrl': 'Ходим тафсилотларини юклашда хато',
+    ru: 'Ошибка загрузки деталей сотрудника'
+  },
+  'admin.noDetailsAvailable': {
+    uz: 'Xodim tafsilotlari mavjud emas',
+    'uz-cyrl': 'Ходим тафсилотлари мавжуд эмас',
+    ru: 'Детали сотрудника недоступны'
+  },
   'admin.totalAttempts': { uz: 'Jami urinishlar', 'uz-cyrl': 'Жами уринишлар', ru: 'Всего попыток' },
   'admin.bestScore': { uz: 'Eng yaxshi ball', 'uz-cyrl': 'Энг яхши балл', ru: 'Лучший балл' },
   'admin.completedTests': { uz: 'O\'tilgan testlar', 'uz-cyrl': 'Ўтилган тестлар', ru: 'Пройдено тестов' },
@@ -154,13 +198,21 @@ const dictionary: Dictionary = {
     'uz-cyrl': 'Машқ тестини тугатганда, балларингизни кўриш ва шахсийлаштирилган ўқув маслаҳатларини олиш учун "Менинг машқларим"га ўтинг. Биз тўлиқ бўлмаган машқ тестларини 90 кундан кейин ўчирамиз.',
     ru: 'Когда вы завершите практический тест, перейдите в "Мои практики", чтобы увидеть свои баллы и получить персонализированные советы по обучению. Мы удаляем незавершенные практические тесты через 90 дней.'
   },
-  'rules.assistiveTech': { uz: 'Yordamchi texnologiya (YT)', 'uz-cyrl': 'Ёрдамчи технология (ЁТ)', ru: 'Вспомогательные технологии (ВТ)' },
+  'rules.assistiveTech': {
+    uz: 'Yordamchi texnologiya (YT)',
+    'uz-cyrl': 'Ёрдамчи технология (ЁТ)',
+    ru: 'Вспомогательные технологии (ВТ)'
+  },
   'rules.assistiveTechDesc': {
     uz: 'Test uchun foydalanadigan har qanday YT bilan mashq qilishni unutmang. Agar siz bu yerda YT sozlamalarini sozlasangiz, test kunida bu qadamni takrorlashingiz kerak bo\'lishi mumkin.',
     'uz-cyrl': 'Тест учун фойдаланадиган ҳар қандай ЁТ билан машқ қилишни унутманг. Агар сиз бу ерда ЁТ созламаларини созласангиз, тест кунида бу қадамни такрорлашингиз керак бўлиши мумкин.',
     ru: 'Обязательно практикуйтесь с любыми ВТ, которые вы используете для тестирования. Если вы настроите параметры ВТ здесь, вам может потребоваться повторить этот шаг в день теста.'
   },
-  'rules.noDeviceLock': { uz: 'Qurilma qulfi yo\'q', 'uz-cyrl': 'Қурилма қулфи йўқ', ru: 'Блокировка устройства отсутствует' },
+  'rules.noDeviceLock': {
+    uz: 'Qurilma qulfi yo\'q',
+    'uz-cyrl': 'Қурилма қулфи йўқ',
+    ru: 'Блокировка устройства отсутствует'
+  },
   'rules.noDeviceLockDesc': {
     uz: 'Biz mashq paytida qurilmangizni qulflamaymiz. Test kunida siz boshqa dasturlar yoki ilovalardan foydalanishdan cheklanadi.',
     'uz-cyrl': 'Биз машқ пайтида қурилманингизни қулфламаймиз. Тест кунида сиз бошқа дастурлар ёки иловалардан фойдаланишдан чекланади.',
@@ -175,8 +227,16 @@ const dictionary: Dictionary = {
 
   // Profile Form
   'profile.save': { uz: 'Saqlash', 'uz-cyrl': 'Сақлаш', ru: 'Сохранить' },
-  'profile.saveSuccess': { uz: 'Ma\'lumotlar muvaffaqiyatli saqlandi', 'uz-cyrl': 'Маълумотлар муваффақиятли сақланди', ru: 'Данные успешно сохранены' },
-  'profile.saveError': { uz: 'Ma\'lumotlarni saqlashda xatolik', 'uz-cyrl': 'Маълумотларни сақлашда хато', ru: 'Ошибка при сохранении данных' },
+  'profile.saveSuccess': {
+    uz: 'Ma\'lumotlar muvaffaqiyatli saqlandi',
+    'uz-cyrl': 'Маълумотлар муваффақиятли сақланди',
+    ru: 'Данные успешно сохранены'
+  },
+  'profile.saveError': {
+    uz: 'Ma\'lumotlarni saqlashda xatolik',
+    'uz-cyrl': 'Маълумотларни сақлашда хато',
+    ru: 'Ошибка при сохранении данных'
+  },
 
   // Session Details Page
   'session.scoreDetails': { uz: 'BAHOLASH TAFSILOTLARI', 'uz-cyrl': 'БАҲОЛАШ ТАФСИЛОТЛАРИ', ru: 'ДЕТАЛИ ОЦЕНКИ' },
@@ -204,10 +264,18 @@ const dictionary: Dictionary = {
   'session.pageNumber': { uz: 'Sahifa raqami', 'uz-cyrl': 'Саҳифа рақами', ru: 'Номер страницы' },
   'session.previous': { uz: 'Avvalgi', 'uz-cyrl': 'Аввалги', ru: 'Предыдущий' },
   'session.next': { uz: 'Keyingi', 'uz-cyrl': 'Кейинги', ru: 'Следующий' },
-  'session.results': { uz: 'Natijalar: {showing} ta {total} tadan', 'uz-cyrl': 'Натижалар: {showing} та {total} тадан', ru: 'Результаты: {showing} из {total}' },
+  'session.results': {
+    uz: 'Natijalar: {showing} ta {total} tadan',
+    'uz-cyrl': 'Натижалар: {showing} та {total} тадан',
+    ru: 'Результаты: {showing} из {total}'
+  },
 
   // Loading states for session details
-  'loading.sessionDetails': { uz: 'Session tafsilotlari yuklanmoqda', 'uz-cyrl': 'Сессия тафсилотлари юкланмоқда', ru: 'Загрузка деталей сессии' },
+  'loading.sessionDetails': {
+    uz: 'Session tafsilotlari yuklanmoqda',
+    'uz-cyrl': 'Сессия тафсилотлари юкланмоқда',
+    ru: 'Загрузка деталей сессии'
+  },
   'loading.sessionDetailsDesc': {
     uz: 'Session ma\'lumotlari yuklanmoqda, iltimos kuting...',
     'uz-cyrl': 'Сессия маълумотлари юкланмоқда, илтимос кутинг...',
@@ -260,7 +328,11 @@ const dictionary: Dictionary = {
     'uz-cyrl': 'Амалий тестни тугатганда, балларингизни кўриш ва шахсийлаштирилган ўқув маслаҳатларини олиш учун "Менинг амалийотларим"га ўтинг. Биз тўлиқ бўлмаган амалий тестларни 90 кундан кейин ўчирамиз.',
     ru: 'Когда вы завершите практический тест, перейдите в "Мои практики", чтобы увидеть свои баллы и получить персонализированные советы по обучению. Мы удаляем незавершенные практические тесты через 90 дней.'
   },
-  'categories.additionalQuestions': { uz: 'Qo\'shimcha savollar', 'uz-cyrl': 'Қўшимча саволлар', ru: 'Дополнительные вопросы' },
+  'categories.additionalQuestions': {
+    uz: 'Qo\'shimcha savollar',
+    'uz-cyrl': 'Қўшимча саволлар',
+    ru: 'Дополнительные вопросы'
+  },
   'categories.additionalQuestionsDesc': {
     uz: 'Test uchun foydalanadigan har qanday YT bilan mashq qilishni unutmang. Agar siz bu yerda YT sozlamalarini sozlasangiz, test kunida bu qadamni takrorlashingiz kerak bo\'lishi mumkin.',
     'uz-cyrl': 'Тест учун фойдаланадиган ҳар қандай ЁТ билан машқ қилишни унутманг. Агар сиз бу ерда ЁТ созламаларини созласангиз, тест кунида бу қадамни такрорлашингиз керак бўлиши мумкин.',
@@ -278,24 +350,70 @@ const dictionary: Dictionary = {
   },
 
   // User Profile Completion
-  'profileCompletion.title': { uz: 'Profilni to\'ldiring', 'uz-cyrl': 'Профилни тўлдиринг', ru: 'Заполните профиль' },
+  'profileCompletion.title': {
+    uz: 'Profilni to\'ldiring',
+    'uz-cyrl': 'Qo\'shimcha ma\'lumot',
+    ru: 'Дополнительная информация'
+  },
   'profileCompletion.subtitle': {
     uz: 'Iltimos, o\'z ma\'lumotlaringizni kiriting',
     'uz-cyrl': 'Илтимос, ўз маълумотларингизни киритинг',
     ru: 'Пожалуйста, введите свои данные'
   },
   'profileCompletion.name': { uz: 'To\'liq ism', 'uz-cyrl': 'Тўлиқ исм', ru: 'Полное имя' },
-  'profileCompletion.namePlaceholder': { uz: 'Ismingizni kiriting', 'uz-cyrl': 'Исмингизни киритинг', ru: 'Введите ваше имя' },
+  'profileCompletion.namePlaceholder': {
+    uz: 'Ismingizni kiriting',
+    'uz-cyrl': 'Исмингизни киритинг',
+    ru: 'Введите ваше имя'
+  },
   'profileCompletion.branch': { uz: 'Filial', 'uz-cyrl': 'Филиал', ru: 'Филиал' },
-  'profileCompletion.branchPlaceholder': { uz: 'Filial nomini kiriting', 'uz-cyrl': 'Филиал номини киритинг', ru: 'Введите название филиала' },
+  'profileCompletion.branchPlaceholder': {
+    uz: 'Filial nomini kiriting',
+    'uz-cyrl': 'Филиал номини киритинг',
+    ru: 'Введите название филиала'
+  },
   'profileCompletion.position': { uz: 'Lavozim', 'uz-cyrl': 'Лавозим', ru: 'Должность' },
-  'profileCompletion.positionPlaceholder': { uz: 'Lavozimingizni kiriting', 'uz-cyrl': 'Лавозимингизни киритинг', ru: 'Введите вашу должность' },
+  'profileCompletion.positionPlaceholder': {
+    uz: 'Lavozimingizni kiriting',
+    'uz-cyrl': 'Лавозимингизни киритинг',
+    ru: 'Введите вашу должность'
+  },
   'profileCompletion.save': { uz: 'Saqlash', 'uz-cyrl': 'Сақлаш', ru: 'Сохранить' },
-  'profileCompletion.nameRequired': { uz: 'Ism kiritilishi shart', 'uz-cyrl': 'Исм киритилиши шарт', ru: 'Имя обязательно' },
-  'profileCompletion.branchRequired': { uz: 'Filial kiritilishi shart', 'uz-cyrl': 'Филиал киритилиши шарт', ru: 'Филиал обязателен' },
-  'profileCompletion.positionRequired': { uz: 'Lavozim kiritilishi shart', 'uz-cyrl': 'Лавозим киритилиши шарт', ru: 'Должность обязательна' },
-  'profileCompletion.saveSuccess': { uz: 'Profil muvaffaqiyatli saqlandi', 'uz-cyrl': 'Профил муваффақиятли сақланди', ru: 'Профиль успешно сохранен' },
-  'profileCompletion.saveError': { uz: 'Profilni saqlashda xatolik', 'uz-cyrl': 'Профилни сақлашда хато', ru: 'Ошибка при сохранении профиля' },
+  'profileCompletion.nameRequired': {
+    uz: 'Ism kiritilishi shart',
+    'uz-cyrl': 'Исм киритилиши шарт',
+    ru: 'Имя обязательно'
+  },
+  'profileCompletion.branchRequired': {
+    uz: 'Filial kiritilishi shart',
+    'uz-cyrl': 'Филиал киритилиши шарт',
+    ru: 'Филиал обязателен'
+  },
+  'profileCompletion.positionRequired': {
+    uz: 'Lavozim kiritilishi shart',
+    'uz-cyrl': 'Лавозим киритилиши шарт',
+    ru: 'Должность обязательна'
+  },
+  'profileCompletion.saveSuccess': {
+    uz: 'Profil muvaffaqiyatli saqlandi',
+    'uz-cyrl': 'Профил муваффақиятли сақланди',
+    ru: 'Профиль успешно сохранен'
+  },
+  'profileCompletion.saveError': {
+    uz: 'Profilni saqlashda xatolik',
+    'uz-cyrl': 'Профилни сақлашда хато',
+    ru: 'Ошибка при сохранении профиля'
+  },
+  'profileCompletion.employeeLevelRequired': {
+    uz: 'Ishchi darajasi tanlanishi shart',
+    'uz-cyrl': 'Ишчи даражаси танланиши шарт',
+    ru: 'Уровень сотрудника обязателен'
+  },
+  'profileCompletion.workDomainRequired': {
+    uz: 'Gaz turi tanlanishi shart',
+    'uz-cyrl': 'Газ тури танланиши шарт',
+    ru: 'Тип газа обязателен'
+  },
 
   // Logout
   'logout': { uz: 'Chiqish', 'uz-cyrl': 'Чиқиш', ru: 'Выйти' },
@@ -321,9 +439,21 @@ const dictionary: Dictionary = {
   'additionalInfo.tashkent': { uz: 'Toshkent', 'uz-cyrl': 'Тошкент', ru: 'Ташкент' },
   'additionalInfo.enter': { uz: 'Kirish', 'uz-cyrl': 'Кириш', ru: 'Войти' },
   'additionalInfo.nameRequired': { uz: 'Ism kiritilishi shart', 'uz-cyrl': 'Исм киритилиши шарт', ru: 'Имя обязательно' },
-  'additionalInfo.positionRequired': { uz: 'Lavozim tanlanishi shart', 'uz-cyrl': 'Лавозим танланиши шарт', ru: 'Должность обязательна' },
-  'additionalInfo.gasTypeRequired': { uz: 'Gaz turi tanlanishi shart', 'uz-cyrl': 'Газ тури танланиши шарт', ru: 'Тип газа обязателен' },
-  'additionalInfo.regionRequired': { uz: 'Viloyat tanlanishi shart', 'uz-cyrl': 'Вилоят танланиши шарт', ru: 'Регион обязателен' },
+  'additionalInfo.positionRequired': {
+    uz: 'Lavozim tanlanishi shart',
+    'uz-cyrl': 'Лавозим танланиши шарт',
+    ru: 'Должность обязательна'
+  },
+  'additionalInfo.gasTypeRequired': {
+    uz: 'Gaz turi tanlanishi shart',
+    'uz-cyrl': 'Газ тури танланиши шарт',
+    ru: 'Тип газа обязателен'
+  },
+  'additionalInfo.regionRequired': {
+    uz: 'Viloyat tanlanishi shart',
+    'uz-cyrl': 'Вилоят танланиши шарт',
+    ru: 'Регион обязателен'
+  },
 
   // Settings Modal
   'settings.title': { uz: 'Sozlamalar', 'uz-cyrl': 'Созламалар', ru: 'Настройки' },
@@ -334,12 +464,57 @@ const dictionary: Dictionary = {
   'settings.branchPlaceholder': { uz: 'Filial', 'uz-cyrl': 'Филиал', ru: 'Филиал' },
   'settings.positionPlaceholder': { uz: 'Lavozim', 'uz-cyrl': 'Лавозим', ru: 'Должность' },
   'settings.save': { uz: 'Saqlash', 'uz-cyrl': 'Сақлаш', ru: 'Сохранить' },
-  'settings.logout': { uz: 'Hisobdan chiqish', 'uz-cyrl': 'Ҳисобдан чиқиш', ru: 'Выйти из аккаунта' },
-  'settings.fullNameRequired': { uz: 'To\'liq ism kiritilishi shart', 'uz-cyrl': 'Тўлиқ исм киритилиши шарт', ru: 'ФИО обязательно' },
-  'settings.branchRequired': { uz: 'Filial tanlanishi shart', 'uz-cyrl': 'Филиал танланиши шарт', ru: 'Филиал обязателен' },
-  'settings.positionRequired': { uz: 'Lavozim tanlanishi shart', 'uz-cyrl': 'Лавозим танланиши шарт', ru: 'Должность обязательна' },
-  'settings.saveSuccess': { uz: 'Ma\'lumotlar muvaffaqiyatli saqlandi', 'uz-cyrl': 'Маълумотлар муваффақиятли сақланди', ru: 'Данные успешно сохранены' },
-  'settings.saveError': { uz: 'Ma\'lumotlarni saqlashda xatolik', 'uz-cyrl': 'Маълумотларни сақлашда хато', ru: 'Ошибка при сохранении данных' },
+  'settings.logout': { uz: 'Hisobdan chiqish', 'uz-cyrl': 'Ҳисобдан чиқиш', ru: 'Выйти' },
+  'settings.fullNameRequired': {
+    uz: 'To\'liq ism kiritilishi shart',
+    'uz-cyrl': 'Тўлиқ исм киритилиши шарт',
+    ru: 'ФИО обязательно'
+  },
+  'settings.branchRequired': {
+    uz: 'Filial tanlanishi shart',
+    'uz-cyrl': 'Филиал танланиши шарт',
+    ru: 'Филиал обязателен'
+  },
+  'settings.positionRequired': {
+    uz: 'Lavozim tanlanishi shart',
+    'uz-cyrl': 'Лавозим танланиши шарт',
+    ru: 'Должность обязательна'
+  },
+  'settings.saveSuccess': {
+    uz: 'Ma\'lumotlar muvaffaqiyatli saqlandi',
+    'uz-cyrl': 'Маълумотлар муваффақиятли сақланди',
+    ru: 'Данные успешно сохранены'
+  },
+  'settings.saveError': {
+    uz: 'Ma\'lumotlarni saqlashda xatolik',
+    'uz-cyrl': 'Маълумотларни сақлашда хато',
+    ru: 'Ошибка при сохранении данных'
+  },
+  'settings.employeeLevelRequired': {
+    uz: 'Ishchi darajasi tanlanishi shart',
+    'uz-cyrl': 'Ишчи даражаси танланиши шарт',
+    ru: 'Уровень сотрудника обязателен'
+  },
+  'settings.workDomainRequired': {
+    uz: 'Gaz turi tanlanishi shart',
+    'uz-cyrl': 'Газ тури танланиши шарт',
+    ru: 'Тип газа обязателен'
+  },
+  'settings.employeeLevel': {
+    uz: 'Ishchi darajasi',
+    'uz-cyrl': 'Ишчи даражаси',
+    ru: 'Уровень сотрудника'
+  },
+  'settings.workDomain': {
+    uz: 'Gaz turi',
+    'uz-cyrl': 'Газ тури',
+    ru: 'Тип газа'
+  },
+  'settings.selectPosition': {
+    uz: 'Lavozimni tanlang',
+    'uz-cyrl': 'Лавозимни танланг',
+    ru: 'Выберите должность'
+  },
 
   // Timer
   'timer.minutes': { uz: 'daq', 'uz-cyrl': 'дақ', ru: 'мин' },
@@ -377,8 +552,16 @@ const dictionary: Dictionary = {
   // Progress Bar
   'progress.iqQuestions': { uz: 'IQ savollari', 'uz-cyrl': 'IQ саволлари', ru: 'IQ вопросы' },
   'progress.mainQuestions': { uz: 'Asosiy savollar', 'uz-cyrl': 'Асосий саволлар', ru: 'Основные вопросы' },
-  'progress.additionalQuestions': { uz: 'Qo\'shimcha savollar', 'uz-cyrl': 'Қўшимча саволлар', ru: 'Дополнительные вопросы' },
-  'progress.regionalGasSupply': { uz: 'Hududiy Gaz Ta\'minotiga aloqadar', 'uz-cyrl': 'Ҳудудий Газ Таъминотига алоқадар', ru: 'Связано с региональным газоснабжением' },
+  'progress.additionalQuestions': {
+    uz: 'Qo\'shimcha savollar',
+    'uz-cyrl': 'Қўшимча саволлар',
+    ru: 'Дополнительные вопросы'
+  },
+  'progress.regionalGasSupply': {
+    uz: 'Hududiy Gaz Ta\'minotiga aloqadar',
+    'uz-cyrl': 'Ҳудудий Газ Таъминотига алоқадар',
+    ru: 'Связано с региональным газоснабжением'
+  },
 };
 
 type I18nContextValue = {

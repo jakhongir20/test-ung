@@ -73,6 +73,7 @@ const TestPage: FC = () => {
 
   // Prefer session details data over progress data
   const sessionData = sessionQuery.data as any;
+
   const progressData = progressQuery.data as any;
 
   const total = sessionData?.progress?.total_questions ?? progressData?.progress?.total_questions ?? 0;
@@ -448,10 +449,11 @@ const TestPage: FC = () => {
 
       {/* Progress Bar */}
       <ProgressBar
-        title={getSurveyCategory(sessionData?.survey)}
+        title={getSurveyCategory(sessionData?.survey?.time_limit_minutes)}
         current={order}
         total={total}
         endTime={expiresAtMs}
+        timeLimitMinutes={sessionData?.survey?.time_limit_minutes}
         onExpire={() => setExpired(true)}
         onFinish={finishTest}
       />

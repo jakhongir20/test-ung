@@ -14,7 +14,7 @@ type ProfileFormValues = {
   name: string;
   branch: string;
   position: string;
-  employee_level: 'junior' | 'engineer' | 'senior';
+  employee_level: 'junior' | 'engineer';
   work_domain: 'natural_gas' | 'lpg_gas';
 };
 
@@ -206,7 +206,7 @@ export const ProfileCompletionForm: FC<Props> = () => {
       {/* Employee Level Field */}
       <div>
         <label className="block text-sm text-black font-medium mb-1.5">
-          Должность *
+          {t('settings.employeeLevel')} *
         </label>
         <Controller
           name="employee_level"
@@ -217,10 +217,9 @@ export const ProfileCompletionForm: FC<Props> = () => {
               {...field}
               className={`${authInputStyle} ${errors.employee_level ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : ''}`}
             >
-              <option value="">Выберите должность</option>
+              <option value="">{t('settings.selectPosition')}</option>
               <option value="junior">Junior</option>
               <option value="engineer">Engineer</option>
-              <option value="senior">Senior</option>
             </select>
           )}
         />
@@ -232,7 +231,7 @@ export const ProfileCompletionForm: FC<Props> = () => {
       {/* Work Domain Field */}
       <div>
         <label className="block text-sm text-black font-medium mb-1.5">
-          Gas turi *
+          {t('settings.workDomain')} *
         </label>
         <Controller
           name="work_domain"
