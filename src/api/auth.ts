@@ -2,6 +2,7 @@ import { useAuthLoginCreate, useAuthSendOtpCreate, useAuthTokenRefreshCreate } f
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useAuthStore } from '../stores/authStore'
 import { customInstance } from './mutator/custom-instance'
+import type { UserProfileUpdateRequest } from './generated/models'
 
 export type Tokens = { access: string; refresh: string }
 
@@ -99,11 +100,7 @@ export function useRefresh() {
 }
 
 // Custom API function for updating user profile
-export const updateUserProfile = async (data: {
-  name: string;
-  branch: string;
-  position: string;
-}) => {
+export const updateUserProfile = async (data: UserProfileUpdateRequest) => {
   return customInstance({
     method: 'POST',
     url: '/api/users/me/update/',
@@ -144,29 +141,5 @@ export const logout = () => {
   }
 };
 
-// Additional Information API
-export const updateAdditionalInfo = async (data: {
-  name: string;
-  position: string;
-  gasType: string;
-  region: string;
-}) => {
-  const response = await customInstance({
-    method: 'POST',
-    url: '/api/users/me/additional-info/',
-    data: data
-  });
-  return response;
-};
-
-export const useUpdateAdditionalInfo = () => {
-  return useMutation({
-    mutationFn: updateAdditionalInfo,
-    onSuccess: () => {
-      // Optionally update user data in store
-      // You might want to refetch user data here
-    },
-  });
-};
 
 

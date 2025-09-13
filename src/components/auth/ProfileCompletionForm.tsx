@@ -1,5 +1,5 @@
 import type { FC } from 'react';
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import { useUpdateUserProfile } from "../../api/auth.ts";
 import { FormButton } from "./FormButton.tsx";
@@ -13,6 +13,8 @@ type ProfileFormValues = {
   name: string;
   branch: string;
   position: string;
+  employee_level: 'junior' | 'engineer' | 'senior';
+  work_domain: 'natural_gas' | 'lpg_gas';
 };
 
 export const authInputStyle = 'block !border-1 w-full !text-[#64748B] focus:!text-black !text-sm !h-11 !rounded-xl border-[#E2E8F0] focus:ring-[#00A2DE] focus:border-[#00A2DE] px-3 py-2';
@@ -32,7 +34,9 @@ export const ProfileCompletionForm: FC<Props> = () => {
     defaultValues: {
       name: '',
       branch: '',
-      position: ''
+      position: '',
+      employee_level: 'junior',
+      work_domain: 'natural_gas'
     },
     mode: 'onSubmit'
   });
@@ -45,11 +49,13 @@ export const ProfileCompletionForm: FC<Props> = () => {
       await updateProfile.mutateAsync({
         name: values.name.trim(),
         branch: values.branch.trim(),
-        position: values.position.trim()
+        position: values.position.trim(),
+        employee_level: values.employee_level,
+        work_domain: values.work_domain
       });
 
-      // Redirect to additional info page on success
-      navigate('/additional-info', { replace: true });
+      // Redirect to main page on success
+      navigate('/', { replace: true });
     } catch (error: any) {
       // Handle API errors
       if (error?.response?.data?.name) {
@@ -70,9 +76,21 @@ export const ProfileCompletionForm: FC<Props> = () => {
           message: error.response.data.position[0] || t('profileCompletion.positionRequired')
         });
       }
+      if (error?.response?.data?.employee_level) {
+        setError('employee_level', {
+          type: 'manual',
+          message: error.response.data.employee_level[0] || t('profileCompletion.employeeLevelRequired')
+        });
+      }
+      if (error?.response?.data?.work_domain) {
+        setError('work_domain', {
+          type: 'manual',
+          message: error.response.data.work_domain[0] || t('profileCompletion.workDomainRequired')
+        });
+      }
 
       // General error if no specific field errors
-      if (!error?.response?.data?.name && !error?.response?.data?.branch && !error?.response?.data?.position) {
+      if (!error?.response?.data?.name && !error?.response?.data?.branch && !error?.response?.data?.position && !error?.response?.data?.employee_level && !error?.response?.data?.work_domain) {
         setError('root', {
           type: 'manual',
           message: t('profileCompletion.saveError')
@@ -83,81 +101,140 @@ export const ProfileCompletionForm: FC<Props> = () => {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-      {/* Name Field */}
-      <div className="space-y-2">
-        <label className="block text-sm text-black font-medium">
-          {t('profileCompletion.name')} *
+      {/* Full Name Field */}
+      <div>
+        <label className="block text-sm text-black font-medium mb-1.5">
+          Полное имя *
         </label>
-        <input
-          {...control.register('name', {
+        <Controller
+          name="name"
+          control={control}
+          rules={{
             required: t('profileCompletion.nameRequired'),
             minLength: {
               value: 2,
               message: t('profileCompletion.nameRequired')
             }
-          })}
-          type="text"
-          placeholder={t('profileCompletion.namePlaceholder')}
-          className={`${authInputStyle} ${errors.name ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : ''}`}
-          onChange={(e) => {
-            control.register('name').onChange(e);
-            if (errors.name) clearErrors('name');
           }}
+          render={({ field }) => (
+            <input
+              {...field}
+              type="text"
+              placeholder={t('profileCompletion.namePlaceholder')}
+              className={`${authInputStyle} ${errors.name ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : ''}`}
+            />
+          )}
         />
         {errors.name && (
-          <p className="text-red-600 text-sm">{errors.name.message}</p>
+          <p className="text-red-600 text-sm mt-1">{errors.name.message}</p>
         )}
       </div>
 
       {/* Branch Field */}
-      <div className="space-y-2">
-        <label className="block text-sm text-black font-medium">
-          {t('profileCompletion.branch')} *
+      <div>
+        <label className="block text-sm text-black font-medium mb-1.5">
+          филиал *
         </label>
-        <input
-          {...control.register('branch', {
+        <Controller
+          name="branch"
+          control={control}
+          rules={{
             required: t('profileCompletion.branchRequired'),
             minLength: {
               value: 2,
               message: t('profileCompletion.branchRequired')
             }
-          })}
-          type="text"
-          placeholder={t('profileCompletion.branchPlaceholder')}
-          className={`${authInputStyle} ${errors.branch ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : ''}`}
-          onChange={(e) => {
-            control.register('branch').onChange(e);
-            if (errors.branch) clearErrors('branch');
           }}
+          render={({ field }) => (
+            <input
+              {...field}
+              type="text"
+              placeholder={t('profileCompletion.branchPlaceholder')}
+              className={`${authInputStyle} ${errors.branch ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : ''}`}
+            />
+          )}
         />
         {errors.branch && (
-          <p className="text-red-600 text-sm">{errors.branch.message}</p>
+          <p className="text-red-600 text-sm mt-1">{errors.branch.message}</p>
         )}
       </div>
 
       {/* Position Field */}
-      <div className="space-y-2">
-        <label className="block text-sm text-black font-medium">
+      <div>
+        <label className="block text-sm text-black font-medium mb-1.5">
           {t('profileCompletion.position')} *
         </label>
-        <input
-          {...control.register('position', {
+        <Controller
+          name="position"
+          control={control}
+          rules={{
             required: t('profileCompletion.positionRequired'),
             minLength: {
               value: 2,
               message: t('profileCompletion.positionRequired')
             }
-          })}
-          type="text"
-          placeholder={t('profileCompletion.positionPlaceholder')}
-          className={`${authInputStyle} ${errors.position ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : ''}`}
-          onChange={(e) => {
-            control.register('position').onChange(e);
-            if (errors.position) clearErrors('position');
           }}
+          render={({ field }) => (
+            <input
+              {...field}
+              type="text"
+              placeholder={t('profileCompletion.positionPlaceholder')}
+              className={`${authInputStyle} ${errors.position ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : ''}`}
+            />
+          )}
         />
         {errors.position && (
-          <p className="text-red-600 text-sm">{errors.position.message}</p>
+          <p className="text-red-600 text-sm mt-1">{errors.position.message}</p>
+        )}
+      </div>
+
+      {/* Employee Level Field */}
+      <div>
+        <label className="block text-sm text-black font-medium mb-1.5">
+          Должность *
+        </label>
+        <Controller
+          name="employee_level"
+          control={control}
+          rules={{ required: t('profileCompletion.employeeLevelRequired') }}
+          render={({ field }) => (
+            <select
+              {...field}
+              className={`${authInputStyle} ${errors.employee_level ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : ''}`}
+            >
+              <option value="">Выберите должность</option>
+              <option value="junior">Junior</option>
+              <option value="engineer">Engineer</option>
+              <option value="senior">Senior</option>
+            </select>
+          )}
+        />
+        {errors.employee_level && (
+          <p className="text-red-600 text-sm mt-1">{errors.employee_level.message}</p>
+        )}
+      </div>
+
+      {/* Work Domain Field */}
+      <div>
+        <label className="block text-sm text-black font-medium mb-1.5">
+          Gas turi *
+        </label>
+        <Controller
+          name="work_domain"
+          control={control}
+          rules={{ required: t('profileCompletion.workDomainRequired') }}
+          render={({ field }) => (
+            <select
+              {...field}
+              className={`${authInputStyle} ${errors.work_domain ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : ''}`}
+            >
+              <option value="natural_gas">Natural Gas</option>
+              <option value="lpg_gas">LPG Gas</option>
+            </select>
+          )}
+        />
+        {errors.work_domain && (
+          <p className="text-red-600 text-sm mt-1">{errors.work_domain.message}</p>
         )}
       </div>
 
@@ -170,10 +247,12 @@ export const ProfileCompletionForm: FC<Props> = () => {
         </div>
       )}
 
-      <FormButton
-        isLoading={isSubmitting}
-        title={t('profileCompletion.save')}
-      />
+      <div className="mt-8">
+        <FormButton
+          isLoading={isSubmitting}
+          title={t('profileCompletion.save')}
+        />
+      </div>
     </form>
   );
 };

@@ -49,14 +49,15 @@ const PageRules: FC = () => {
 
         {/* Rules Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 mb-6 md:mb-8">
-          {rules.map((rule) => (
+          {rules.map((rule, index) => (
             <div
               key={rule.id}
               className={` rounded-[16px] shadow-sm border border-[#E2E8F0] p-4 md:p-6 ${rule.color}`}
             >
               <div className="">
                 <div className="flex-shrink-0 mb-2.5 md:mb-4">
-                  <div className="md:w-[140px] w-[100px] flex items-center justify-center">
+                  <div
+                    className={`md:w-[140px] w-[100px] flex items-center justify-center ${index === 0 && 'md:w-[120px] w-[80px]'}`}>
                     {rule.icon}
                   </div>
                 </div>

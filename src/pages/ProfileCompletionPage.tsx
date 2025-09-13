@@ -12,8 +12,8 @@ const ProfileCompletionPage: FC = () => {
   const { data: user, isLoading, error } = useUsersMeRetrieve();
 
   useEffect(() => {
-    // If user data is loaded and user has name, branch, and position, redirect to main page
-    if (user && user.name && user.branch && user.position) {
+    // If user data is loaded and user has all required fields, redirect to main page
+    if (user && user.name && user.branch && user.position && user.employee_level && user.work_domain) {
       navigate('/', { replace: true });
     }
   }, [user, navigate]);
@@ -37,7 +37,7 @@ const ProfileCompletionPage: FC = () => {
   }
 
   // If user already has complete profile, redirect to main page
-  if (user && user.name && user.branch && user.position) {
+  if (user && user.name && user.branch && user.position && user.employee_level && user.work_domain) {
     navigate('/', { replace: true });
     return null;
   }

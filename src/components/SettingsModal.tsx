@@ -14,6 +14,8 @@ type SettingsFormValues = {
   name: string;
   branch: string;
   position: string;
+  employee_level: 'junior' | 'engineer';
+  work_domain: 'natural_gas' | 'lpg_gas';
 };
 
 export const SettingsModal: FC<Props> = ({ isOpen, onClose }) => {
@@ -32,7 +34,9 @@ export const SettingsModal: FC<Props> = ({ isOpen, onClose }) => {
     defaultValues: {
       name: user?.name || '',
       branch: user?.branch || '',
-      position: user?.position || ''
+      position: user?.position || '',
+      employee_level: ((user as any)?.employee_level as 'junior' | 'engineer') || 'junior',
+      work_domain: ((user as any)?.work_domain as 'natural_gas' | 'lpg_gas') || 'natural_gas'
     },
   });
 
@@ -42,7 +46,9 @@ export const SettingsModal: FC<Props> = ({ isOpen, onClose }) => {
       reset({
         name: user.name || '',
         branch: user.branch || '',
-        position: user.position || ''
+        position: user.position || '',
+        employee_level: ((user as any).employee_level as 'junior' | 'engineer') || 'junior',
+        work_domain: ((user as any).work_domain as 'natural_gas' | 'lpg_gas') || 'natural_gas'
       });
     }
   }, [user, reset]);
@@ -54,7 +60,9 @@ export const SettingsModal: FC<Props> = ({ isOpen, onClose }) => {
       await updateProfile.mutateAsync({
         name: data.name.trim(),
         branch: data.branch.trim(),
-        position: data.position.trim()
+        position: data.position.trim(),
+        employee_level: data.employee_level,
+        work_domain: data.work_domain
       });
 
       // Show success message (you could add a toast notification here)
@@ -84,9 +92,21 @@ export const SettingsModal: FC<Props> = ({ isOpen, onClose }) => {
           message: error.response.data.position[0] || t('settings.positionRequired')
         });
       }
+      if (error?.response?.data?.employee_level) {
+        setError('employee_level', {
+          type: 'manual',
+          message: error.response.data.employee_level[0] || t('settings.employeeLevelRequired')
+        });
+      }
+      if (error?.response?.data?.work_domain) {
+        setError('work_domain', {
+          type: 'manual',
+          message: error.response.data.work_domain[0] || t('settings.workDomainRequired')
+        });
+      }
 
       // General error if no specific field errors
-      if (!error?.response?.data?.name && !error?.response?.data?.branch && !error?.response?.data?.position) {
+      if (!error?.response?.data?.name && !error?.response?.data?.branch && !error?.response?.data?.position && !error?.response?.data?.employee_level && !error?.response?.data?.work_domain) {
         setError('root', {
           type: 'manual',
           message: t('settings.saveError')
@@ -127,7 +147,7 @@ export const SettingsModal: FC<Props> = ({ isOpen, onClose }) => {
           <div className="flex-1 px-6 pb-6 overflow-y-auto">
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 py-4">
               {/* Full Name Field */}
-              <div className="rounded-xl ring-1 ring-gray-200 p-4">
+              <div>
                 <div className="text-sm text-gray-500 mb-2">{t('settings.fullName')}</div>
                 <Controller
                   name="name"
@@ -148,7 +168,7 @@ export const SettingsModal: FC<Props> = ({ isOpen, onClose }) => {
               </div>
 
               {/* Branch Field */}
-              <div className="rounded-xl ring-1 ring-gray-200 p-4">
+              <div>
                 <div className="text-sm text-gray-500 mb-2">{t('settings.branch')}</div>
                 <Controller
                   name="branch"
@@ -181,7 +201,7 @@ export const SettingsModal: FC<Props> = ({ isOpen, onClose }) => {
               </div>
 
               {/* Position Field */}
-              <div className="rounded-xl ring-1 ring-gray-200 p-4">
+              <div>
                 <div className="text-sm text-gray-500 mb-2">{t('settings.position')}</div>
                 <Controller
                   name="position"
@@ -205,6 +225,51 @@ export const SettingsModal: FC<Props> = ({ isOpen, onClose }) => {
                 />
                 {errors.position && (
                   <p className="text-red-600 text-xs mt-1">{errors.position.message}</p>
+                )}
+              </div>
+
+              {/* Employee Level Field */}
+              <div>
+                <div className="text-sm text-gray-500 mb-2">Должность</div>
+                <Controller
+                  name="employee_level"
+                  control={control}
+                  rules={{ required: t('settings.employeeLevelRequired') }}
+                  render={({ field }) => (
+                    <select
+                      {...field}
+                      className={`w-full px-4 py-3 border border-gray-300 rounded-lg text-base focus:outline-none focus:ring-2 focus:ring-[#00A2DE] focus:border-[#00A2DE] bg-white ${errors.employee_level ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : ''}`}
+                    >
+                      <option value="">Выберите должность</option>
+                      <option value="junior">Junior</option>
+                      <option value="engineer">Engineer</option>
+                    </select>
+                  )}
+                />
+                {errors.employee_level && (
+                  <p className="text-red-600 text-xs mt-1">{errors.employee_level.message}</p>
+                )}
+              </div>
+
+              {/* Work Domain Field */}
+              <div>
+                <div className="text-sm text-gray-500 mb-2">Gas turi</div>
+                <Controller
+                  name="work_domain"
+                  control={control}
+                  rules={{ required: t('settings.workDomainRequired') }}
+                  render={({ field }) => (
+                    <select
+                      {...field}
+                      className={`w-full px-4 py-3 border border-gray-300 rounded-lg text-base focus:outline-none focus:ring-2 focus:ring-[#00A2DE] focus:border-[#00A2DE] bg-white ${errors.work_domain ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : ''}`}
+                    >
+                      <option value="natural_gas">Natural Gas</option>
+                      <option value="lpg_gas">LPG Gas</option>
+                    </select>
+                  )}
+                />
+                {errors.work_domain && (
+                  <p className="text-red-600 text-xs mt-1">{errors.work_domain.message}</p>
                 )}
               </div>
 
