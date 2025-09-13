@@ -48,8 +48,8 @@ export const ProfileCompletionForm: FC<Props> = () => {
         position: values.position.trim()
       });
 
-      // Redirect to main page on success
-      navigate('/', { replace: true });
+      // Redirect to additional info page on success
+      navigate('/additional-info', { replace: true });
     } catch (error: any) {
       // Handle API errors
       if (error?.response?.data?.name) {
@@ -177,3 +177,4 @@ export const ProfileCompletionForm: FC<Props> = () => {
     </form>
   );
 };
+

@@ -5,11 +5,13 @@ import { useEffect, useRef, useState } from "react";
 import { useI18n } from "../i18n";
 import { ChevronDownIcon } from "@heroicons/react/20/solid";
 import { logout } from "../api/auth";
+import { SettingsModal } from "./SettingsModal";
 
 export default function Header() {
   const user = useAuthStore((s) => s.user);
   const { t } = useI18n();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   // Close dropdown when clicking outside
@@ -61,17 +63,19 @@ export default function Header() {
               {isDropdownOpen && (
                 <div
                   className="absolute right-0 w-[150px] md:w-[200px] bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50">
-                  <Link
-                    to="/"
-                    onClick={() => setIsDropdownOpen(false)}
-                    className="flex items-center md:px-4 px-2 py-1.5 md:py-3 text-xs md:text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-200"
+                  <button
+                    onClick={() => {
+                      setIsDropdownOpen(false);
+                      setIsSettingsModalOpen(true);
+                    }}
+                    className="flex items-center w-full md:px-4 px-2 py-1.5 md:py-3 text-xs md:text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-200"
                   >
                     <svg className="w-4 h-4 mr-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
                         d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                     </svg>
                     {t('header.myProfile')}
-                  </Link>
+                  </button>
                   <Link
                     to="/admin/employees"
                     onClick={() => setIsDropdownOpen(false)}
@@ -107,6 +111,12 @@ export default function Header() {
           </div>
         </div>
       </div>
+
+      {/* Settings Modal */}
+      <SettingsModal
+        isOpen={isSettingsModalOpen}
+        onClose={() => setIsSettingsModalOpen(false)}
+      />
     </header>
   );
 }

@@ -279,6 +279,77 @@ const dictionary: Dictionary = {
   'auth.invalidPhone': { uz: 'Noto\'g\'ri raqam', ru: 'Неверный номер' },
   'auth.phonePlaceholder': { uz: '+998', ru: '+998' },
   'auth.confirmLogin': { uz: 'Kirishni tasdiqlash', ru: 'Подтверждение входа' },
+
+  // Additional Information Form
+  'additionalInfo.title': { uz: 'Qo\'shimcha ma\'lumot', ru: 'Дополнительная информация' },
+  'additionalInfo.name': { uz: 'Ism', ru: 'Имя' },
+  'additionalInfo.position': { uz: 'Lavozim', ru: 'Должность' },
+  'additionalInfo.gasType': { uz: 'Gaz turi', ru: 'Gaz turi' },
+  'additionalInfo.region': { uz: 'Qaysi viloyat', ru: 'Какой регион' },
+  'additionalInfo.namePlaceholder': { uz: 'Mardon', ru: 'Mardon' },
+  'additionalInfo.positionPlaceholder': { uz: 'Lavozim', ru: 'Должность' },
+  'additionalInfo.naturalGas': { uz: 'Tabiiy gaz', ru: 'Tabiy gaz' },
+  'additionalInfo.tashkent': { uz: 'Toshkent', ru: 'Ташкент' },
+  'additionalInfo.enter': { uz: 'Kirish', ru: 'Войти' },
+  'additionalInfo.nameRequired': { uz: 'Ism kiritilishi shart', ru: 'Имя обязательно' },
+  'additionalInfo.positionRequired': { uz: 'Lavozim tanlanishi shart', ru: 'Должность обязательна' },
+  'additionalInfo.gasTypeRequired': { uz: 'Gaz turi tanlanishi shart', ru: 'Тип газа обязателен' },
+  'additionalInfo.regionRequired': { uz: 'Viloyat tanlanishi shart', ru: 'Регион обязателен' },
+
+  // Settings Modal
+  'settings.title': { uz: 'Sozlamalar', ru: 'Настройки' },
+  'settings.fullName': { uz: 'To\'liq ism', ru: 'ФИО' },
+  'settings.branch': { uz: 'Filial', ru: 'Филиал' },
+  'settings.position': { uz: 'Lavozim', ru: 'Должность' },
+  'settings.fullNamePlaceholder': { uz: 'To\'liq ism', ru: 'ФИО' },
+  'settings.branchPlaceholder': { uz: 'Filial', ru: 'Филиал' },
+  'settings.positionPlaceholder': { uz: 'Lavozim', ru: 'Должность' },
+  'settings.save': { uz: 'Saqlash', ru: 'Сохранить' },
+  'settings.logout': { uz: 'Hisobdan chiqish', ru: 'Выйти из аккаунта' },
+  'settings.fullNameRequired': { uz: 'To\'liq ism kiritilishi shart', ru: 'ФИО обязательно' },
+  'settings.branchRequired': { uz: 'Filial tanlanishi shart', ru: 'Филиал обязателен' },
+  'settings.positionRequired': { uz: 'Lavozim tanlanishi shart', ru: 'Должность обязательна' },
+  'settings.saveSuccess': { uz: 'Ma\'lumotlar muvaffaqiyatli saqlandi', ru: 'Данные успешно сохранены' },
+  'settings.saveError': { uz: 'Ma\'lumotlarni saqlashda xatolik', ru: 'Ошибка при сохранении данных' },
+
+  // Timer
+  'timer.minutes': { uz: 'daqiqa', ru: 'мин' },
+  'timer.noTime': { uz: '--:--', ru: '--:--' },
+  'timer.expired': { uz: '00:00', ru: '00:00' },
+
+  // Question Card
+  'question.number': { uz: 'Savol', ru: 'Вопрос' },
+  'question.typeAnswer': { uz: 'Javobingizni yozing...', ru: 'Введите ваш ответ...' },
+
+  // Job Positions
+  'position.manager': { uz: 'Menejer', ru: 'Менеджер' },
+  'position.engineer': { uz: 'Muhandis', ru: 'Инженер' },
+  'position.technician': { uz: 'Texnik', ru: 'Техник' },
+  'position.supervisor': { uz: 'Nazoratchi', ru: 'Супервайзер' },
+  'position.operator': { uz: 'Operator', ru: 'Оператор' },
+  'position.specialist': { uz: 'Mutaxassis', ru: 'Специалист' },
+  'position.analyst': { uz: 'Tahlilchi', ru: 'Аналитик' },
+
+  // Regions
+  'region.tashkent': { uz: 'Toshkent', ru: 'Ташкент' },
+  'region.samarkand': { uz: 'Samarqand', ru: 'Самарканд' },
+  'region.bukhara': { uz: 'Buxoro', ru: 'Бухара' },
+  'region.namangan': { uz: 'Namangan', ru: 'Наманган' },
+  'region.andijan': { uz: 'Andijon', ru: 'Андижан' },
+  'region.fergana': { uz: 'Farg\'ona', ru: 'Фергана' },
+  'region.kashkadarya': { uz: 'Qashqadaryo', ru: 'Кашкадарья' },
+  'region.surkhandarya': { uz: 'Surxondaryo', ru: 'Сурхандарья' },
+  'region.khorezm': { uz: 'Xorazm', ru: 'Хорезм' },
+  'region.karakalpakstan': { uz: 'Qoraqalpog\'iston', ru: 'Каракалпакстан' },
+  'region.jizzakh': { uz: 'Jizzax', ru: 'Джизак' },
+  'region.sirdarya': { uz: 'Sirdaryo', ru: 'Сырдарья' },
+  'region.tashkentRegion': { uz: 'Toshkent viloyati', ru: 'Ташкентская область' },
+
+  // Progress Bar
+  'progress.iqQuestions': { uz: 'IQ savollari', ru: 'IQ вопросы' },
+  'progress.mainQuestions': { uz: 'Asosiy savollar', ru: 'Основные вопросы' },
+  'progress.additionalQuestions': { uz: 'Qo\'shimcha savollar', ru: 'Дополнительные вопросы' },
+  'progress.regionalGasSupply': { uz: 'Hududiy Gaz Ta\'minotiga aloqadar', ru: 'Связано с региональным газоснабжением' },
 };
 
 type I18nContextValue = {

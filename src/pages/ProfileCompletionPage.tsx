@@ -55,3 +55,4 @@ const ProfileCompletionPage: FC = () => {
 };
 
 export default ProfileCompletionPage;
+

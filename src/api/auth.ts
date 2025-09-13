@@ -144,4 +144,29 @@ export const logout = () => {
   }
 };
 
+// Additional Information API
+export const updateAdditionalInfo = async (data: {
+  name: string;
+  position: string;
+  gasType: string;
+  region: string;
+}) => {
+  const response = await customInstance({
+    method: 'POST',
+    url: '/api/users/me/additional-info/',
+    data: data
+  });
+  return response;
+};
+
+export const useUpdateAdditionalInfo = () => {
+  return useMutation({
+    mutationFn: updateAdditionalInfo,
+    onSuccess: () => {
+      // Optionally update user data in store
+      // You might want to refetch user data here
+    },
+  });
+};
+
 

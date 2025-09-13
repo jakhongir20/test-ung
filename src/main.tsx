@@ -16,6 +16,7 @@ import ProtectedRoute from './components/ProtectedRoute.tsx';
 import AuthLayout from './layouts/AuthLayout.tsx';
 import PageCategories from "./pages/PageCategories.tsx";
 import ProfileCompletionPage from "./pages/ProfileCompletionPage.tsx";
+import AdditionalInfoPage from "./pages/AdditionalInfoPage.tsx";
 
 const router = createBrowserRouter([
   {
@@ -80,6 +81,7 @@ const router = createBrowserRouter([
       { path: 'login', element: <LoginPage /> },
       { path: 'otp', element: <OtpPage /> },
       { path: 'profile-completion', element: <ProfileCompletionPage /> },
+      { path: 'additional-info', element: <AdditionalInfoPage /> },
     ],
   },
 ]);

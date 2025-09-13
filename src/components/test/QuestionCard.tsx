@@ -1,5 +1,6 @@
 import type { FC, ReactNode } from 'react';
 import { CARD_STYLES } from "./test.data.ts";
+import { useI18n } from "../../i18n";
 
 type Option = { key: string; label: string; };
 
@@ -17,22 +18,24 @@ type Props = {
 };
 
 const QuestionCard: FC<Props> = ({
-                                   index,
-                                   title,
-                                   options,
-                                   selectedKeys,
-                                   multiple = false,
-                                   isOpen = false,
-                                   textAnswer = '',
-                                   onToggle,
-                                   onTextChange,
-                                   media
-                                 }) => {
+  index,
+  title,
+  options,
+  selectedKeys,
+  multiple = false,
+  isOpen = false,
+  textAnswer = '',
+  onToggle,
+  onTextChange,
+  media
+}) => {
+  const { t } = useI18n();
+
   return (
     <section
       className={`${CARD_STYLES} md:!py-10 pt-6`}>
       <div className={'border-b space-y-4 md:pb-8 pb-6 md:mb-10 mb-6 border-[#E2E8F0] mx-auto w-full  md:w-[80%]'}>
-        <p className="text-sm font-medium text-[#334155] ">Question {index}</p>
+        <p className="text-sm font-medium text-[#334155] ">{t('question.number')} {index}</p>
         <h2 className="text-lg md:text-xl font-medium text-black">{title}</h2>
       </div>
 
@@ -42,7 +45,7 @@ const QuestionCard: FC<Props> = ({
           <textarea
             value={textAnswer}
             onChange={(e) => onTextChange?.(e.target.value)}
-            placeholder="Type your answer here..."
+            placeholder={t('question.typeAnswer')}
             className="w-full min-h-[120px] rounded-lg border border-[#E2E8F0] p-3 text-sm focus:border-[#00A2DE] resize-y"
           />
         </div>
@@ -60,11 +63,11 @@ const QuestionCard: FC<Props> = ({
                   key={opt.key}
                   className="flex cursor-pointer relative items-center gap-2 pl-0 rounded-xl bg-white border border-[#F1F5F9] hover:ring-cyan-300 has-[:checked]:border-[#00A2DE] has-[:checked]:text-[#00A2DE] transition"
                 >
-                <span
-                  className={`text-[18px] p-3 w-20 border-r border-[#F1F5F9] grid place-items-center  font-normal ${checked ? '' : 'text-[#475569]'}`}>{opt.key}</span>
+                  <span
+                    className={`text-[18px] p-3 w-20 border-r border-[#F1F5F9] grid place-items-center  font-normal ${checked ? '' : 'text-[#475569]'}`}>{opt.key}</span>
                   <input type={multiple ? 'checkbox' : 'radio'} name={`q-${index}`}
-                         className="accent-[#00A2DE] absolute top-1/2 -translate-y-1/2 right-5 focus:ring-1 focus:ring-[#00A2DE] focus:outline-none"
-                         checked={checked} onChange={() => onToggle(opt.key)}/>
+                    className="accent-[#00A2DE] absolute top-1/2 -translate-y-1/2 right-5 focus:ring-1 focus:ring-[#00A2DE] focus:outline-none"
+                    checked={checked} onChange={() => onToggle(opt.key)} />
                   <span className="flex-1 p-3 pr-12">{opt.label}</span>
                 </label>
               );

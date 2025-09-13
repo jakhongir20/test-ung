@@ -6,6 +6,15 @@ html, body {
   font-family: "Nunito Sans", sans-serif;
 }
 
+
+body {
+  background-image: url("/bg/main-bg.png");
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  background-position: center;
+}
+
 [type='checkbox'], [type='radio'] {
   border-color: #CBD5E1;
 }
