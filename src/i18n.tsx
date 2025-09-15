@@ -254,6 +254,7 @@ const dictionary: Dictionary = {
   'session.totalQuestions': { uz: 'Jami savollar', 'uz-cyrl': 'Жами саволлар', ru: 'Всего вопросов' },
   'session.correctAnswers': { uz: 'To\'g\'ri javoblar', 'uz-cyrl': 'Тўғри жавоблар', ru: 'Правильные ответы' },
   'session.incorrectAnswers': { uz: 'Noto\'g\'ri javoblar', 'uz-cyrl': 'Нотўғри жавоблар', ru: 'Неправильные ответы' },
+  'session.scorePercentage': { uz: 'Ball foizi', 'uz-cyrl': 'Балл фоизи', ru: 'Процент баллов' },
   'session.questions': { uz: 'SAVOLLAR', 'uz-cyrl': 'САВОЛЛАР', ru: 'ВОПРОСЫ' },
   'session.questionTitle': { uz: 'SAVOL MATNI', 'uz-cyrl': 'САВОЛ МАТНИ', ru: 'ТЕКСТ ВОПРОСА' },
   'session.correctAnswer': { uz: 'TO\'G\'RI JAVOB', 'uz-cyrl': 'ТЎҒРИ ЖАВОБ', ru: 'ПРАВИЛЬНЫЙ ОТВЕТ' },

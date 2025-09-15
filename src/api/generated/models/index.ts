@@ -64,7 +64,6 @@ export * from './moderatorUsersSurveyHistoryRetrieve200ItemSurvey';
 export * from './moderatorUsersSurveyHistoryRetrieveParams';
 export * from './oTPResponse';
 export * from './patchedUserRequest';
-export * from './userProfileUpdateRequest';
 export * from './phoneLoginRequest';
 export * from './schemaRetrieve200Four';
 export * from './schemaRetrieve200One';

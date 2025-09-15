@@ -2,8 +2,8 @@ import type { FC } from 'react';
 import { useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { useI18n } from '../i18n';
-import { useSessionsAllAnswersRetrieve, useSessionsRetrieve } from '../api/generated/respondentWebAPI';
 import { handleAuthError } from '../api/auth';
+import { useModeratorUserSessionDetails } from '../api/moderator';
 import { MyProfileBanner } from "../components/MyProfileBanner.tsx";
 import type { Column } from "../components/DataTable.tsx";
 import { DataTable } from "../components/DataTable.tsx";
@@ -11,37 +11,21 @@ import { CARD_STYLES } from "../components/test/test.data.ts";
 import { StatusBadge } from "../components/StatusBadge.tsx";
 
 const SessionDetailsPage: FC = () => {
-  const {t} = useI18n();
-  const {id} = useParams<{ id: string; }>();
+  const { t } = useI18n();
+  const { id } = useParams<{ id: string; }>();
 
-  // Fetch session details
-  const sessionQuery = useSessionsRetrieve(id || '', {
-    query: {
-      enabled: !!id,
-      retry: 1,
-      retryDelay: 1000
-    }
-  });
-
-  // Fetch all answers
-  const answersQuery = useSessionsAllAnswersRetrieve(id || '', {
-    query: {
-      enabled: !!id,
-      retry: 1,
-      retryDelay: 1000
-    }
-  });
+  // Fetch session details with new API
+  const sessionQuery = useModeratorUserSessionDetails(id);
 
   // Handle authentication errors
   useEffect(() => {
-    if ((sessionQuery.error && handleAuthError(sessionQuery.error)) ||
-      (answersQuery.error && handleAuthError(answersQuery.error))) {
+    if (sessionQuery.error && handleAuthError(sessionQuery.error)) {
       return; // Already redirected to login
     }
-  }, [sessionQuery.error, answersQuery.error]);
+  }, [sessionQuery.error]);
 
   // Loading state
-  if (sessionQuery.isLoading || answersQuery.isLoading) {
+  if (sessionQuery.isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="max-w-md mx-auto bg-white rounded-lg shadow-lg p-6 text-center">
@@ -49,7 +33,7 @@ const SessionDetailsPage: FC = () => {
             <svg className="w-8 h-8 text-cyan-600 animate-spin" fill="none" viewBox="0 0 24 24">
               <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
               <path className="opacity-75" fill="currentColor"
-                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
             </svg>
           </div>
           <h2 className="text-xl font-semibold text-gray-900 mb-2">{t('loading.sessionDetails')}</h2>
@@ -62,14 +46,14 @@ const SessionDetailsPage: FC = () => {
   }
 
   // Error state
-  if (sessionQuery.error || answersQuery.error) {
+  if (sessionQuery.error) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="max-w-md mx-auto bg-white rounded-lg shadow-lg p-6 text-center">
           <div className="w-16 h-16 mx-auto mb-4 bg-red-100 rounded-full flex items-center justify-center">
             <svg className="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"/>
+                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
             </svg>
           </div>
           <h2 className="text-xl font-semibold text-gray-900 mb-2">{t('error.connection')}</h2>
@@ -79,7 +63,6 @@ const SessionDetailsPage: FC = () => {
           <button
             onClick={() => {
               sessionQuery.refetch();
-              answersQuery.refetch();
             }}
             className="bg-cyan-600 text-white px-4 py-2 rounded-lg hover:bg-cyan-700"
           >
@@ -90,16 +73,22 @@ const SessionDetailsPage: FC = () => {
     );
   }
 
-  const answers = answersQuery.data;
-  const questions = answers?.questions || [];
+  const sessionData = sessionQuery.data;
+  const session = sessionData?.session;
+  const questions = sessionData?.questions || [];
 
   // Calculate statistics
   const totalQuestions = questions.length;
   const correctAnswers = questions.filter(q => q.answer && q.answer.is_correct).length;
   const incorrectAnswers = totalQuestions - correctAnswers;
 
+  // Use session data for additional statistics
+  const sessionScore = session?.score || 0;
+  const sessionPercentage = session?.percentage || 0;
+  const sessionTotalPoints = session?.total_points || 0;
+
   const getAnswerStatus = (question: any) => {
-    if (!question.answer) return {status: 'incorrect', text: t('session.incorrect')};
+    if (!question.answer) return { status: 'incorrect', text: t('session.incorrect') };
     const isCorrect = question.answer.is_correct;
     return {
       status: isCorrect ? 'correct' : 'incorrect',
@@ -186,7 +175,7 @@ const SessionDetailsPage: FC = () => {
             <span className="font-medium">
               {getAnswerLetter(question.answer, question)}
             </span>
-            <StatusBadge status={answerStatus.status}/>
+            <StatusBadge status={answerStatus.status} />
           </div>
         );
       }
@@ -204,17 +193,17 @@ const SessionDetailsPage: FC = () => {
 
   return (
     <div className="min-h-screen ">
-      <MyProfileBanner title={t('session.scoreDetails')} description={t('session.scoreDetailsDesc')}/>
-      <br/>
+      <MyProfileBanner title={t('session.scoreDetails')} description={t('session.scoreDetailsDesc')} />
+      <br />
       <div className={CARD_STYLES}>
         <div className="">
           <h2 className="text-2xl font-bold text-gray-900 mb-2">
-            {t('session.testNumber', {number: 1})}
+            {t('session.testNumber', { number: 1 })}
           </h2>
           <p className="text-gray-600 mb-6">
             {t('session.testDesc')}
           </p>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             {[
               {
                 value: totalQuestions,
@@ -230,6 +219,11 @@ const SessionDetailsPage: FC = () => {
                 value: incorrectAnswers,
                 label: t('session.incorrectAnswers'),
                 color: 'text-red-600'
+              },
+              {
+                value: `${sessionPercentage}%`,
+                label: t('session.scorePercentage'),
+                color: 'text-purple-600'
               }
             ].map((stat, idx) => (
               <div className={'bg-white border border-[#E2E8F0] rounded-xl p-6'} key={idx}>
