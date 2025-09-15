@@ -1,10 +1,10 @@
 import type { FC } from 'react';
-import { useForm, Controller } from "react-hook-form";
+import { useEffect, useRef } from "react";
+import { Controller, useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import { useUpdateUserProfile } from "../../api/auth.ts";
 import { FormButton } from "./FormButton.tsx";
 import { useI18n } from "../../i18n";
-import { useEffect, useRef } from "react";
 
 interface Props {
   className?: string;
@@ -23,12 +23,12 @@ export const authInputStyle = 'block !border-1 w-full !text-[#64748B] focus:!tex
 export const ProfileCompletionForm: FC<Props> = () => {
   const navigate = useNavigate();
   const updateProfile = useUpdateUserProfile();
-  const { t, lang } = useI18n();
+  const {t, lang} = useI18n();
 
   const {
     control,
     handleSubmit,
-    formState: { errors, isSubmitting },
+    formState: {errors, isSubmitting},
     setError,
     clearErrors,
     trigger
@@ -70,7 +70,7 @@ export const ProfileCompletionForm: FC<Props> = () => {
       });
 
       // Redirect to main page on success
-      navigate('/', { replace: true });
+      navigate('/', {replace: true});
     } catch (error: any) {
       // Handle API errors
       if (error?.response?.data?.name) {
@@ -131,7 +131,7 @@ export const ProfileCompletionForm: FC<Props> = () => {
               message: t('profileCompletion.nameRequired')
             }
           }}
-          render={({ field }) => (
+          render={({field}) => (
             <input
               {...field}
               type="text"
@@ -160,7 +160,7 @@ export const ProfileCompletionForm: FC<Props> = () => {
               message: t('profileCompletion.branchRequired')
             }
           }}
-          render={({ field }) => (
+          render={({field}) => (
             <input
               {...field}
               type="text"
@@ -189,7 +189,7 @@ export const ProfileCompletionForm: FC<Props> = () => {
               message: t('profileCompletion.positionRequired')
             }
           }}
-          render={({ field }) => (
+          render={({field}) => (
             <input
               {...field}
               type="text"
@@ -211,13 +211,12 @@ export const ProfileCompletionForm: FC<Props> = () => {
         <Controller
           name="employee_level"
           control={control}
-          rules={{ required: t('profileCompletion.employeeLevelRequired') }}
-          render={({ field }) => (
+          rules={{required: t('profileCompletion.employeeLevelRequired')}}
+          render={({field}) => (
             <select
               {...field}
               className={`${authInputStyle} ${errors.employee_level ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : ''}`}
             >
-              <option value="">{t('settings.selectPosition')}</option>
               <option value="junior">Junior</option>
               <option value="engineer">Engineer</option>
             </select>
@@ -236,8 +235,8 @@ export const ProfileCompletionForm: FC<Props> = () => {
         <Controller
           name="work_domain"
           control={control}
-          rules={{ required: t('profileCompletion.workDomainRequired') }}
-          render={({ field }) => (
+          rules={{required: t('profileCompletion.workDomainRequired')}}
+          render={({field}) => (
             <select
               {...field}
               className={`${authInputStyle} ${errors.work_domain ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : ''}`}
