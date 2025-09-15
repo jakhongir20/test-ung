@@ -1,5 +1,5 @@
 import type { FC } from 'react';
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useI18n } from '../i18n';
 import { useUsersPartialUpdate } from '../api/generated/respondentWebAPI';
@@ -13,7 +13,7 @@ interface ProfileFormData {
 }
 
 export const MyDetailsForm: FC = () => {
-  const { t } = useI18n();
+  const {t} = useI18n();
   const user = useAuthStore((s) => s.user);
   const setUser = useAuthStore((s) => s.setUser);
   const [isSuccess, setIsSuccess] = useState(false);
@@ -24,7 +24,7 @@ export const MyDetailsForm: FC = () => {
     register,
     handleSubmit,
     setValue,
-    formState: { errors, isSubmitting }
+    formState: {errors, isSubmitting}
   } = useForm<ProfileFormData>({
     defaultValues: {
       name: '',
@@ -85,7 +85,7 @@ export const MyDetailsForm: FC = () => {
               {t('profile.fio')}
             </label>
             <input
-              {...register('name', { required: true })}
+              {...register('name', {required: true})}
               type="text"
               placeholder={t('profile.fio')}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00A2DE] focus:border-transparent transition-colors duration-200"
@@ -113,7 +113,7 @@ export const MyDetailsForm: FC = () => {
                 stroke="currentColor"
                 viewBox="0 0 24 24"
               >
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7"/>
               </svg>
             </div>
           </div>
@@ -138,9 +138,9 @@ export const MyDetailsForm: FC = () => {
             type="submit"
             disabled={isSubmitting}
             className={`px-6 py-2 rounded-lg font-medium transition-colors duration-200 ${isSubmitting
-                ? 'bg-gray-400 text-white cursor-not-allowed'
-                : 'bg-[#00A2DE] text-white hover:bg-[#0088CC]'
-              }`}
+              ? 'bg-gray-400 text-white cursor-not-allowed'
+              : 'bg-[#00A2DE] text-white hover:bg-[#0088CC]'
+            }`}
           >
             {isSubmitting ? 'Saving...' : t('profile.save')}
           </button>
