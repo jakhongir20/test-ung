@@ -140,11 +140,11 @@ export const ProfileCardItem: FC<Props> = ({survey, index, noButton = false}) =>
         </div>
 
         {/* Score Details Button */}
-        {!noButton && <button
+        <button
           onClick={handleScoreDetailsClick}
           className="w-full rounded-[12px] border-2 border-[#00A2DE] h-12 text-[#00A2DE] bg-white hover:bg-[#00A2DE] hover:text-white transition-colors duration-200 py-2 text-base font-semibold flex-shrink-0">
           {t('profile.scoreDetails')}
-        </button>}
+        </button>
       </div>
     </article>
   );

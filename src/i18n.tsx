@@ -516,6 +516,18 @@ const dictionary: Dictionary = {
     ru: 'Выберите должность'
   },
 
+  // Auth Layout
+  'auth.contactSpecialist': {
+    uz: 'Mutaxassis bilan bog\'lanish',
+    'uz-cyrl': 'Мутахассис билан богланиш',
+    ru: 'Связь со специалистом'
+  },
+  'auth.offer': {
+    uz: 'Taklif',
+    'uz-cyrl': 'Таклиф',
+    ru: 'Оферта'
+  },
+
   // Timer
   'timer.minutes': { uz: 'daq', 'uz-cyrl': 'дақ', ru: 'мин' },
   'timer.noTime': { uz: '--:--', 'uz-cyrl': '--:--', ru: '--:--' },
