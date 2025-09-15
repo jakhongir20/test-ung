@@ -23,12 +23,12 @@ export const authInputStyle = 'block !border-1 w-full !text-[#64748B] focus:!tex
 export const ProfileCompletionForm: FC<Props> = () => {
   const navigate = useNavigate();
   const updateProfile = useUpdateUserProfile();
-  const {t, lang} = useI18n();
+  const { t, lang } = useI18n();
 
   const {
     control,
     handleSubmit,
-    formState: {errors, isSubmitting},
+    formState: { errors, isSubmitting },
     setError,
     clearErrors,
     trigger
@@ -70,7 +70,7 @@ export const ProfileCompletionForm: FC<Props> = () => {
       });
 
       // Redirect to main page on success
-      navigate('/', {replace: true});
+      navigate('/', { replace: true });
     } catch (error: any) {
       // Handle API errors
       if (error?.response?.data?.name) {
@@ -131,7 +131,7 @@ export const ProfileCompletionForm: FC<Props> = () => {
               message: t('profileCompletion.nameRequired')
             }
           }}
-          render={({field}) => (
+          render={({ field }) => (
             <input
               {...field}
               type="text"
@@ -153,20 +153,16 @@ export const ProfileCompletionForm: FC<Props> = () => {
         <Controller
           name="branch"
           control={control}
-          rules={{
-            required: t('profileCompletion.branchRequired'),
-            minLength: {
-              value: 2,
-              message: t('profileCompletion.branchRequired')
-            }
-          }}
-          render={({field}) => (
-            <input
+          rules={{ required: t('profileCompletion.branchRequired') }}
+          render={({ field }) => (
+            <select
               {...field}
-              type="text"
-              placeholder={t('profileCompletion.branchPlaceholder')}
               className={`${authInputStyle} ${errors.branch ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : ''}`}
-            />
+            >
+              <option value="administration1">{t('admin.administration1')}</option>
+              <option value="administration2">{t('admin.administration2')}</option>
+              <option value="administration3">{t('admin.administration3')}</option>
+            </select>
           )}
         />
         {errors.branch && (
@@ -182,20 +178,16 @@ export const ProfileCompletionForm: FC<Props> = () => {
         <Controller
           name="position"
           control={control}
-          rules={{
-            required: t('profileCompletion.positionRequired'),
-            minLength: {
-              value: 2,
-              message: t('profileCompletion.positionRequired')
-            }
-          }}
-          render={({field}) => (
-            <input
+          rules={{ required: t('profileCompletion.positionRequired') }}
+          render={({ field }) => (
+            <select
               {...field}
-              type="text"
-              placeholder={t('profileCompletion.positionPlaceholder')}
               className={`${authInputStyle} ${errors.position ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : ''}`}
-            />
+            >
+              <option value="position1">{t('position.position1')}</option>
+              <option value="position2">{t('position.position2')}</option>
+              <option value="position3">{t('position.position3')}</option>
+            </select>
           )}
         />
         {errors.position && (
@@ -211,8 +203,8 @@ export const ProfileCompletionForm: FC<Props> = () => {
         <Controller
           name="employee_level"
           control={control}
-          rules={{required: t('profileCompletion.employeeLevelRequired')}}
-          render={({field}) => (
+          rules={{ required: t('profileCompletion.employeeLevelRequired') }}
+          render={({ field }) => (
             <select
               {...field}
               className={`${authInputStyle} ${errors.employee_level ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : ''}`}
@@ -235,8 +227,8 @@ export const ProfileCompletionForm: FC<Props> = () => {
         <Controller
           name="work_domain"
           control={control}
-          rules={{required: t('profileCompletion.workDomainRequired')}}
-          render={({field}) => (
+          rules={{ required: t('profileCompletion.workDomainRequired') }}
+          render={({ field }) => (
             <select
               {...field}
               className={`${authInputStyle} ${errors.work_domain ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : ''}`}
