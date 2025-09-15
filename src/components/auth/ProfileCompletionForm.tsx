@@ -119,7 +119,7 @@ export const ProfileCompletionForm: FC<Props> = () => {
       {/* Full Name Field */}
       <div>
         <label className="block text-sm text-black font-medium mb-1.5">
-          Полное имя *
+          {t('profileCompletion.name')} *
         </label>
         <Controller
           name="name"
@@ -148,7 +148,7 @@ export const ProfileCompletionForm: FC<Props> = () => {
       {/* Branch Field */}
       <div>
         <label className="block text-sm text-black font-medium mb-1.5">
-          филиал *
+          {t('profileCompletion.branch')} *
         </label>
         <Controller
           name="branch"

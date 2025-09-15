@@ -528,6 +528,13 @@ const dictionary: Dictionary = {
     ru: 'Оферта'
   },
 
+  // DataTable
+  'table.results': {
+    uz: 'Natijalar',
+    'uz-cyrl': 'Натижалар',
+    ru: 'Результаты'
+  },
+
   // Timer
   'timer.minutes': { uz: 'daq', 'uz-cyrl': 'дақ', ru: 'мин' },
   'timer.noTime': { uz: '--:--', 'uz-cyrl': '--:--', ru: '--:--' },

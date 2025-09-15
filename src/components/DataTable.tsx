@@ -1,5 +1,6 @@
 import type { FC } from 'react';
 import { useState } from 'react';
+import { useI18n } from '../i18n';
 
 export interface Column<T = any> {
   key: string;
@@ -22,14 +23,15 @@ export interface DataTableProps<T = any> {
 }
 
 export const DataTable: FC<DataTableProps> = ({
-                                                data,
-                                                columns,
-                                                itemsPerPage = 10,
-                                                showPagination = true,
-                                                className = '',
-                                                emptyMessage = 'No data available',
-                                                onRowClick
-                                              }) => {
+  data,
+  columns,
+  itemsPerPage = 10,
+  showPagination = true,
+  className = '',
+  emptyMessage = 'No data available',
+  onRowClick
+}) => {
+  const { t } = useI18n();
   const [currentPage, setCurrentPage] = useState(1);
   const [sortColumn, setSortColumn] = useState<string | null>(null);
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
@@ -103,7 +105,7 @@ export const DataTable: FC<DataTableProps> = ({
           <div className="w-16 h-16 mx-auto mb-4 bg-gray-100 rounded-full flex items-center justify-center">
             <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                    d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
             </svg>
           </div>
           <h3 className="text-lg font-medium text-gray-900 mb-2">No Data</h3>
@@ -118,66 +120,66 @@ export const DataTable: FC<DataTableProps> = ({
       <div className="overflow-x-auto">
         <table className="w-full">
           <thead className="bg-gray-50">
-          <tr>
-            {columns.map((column) => (
-              <th
-                key={column.key}
-                className={`px-6 py-4 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider ${column.headerClassName || ''
-                } ${column.sortable ? 'cursor-pointer hover:bg-gray-100' : ''}`}
-                onClick={() => column.sortable && handleSort(column.key)}
-              >
-                <div className="flex items-center gap-2">
-                  <span>{column.title}</span>
-                  {column.sortable && (
-                    <div className="flex flex-col">
-                      <svg
-                        className={`w-3 h-3 ${sortColumn === column.key && sortDirection === 'asc'
-                          ? 'text-gray-900'
-                          : 'text-gray-400'
-                        }`}
-                        fill="currentColor"
-                        viewBox="0 0 20 20"
-                      >
-                        <path
-                          d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"/>
-                      </svg>
-                      <svg
-                        className={`w-3 h-3 -mt-1 ${sortColumn === column.key && sortDirection === 'desc'
-                          ? 'text-gray-900'
-                          : 'text-gray-400'
-                        }`}
-                        fill="currentColor"
-                        viewBox="0 0 20 20"
-                      >
-                        <path
-                          d="M14.707 12.707a1 1 0 01-1.414 0L10 9.414l-3.293 3.293a1 1 0 01-1.414-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 010 1.414z"/>
-                      </svg>
-                    </div>
-                  )}
-                </div>
-              </th>
-            ))}
-          </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-200">
-          {finalData.map((item, index) => (
-            <tr
-              key={index}
-              className={`hover:bg-gray-50 ${onRowClick ? 'cursor-pointer' : ''}`}
-              onClick={() => onRowClick?.(item, index)}
-            >
+            <tr>
               {columns.map((column) => (
-                <td
+                <th
                   key={column.key}
-                  className={`px-6 py-4 text-sm text-gray-900 ${column.className || ''}`}
+                  className={`px-6 py-4 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider ${column.headerClassName || ''
+                    } ${column.sortable ? 'cursor-pointer hover:bg-gray-100' : ''}`}
+                  onClick={() => column.sortable && handleSort(column.key)}
                 >
-                  {column.render
-                    ? column.render(item[column.key], item, startIndex + index)
-                    : item[column.key]}
-                </td>
+                  <div className="flex items-center gap-2">
+                    <span>{column.title}</span>
+                    {column.sortable && (
+                      <div className="flex flex-col">
+                        <svg
+                          className={`w-3 h-3 ${sortColumn === column.key && sortDirection === 'asc'
+                            ? 'text-gray-900'
+                            : 'text-gray-400'
+                            }`}
+                          fill="currentColor"
+                          viewBox="0 0 20 20"
+                        >
+                          <path
+                            d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" />
+                        </svg>
+                        <svg
+                          className={`w-3 h-3 -mt-1 ${sortColumn === column.key && sortDirection === 'desc'
+                            ? 'text-gray-900'
+                            : 'text-gray-400'
+                            }`}
+                          fill="currentColor"
+                          viewBox="0 0 20 20"
+                        >
+                          <path
+                            d="M14.707 12.707a1 1 0 01-1.414 0L10 9.414l-3.293 3.293a1 1 0 01-1.414-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 010 1.414z" />
+                        </svg>
+                      </div>
+                    )}
+                  </div>
+                </th>
               ))}
             </tr>
-          ))}
+          </thead>
+          <tbody className="divide-y divide-gray-200">
+            {finalData.map((item, index) => (
+              <tr
+                key={index}
+                className={`hover:bg-gray-50 ${onRowClick ? 'cursor-pointer' : ''}`}
+                onClick={() => onRowClick?.(item, index)}
+              >
+                {columns.map((column) => (
+                  <td
+                    key={column.key}
+                    className={`px-6 py-4 text-sm text-gray-900 ${column.className || ''}`}
+                  >
+                    {column.render
+                      ? column.render(item[column.key], item, startIndex + index)
+                      : item[column.key]}
+                  </td>
+                ))}
+              </tr>
+            ))}
           </tbody>
         </table>
       </div>
@@ -191,7 +193,7 @@ export const DataTable: FC<DataTableProps> = ({
               disabled={currentPage === 1}
               className="px-1 py-2 text-sm font-medium text-gray-500 hover:text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              <img src="/icon/arrow-l.svg" alt=""/>
+              <img src="/icon/arrow-l.svg" alt="" />
             </button>
 
             <div className="flex gap-1">
@@ -205,7 +207,7 @@ export const DataTable: FC<DataTableProps> = ({
                       ? 'bg-[#00A2DE] text-white'
                       : 'text-gray-500 hover:text-gray-700'
                     : 'text-gray-500 cursor-default'
-                  }`}
+                    }`}
                 >
                   {pageNum}
                 </button>
@@ -217,12 +219,12 @@ export const DataTable: FC<DataTableProps> = ({
               disabled={currentPage === totalPages}
               className="px-1 py-2 text-sm font-medium text-gray-500 hover:text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              <img src="/icon/arrow-r.svg" alt=""/>
+              <img src="/icon/arrow-r.svg" alt="" />
             </button>
           </div>
 
           <div className="text-sm text-gray-700">
-            Results: {startIndex + 1}-{Math.min(endIndex, data.length)} of {data.length}
+            {t('table.results')}: {startIndex + 1}-{Math.min(endIndex, data.length)} of {data.length}
           </div>
         </div>
       )}
