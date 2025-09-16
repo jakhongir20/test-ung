@@ -23,18 +23,6 @@ const PageCategories: FC = () => {
       description: t('categories.mainQuestionsDesc'),
       color: 'bg-[#F6FEFF]',
     },
-    {
-      id: 'assistiveTech',
-      title: t('categories.additionalQuestions'),
-      description: t('categories.additionalQuestionsDesc'),
-      color: 'bg-[#F8F6FF]',
-    },
-    {
-      id: 'noDeviceLock',
-      title: t('categories.regionalGasSupply'),
-      description: t('categories.regionalGasSupplyDesc'),
-      color: 'bg-[#F6FFF9]',
-    }
   ];
 
   return (
