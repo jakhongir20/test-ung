@@ -73,19 +73,17 @@ const SessionDetailsPage: FC = () => {
     );
   }
 
-  const sessionData = sessionQuery.data;
+  const sessionData = sessionQuery.data as any;
   const session = sessionData?.session;
   const questions = sessionData?.questions || [];
 
   // Calculate statistics
   const totalQuestions = questions.length;
-  const correctAnswers = questions.filter(q => q.answer && q.answer.is_correct).length;
+  const correctAnswers = questions.filter((q: any) => q.answer && q.answer.is_correct).length;
   const incorrectAnswers = totalQuestions - correctAnswers;
 
   // Use session data for additional statistics
-  const sessionScore = session?.score || 0;
   const sessionPercentage = session?.percentage || 0;
-  const sessionTotalPoints = session?.total_points || 0;
 
   const getAnswerStatus = (question: any) => {
     if (!question.answer) return { status: 'incorrect', text: t('session.incorrect') };
@@ -99,25 +97,36 @@ const SessionDetailsPage: FC = () => {
   const getAnswerLetter = (answer: any, question: any) => {
     if (!answer) return '-';
 
-    // For single choice questions
+    // For open text questions - check text_answer first
+    if (answer.text_answer && answer.text_answer.trim() !== '') {
+      return answer.text_answer.substring(0, 20) + (answer.text_answer.length > 20 ? '...' : '');
+    }
+
+    // For single choice questions - use selected_choices[0]?.text if available
     if (answer.selected_choices && answer.selected_choices.length > 0) {
       const selectedChoice = answer.selected_choices[0];
+
+      // If selected_choices[0] has text, use it
+      if (selectedChoice.text && selectedChoice.text.trim() !== '') {
+        return selectedChoice.text;
+      }
+
+      // Fallback to letter index
       const choiceIndex = question.question.choices?.findIndex((c: any) => c.id === selectedChoice.id);
       return String.fromCharCode(65 + choiceIndex); // A, B, C, D
     }
 
     // For multiple choice questions
     if (answer.selected_choices && answer.selected_choices.length > 1) {
-      const selectedLetters = answer.selected_choices.map((choice: any) => {
+      const selectedTexts = answer.selected_choices.map((choice: any) => {
+        // Use text if available, otherwise use letter index
+        if (choice.text && choice.text.trim() !== '') {
+          return choice.text;
+        }
         const choiceIndex = question.question.choices.findIndex((c: any) => c.id === choice.id);
         return String.fromCharCode(65 + choiceIndex);
       });
-      return selectedLetters.join(', ');
-    }
-
-    // For open text questions
-    if (answer.text_answer) {
-      return answer.text_answer.substring(0, 20) + (answer.text_answer.length > 20 ? '...' : '');
+      return selectedTexts.join(', ');
     }
 
     return '-';
@@ -165,17 +174,31 @@ const SessionDetailsPage: FC = () => {
       )
     },
     {
+      key: 'answerStatus',
+      title: t('session.status'),
+      className: 'whitespace-nowrap',
+      render: (_, question) => {
+        const answerStatus = getAnswerStatus(question);
+        return <StatusBadge status={answerStatus.status} />;
+      }
+    },
+    {
       key: 'yourAnswer',
       title: t('session.yourAnswer'),
       className: 'whitespace-nowrap',
       render: (_, question) => {
         const answerStatus = getAnswerStatus(question);
+        const answerText = getAnswerLetter(question.answer, question);
+
         return (
-          <div className="flex items-center gap-2">
-            <span className="font-medium">
-              {getAnswerLetter(question.answer, question)}
-            </span>
-            <StatusBadge status={answerStatus.status} />
+          <div className="flex items-center">
+            {answerStatus.status === 'correct' ? (
+              <span className="font-medium">
+                {answerText}
+              </span>
+            ) : (
+              <span className="text-gray-400">-</span>
+            )}
           </div>
         );
       }
@@ -183,7 +206,7 @@ const SessionDetailsPage: FC = () => {
   ];
 
   // Prepare data for the table
-  const tableData = questions.map((question, index) => ({
+  const tableData = questions.map((question: any, index: number) => ({
     ...question,
     order: index + 1,
     questionText: (question.question?.question)?.text || `Question ${index + 1}`,
