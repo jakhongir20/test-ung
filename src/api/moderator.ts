@@ -31,13 +31,13 @@ export function useModeratorUserDetails(userId?: number) {
 export const moderatorUserSessionRetrieve = async (sessionId: string) => {
   return customInstance({
     method: 'GET',
-    url: `/api/moderator/users/session/${sessionId}/`,
+    url: `/api/users/session/${sessionId}/`,
   });
 };
 
 export function useModeratorUserSessionDetails(sessionId?: string) {
   return useQuery({
-    queryKey: ['/api/moderator/users/session/', sessionId],
+    queryKey: ['/api/users/session/', sessionId],
     queryFn: () => moderatorUserSessionRetrieve(sessionId!),
     enabled: !!sessionId,
     retry: 1,

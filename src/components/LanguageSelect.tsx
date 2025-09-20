@@ -21,7 +21,7 @@ const languages = [
   },
 ];
 
-export const LanguageSelect = () => {
+export const LanguageSelect = ({authlayout}: { authlayout?: boolean }) => {
   const {lang, setLang} = useI18n();
   const [selected, setSelected] = useState(() => {
     return languages.find(l => l.id === lang) || languages[0];
@@ -49,7 +49,7 @@ export const LanguageSelect = () => {
             className="flex cursor-pointer text-[#314158] md:gap-2 gap-1 items-center justify-between rounded-lg px-1.5 md:px-3 py-2 text-base font-medium hover:bg-gray-50">
             <div className="flex items-center gap-2 text-sm md:text-base">
               <img src={selected.flag} alt="" className="h-4 w-6 rounded-sm"/>
-              <span className={'hidden md:inline'}>{selected.name}</span>
+              <span className={`${authlayout ? '' : 'hidden'}  md:inline`}>{selected.name}</span>
             </div>
             <ChevronDownIcon
               className={`h-6 w-6 transition-transform duration-200 text-gray-500 ${open ? 'rotate-180' : ''}`}/>
