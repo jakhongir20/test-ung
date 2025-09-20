@@ -29,7 +29,7 @@ const TestPage: FC = () => {
   const [isExpired, setExpired] = useState(false);
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const { t } = useI18n();
+  const {t} = useI18n();
 
   // Function to determine survey category based on survey data
   const getSurveyCategory = (surveyData: any): string => {
@@ -149,18 +149,18 @@ const TestPage: FC = () => {
     // First try navigation endpoint data
     if (currentQuestionFromNav && !byOrder[currentQuestionFromNav.order]) {
       const built = buildQuestionFrom(currentQuestionFromNav);
-      setByOrder((prev) => ({ ...prev, [currentQuestionFromNav.order]: built }));
+      setByOrder((prev) => ({...prev, [currentQuestionFromNav.order]: built}));
 
       // Load existing answer if available
       if (existingAnswer) {
         if (built.isOpen && existingAnswer.text_answer) {
-          setTextAnswers((prev) => ({ ...prev, [currentQuestionFromNav.order]: existingAnswer.text_answer }));
+          setTextAnswers((prev) => ({...prev, [currentQuestionFromNav.order]: existingAnswer.text_answer}));
         } else if (existingAnswer.choice_ids && existingAnswer.choice_ids.length > 0) {
           // Convert choice IDs back to letters
           const letters = Object.keys(built.choiceLetterToId).filter(letter =>
             existingAnswer.choice_ids.includes(built.choiceLetterToId[letter])
           );
-          setAnswers((prev) => ({ ...prev, [currentQuestionFromNav.order]: letters }));
+          setAnswers((prev) => ({...prev, [currentQuestionFromNav.order]: letters}));
         }
       }
       return;
@@ -170,7 +170,7 @@ const TestPage: FC = () => {
     const currentQ = sessionData?.current_question;
     if (currentQ && !byOrder[currentQ.order]) {
       const built = buildQuestionFrom(currentQ);
-      setByOrder((prev) => ({ ...prev, [currentQ.order]: built }));
+      setByOrder((prev) => ({...prev, [currentQ.order]: built}));
       setCurrent(currentQ.order);
       return;
     }
@@ -181,7 +181,7 @@ const TestPage: FC = () => {
       const startQ = (storedSession as any)?.current_question;
       if (startQ && !byOrder[startQ.order]) {
         const built = buildQuestionFrom(startQ);
-        setByOrder((prev) => ({ ...prev, [startQ.order]: built }));
+        setByOrder((prev) => ({...prev, [startQ.order]: built}));
         setCurrent(startQ.order);
       }
     } catch {
@@ -198,7 +198,7 @@ const TestPage: FC = () => {
     const options: Option[] = isOpen ? [] : (q.choices ?? []).sort((a: any, b: any) => (a.order ?? 0) - (b.order ?? 0)).map((c: any, idx: number) => {
       const key = letters[idx] ?? String(idx + 1);
       choiceLetterToId[key] = c.id;
-      return { key, label: c.text };
+      return {key, label: c.text};
     });
     return {
       title: q.text,
@@ -229,12 +229,12 @@ const TestPage: FC = () => {
       const next = (built?.multiple ?? false)
         ? cur.includes(key) ? cur.filter((k) => k !== key) : [...cur, key]
         : [key];
-      return { ...prev, [order]: next };
+      return {...prev, [order]: next};
     });
   }
 
   function handleTextChange(value: string) {
-    setTextAnswers((prev) => ({ ...prev, [order]: value }));
+    setTextAnswers((prev) => ({...prev, [order]: value}));
   }
 
   async function finishTest() {
@@ -297,8 +297,8 @@ const TestPage: FC = () => {
         }
 
         try {
-          console.log('Submitting answer:', { sessionId, payload });
-          const res: any = await submitAnswer.mutateAsync({ sessionId, payload });
+          console.log('Submitting answer:', {sessionId, payload});
+          const res: any = await submitAnswer.mutateAsync({sessionId, payload});
           console.log('Submit response:', res);
 
           // Check if this was the last question and if the session was automatically finished
@@ -342,7 +342,7 @@ const TestPage: FC = () => {
             const nextQ = res.session.current_question;
             if (nextQ.order) {
               const bq = buildQuestionFrom(nextQ);
-              setByOrder((prev) => ({ ...prev, [nextQ.order]: bq }));
+              setByOrder((prev) => ({...prev, [nextQ.order]: bq}));
               setCurrent(nextQ.order);
             }
           }
@@ -375,7 +375,7 @@ const TestPage: FC = () => {
   }
 
   const questionsData = progressData?.questions ?? [];
-  const answeredFlags = Array.from({ length: Math.max(total, 0) }).map((_, i) => !!answers[i + 1]?.length || !!questionsData[i]?.is_answered);
+  const answeredFlags = Array.from({length: Math.max(total, 0)}).map((_, i) => !!answers[i + 1]?.length || !!questionsData[i]?.is_answered);
 
 
   // Show error state
@@ -386,7 +386,7 @@ const TestPage: FC = () => {
           <div className="w-16 h-16 mx-auto mb-4 bg-red-100 rounded-full flex items-center justify-center">
             <svg className="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"/>
             </svg>
           </div>
           <h2 className="text-xl font-semibold text-gray-900 mb-2">{t('error.connection')}</h2>
@@ -413,7 +413,7 @@ const TestPage: FC = () => {
             <svg className="w-8 h-8 text-cyan-600 animate-spin" fill="none" viewBox="0 0 24 24">
               <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
               <path className="opacity-75" fill="currentColor"
-                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
             </svg>
           </div>
           <h2 className="text-xl font-semibold text-gray-900 mb-2">{t('loading.test')}</h2>
@@ -491,22 +491,22 @@ const TestPage: FC = () => {
           <button
             onClick={() => setNavOpen((v) => !v)}
             className={ACTION_BTN_STYLES}>
-            {t('test.questionOf', { current: order, total })}
-            <img src="/icon/arrow-t.svg" alt="" />
+            {t('test.questionOf', {current: order, total})}
+            <img src="/icon/arrow-t.svg" alt=""/>
           </button>
           <div className="flex items-center gap-2">
             <button
               disabled={isExpired || !navigationData?.has_previous}
               onClick={() => go(-1)}
               className={ACTION_BTN_STYLES}>
-              <img src={'/icon/arrow-l.svg'} alt={'icon left'} />
+              <img src={'/icon/arrow-l.svg'} alt={'icon left'}/>
             </button>
             <button
               disabled={isExpired || !hasAnswers}
               onClick={() => go(1)}
-              className={`${ACTION_BTN_STYLES} !text-[#00A2DE] !text-base ${isExpired || !hasAnswers ? 'opacity-50 cursor-not-allowed' : ''}`}>
+              className={`${ACTION_BTN_STYLES} !text-[#00A2DE] !text-base ${isExpired || !hasAnswers ? 'opacity-50 !cursor-not-allowed' : ''}`}>
               {isLastQuestion ? t('test.finish') : t('test.next')}
-              {!isLastQuestion && <img src={'/icon/arrow-r.svg'} alt={'icon left'} />}
+              {!isLastQuestion && <img src={'/icon/arrow-r.svg'} alt={'icon left'}/>}
             </button>
           </div>
         </div>

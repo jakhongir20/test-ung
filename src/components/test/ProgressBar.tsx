@@ -84,7 +84,7 @@ export const ProgressBar: FC<Props> = ({
               <img className={'!w-[18px]'} src={'/icon/clock.svg'} alt={'icon left'} />
             </div>
             {endTime && (
-              <span className="text-sm font-medium text-gray-700">
+              <span className="text-base font-medium text-gray-700">
                 <CachedTimer endTime={endTime} onExpire={onExpire || (() => {
                 })} />
               </span>

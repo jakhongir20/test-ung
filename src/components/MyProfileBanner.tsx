@@ -16,7 +16,7 @@ export const MyProfileBanner: FC<Props> = ({title, description}) => {
            src="/bg/lines.svg" alt=""/>
       <h2
         className="text-2xl md:text-[32px] mb-1 md:mb-3 uppercase font-medium tracking-widest">{title ?? t('profile.title')}</h2>
-      <p className="mt-2 max-w-sm text-white/90 text-sm">
+      <p className="mt-2 max-w-sm text-white/90 text-base">
         {description ?? t('profile.subtitle')}
       </p>
       <div className="absolute -right-24 -top-24 w-96 h-96 rounded-full bg-cyan-400/20 blur-3xl"/>

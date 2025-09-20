@@ -12,30 +12,30 @@ type Props = {
 };
 
 const dot = (cls: string) => (
-  <span className={`inline-block h-3.5 w-3.5 rounded ${cls}`} />
+  <span className={`inline-block h-3.5 w-3.5 rounded ${cls}`}/>
 );
 
-const QuestionNavigator: FC<Props> = ({ total, currentIndex, answered, open, onClose, onSelect, variant = 'popup' }) => {
-  const { t } = useI18n();
+const QuestionNavigator: FC<Props> = ({total, currentIndex, answered, open, onClose, onSelect, variant = 'popup'}) => {
+  const {t} = useI18n();
   if (variant === 'popup' && !open) return null;
   const containerClass = variant === 'popup'
     ? 'absolute md:left-[32px] left-[16px] bottom-20 z-20 md:w-[min(472px,95vw)] rounded-xl border border-[#E2E8F0] bg-white p-4'
     : 'rounded-xl bg-white shadow-sm p-4';
   return (
     <div className={containerClass}>
-      <div className={''}>
-        <div className="flex items-center md:gap-6 gap-4 text-sm text-[#475569]">
-          <span
-            className="inline-flex items-center gap-1.5">{dot('bg-transparent border border-[#00A2DE]')} {t('test.answered')}</span>
-          <span
-            className="inline-flex items-center gap-2">{dot('bg-[#F8FAFC] border border-[#E2E8F0]')} {t('test.notAnswered')}</span>
-          <span
-            className="inline-flex items-center gap-2">{dot('bg-transparent border border-dashed border-[#00A2DE]')} {t('test.current')}</span>
-        </div>
-        <div className={'w-full h-[1px] mb-4 mt-3 bg-[#F1F5F9]'}></div>
-      </div>
+      {/*<div className={''}>*/}
+      {/*  <div className="flex items-center md:gap-6 gap-4 text-sm text-[#475569]">*/}
+      {/*    <span*/}
+      {/*      className="inline-flex items-center gap-1.5">{dot('bg-transparent border border-[#00A2DE]')} {t('test.answered')}</span>*/}
+      {/*    <span*/}
+      {/*      className="inline-flex items-center gap-2">{dot('bg-[#F8FAFC] border border-[#E2E8F0]')} {t('test.notAnswered')}</span>*/}
+      {/*    <span*/}
+      {/*      className="inline-flex items-center gap-2">{dot('bg-transparent border border-dashed border-[#00A2DE]')} {t('test.current')}</span>*/}
+      {/*  </div>*/}
+      {/*  <div className={'w-full h-[1px] mb-4 mt-3 bg-[#F1F5F9]'}></div>*/}
+      {/*</div>*/}
       <div className="grid grid-cols-7 md:grid-cols-10 gap-2">
-        {Array.from({ length: total }).map((_, i) => {
+        {Array.from({length: total}).map((_, i) => {
           const isCurrent = i === currentIndex;
           const isAnswered = answered[i];
           return (
@@ -45,8 +45,8 @@ const QuestionNavigator: FC<Props> = ({ total, currentIndex, answered, open, onC
                 onSelect(i);
                 if (variant === 'popup') onClose();
               }}
-              className={`h-9 w-9 rounded-lg text-sm font-medium transition ${isCurrent ? 'bg-transparent border border-dashed border-[#00A2DE] text-[#00A2DE]' : isAnswered ? 'bg-[#F8FAFC] border border-[#00A2DE]' : 'bg-[#F8FAFC] border border-[#E2E8F0]'
-                }`}
+              className={`h-9 w-9 rounded-lg text-base font-medium transition ${isCurrent ? 'bg-transparent border border-dashed border-[#F58634] text-[#F58634]' : isAnswered ? 'bg-[#F58634] text-white' : 'bg-[#F8FAFC] border border-[#E2E8F0]'
+              }`}
             >
               {i + 1}
             </button>

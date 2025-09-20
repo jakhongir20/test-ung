@@ -169,7 +169,7 @@ const AdminEmployeesPage: FC = () => {
                 <div className="flex items-center justify-center h-32">
                   <div className="flex flex-col items-center gap-3">
                     <div className="w-8 h-8 border-2 border-cyan-600 border-t-transparent rounded-full animate-spin"></div>
-                    <p className="text-gray-600 text-sm">{t('loading.employees')}</p>
+                    <p className="text-gray-600 text-base">{t('loading.employees')}</p>
                   </div>
                 </div>
               </div>
@@ -248,7 +248,7 @@ const AdminEmployeesPage: FC = () => {
 
                 {selectedUser.total_statistics && (
                   <div className="mt-6">
-                    <h5 className="text-sm font-semibold mb-3">{t('admin.totalStatistics')}</h5>
+                    <h5 className="text-base font-semibold mb-3">{t('admin.totalStatistics')}</h5>
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                       <div className="rounded-xl ring-1 ring-gray-200 p-3 text-center">
                         <div className="text-xs text-gray-500">{t('admin.totalAttempts')}</div>
@@ -280,7 +280,7 @@ const AdminEmployeesPage: FC = () => {
 
                 {selectedUser.survey_history && selectedUser.survey_history.length > 0 && (
                   <div className="mt-6">
-                    <h5 className="text-sm font-semibold mb-3">{t('admin.testHistory')}</h5>
+                    <h5 className="text-base font-semibold mb-3">{t('admin.testHistory')}</h5>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       {selectedUser.survey_history.map((survey: any, index: number) => (
                         <ProfileCardItem

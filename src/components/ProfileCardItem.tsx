@@ -118,7 +118,7 @@ export const ProfileCardItem: FC<Props> = ({survey, index, noButton = false}) =>
           <div className="text-lg leading-5 font-bold mb-1">
             {getSurveyTitle()}
           </div>
-          <div className="text-sm text-gray-100">
+          <div className="text-base text-gray-100">
             {getDate()}
           </div>
         </div>
@@ -134,7 +134,7 @@ export const ProfileCardItem: FC<Props> = ({survey, index, noButton = false}) =>
           <div className="text-6xl font-semibold text-[#F58634]">
             {getScore()}
           </div>
-          <div className="text-sm text-[#64748B] underline">
+          <div className="text-base text-[#64748B] underline">
             1-{getTotalQuestions()}
           </div>
         </div>

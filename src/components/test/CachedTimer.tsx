@@ -8,14 +8,14 @@ interface Props {
   onExpire: () => void;
 }
 
-export const CachedTimer: FC<Props> = ({ endTime, onExpire }) => {
-  const { t } = useI18n();
+export const CachedTimer: FC<Props> = ({endTime, onExpire}) => {
+  const {t} = useI18n();
 
   // Validate endTime
   if (!endTime || endTime <= 0) {
     return (
       <div className="flex items-center justify-center gap-1 text-sm font-medium text-gray">
-        <span style={{ fontFamily: "monospace" }}>{t('timer.noTime')} {t('timer.minutes')}</span>
+        <span style={{fontFamily: "monospace"}}>{t('timer.noTime')} {t('timer.minutes')}</span>
       </div>
     );
   }
@@ -23,7 +23,7 @@ export const CachedTimer: FC<Props> = ({ endTime, onExpire }) => {
   // Convert endTime to Date object for useTimer
   const expiryDate = new Date(endTime);
 
-  const { seconds, minutes, hours, restart } = useTimer({
+  const {seconds, minutes, hours, restart} = useTimer({
     expiryTimestamp: expiryDate,
     onExpire: onExpire,
   });
@@ -48,15 +48,15 @@ export const CachedTimer: FC<Props> = ({ endTime, onExpire }) => {
   // Handle edge case where time is very low
   if (totalMinutes <= 0 && seconds <= 0) {
     return (
-      <div className="flex items-center justify-center gap-1 text-sm font-medium text-red-600">
-        <span style={{ fontFamily: "monospace" }}>{t('timer.expired')} {t('timer.minutes')}</span>
+      <div className="flex items-center justify-center gap-1 text-base font-medium text-red-600">
+        <span style={{fontFamily: "monospace"}}>{t('timer.expired')} {t('timer.minutes')}</span>
       </div>
     );
   }
 
   return (
     <div className="flex items-center justify-center gap-1 text-sm font-medium text-gray">
-      <span style={{ fontFamily: "monospace" }}>
+      <span style={{fontFamily: "monospace"}}>
         {String(totalMinutes).padStart(2, "0")}:{String(seconds).padStart(2, "0")} {t('timer.minutes')}
       </span>
     </div>

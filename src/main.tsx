@@ -14,7 +14,6 @@ import AdminEmployeesPage from './pages/AdminEmployeesPage.tsx';
 import PageRules from './pages/PageRules.tsx';
 import ProtectedRoute from './components/ProtectedRoute.tsx';
 import AuthLayout from './layouts/AuthLayout.tsx';
-import PageCategories from "./pages/PageCategories.tsx";
 import ProfileCompletionPage from "./pages/ProfileCompletionPage.tsx";
 
 const router = createBrowserRouter([
@@ -47,13 +46,6 @@ const router = createBrowserRouter([
         path: 'rules', element: (
           <ProtectedRoute>
             <PageRules />
-          </ProtectedRoute>
-        )
-      },
-      {
-        path: 'categories', element: (
-          <ProtectedRoute>
-            <PageCategories />
           </ProtectedRoute>
         )
       },

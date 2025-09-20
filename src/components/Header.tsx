@@ -33,7 +33,7 @@ export default function Header() {
       <div className={'max-w-7xl mx-auto px-4 md:px-8'}>
         <div className="flex  items-center w-full justify-between py-3">
           <Link to={'/'} className="flex items-center gap-2 text-xl font-bold text-orange-600">
-            <img className=" w-[150px] md:w-[252px]" alt="logo" src="/logo.svg"/>
+            <img className=" w-[180px] md:w-[252px]" alt="logo" src="/logo.svg"/>
           </Link>
           <div className={'flex items-center gap-0 md:gap-4'}>
             <LanguageSelect/>
@@ -52,7 +52,7 @@ export default function Header() {
                 />
                 <div className="leading-tight text-left md:block hidden">
                   <div className="font-semibold">{user?.name || '—'}</div>
-                  <div className="text-gray-500 text-sm">{user?.position || 'Unknown'}</div>
+                  <div className="text-gray-500 text-base">{user?.position || 'Unknown'}</div>
                 </div>
                 <ChevronDownIcon
                   className={`h-6 w-6 transition-transform duration-200 text-gray-500 ${isDropdownOpen ? 'rotate-180' : ''}`}/>
@@ -68,7 +68,7 @@ export default function Header() {
                       setIsDropdownOpen(false);
                       setIsSettingsModalOpen(true);
                     }}
-                    className="flex items-center w-full md:px-4 px-2 py-1.5 md:py-3 text-xs md:text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-200"
+                    className="flex items-center w-full md:px-4 px-2 py-1.5 md:py-3 text-sm md:text-base text-gray-700 hover:bg-gray-50 transition-colors duration-200"
                   >
                     <svg className="w-4 h-4 mr-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
@@ -79,7 +79,7 @@ export default function Header() {
                   {user?.is_moderator && <Link
                     to="/admin/employees"
                     onClick={() => setIsDropdownOpen(false)}
-                    className="flex items-center md:px-4 px-2 py-1.5 md:py-3 text-xs md:text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-200"
+                    className="flex items-center md:px-4 px-2 py-1.5 md:py-3 text-sm md:text-base text-gray-700 hover:bg-gray-50 transition-colors duration-200"
                   >
                     <svg className="w-4 h-4 mr-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
@@ -97,7 +97,7 @@ export default function Header() {
                       setIsDropdownOpen(false);
                       logout();
                     }}
-                    className="flex items-center w-full md:px-4 px-2 py-1.5 md:py-3 text-xs md:text-sm text-red-600 hover:bg-red-50 transition-colors duration-200"
+                    className="flex items-center w-full md:px-4 px-2 py-1.5 md:py-3 text-sm md:text-base text-red-600 hover:bg-red-50 transition-colors duration-200"
                   >
                     <svg className="w-4 h-4 mr-3 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}

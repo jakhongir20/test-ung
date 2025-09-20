@@ -35,7 +35,7 @@ const QuestionCard: FC<Props> = ({
     <section
       className={`${CARD_STYLES} md:!py-10 pt-6`}>
       <div className={'border-b space-y-4 md:pb-8 pb-6 md:mb-10 mb-6 border-[#E2E8F0] mx-auto w-full  md:w-[80%]'}>
-        <p className="text-sm font-medium text-[#334155] ">{t('question.number')} {index}</p>
+        <p className="text-base font-medium text-[#334155] ">{t('question.number')} {index}</p>
         <h2 className="text-lg md:text-xl font-medium text-black">{title}</h2>
       </div>
 
@@ -46,7 +46,7 @@ const QuestionCard: FC<Props> = ({
             value={textAnswer}
             onChange={(e) => onTextChange?.(e.target.value)}
             placeholder={t('question.typeAnswer')}
-            className="w-full min-h-[120px] rounded-lg border border-[#E2E8F0] p-3 text-sm focus:border-[#00A2DE] resize-y"
+            className="w-full min-h-[120px] rounded-lg border border-[#E2E8F0] p-3 text-base focus:border-[#00A2DE] resize-y"
           />
         </div>
       ) : (

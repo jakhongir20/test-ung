@@ -81,7 +81,7 @@ export const MyDetailsForm: FC = () => {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {/* FIO Field */}
           <div>
-            <label className="block text-sm font-medium text-[#374151] mb-2">
+            <label className="block text-base font-medium text-[#374151] mb-2">
               {t('profile.fio')}
             </label>
             <input
@@ -91,13 +91,13 @@ export const MyDetailsForm: FC = () => {
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00A2DE] focus:border-transparent transition-colors duration-200"
             />
             {errors.name && (
-              <p className="mt-1 text-sm text-red-600">This field is required</p>
+              <p className="mt-1 text-base text-red-600">This field is required</p>
             )}
           </div>
 
           {/* Branch Field */}
           <div>
-            <label className="block text-sm font-medium text-[#374151] mb-2">
+            <label className="block text-base font-medium text-[#374151] mb-2">
               {t('profile.branch')}
             </label>
             <div className="relative">
@@ -120,7 +120,7 @@ export const MyDetailsForm: FC = () => {
 
           {/* Position Field */}
           <div>
-            <label className="block text-sm font-medium text-[#374151] mb-2">
+            <label className="block text-base font-medium text-[#374151] mb-2">
               {t('profile.position')}
             </label>
             <input
@@ -149,14 +149,14 @@ export const MyDetailsForm: FC = () => {
         {/* Success Message */}
         {isSuccess && (
           <div className="mt-4 p-3 bg-green-50 border border-green-200 rounded-lg">
-            <p className="text-sm text-green-800">{t('profile.saveSuccess')}</p>
+            <p className="text-base text-green-800">{t('profile.saveSuccess')}</p>
           </div>
         )}
 
         {/* Error Message */}
         {updateUserMutation.error && (
           <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg">
-            <p className="text-sm text-red-800">{t('profile.saveError')}</p>
+            <p className="text-base text-red-800">{t('profile.saveError')}</p>
           </div>
         )}
       </form>

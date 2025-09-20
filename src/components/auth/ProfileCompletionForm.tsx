@@ -18,17 +18,17 @@ type ProfileFormValues = {
   work_domain: 'natural_gas' | 'lpg_gas';
 };
 
-export const authInputStyle = 'block !border-1 w-full !text-[#64748B] focus:!text-black !text-sm !h-11 !rounded-xl border-[#E2E8F0] focus:ring-[#00A2DE] focus:border-[#00A2DE] px-3 py-2';
+export const authInputStyle = 'block !border-1 w-full !text-[#64748B] focus:!text-black !text-base !h-11 !rounded-xl border-[#E2E8F0] focus:ring-[#00A2DE] focus:border-[#00A2DE] px-3 py-2';
 
 export const ProfileCompletionForm: FC<Props> = () => {
   const navigate = useNavigate();
   const updateProfile = useUpdateUserProfile();
-  const { t, lang } = useI18n();
+  const {t, lang} = useI18n();
 
   const {
     control,
     handleSubmit,
-    formState: { errors, isSubmitting },
+    formState: {errors, isSubmitting},
     setError,
     clearErrors,
     trigger
@@ -70,7 +70,7 @@ export const ProfileCompletionForm: FC<Props> = () => {
       });
 
       // Redirect to main page on success
-      navigate('/', { replace: true });
+      navigate('/', {replace: true});
     } catch (error: any) {
       // Handle API errors
       if (error?.response?.data?.name) {
@@ -118,7 +118,7 @@ export const ProfileCompletionForm: FC<Props> = () => {
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
       {/* Full Name Field */}
       <div>
-        <label className="block text-sm text-black font-medium mb-1.5">
+        <label className="block text-base text-black font-medium mb-1.5">
           {t('profileCompletion.name')} *
         </label>
         <Controller
@@ -131,7 +131,7 @@ export const ProfileCompletionForm: FC<Props> = () => {
               message: t('profileCompletion.nameRequired')
             }
           }}
-          render={({ field }) => (
+          render={({field}) => (
             <input
               {...field}
               type="text"
@@ -141,20 +141,20 @@ export const ProfileCompletionForm: FC<Props> = () => {
           )}
         />
         {errors.name && (
-          <p className="text-red-600 text-sm mt-1">{errors.name.message}</p>
+          <p className="text-red-600 text-base mt-1">{errors.name.message}</p>
         )}
       </div>
 
       {/* Branch Field */}
       <div>
-        <label className="block text-sm text-black font-medium mb-1.5">
+        <label className="block text-base text-black font-medium mb-1.5">
           {t('profileCompletion.branch')} *
         </label>
         <Controller
           name="branch"
           control={control}
-          rules={{ required: t('profileCompletion.branchRequired') }}
-          render={({ field }) => (
+          rules={{required: t('profileCompletion.branchRequired')}}
+          render={({field}) => (
             <select
               {...field}
               className={`${authInputStyle} ${errors.branch ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : ''}`}
@@ -166,20 +166,20 @@ export const ProfileCompletionForm: FC<Props> = () => {
           )}
         />
         {errors.branch && (
-          <p className="text-red-600 text-sm mt-1">{errors.branch.message}</p>
+          <p className="text-red-600 text-base mt-1">{errors.branch.message}</p>
         )}
       </div>
 
       {/* Position Field */}
       <div>
-        <label className="block text-sm text-black font-medium mb-1.5">
+        <label className="block text-base text-black font-medium mb-1.5">
           {t('profileCompletion.position')} *
         </label>
         <Controller
           name="position"
           control={control}
-          rules={{ required: t('profileCompletion.positionRequired') }}
-          render={({ field }) => (
+          rules={{required: t('profileCompletion.positionRequired')}}
+          render={({field}) => (
             <select
               {...field}
               className={`${authInputStyle} ${errors.position ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : ''}`}
@@ -191,62 +191,62 @@ export const ProfileCompletionForm: FC<Props> = () => {
           )}
         />
         {errors.position && (
-          <p className="text-red-600 text-sm mt-1">{errors.position.message}</p>
+          <p className="text-red-600 text-base mt-1">{errors.position.message}</p>
         )}
       </div>
 
       {/* Employee Level Field */}
-      <div>
-        <label className="block text-sm text-black font-medium mb-1.5">
-          {t('settings.employeeLevel')} *
-        </label>
-        <Controller
-          name="employee_level"
-          control={control}
-          rules={{ required: t('profileCompletion.employeeLevelRequired') }}
-          render={({ field }) => (
-            <select
-              {...field}
-              className={`${authInputStyle} ${errors.employee_level ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : ''}`}
-            >
-              <option value="junior">Junior</option>
-              <option value="engineer">Engineer</option>
-            </select>
-          )}
-        />
-        {errors.employee_level && (
-          <p className="text-red-600 text-sm mt-1">{errors.employee_level.message}</p>
-        )}
-      </div>
+      {/*<div>*/}
+      {/*  <label className="block text-base text-black font-medium mb-1.5">*/}
+      {/*    {t('settings.employeeLevel')} **/}
+      {/*  </label>*/}
+      {/*  <Controller*/}
+      {/*    name="employee_level"*/}
+      {/*    control={control}*/}
+      {/*    rules={{ required: t('profileCompletion.employeeLevelRequired') }}*/}
+      {/*    render={({ field }) => (*/}
+      {/*      <select*/}
+      {/*        {...field}*/}
+      {/*        className={`${authInputStyle} ${errors.employee_level ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : ''}`}*/}
+      {/*      >*/}
+      {/*        <option value="junior">Junior</option>*/}
+      {/*        <option value="engineer">Engineer</option>*/}
+      {/*      </select>*/}
+      {/*    )}*/}
+      {/*  />*/}
+      {/*  {errors.employee_level && (*/}
+      {/*    <p className="text-red-600 text-base mt-1">{errors.employee_level.message}</p>*/}
+      {/*  )}*/}
+      {/*</div>*/}
 
-      {/* Work Domain Field */}
-      <div>
-        <label className="block text-sm text-black font-medium mb-1.5">
-          {t('settings.workDomain')} *
-        </label>
-        <Controller
-          name="work_domain"
-          control={control}
-          rules={{ required: t('profileCompletion.workDomainRequired') }}
-          render={({ field }) => (
-            <select
-              {...field}
-              className={`${authInputStyle} ${errors.work_domain ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : ''}`}
-            >
-              <option value="natural_gas">Natural Gas</option>
-              <option value="lpg_gas">LPG Gas</option>
-            </select>
-          )}
-        />
-        {errors.work_domain && (
-          <p className="text-red-600 text-sm mt-1">{errors.work_domain.message}</p>
-        )}
-      </div>
+      {/*/!* Work Domain Field *!/*/}
+      {/*<div>*/}
+      {/*  <label className="block text-base text-black font-medium mb-1.5">*/}
+      {/*    {t('settings.workDomain')} **/}
+      {/*  </label>*/}
+      {/*  <Controller*/}
+      {/*    name="work_domain"*/}
+      {/*    control={control}*/}
+      {/*    rules={{ required: t('profileCompletion.workDomainRequired') }}*/}
+      {/*    render={({ field }) => (*/}
+      {/*      <select*/}
+      {/*        {...field}*/}
+      {/*        className={`${authInputStyle} ${errors.work_domain ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : ''}`}*/}
+      {/*      >*/}
+      {/*        <option value="natural_gas">Natural Gas</option>*/}
+      {/*        <option value="lpg_gas">LPG Gas</option>*/}
+      {/*      </select>*/}
+      {/*    )}*/}
+      {/*  />*/}
+      {/*  {errors.work_domain && (*/}
+      {/*    <p className="text-red-600 text-base mt-1">{errors.work_domain.message}</p>*/}
+      {/*  )}*/}
+      {/*</div>*/}
 
       {/* General Error */}
       {errors.root && (
         <div className="text-center">
-          <p className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg py-2 px-4">
+          <p className="text-base text-red-600 bg-red-50 border border-red-200 rounded-lg py-2 px-4">
             {errors.root.message}
           </p>
         </div>

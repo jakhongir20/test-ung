@@ -3,11 +3,12 @@ import { useI18n } from '../i18n';
 import { ACTION_BTN_STYLES, CARD_STYLES } from "../components/test/test.data.ts";
 import { useStartSurvey } from "../api/surveys.ts";
 import { useNavigate } from "react-router-dom";
+import { handleAuthError } from "../api/auth.ts";
 
 const PageRules: FC = () => {
   const {t} = useI18n();
   const startSurvey = useStartSurvey();
-  const navigate = useNavigate()
+  const navigate = useNavigate();
 
   const rules = [
     {
@@ -65,7 +66,7 @@ const PageRules: FC = () => {
                   <h3 className="text-xl font-bold text-[#1E293B] mb-2 md:mb-3">
                     {rule.title}
                   </h3>
-                  <p className="text-[#64748B] text-sm leading-relaxed">
+                  <p className="text-black text-base leading-relaxed">
                     {rule.description}
                   </p>
                 </div>
@@ -84,9 +85,40 @@ const PageRules: FC = () => {
               <img src={'/icon/arrow-l.svg'} alt={'icon left'}/>
             </button>
             <button
-              onClick={() => navigate('/categories')}
-              className={`${ACTION_BTN_STYLES} !text-[#00A2DE] !text-base`}>
-              {t('test.next')}
+              disabled={startSurvey.isPending}
+              onClick={async () => {
+                try {
+                  const res = await startSurvey.mutateAsync({id: 1, count: 30});
+                  localStorage.setItem('currentSurveySession', JSON.stringify(res));
+                  navigate(`/test?sessionId=${res.id}`);
+                } catch (error) {
+                  // Check if it's an authentication error and handle it
+                  if (handleAuthError(error)) {
+                    return; // Already redirected to login
+                  }
+                }
+              }}
+              className={`${ACTION_BTN_STYLES} !text-[#00A2DE] !text-base ${startSurvey.isPending ? 'opacity-50 cursor-not-allowed' : ''}`}>
+              {t('test.start')}
+              {startSurvey.isPending && <div className={'w-6'}>
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+                  <radialGradient id="a11" cx=".66" fx=".66" cy=".3125" fy=".3125" gradientTransform="scale(1.5)">
+                    <stop offset="0" stop-color="#00A2DE"></stop>
+                    <stop offset=".3" stop-color="#00A2DE" stop-opacity=".9"></stop>
+                    <stop offset=".6" stop-color="#00A2DE" stop-opacity=".6"></stop>
+                    <stop offset=".8" stop-color="#00A2DE" stop-opacity=".3"></stop>
+                    <stop offset="1" stop-color="#00A2DE" stop-opacity="0"></stop>
+                  </radialGradient>
+                  <circle transform-origin="center" fill="none" stroke="url(#a11)" stroke-width="15"
+                          stroke-linecap="round" stroke-dasharray="200 1000" stroke-dashoffset="0" cx="100" cy="100"
+                          r="70">
+                    <animateTransform type="rotate" attributeName="transform" calcMode="spline" dur="2" values="360;0"
+                                      keyTimes="0;1" keySplines="0 0 1 1" repeatCount="indefinite"></animateTransform>
+                  </circle>
+                  <circle transform-origin="center" fill="none" opacity=".2" stroke="#00A2DE" stroke-width="15"
+                          stroke-linecap="round" cx="100" cy="100" r="70"></circle>
+                </svg>
+              </div>}
             </button>
           </div>
         </div>

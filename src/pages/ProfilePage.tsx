@@ -114,11 +114,11 @@ const ProfilePage: FC = () => {
       {/*<MyDetailsForm />*/}
       <section
         className={`flex md:gap-4 gap-2.5 flex-col p-4 md:p-8 justify-between bg-[#F8FAFC] border border-[#F1F5F9] rounded-[16px]`}>
-        <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2 justify-between">
           <h3 className="text-base md:text-2xl font-semibold">{t('profile.results')}</h3>
           <button
             onClick={() => navigate('/rules')}
-            className="inline-flex items-center rounded-xl bg-[#F58634] px-4 h-10 md:h-[46px] md:px-5  text-white  hover:bg-cyan-700"
+            className="inline-flex whitespace-nowrap items-center rounded-xl bg-[#F58634] px-4 h-10 md:h-[46px] md:px-5  text-white  hover:bg-cyan-700"
           >
             {t('profile.newTest')}
           </button>

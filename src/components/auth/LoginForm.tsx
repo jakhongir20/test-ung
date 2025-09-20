@@ -19,7 +19,7 @@ const uzPhoneValidate = (val: string, t: (key: string) => string) => {
   return onlyDigits.length === 12 && onlyDigits.startsWith('998') || t('auth.invalidPhone');
 };
 
-export const authInputStyle = 'block !border-1 w-full !text-[#64748B] focus:!text-black !text-sm !h-11 !rounded-xl border-[#E2E8F0] focus:ring-[#00A2DE] focus:border-[#00A2DE] px-3 py-2';
+export const authInputStyle = 'block !border-1 w-full !text-[#64748B] focus:!text-black !text-base !h-11 !rounded-xl border-[#E2E8F0] focus:ring-[#00A2DE] focus:border-[#00A2DE] px-3 py-2';
 
 
 export const LoginForm: FC<Props> = ({ }) => {
@@ -55,7 +55,7 @@ export const LoginForm: FC<Props> = ({ }) => {
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="">
       <div className={'mb-6'}>
-        <label className="block text-sm text-black font-medium mb-1.5">{t('auth.phoneNumber')}</label>
+        <label className="block text-base text-black font-medium mb-1.5">{t('auth.phoneNumber')}</label>
         <Controller
           name="phone"
           control={control}
@@ -70,7 +70,7 @@ export const LoginForm: FC<Props> = ({ }) => {
             />
           )}
         />
-        {errors.phone && <p className="text-red-600 text-sm mt-1">{errors.phone.message}</p>}
+        {errors.phone && <p className="text-red-600 text-base mt-1">{errors.phone.message}</p>}
       </div>
       <FormButton isLoading={isSubmitting} title={t('auth.getCode')} />
     </form>

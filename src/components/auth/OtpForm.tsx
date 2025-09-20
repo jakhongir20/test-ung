@@ -235,7 +235,7 @@ export const OtpForm: FC<Props> = () => {
         {/* Error message */}
         {errorMessage && (
           <div className="text-center">
-            <p className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg py-2 px-4">
+            <p className="text-base text-red-600 bg-red-50 border border-red-200 rounded-lg py-2 px-4">
               {errorMessage}
             </p>
           </div>
@@ -244,7 +244,7 @@ export const OtpForm: FC<Props> = () => {
 
       <FormButton isLoading={login.isPending} title={t('otp.confirm')} />
 
-      <div className="text-sm text-gray-600 text-center">
+      <div className="text-base text-gray-600 text-center">
         {t('otp.codeNotReceived')}
         <button
           type="button"
@@ -262,7 +262,7 @@ export const OtpForm: FC<Props> = () => {
       </div>
 
       <Link to="/login"
-        className="text-cyan-700 flex items-center justify-center text-sm w-max mx-auto gap-1.5 hover:underline">
+        className="text-cyan-700 flex items-center justify-center text-base w-max mx-auto gap-1.5 hover:underline">
         <ArrowLeftIcon className={'w-4 text-cyan-700'} />
         {t('otp.back')}
       </Link>

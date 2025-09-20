@@ -162,7 +162,7 @@ export const SettingsModal: FC<Props> = ({isOpen, onClose}) => {
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 py-4">
               {/* Full Name Field */}
               <div>
-                <div className="text-sm text-gray-500 mb-2">{t('settings.fullName')}</div>
+                <div className="text-base text-gray-500 mb-2">{t('settings.fullName')}</div>
                 <Controller
                   name="name"
                   control={control}
@@ -184,7 +184,7 @@ export const SettingsModal: FC<Props> = ({isOpen, onClose}) => {
 
               {/* Branch Field */}
               <div>
-                <div className="text-sm text-gray-500 mb-2">{t('settings.branch')}</div>
+                <div className="text-base text-gray-500 mb-2">{t('settings.branch')}</div>
                 <Controller
                   name="branch"
                   control={control}
@@ -207,7 +207,7 @@ export const SettingsModal: FC<Props> = ({isOpen, onClose}) => {
 
               {/* Position Field */}
               <div>
-                <div className="text-sm text-gray-500 mb-2">{t('settings.position')}</div>
+                <div className="text-base text-gray-500 mb-2">{t('settings.position')}</div>
                 <Controller
                   name="position"
                   control={control}
@@ -229,53 +229,53 @@ export const SettingsModal: FC<Props> = ({isOpen, onClose}) => {
               </div>
 
               {/* Employee Level Field */}
-              <div>
-                <div className="text-sm text-gray-500 mb-2">{t('settings.employeeLevel')}</div>
-                <Controller
-                  name="employee_level"
-                  control={control}
-                  rules={{required: t('settings.employeeLevelRequired')}}
-                  render={({field}) => (
-                    <select
-                      {...field}
-                      className={`w-full px-4 py-3 border border-gray-300 rounded-lg text-base focus:outline-none focus:ring-2 focus:ring-[#00A2DE] focus:border-[#00A2DE] bg-white ${errors.employee_level ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : ''}`}
-                    >
-                      <option value="junior">Junior</option>
-                      <option value="engineer">Engineer</option>
-                    </select>
-                  )}
-                />
-                {errors.employee_level && (
-                  <p className="text-red-600 text-xs mt-1">{errors.employee_level.message}</p>
-                )}
-              </div>
+              {/*<div>*/}
+              {/*  <div className="text-base text-gray-500 mb-2">{t('settings.employeeLevel')}</div>*/}
+              {/*  <Controller*/}
+              {/*    name="employee_level"*/}
+              {/*    control={control}*/}
+              {/*    rules={{ required: t('settings.employeeLevelRequired') }}*/}
+              {/*    render={({ field }) => (*/}
+              {/*      <select*/}
+              {/*        {...field}*/}
+              {/*        className={`w-full px-4 py-3 border border-gray-300 rounded-lg text-base focus:outline-none focus:ring-2 focus:ring-[#00A2DE] focus:border-[#00A2DE] bg-white ${errors.employee_level ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : ''}`}*/}
+              {/*      >*/}
+              {/*        <option value="junior">Junior</option>*/}
+              {/*        <option value="engineer">Engineer</option>*/}
+              {/*      </select>*/}
+              {/*    )}*/}
+              {/*  />*/}
+              {/*  {errors.employee_level && (*/}
+              {/*    <p className="text-red-600 text-xs mt-1">{errors.employee_level.message}</p>*/}
+              {/*  )}*/}
+              {/*</div>*/}
 
               {/* Work Domain Field */}
-              <div>
-                <div className="text-sm text-gray-500 mb-2">{t('settings.workDomain')}</div>
-                <Controller
-                  name="work_domain"
-                  control={control}
-                  rules={{required: t('settings.workDomainRequired')}}
-                  render={({field}) => (
-                    <select
-                      {...field}
-                      className={`w-full px-4 py-3 border border-gray-300 rounded-lg text-base focus:outline-none focus:ring-2 focus:ring-[#00A2DE] focus:border-[#00A2DE] bg-white ${errors.work_domain ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : ''}`}
-                    >
-                      <option value="natural_gas">Natural Gas</option>
-                      <option value="lpg_gas">LPG Gas</option>
-                    </select>
-                  )}
-                />
-                {errors.work_domain && (
-                  <p className="text-red-600 text-xs mt-1">{errors.work_domain.message}</p>
-                )}
-              </div>
+              {/*<div>*/}
+              {/*  <div className="text-base text-gray-500 mb-2">{t('settings.workDomain')}</div>*/}
+              {/*  <Controller*/}
+              {/*    name="work_domain"*/}
+              {/*    control={control}*/}
+              {/*    rules={{ required: t('settings.workDomainRequired') }}*/}
+              {/*    render={({ field }) => (*/}
+              {/*      <select*/}
+              {/*        {...field}*/}
+              {/*        className={`w-full px-4 py-3 border border-gray-300 rounded-lg text-base focus:outline-none focus:ring-2 focus:ring-[#00A2DE] focus:border-[#00A2DE] bg-white ${errors.work_domain ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : ''}`}*/}
+              {/*      >*/}
+              {/*        <option value="natural_gas">Natural Gas</option>*/}
+              {/*        <option value="lpg_gas">LPG Gas</option>*/}
+              {/*      </select>*/}
+              {/*    )}*/}
+              {/*  />*/}
+              {/*  {errors.work_domain && (*/}
+              {/*    <p className="text-red-600 text-xs mt-1">{errors.work_domain.message}</p>*/}
+              {/*  )}*/}
+              {/*</div>*/}
 
               {/* General Error */}
               {errors.root && (
                 <div className="text-center">
-                  <p className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg py-2 px-4">
+                  <p className="text-base text-red-600 bg-red-50 border border-red-200 rounded-lg py-2 px-4">
                     {errors.root.message}
                   </p>
                 </div>

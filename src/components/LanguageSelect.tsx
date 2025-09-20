@@ -22,7 +22,7 @@ const languages = [
 ];
 
 export const LanguageSelect = () => {
-  const { lang, setLang } = useI18n();
+  const {lang, setLang} = useI18n();
   const [selected, setSelected] = useState(() => {
     return languages.find(l => l.id === lang) || languages[0];
   });
@@ -43,16 +43,16 @@ export const LanguageSelect = () => {
 
   return (
     <Listbox value={selected} onChange={handleLanguageChange}>
-      {({ open }) => (
+      {({open}) => (
         <div className="relative">
           <Listbox.Button
-            className="flex cursor-pointer w-full text-[#314158] md:gap-2 gap-1 items-center justify-between rounded-lg px-1.5 md:px-3 py-2 text-sm font-medium hover:bg-gray-50">
-            <div className="flex items-center gap-2 text-sm">
-              <img src={selected.flag} alt="" className="h-4 w-6 rounded-sm" />
-              <span>{selected.name}</span>
+            className="flex cursor-pointer w-full text-[#314158] md:gap-2 gap-1 items-center justify-between rounded-lg px-1.5 md:px-3 py-2 text-base font-medium hover:bg-gray-50">
+            <div className="flex items-center gap-2 text-sm md:text-base">
+              <img src={selected.flag} alt="" className="h-4 w-6 rounded-sm"/>
+              <span className={'hidden md:inline'}>{selected.name}</span>
             </div>
             <ChevronDownIcon
-              className={`h-6 w-6 transition-transform duration-200 text-gray-500 ${open ? 'rotate-180' : ''}`} />
+              className={`h-6 w-6 transition-transform duration-200 text-gray-500 ${open ? 'rotate-180' : ''}`}/>
           </Listbox.Button>
 
           <Transition
@@ -62,19 +62,19 @@ export const LanguageSelect = () => {
             leaveTo="opacity-0"
           >
             <Listbox.Options
-              className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-lg bg-white py-1 text-sm shadow-lg">
+              className="absolute z-10 min-w-[110px] mt-1 max-h-60 w-full overflow-auto rounded-lg bg-white py-1 text-sm md:text-base shadow-lg">
               {languages.map((lang) => (
                 <Listbox.Option
                   key={lang.id}
                   value={lang}
-                  className={({ active }) => {
+                  className={({active}) => {
                     return `relative cursor-pointer select-none px-3 py-2 ${active ? "bg-blue-100 text-blue-900" : "text-gray-700"
-                      }`;
+                    }`;
                   }
                   }
                 >
                   <div className="flex items-center gap-2">
-                    <img src={lang.flag} alt="" className="h-4 w-6 rounded-sm" />
+                    <img src={lang.flag} alt="" className="h-4 w-6 rounded-sm"/>
                     <span>{lang.name}</span>
                   </div>
                 </Listbox.Option>
