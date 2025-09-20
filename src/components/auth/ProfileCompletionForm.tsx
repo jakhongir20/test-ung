@@ -23,12 +23,12 @@ export const authInputStyle = 'block !border-1 w-full !text-[#64748B] focus:!tex
 export const ProfileCompletionForm: FC<Props> = () => {
   const navigate = useNavigate();
   const updateProfile = useUpdateUserProfile();
-  const {t, lang} = useI18n();
+  const { t, lang } = useI18n();
 
   const {
     control,
     handleSubmit,
-    formState: {errors, isSubmitting},
+    formState: { errors, isSubmitting },
     setError,
     clearErrors,
     trigger
@@ -70,7 +70,7 @@ export const ProfileCompletionForm: FC<Props> = () => {
       });
 
       // Redirect to main page on success
-      navigate('/', {replace: true});
+      navigate('/', { replace: true });
     } catch (error: any) {
       // Handle API errors
       if (error?.response?.data?.name) {
@@ -131,7 +131,7 @@ export const ProfileCompletionForm: FC<Props> = () => {
               message: t('profileCompletion.nameRequired')
             }
           }}
-          render={({field}) => (
+          render={({ field }) => (
             <input
               {...field}
               type="text"
@@ -153,8 +153,8 @@ export const ProfileCompletionForm: FC<Props> = () => {
         <Controller
           name="branch"
           control={control}
-          rules={{required: t('profileCompletion.branchRequired')}}
-          render={({field}) => (
+          rules={{ required: t('profileCompletion.branchRequired') }}
+          render={({ field }) => (
             <select
               {...field}
               className={`${authInputStyle} ${errors.branch ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : ''}`}
@@ -178,8 +178,8 @@ export const ProfileCompletionForm: FC<Props> = () => {
         <Controller
           name="position"
           control={control}
-          rules={{required: t('profileCompletion.positionRequired')}}
-          render={({field}) => (
+          rules={{ required: t('profileCompletion.positionRequired') }}
+          render={({ field }) => (
             <select
               {...field}
               className={`${authInputStyle} ${errors.position ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : ''}`}

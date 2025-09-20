@@ -8,11 +8,7 @@ html, body {
 
 
 body {
-  background-image: url("/bg/main-bg.png");
-  background-size: cover;
-  background-repeat: no-repeat;
-  background-attachment: fixed;
-  background-position: center;
+  /* Background now handled by BackgroundWrapper components with random images */
 }
 
 [type='checkbox'], [type='radio'] {

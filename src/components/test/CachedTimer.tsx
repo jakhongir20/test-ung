@@ -6,16 +6,17 @@ import { useI18n } from "../../i18n";
 interface Props {
   endTime: number; // Unix timestamp in milliseconds
   onExpire: () => void;
+  onFinish?: () => void; // Optional callback to finish the test
 }
 
-export const CachedTimer: FC<Props> = ({endTime, onExpire}) => {
-  const {t} = useI18n();
+export const CachedTimer: FC<Props> = ({ endTime, onExpire, onFinish }) => {
+  const { t } = useI18n();
 
   // Validate endTime
   if (!endTime || endTime <= 0) {
     return (
       <div className="flex items-center justify-center gap-1 text-sm font-medium text-gray">
-        <span style={{fontFamily: "monospace"}}>{t('timer.noTime')} {t('timer.minutes')}</span>
+        <span style={{ fontFamily: "monospace" }}>{t('timer.noTime')} {t('timer.minutes')}</span>
       </div>
     );
   }
@@ -23,9 +24,15 @@ export const CachedTimer: FC<Props> = ({endTime, onExpire}) => {
   // Convert endTime to Date object for useTimer
   const expiryDate = new Date(endTime);
 
-  const {seconds, minutes, hours, restart} = useTimer({
+  const { seconds, minutes, hours, restart } = useTimer({
     expiryTimestamp: expiryDate,
-    onExpire: onExpire,
+    onExpire: () => {
+      onExpire();
+      // Call finishTest if provided when timer expires
+      if (onFinish) {
+        onFinish();
+      }
+    },
   });
 
   // Update timer when endTime changes
@@ -36,6 +43,10 @@ export const CachedTimer: FC<Props> = ({endTime, onExpire}) => {
     if (endTime <= now) {
       // Already expired
       onExpire();
+      // Call finishTest if provided when already expired
+      if (onFinish) {
+        onFinish();
+      }
     } else {
       // Restart timer with new expiry
       restart(newExpiry);
@@ -49,14 +60,14 @@ export const CachedTimer: FC<Props> = ({endTime, onExpire}) => {
   if (totalMinutes <= 0 && seconds <= 0) {
     return (
       <div className="flex items-center justify-center gap-1 text-base font-medium text-red-600">
-        <span style={{fontFamily: "monospace"}}>{t('timer.expired')} {t('timer.minutes')}</span>
+        <span style={{ fontFamily: "monospace" }}>{t('timer.expired')} {t('timer.minutes')}</span>
       </div>
     );
   }
 
   return (
     <div className="flex items-center justify-center gap-1 text-sm font-medium text-gray">
-      <span style={{fontFamily: "monospace"}}>
+      <span style={{ fontFamily: "monospace" }}>
         {String(totalMinutes).padStart(2, "0")}:{String(seconds).padStart(2, "0")} {t('timer.minutes')}
       </span>
     </div>

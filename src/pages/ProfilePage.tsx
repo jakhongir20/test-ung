@@ -6,6 +6,7 @@ import { useCurrentSession, useMyHistory } from '../api/surveys';
 import { handleAuthError } from '../api/auth';
 import { MyProfileBanner } from "../components/MyProfileBanner.tsx";
 import { ProfileCardItem } from "../components/ProfileCardItem.tsx";
+import { BackgroundWrapper } from "../components/BackgroundWrapper.tsx";
 
 // Type for session data from the API
 interface Session {
@@ -108,49 +109,51 @@ const ProfilePage: FC = () => {
   }
 
   return (
-    <div className="space-y-6">
-      <MyProfileBanner/>
-      {/*<MyDetailsForm />*/}
-      <section
-        className={`flex md:gap-4 gap-2.5 flex-col p-4 md:p-8 justify-between bg-[#F8FAFC] border border-[#F1F5F9] rounded-[16px]`}>
-        <div className="flex items-center gap-2 justify-between">
-          <h3 className="text-base md:text-2xl font-semibold">{t('profile.results')}</h3>
-          <button
-            onClick={() => navigate('/rules')}
-            className="inline-flex whitespace-nowrap items-center rounded-xl bg-[#F58634] px-4 h-10 md:h-[46px] md:px-5  text-white  hover:bg-cyan-700"
-          >
-            {t('profile.newTest')}
-          </button>
-        </div>
-
-        {surveyHistory.length === 0 ? (
-          <div className="text-center py-12">
-            <div className="w-16 h-16 mx-auto mb-4 bg-gray-100 rounded-full flex items-center justify-center">
-              <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                      d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-              </svg>
-            </div>
-            <h3 className="text-lg font-medium text-gray-900 mb-2">{t('empty.noTestHistory')}</h3>
-            <p className="text-gray-600 mb-6">
-              {t('empty.noTestHistoryDesc')}
-            </p>
+    <BackgroundWrapper>
+      <div className="space-y-6  md:p-6">
+        <MyProfileBanner/>
+        {/*<MyDetailsForm />*/}
+        <section
+          className={`flex md:gap-4 gap-2.5 flex-col p-4 md:p-8 justify-between bg-[#F8FAFC] border border-[#F1F5F9] rounded-[16px]`}>
+          <div className="flex items-center gap-2 justify-between">
+            <h3 className="text-base md:text-2xl font-semibold">{t('profile.results')}</h3>
             <button
-              onClick={() => navigate(`/rules`)}
-              className="bg-cyan-600 text-white px-6 py-3 rounded-lg hover:bg-cyan-700 font-medium"
+              onClick={() => navigate('/rules')}
+              className="inline-flex whitespace-nowrap items-center rounded-xl bg-[#F58634] px-4 h-10 md:h-[46px] md:px-5  text-white  hover:bg-cyan-700"
             >
-              {t('empty.startFirstTest')}
+              {t('profile.newTest')}
             </button>
           </div>
-        ) : (
-          <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 auto-rows-fr">
-            {surveyHistory.map((session: Session, index: number) => (
-              <ProfileCardItem key={session.id} survey={session} index={index}/>
-            ))}
-          </div>
-        )}
-      </section>
-    </div>
+
+          {surveyHistory.length === 0 ? (
+            <div className="text-center py-12">
+              <div className="w-16 h-16 mx-auto mb-4 bg-gray-100 rounded-full flex items-center justify-center">
+                <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                        d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                </svg>
+              </div>
+              <h3 className="text-lg font-medium text-gray-900 mb-2">{t('empty.noTestHistory')}</h3>
+              <p className="text-gray-600 mb-6">
+                {t('empty.noTestHistoryDesc')}
+              </p>
+              <button
+                onClick={() => navigate(`/rules`)}
+                className="bg-cyan-600 text-white px-6 py-3 rounded-lg hover:bg-cyan-700 font-medium"
+              >
+                {t('empty.startFirstTest')}
+              </button>
+            </div>
+          ) : (
+            <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 auto-rows-fr">
+              {surveyHistory.map((session: Session, index: number) => (
+                <ProfileCardItem key={session.id} survey={session} index={index}/>
+              ))}
+            </div>
+          )}
+        </section>
+      </div>
+    </BackgroundWrapper>
   );
 };
 

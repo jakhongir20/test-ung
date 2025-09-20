@@ -124,7 +124,7 @@ export const DataTable: FC<DataTableProps> = ({
             {columns.map((column) => (
               <th
                 key={column.key}
-                className={`px-6 py-4 text-left text-base font-semibold text-gray-900 uppercase tracking-wider ${column.headerClassName || ''
+                className={`px-6 py-4 text-left text-xs font-semibold text-gray-900 uppercase tracking-wider ${column.headerClassName || ''
                 } ${column.sortable ? 'cursor-pointer hover:bg-gray-100' : ''}`}
                 onClick={() => column.sortable && handleSort(column.key)}
               >
@@ -171,7 +171,7 @@ export const DataTable: FC<DataTableProps> = ({
               {columns.map((column) => (
                 <td
                   key={column.key}
-                  className={`px-6 py-4 text-base text-gray-900 ${column.className || ''}`}
+                  className={`px-6 py-4 text-sm text-gray-900 ${column.className || ''}`}
                 >
                   {column.render
                     ? column.render(item[column.key], item, startIndex + index)
@@ -202,7 +202,7 @@ export const DataTable: FC<DataTableProps> = ({
                   key={index}
                   onClick={() => typeof pageNum === 'number' && handlePageChange(pageNum)}
                   disabled={typeof pageNum !== 'number'}
-                  className={`px-3 py-2 text-base font-medium rounded ${typeof pageNum === 'number'
+                  className={`px-3 py-1.5 text-sm font-medium rounded ${typeof pageNum === 'number'
                     ? currentPage === pageNum
                       ? 'bg-[#00A2DE] text-white'
                       : 'text-gray-500 hover:text-gray-700'

@@ -1,14 +1,16 @@
 import type { FC } from 'react';
+import { useEffect, useState } from 'react';
 import { useI18n } from '../../i18n';
 import { ACTION_BTN_STYLES, CARD_STYLES } from "./test.data.ts";
 import { CachedTimer } from "./CachedTimer.tsx";
 import { useTimer } from "react-timer-hook";
-import { useEffect, useState } from 'react';
+import LoadingSvg from "../LoadingSvg.tsx";
 
 interface Props {
   title: string;
   current: number;
   total: number;
+  isFinishing: boolean
   endTime?: number;
   timeLimitMinutes?: number; // Total test duration in minutes
   onExpire?: () => void;
@@ -16,24 +18,26 @@ interface Props {
 }
 
 export const ProgressBar: FC<Props> = ({
-  title,
-  current,
-  total,
-  endTime,
-  timeLimitMinutes,
-  onExpire,
-  onFinish
-}) => {
-  const { t } = useI18n();
+                                         title,
+                                         current,
+                                         total,
+                                         endTime,
+                                         timeLimitMinutes,
+                                         isFinishing,
+                                         onExpire,
+                                         onFinish
+                                       }) => {
+  const {t} = useI18n();
   const [timeProgress, setTimeProgress] = useState(0);
 
   if (endTime && endTime > 0 && timeLimitMinutes) {
     // Convert endTime to Date object for useTimer (same as CachedTimer)
     const expiryDate = new Date(endTime);
 
-    const { seconds, minutes, hours } = useTimer({
+    const {seconds, minutes, hours} = useTimer({
       expiryTimestamp: expiryDate,
-      onExpire: onExpire || (() => { }),
+      onExpire: onExpire || (() => {
+      }),
     });
 
     // Calculate total seconds remaining (including seconds for more precise progress)
@@ -81,12 +85,16 @@ export const ProgressBar: FC<Props> = ({
           <div className={'flex items-center gap-1 md:gap-2'}>
             <div
               className={`${ACTION_BTN_STYLES} flex items-center !cursor-default pointer-events-none  justify-center !p-0 !w-[42px] md:!w-[46px]`}>
-              <img className={'!w-[18px]'} src={'/icon/clock.svg'} alt={'icon left'} />
+              <img className={'!w-[18px]'} src={'/icon/clock.svg'} alt={'icon left'}/>
             </div>
             {endTime && (
               <span className="text-base font-medium text-gray-700">
-                <CachedTimer endTime={endTime} onExpire={onExpire || (() => {
-                })} />
+                <CachedTimer
+                  endTime={endTime}
+                  onExpire={onExpire || (() => {
+                  })}
+                  onFinish={onFinish}
+                />
               </span>
             )}
           </div>
@@ -94,9 +102,10 @@ export const ProgressBar: FC<Props> = ({
           {/* Finish Button */}
           <button
             onClick={onFinish}
-            className={`${ACTION_BTN_STYLES} !text-base`}>
+            disabled={isFinishing}
+            className={`${ACTION_BTN_STYLES} !text-base ${isFinishing && 'opacity-50 !cursor-not-allowed'} `}>
             {t('test.finishTest')}
-            <img src={'/icon/check-circle.svg'} alt={'icon left'} />
+            {isFinishing ? <LoadingSvg color={'blue'}/> : <img src={'/icon/check-circle.svg'} alt={'icon left'}/>}
           </button>
         </div>
       </div>
@@ -106,7 +115,7 @@ export const ProgressBar: FC<Props> = ({
         className="w-full bg-transparent absolute bottom-0 left-0 h-2 overflow-hidden rounded-bl-[16px] rounded-br-[16px]">
         <div
           className="bg-[#00A2DE] h-2 transition-all duration-300 ease-out"
-          style={{ width: `${progressPercentage}%` }}
+          style={{width: `${progressPercentage}%`}}
         />
       </div>
     </div>

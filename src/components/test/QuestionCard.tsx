@@ -18,25 +18,25 @@ type Props = {
 };
 
 const QuestionCard: FC<Props> = ({
-  index,
-  title,
-  options,
-  selectedKeys,
-  multiple = false,
-  isOpen = false,
-  textAnswer = '',
-  onToggle,
-  onTextChange,
-  media
-}) => {
-  const { t } = useI18n();
+                                   index,
+                                   title,
+                                   options,
+                                   selectedKeys,
+                                   multiple = false,
+                                   isOpen = false,
+                                   textAnswer = '',
+                                   onToggle,
+                                   onTextChange,
+                                   media
+                                 }) => {
+  const {t} = useI18n();
 
   return (
     <section
-      className={`${CARD_STYLES} md:!py-10 pt-6`}>
+      className={`${CARD_STYLES} md:!py-10 pt-6 !border-[#00A2DE] !bg-[#00A2DE] !text-white`}>
       <div className={'border-b space-y-4 md:pb-8 pb-6 md:mb-10 mb-6 border-[#E2E8F0] mx-auto w-full  md:w-[80%]'}>
-        <p className="text-base font-medium text-[#334155] ">{t('question.number')} {index}</p>
-        <h2 className="text-lg md:text-xl font-medium text-black">{title}</h2>
+        <p className="text-base font-medium text-white/90 ">{t('question.number')} {index}</p>
+        <h2 className="text-lg md:text-xl font-medium text-white">{title}</h2>
       </div>
 
       {isOpen ? (
@@ -64,11 +64,12 @@ const QuestionCard: FC<Props> = ({
                   className="flex cursor-pointer relative items-center gap-2 pl-0 rounded-xl bg-white border border-[#F1F5F9] hover:ring-cyan-300 has-[:checked]:border-[#00A2DE] has-[:checked]:text-[#00A2DE] transition"
                 >
                   <span
-                    className={`text-[18px] p-3 w-20 border-r border-[#F1F5F9] grid place-items-center  font-normal ${checked ? '' : 'text-[#475569]'}`}>{opt.key}</span>
+                    className={`text-[18px] p-3 w-20 border-r  border-[#F1F5F9] grid place-items-center  font-normal ${checked ? '' : 'text-[#475569]'}`}>{opt.key}</span>
                   <input type={multiple ? 'checkbox' : 'radio'} name={`q-${index}`}
-                    className="accent-[#00A2DE] absolute top-1/2 -translate-y-1/2 right-5 focus:ring-1 focus:ring-[#00A2DE] focus:outline-none"
-                    checked={checked} onChange={() => onToggle(opt.key)} />
-                  <span className="flex-1 p-3 pr-12">{opt.label}</span>
+                         className="accent-[#00A2DE] absolute top-1/2 -translate-y-1/2 right-5 focus:ring-1 focus:ring-[#00A2DE] focus:outline-none"
+                         checked={checked} onChange={() => onToggle(opt.key)}/>
+                  <span
+                    className={`flex-1 p-3 pr-12  has-[:checked]:text-[#00A2DE] ${!checked ? 'text-black' : 'accent-[#00A2DE]'}`}>{opt.label}</span>
                 </label>
               );
             })}
