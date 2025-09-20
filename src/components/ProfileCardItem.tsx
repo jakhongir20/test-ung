@@ -2,7 +2,6 @@ import type { FC } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useI18n } from "../i18n.tsx";
 
-// Type for session data from the API
 interface Session {
   id: string;
   survey: {
@@ -29,7 +28,6 @@ interface Session {
   is_passed: boolean;
 }
 
-// Type for survey history data from admin API
 interface SurveyHistoryItem {
   id?: string;
   score?: number;
@@ -51,7 +49,7 @@ interface Props {
   variant?: 'session' | 'history'; // Add variant to distinguish between different data types
 }
 
-export const ProfileCardItem: FC<Props> = ({survey, index, noButton = false}) => {
+export const ProfileCardItem: FC<Props> = ({survey, index}) => {
   const {t} = useI18n();
   const navigate = useNavigate();
 

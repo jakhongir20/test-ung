@@ -146,7 +146,6 @@ export const MyDetailsForm: FC = () => {
           </button>
         </div>
 
-        {/* Success Message */}
         {isSuccess && (
           <div className="mt-4 p-3 bg-green-50 border border-green-200 rounded-lg">
             <p className="text-base text-green-800">{t('profile.saveSuccess')}</p>

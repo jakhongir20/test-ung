@@ -2,7 +2,7 @@ import type { FC } from 'react';
 import { useEffect } from 'react';
 import { useI18n } from '../i18n';
 import { useNavigate } from "react-router-dom";
-import { useCurrentSession, useMyHistory, useStartSurvey } from '../api/surveys';
+import { useCurrentSession, useMyHistory } from '../api/surveys';
 import { handleAuthError } from '../api/auth';
 import { MyProfileBanner } from "../components/MyProfileBanner.tsx";
 import { ProfileCardItem } from "../components/ProfileCardItem.tsx";
@@ -37,7 +37,6 @@ interface Session {
 const ProfilePage: FC = () => {
   const {t} = useI18n();
   const navigate = useNavigate();
-  const startSurvey = useStartSurvey();
   const currentSession = useCurrentSession();
   const myHistory = useMyHistory();
 
