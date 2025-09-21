@@ -3,38 +3,34 @@ import { useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { useI18n } from '../i18n';
 import { handleAuthError } from '../api/auth';
-import { useModeratorUserSessionDetails } from '../api/moderator';
-import { useAuthStore } from '../stores/authStore';
+import { useSessionsRetrieve, useSessionsAllAnswersRetrieve } from '../api/generated/respondentWebAPI';
 import { MyProfileBanner } from "../components/MyProfileBanner.tsx";
 import type { Column } from "../components/DataTable.tsx";
 import { DataTable } from "../components/DataTable.tsx";
 import { CARD_STYLES } from "../components/test/test.data.ts";
 import { StatusBadge } from "../components/StatusBadge.tsx";
 import { BackgroundWrapper } from "../components/BackgroundWrapper.tsx";
-import UserSessionDetailsPage from './UserSessionDetailsPage';
 
-const SessionDetailsPage: FC = () => {
+const UserSessionDetailsPage: FC = () => {
   const { t } = useI18n();
   const { id } = useParams<{ id: string; }>();
-  const user = useAuthStore((s) => s.user);
 
-  // If user is not a moderator, redirect to user session details page
-  if (user && !user.is_moderator) {
-    return <UserSessionDetailsPage />;
-  }
-
-  // Fetch session details with moderator API
-  const sessionQuery = useModeratorUserSessionDetails(id);
+  // Fetch session details for regular users
+  const sessionQuery = useSessionsRetrieve(id!);
+  const allAnswersQuery = useSessionsAllAnswersRetrieve(id!);
 
   // Handle authentication errors
   useEffect(() => {
     if (sessionQuery.error && handleAuthError(sessionQuery.error)) {
       return; // Already redirected to login
     }
-  }, [sessionQuery.error]);
+    if (allAnswersQuery.error && handleAuthError(allAnswersQuery.error)) {
+      return; // Already redirected to login
+    }
+  }, [sessionQuery.error, allAnswersQuery.error]);
 
   // Loading state
-  if (sessionQuery.isLoading) {
+  if (sessionQuery.isLoading || allAnswersQuery.isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="max-w-md mx-auto bg-white rounded-lg shadow-lg p-6 text-center">
@@ -55,7 +51,7 @@ const SessionDetailsPage: FC = () => {
   }
 
   // Error state
-  if (sessionQuery.error) {
+  if (sessionQuery.error || allAnswersQuery.error) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="max-w-md mx-auto bg-white rounded-lg shadow-lg p-6 text-center">
@@ -72,6 +68,7 @@ const SessionDetailsPage: FC = () => {
           <button
             onClick={() => {
               sessionQuery.refetch();
+              allAnswersQuery.refetch();
             }}
             className="bg-cyan-600 text-white px-4 py-2 rounded-lg hover:bg-cyan-700"
           >
@@ -83,8 +80,16 @@ const SessionDetailsPage: FC = () => {
   }
 
   const sessionData = sessionQuery.data as any;
-  const session = sessionData?.session;
-  const questions = sessionData?.questions || [];
+  const allAnswersData = allAnswersQuery.data as any;
+
+  // Debug logging to understand data structure
+  console.log('Session Data:', sessionData);
+  console.log('All Answers Data:', allAnswersData);
+
+  // Extract session and questions data
+  // For sessionsRetrieve, the data is directly on the response, not nested under 'session'
+  const session = sessionData;
+  const questions = allAnswersData?.questions || [];
 
   // Calculate statistics
   const totalQuestions = questions.length;
@@ -92,7 +97,18 @@ const SessionDetailsPage: FC = () => {
   const incorrectAnswers = totalQuestions - correctAnswers;
 
   // Use session data for additional statistics
-  const sessionPercentage = session?.percentage || 0;
+  // Handle both string and number percentage values
+  let sessionPercentage = typeof session?.percentage === 'string'
+    ? parseFloat(session.percentage)
+    : session?.percentage || 0;
+
+  // If percentage is not available from session, calculate it from answers
+  if (!sessionPercentage && totalQuestions > 0) {
+    sessionPercentage = Math.round((correctAnswers / totalQuestions) * 100 * 100) / 100; // Round to 2 decimal places
+  }
+
+  console.log('Session Percentage:', sessionPercentage);
+  console.log('Session Object:', session);
 
   const getAnswerStatus = (question: any) => {
     if (!question.answer) return { status: 'incorrect', text: t('session.incorrect') };
@@ -286,4 +302,4 @@ const SessionDetailsPage: FC = () => {
   );
 };
 
-export default SessionDetailsPage;
+export default UserSessionDetailsPage;

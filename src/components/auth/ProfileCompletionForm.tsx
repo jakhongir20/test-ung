@@ -3,6 +3,7 @@ import { useEffect, useRef } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import { useUpdateUserProfile } from "../../api/auth.ts";
+import { useUsersMeRetrieve } from "../../api/generated/respondentWebAPI";
 import { FormButton } from "./FormButton.tsx";
 import { useI18n } from "../../i18n";
 
@@ -24,6 +25,7 @@ export const ProfileCompletionForm: FC<Props> = () => {
   const navigate = useNavigate();
   const updateProfile = useUpdateUserProfile();
   const { t, lang } = useI18n();
+  const { data: user } = useUsersMeRetrieve();
 
   const {
     control,
@@ -31,17 +33,31 @@ export const ProfileCompletionForm: FC<Props> = () => {
     formState: { errors, isSubmitting },
     setError,
     clearErrors,
-    trigger
+    trigger,
+    reset
   } = useForm<ProfileFormValues>({
     defaultValues: {
-      name: '',
-      branch: '',
-      position: '',
-      employee_level: 'junior',
-      work_domain: 'natural_gas'
+      name: user?.name || '',
+      branch: user?.branch || '',
+      position: user?.position || '',
+      employee_level: (user as any)?.employee_level || 'junior',
+      work_domain: (user as any)?.work_domain || 'natural_gas'
     },
     mode: 'onSubmit'
   });
+
+  // Update form when user data loads
+  useEffect(() => {
+    if (user) {
+      reset({
+        name: user.name || '',
+        branch: user.branch || '',
+        position: user.position || '',
+        employee_level: (user as any)?.employee_level || 'junior',
+        work_domain: (user as any)?.work_domain || 'natural_gas'
+      });
+    }
+  }, [user, reset]);
 
   const prevLangRef = useRef(lang);
 
@@ -159,6 +175,7 @@ export const ProfileCompletionForm: FC<Props> = () => {
               {...field}
               className={`${authInputStyle} ${errors.branch ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : ''}`}
             >
+              <option value="">{t('profileCompletion.selectBranch')}</option>
               <option value="administration1">{t('admin.administration1')}</option>
               <option value="administration2">{t('admin.administration2')}</option>
               <option value="administration3">{t('admin.administration3')}</option>
@@ -184,6 +201,7 @@ export const ProfileCompletionForm: FC<Props> = () => {
               {...field}
               className={`${authInputStyle} ${errors.position ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : ''}`}
             >
+              <option value="">{t('profileCompletion.selectPosition')}</option>
               <option value="position1">{t('position.position1')}</option>
               <option value="position2">{t('position.position2')}</option>
               <option value="position3">{t('position.position3')}</option>

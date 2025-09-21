@@ -374,11 +374,21 @@ const dictionary: Dictionary = {
     'uz-cyrl': 'Администрация номини киритинг',
     ru: 'Введите название администрации'
   },
+  'profileCompletion.selectBranch': {
+    uz: 'Adminstratsiyani tanlang',
+    'uz-cyrl': 'Администрацияни танланг',
+    ru: 'Выберите администрацию'
+  },
   'profileCompletion.position': { uz: 'Lavozim', 'uz-cyrl': 'Лавозим', ru: 'Должность' },
   'profileCompletion.positionPlaceholder': {
     uz: 'Lavozimingizni kiriting',
     'uz-cyrl': 'Лавозимингизни киритинг',
     ru: 'Введите вашу должность'
+  },
+  'profileCompletion.selectPosition': {
+    uz: 'Lavozimni tanlang',
+    'uz-cyrl': 'Лавозимни танланг',
+    ru: 'Выберите должность'
   },
   'profileCompletion.save': { uz: 'Saqlash', 'uz-cyrl': 'Сақлаш', ru: 'Сохранить' },
   'profileCompletion.nameRequired': {

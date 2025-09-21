@@ -84,7 +84,8 @@ export const ProfileCardItem: FC<Props> = ({survey, index}) => {
   // Helper function to get total questions
   const getTotalQuestions = () => {
     if (isSession(survey)) {
-      return survey?.survey?.questions_count || 30;
+      // return survey?.survey?.questions_count || 30;
+      return survey?.total_points || 30;
     } else {
       return survey?.survey?.questions_count || survey?.total_questions || 30;
     }

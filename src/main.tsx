@@ -7,6 +7,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import ProfilePage from './pages/ProfilePage.tsx';
 import TestPage from './pages/TestPage.tsx';
 import SessionDetailsPage from './pages/SessionDetailsPage.tsx';
+import CertificatePage from './pages/CertificatePage.tsx';
 import { I18nProvider } from './i18n.tsx';
 import LoginPage from './pages/LoginPage.tsx';
 import OtpPage from './pages/OtpPage.tsx';
@@ -14,6 +15,7 @@ import AdminEmployeesPage from './pages/AdminEmployeesPage.tsx';
 import PageRules from './pages/PageRules.tsx';
 import ProtectedRoute from './components/ProtectedRoute.tsx';
 import AuthLayout from './layouts/AuthLayout.tsx';
+import CertificateLayout from './layouts/CertificateLayout.tsx';
 import ProfileCompletionPage from "./pages/ProfileCompletionPage.tsx";
 
 const router = createBrowserRouter([
@@ -62,8 +64,18 @@ const router = createBrowserRouter([
             <SessionDetailsPage />
           </ProtectedRoute>
         )
-      },
+      }
     ],
+  },
+  {
+    path: '/certificate',
+    element: <CertificateLayout />,
+    children: [
+      {
+        path: ':id',
+        element: <CertificatePage />
+      }
+    ]
   },
   {
     path: '/',
