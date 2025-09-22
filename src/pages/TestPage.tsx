@@ -13,6 +13,7 @@ import { handleAuthError } from '../api/auth';
 import { useI18n } from "../i18n.tsx";
 import { ACTION_BTN_STYLES, CARD_STYLES } from "../components/test/test.data.ts";
 import { BackgroundWrapper } from "../components/BackgroundWrapper.tsx";
+import { FadeIn, PageTransition } from "../components/animations";
 
 type BuiltQuestion = {
   title: string;
@@ -243,7 +244,7 @@ const TestPage: FC = () => {
   async function finishTest() {
     if (!sessionId) {
       alert('No active session to finish');
-      return
+      return;
     }
 
     setIsFinishing(true);
@@ -265,7 +266,7 @@ const TestPage: FC = () => {
       localStorage.removeItem('currentSurveySession');
       navigate('/');
     } finally {
-      setIsFinishing(false)
+      setIsFinishing(false);
     }
   }
 
@@ -434,105 +435,92 @@ const TestPage: FC = () => {
 
   return (
     <BackgroundWrapper>
-      <div className="space-y-4 relative py-4 md:p-6">
-        {/* Debug panel - remove in production */}
-        {/*{process.env.NODE_ENV === 'development' && (*/}
-        {/*  <div className="bg-gray-100 p-4 rounded-lg text-xs">*/}
-        {/*    <div><strong>Debug Info:</strong></div>*/}
-        {/*    <div>Current Order: {current}</div>*/}
-        {/*    <div>Session ID: {sessionId}</div>*/}
-        {/*    <div>Question ID: {currentQuestionFromNav?.question?.id}</div>*/}
-        {/*    <div>Navigation: {JSON.stringify(navigationData)}</div>*/}
-        {/*    <div>Has Answers: {hasAnswers}</div>*/}
-        {/*    <div>Selected: {JSON.stringify(selected)}</div>*/}
-        {/*    <div>Text Answer: {textAnswer}</div>*/}
-        {/*    <div>Is Last Question: {isLastQuestion}</div>*/}
-        {/*    <div>Expires At: {expiresAtIso}</div>*/}
-        {/*    <div>Expires At Ms: {expiresAtMs}</div>*/}
-        {/*    <div>Time*/}
-        {/*      Remaining: {expiresAtMs ? Math.max(0, Math.floor((expiresAtMs - Date.now()) / 1000 / 60)) : 'N/A'} minutes*/}
-        {/*    </div>*/}
-        {/*  </div>*/}
-        {/*)}*/}
+      <PageTransition>
+        <div className="space-y-4 relative py-4 md:p-6">
 
-        {/* Progress Bar */}
-        <ProgressBar
-          title={getSurveyCategory(sessionData?.survey?.time_limit_minutes)}
-          current={order}
-          total={total}
-          isFinishing={isFinishing}
-          endTime={expiresAtMs}
-          timeLimitMinutes={sessionData?.survey?.time_limit_minutes}
-          onExpire={() => setExpired(true)}
-          onFinish={finishTest}
-        />
+          {/* Progress Bar */}
+          <FadeIn delay={100}>
+            <ProgressBar
+              title={getSurveyCategory(sessionData?.survey?.time_limit_minutes)}
+              current={order}
+              total={total}
+              isFinishing={isFinishing}
+              endTime={expiresAtMs}
+              timeLimitMinutes={sessionData?.survey?.time_limit_minutes}
+              onExpire={() => setExpired(true)}
+              onFinish={finishTest}
+            />
+          </FadeIn>
 
-        {built ? (
-          <QuestionCard
-            index={order}
-            title={built.title}
-            options={built.options}
-            selectedKeys={selected}
-            multiple={built.multiple}
-            isOpen={built.isOpen}
-            textAnswer={textAnswer}
-            onToggle={toggleOption}
-            onTextChange={handleTextChange}
-            media={built.mediaUrl ? (
-              <div className="aspect-video mb-4 md:mb-0 w-full h-full rounded-xl overflow-hidden bg-gray-100">
-                <img
-                  src={built.mediaUrl}
-                  onError={e => {
-                    (e.currentTarget as HTMLImageElement).src = '/test-image.png';
-                  }}
-                  className="h-full w-full object-cover"
-                  alt="media"
-                /></div>
-            ) : null}
-          />
-        ) : (
-          <section
-            className="rounded-2xl bg-white shadow-sm ring-1 ring-gray-200 p-6">{t('test.loadingQuestion')}</section>
-        )}
+          {built ? (
+            <FadeIn delay={200} direction="top">
+              <QuestionCard
+                index={order}
+                title={built.title}
+                options={built.options}
+                selectedKeys={selected}
+                multiple={built.multiple}
+                isOpen={built.isOpen}
+                textAnswer={textAnswer}
+                onToggle={toggleOption}
+                onTextChange={handleTextChange}
+                media={built.mediaUrl ? (
+                  <div className="aspect-video mb-4 md:mb-0 w-full h-full rounded-xl overflow-hidden bg-gray-100">
+                    <img
+                      src={built.mediaUrl}
+                      onError={e => {
+                        (e.currentTarget as HTMLImageElement).src = '/test-image.png';
+                      }}
+                      className="h-full w-full object-cover"
+                      alt="media"
+                    /></div>
+                ) : null}
+              />
+            </FadeIn>
+          ) : (
+            <section
+              className="rounded-2xl bg-white shadow-sm ring-1 ring-gray-200 p-6">{t('test.loadingQuestion')}</section>
+          )}
 
-        <div className="relative">
-          <div className={`${CARD_STYLES} !flex-row !py-6`}>
-            <button
-              onClick={() => setNavOpen((v) => !v)}
-              className={ACTION_BTN_STYLES}>
-              {t('test.questionOf', {current: order, total})}
-              <img src="/icon/arrow-t.svg" alt=""/>
-            </button>
-            <div className="flex items-center gap-2">
+          <div className="relative">
+            <div className={`${CARD_STYLES} !flex-row !py-6`}>
               <button
-                disabled={isExpired || !navigationData?.has_previous}
-                onClick={() => go(-1)}
-                className={`${ACTION_BTN_STYLES} !bg-[#00A2DE] text-white`}>
-                <img src={'/icon/arrow-l-w.svg'} alt={'icon left'}/>
+                onClick={() => setNavOpen((v) => !v)}
+                className={ACTION_BTN_STYLES}>
+                {t('test.questionOf', {current: order, total})}
+                <img src="/icon/arrow-t.svg" alt=""/>
               </button>
-              <button
-                disabled={isExpired || !hasAnswers}
-                onClick={() => go(1)}
-                className={`${ACTION_BTN_STYLES} !bg-[#00A2DE] text-white !text-base ${isExpired || !hasAnswers ? 'opacity-50 !cursor-not-allowed' : ''}`}>
-                {isLastQuestion ? t('test.finish') : t('test.next')}
-                {!isLastQuestion && <img src={'/icon/arrow-r-w.svg'} alt={'icon left'}/>}
-              </button>
+              <div className="flex items-center gap-2">
+                <button
+                  disabled={isExpired || !navigationData?.has_previous}
+                  onClick={() => go(-1)}
+                  className={`${ACTION_BTN_STYLES} !bg-[#00A2DE] text-white`}>
+                  <img src={'/icon/arrow-l-w.svg'} alt={'icon left'}/>
+                </button>
+                <button
+                  disabled={isExpired || !hasAnswers}
+                  onClick={() => go(1)}
+                  className={`${ACTION_BTN_STYLES} !bg-[#00A2DE] text-white !text-base ${isExpired || !hasAnswers ? 'opacity-50 !cursor-not-allowed' : ''}`}>
+                  {isLastQuestion ? t('test.finish') : t('test.next')}
+                  {!isLastQuestion && <img src={'/icon/arrow-r-w.svg'} alt={'icon left'}/>}
+                </button>
+              </div>
             </div>
+
+            <QuestionNavigator
+              total={total}
+              currentIndex={Math.max(order - 1, 0)} // Convert order to zero-based index for navigator
+              answered={answeredFlags}
+              open={navOpen}
+              onClose={() => setNavOpen(false)}
+              onSelect={(i) => setCurrent(i + 1)} // Convert zero-based index back to order
+              variant="popup"
+            />
+
+            {/* Docked or second navigator removed */}
           </div>
-
-          <QuestionNavigator
-            total={total}
-            currentIndex={Math.max(order - 1, 0)} // Convert order to zero-based index for navigator
-            answered={answeredFlags}
-            open={navOpen}
-            onClose={() => setNavOpen(false)}
-            onSelect={(i) => setCurrent(i + 1)} // Convert zero-based index back to order
-            variant="popup"
-          />
-
-          {/* Docked or second navigator removed */}
         </div>
-      </div>
+      </PageTransition>
     </BackgroundWrapper>
   );
 };
