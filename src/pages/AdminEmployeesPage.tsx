@@ -76,8 +76,20 @@ const AdminEmployeesPage: FC = () => {
 
   const confirmCertificateDownload = () => {
     if (certificateModal.userId) {
-      // Open certificate page in new tab
-      window.open(`/certificate/${certificateModal.userId}`, '_blank');
+      // Get the user details to find the latest completed session
+      const userDetails = users.find((u: any) => u.id === certificateModal.userId);
+      if (userDetails && userDetails.survey_history && userDetails.survey_history.length > 0) {
+        // Find the latest completed session
+        const latestSession = userDetails.survey_history.find((session: any) => session.status === 'completed');
+        if (latestSession && latestSession.id) {
+          // Open certificate page with session ID
+          window.open(`/certificate/${latestSession.id}`, '_blank');
+        } else {
+          alert(t('certificate.noCompletedSessions'));
+        }
+      } else {
+        alert(t('certificate.noSurveyHistory'));
+      }
     }
     setCertificateModal({
       isOpen: false,
@@ -147,7 +159,8 @@ const AdminEmployeesPage: FC = () => {
           <button
             onClick={() => handleCertificateDownload(user.id, user.name)}
             className="inline-flex h-8 w-8 items-center justify-center rounded-lg ring-1 ring-gray-200 hover:bg-gray-50"
-            aria-label="Download Certificate"
+            aria-label={t('certificate.downloadTitle')}
+            title={t('certificate.downloadTitle')}
           >
             <svg className="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
@@ -186,66 +199,18 @@ const AdminEmployeesPage: FC = () => {
   }
 
   return (
-    <BackgroundWrapper>
-      <PageTransition>
-        <div className="md:p-6">
-          <MyProfileBanner />
-          <br />
+    <div>
 
-          <section className={CARD_STYLES}>
-            <div className="">
-              <h3 className="text-xl md:text-2xl font-semibold mb-6">{t('admin.employees')}</h3>
+      {selectedUserId && (
+        <div style={{ display: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 9999, width: '100%', height: '100%' }} className="!fixed inset-0 h-screen w-full top-0 bottom-0 left-0 right-0 z-[9999]">
+          {/* Backdrop */}
+          <div className="absolute inset-0 bg-black/30" onClick={() => setSelectedUserId(null)} />
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
-                <select value={branch} onChange={(e) => setBranch(e.target.value)}
-                  className="rounded-lg border-gray-300 focus:ring-cyan-500 focus:border-cyan-500">
-                  <option value="">{t('admin.allBranches')}</option>
-                  {branches.map((b) => <option key={b} value={b}>{b}</option>)}
-                </select>
-                <select value={position} onChange={(e) => setPosition(e.target.value)}
-                  className="rounded-lg border-gray-300 focus:ring-cyan-500 focus:border-cyan-500">
-                  <option value="">{t('admin.allPositions')}</option>
-                  {positions.map((p) => <option key={p} value={p}>{p}</option>)}
-                </select>
-                <select value={testStatus} onChange={(e) => setTestStatus(e.target.value)}
-                  className="rounded-lg border-gray-300 focus:ring-cyan-500 focus:border-cyan-500">
-                  <option value="">{t('admin.allStatuses')}</option>
-                  {(['Refunded', 'Passed', 'Failed'] as const).map((s) => (
-                    <option key={s} value={s}>{t(`status.${s.toLowerCase()}` as any)}</option>
-                  ))}
-                </select>
-              </div>
-
-              <div className="mt-4">
-                {usersQuery.isLoading ? (
-                  <div className="bg-white rounded-2xl border border-[#E2E8F080] overflow-hidden">
-                    <div className="flex items-center justify-center h-32">
-                      <div className="flex flex-col items-center gap-3">
-                        <div
-                          className="w-8 h-8 border-2 border-cyan-600 border-t-transparent rounded-full animate-spin"></div>
-                        <p className="text-gray-600 text-base">{t('loading.employees')}</p>
-                      </div>
-                    </div>
-                  </div>
-                ) : (
-                  <DataTable
-                    data={users}
-                    columns={columns}
-                    itemsPerPage={10}
-                    showPagination={true}
-                    emptyMessage={t('admin.noEmployees')}
-                  />
-                )}
-              </div>
-            </div>
-          </section>
-
-          {selectedUserId && (
-            <div className="fixed inset-0">
-              <div className="absolute inset-0 bg-black/30"
-                onClick={() => setSelectedUserId(null)} />
-              <div
-                className="absolute w-full md:right-4 md:top-[102px] top-16 bottom-0 md:bottom-4 md:w-[min(760px,95vw)] overflow-auto rounded-none md:rounded-[16px] bg-white ring-1 ring-gray-200 shadow-xl p-6">
+          {/* Drawer */}
+          <div
+            className="absolute right-0 top-0 bottom-0 w-[min(760px,95vw)] overflow-hidden bg-white ring-1 ring-gray-200 shadow-xl">
+            <div className="flex flex-col h-full">
+              <div className="flex-1 overflow-auto p-6">
                 {userDetailsQuery.isLoading ? (
                   <div className="flex items-center justify-center h-32">
                     <div
@@ -358,21 +323,80 @@ const AdminEmployeesPage: FC = () => {
                 )}
               </div>
             </div>
-          )}
-
-          {/* Certificate Download Confirmation Modal */}
-          <ConfirmationModal
-            isOpen={certificateModal.isOpen}
-            onClose={cancelCertificateDownload}
-            onConfirm={confirmCertificateDownload}
-            title="Download Certificate"
-            message={`Do you want to download the certificate for ${certificateModal.userName}? This will open the certificate page in a new tab.`}
-            confirmText="Download"
-            cancelText="Cancel"
-          />
+          </div>
         </div>
-      </PageTransition>
-    </BackgroundWrapper>
+      )}
+      <BackgroundWrapper>
+        <PageTransition>
+          <div className="md:p-6">
+            <MyProfileBanner />
+            <br />
+
+            <section className={CARD_STYLES}>
+              <div className="">
+                <h3 className="text-xl md:text-2xl font-semibold mb-6">{t('admin.employees')}</h3>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
+                  <select value={branch} onChange={(e) => setBranch(e.target.value)}
+                    className="rounded-lg border-gray-300 focus:ring-cyan-500 focus:border-cyan-500">
+                    <option value="">{t('admin.allBranches')}</option>
+                    {branches.map((b) => <option key={b} value={b}>{b}</option>)}
+                  </select>
+                  <select value={position} onChange={(e) => setPosition(e.target.value)}
+                    className="rounded-lg border-gray-300 focus:ring-cyan-500 focus:border-cyan-500">
+                    <option value="">{t('admin.allPositions')}</option>
+                    {positions.map((p) => <option key={p} value={p}>{p}</option>)}
+                  </select>
+                  <select value={testStatus} onChange={(e) => setTestStatus(e.target.value)}
+                    className="rounded-lg border-gray-300 focus:ring-cyan-500 focus:border-cyan-500">
+                    <option value="">{t('admin.allStatuses')}</option>
+                    {(['Refunded', 'Passed', 'Failed'] as const).map((s) => (
+                      <option key={s} value={s}>{t(`status.${s.toLowerCase()}` as any)}</option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="mt-4">
+                  {usersQuery.isLoading ? (
+                    <div className="bg-white rounded-2xl border border-[#E2E8F080] overflow-hidden">
+                      <div className="flex items-center justify-center h-32">
+                        <div className="flex flex-col items-center gap-3">
+                          <div
+                            className="w-8 h-8 border-2 border-cyan-600 border-t-transparent rounded-full animate-spin"></div>
+                          <p className="text-gray-600 text-base">{t('loading.employees')}</p>
+                        </div>
+                      </div>
+                    </div>
+                  ) : (
+                    <DataTable
+                      data={users}
+                      columns={columns}
+                      itemsPerPage={10}
+                      showPagination={true}
+                      emptyMessage={t('admin.noEmployees')}
+                    />
+                  )}
+                </div>
+              </div>
+            </section>
+
+
+
+            {/* Certificate Download Confirmation Modal */}
+            <ConfirmationModal
+              isOpen={certificateModal.isOpen}
+              onClose={cancelCertificateDownload}
+              onConfirm={confirmCertificateDownload}
+              title={t('certificate.downloadTitle')}
+              message={t('certificate.downloadMessage', { userName: certificateModal.userName })}
+              confirmText={t('certificate.download')}
+              cancelText={t('certificate.cancel')}
+            />
+          </div>
+        </PageTransition>
+      </BackgroundWrapper>
+    </div>
+
   );
 };
 

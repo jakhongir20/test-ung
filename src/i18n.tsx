@@ -147,6 +147,18 @@ const dictionary: Dictionary = {
     'uz-cyrl': '{start}-{end} натижа {total} дан кўрсатилмоқда',
     ru: 'Показано {start}-{end} из {total} результатов'
   },
+
+  // Certificate Modal
+  'certificate.downloadTitle': { uz: 'Sertifikatni yuklab olish', 'uz-cyrl': 'Сертификатни юклаб олиш', ru: 'Скачать сертификат' },
+  'certificate.downloadMessage': {
+    uz: '{userName} uchun sertifikatni yuklab olishni xohlaysizmi? Bu sertifikat sahifasini yangi tabda ochadi.',
+    'uz-cyrl': '{userName} учун сертификатни юклаб олишни хоҳлайсизми? Бу сертификат саҳифасини янги табда очиди.',
+    ru: 'Хотите скачать сертификат для {userName}? Это откроет страницу сертификата в новой вкладке.'
+  },
+  'certificate.download': { uz: 'Yuklab olish', 'uz-cyrl': 'Юклаб олиш', ru: 'Скачать' },
+  'certificate.cancel': { uz: 'Bekor qilish', 'uz-cyrl': 'Бекор қилиш', ru: 'Отмена' },
+  'certificate.noCompletedSessions': { uz: 'Bu foydalanuvchi uchun tugallangan sessiyalar topilmadi', 'uz-cyrl': 'Бу фойдаланувчи учун тугалланган сессиялар топилмади', ru: 'Для этого пользователя не найдено завершенных сессий' },
+  'certificate.noSurveyHistory': { uz: 'Bu foydalanuvchi uchun so\'rov tarixi topilmadi', 'uz-cyrl': 'Бу фойдаланувчи учун сўров тарихи топилмади', ru: 'Для этого пользователя не найдена история опросов' },
   'admin.aboutEmployee': { uz: 'Xodim haqida', 'uz-cyrl': 'Ходим ҳақида', ru: 'О сотруднике' },
   'admin.noEmployees': { uz: 'Xodimlar topilmadi', 'uz-cyrl': 'Ходимлар топилмади', ru: 'Сотрудники не найдены' },
   'admin.errorLoadingDetails': {

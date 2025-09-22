@@ -18,15 +18,15 @@ type SettingsFormValues = {
   work_domain: 'natural_gas' | 'lpg_gas';
 };
 
-export const SettingsModal: FC<Props> = ({isOpen, onClose}) => {
-  const {t, lang} = useI18n();
-  const {data: user} = useUsersMeRetrieve();
+export const SettingsModal: FC<Props> = ({ isOpen, onClose }) => {
+  const { t, lang } = useI18n();
+  const { data: user } = useUsersMeRetrieve();
   const updateProfile = useUpdateUserProfile();
 
   const {
     control,
     handleSubmit,
-    formState: {errors, isSubmitting},
+    formState: { errors, isSubmitting },
     setError,
     clearErrors,
     reset,
@@ -139,7 +139,7 @@ export const SettingsModal: FC<Props> = ({isOpen, onClose}) => {
   return (
     <div className="fixed inset-0 h-screen w-full top-0 bottom-0 left-0 right-0 z-20 ">
       {/* Backdrop */}
-      <div className="absolute inset-0 bg-black/30" onClick={onClose}/>
+      <div className="absolute inset-0 bg-black/30" onClick={onClose} />
 
       {/* Drawer */}
       <div
@@ -166,8 +166,8 @@ export const SettingsModal: FC<Props> = ({isOpen, onClose}) => {
                 <Controller
                   name="name"
                   control={control}
-                  rules={{required: t('settings.fullNameRequired')}}
-                  render={({field}) => (
+                  rules={{ required: t('settings.fullNameRequired') }}
+                  render={({ field }) => (
                     <input
                       {...field}
                       type="text"
@@ -188,15 +188,85 @@ export const SettingsModal: FC<Props> = ({isOpen, onClose}) => {
                 <Controller
                   name="branch"
                   control={control}
-                  rules={{required: t('settings.branchRequired')}}
-                  render={({field}) => (
+                  rules={{ required: t('settings.branchRequired') }}
+                  render={({ field }) => (
                     <select
                       {...field}
                       className={`w-full px-4 py-3 border border-gray-300 rounded-lg text-base focus:outline-none focus:ring-2 focus:ring-[#00A2DE] focus:border-[#00A2DE] bg-white ${errors.branch ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : ''}`}
                     >
-                      <option value="administration1">{t('admin.administration1')}</option>
-                      <option value="administration2">{t('admin.administration2')}</option>
-                      <option value="administration3">{t('admin.administration3')}</option>
+                      <option value="director_executive_apparatus">Direktor (Ijro apparati)</option>
+                      <option value="deputy_director_chief_engineer">Direktorning birinchi o'rinbosari - bosh muhandis (Ijro apparati)</option>
+                      <option value="deputy_director_natural_lpg_gas">Tabiiy va suyultirilgan gazni sotish bo'yicha direktorning o'rinbosari (Ijro apparati)</option>
+                      <option value="deputy_chief_engineer">Bosh muhandis o'rinbosari (Ijro apparati)</option>
+                      <option value="press_secretary">Matbuot kotibi (Ijro apparati)</option>
+                      <option value="service_head_central_dispatch">Xizmat boshlig'i (Markaziy dispetcherlik xizmati)</option>
+                      <option value="dispatcher_central_dispatch">Dispetcher (Markaziy dispetcherlik xizmati)</option>
+                      <option value="head_division_gas_objects_efficient">Bo'lim boshlig'i (Gaz ta'minoti ob'ektlaridan samarali foydalanish bo'limi)</option>
+                      <option value="senior_engineer_gas_objects_efficient">Yetakchi muhandis (Gaz ta'minoti ob'ektlaridan samarali foydalanish bo'limi)</option>
+                      <option value="head_division_labor_protection">Bo'lim boshlig'i (Mehnatni muhofaza qilish, ekologik va sanoat, xavfsizligi bo'limi)</option>
+                      <option value="senior_engineer_labor_protection">Yetakchi muhandis (Mehnatni muhofaza qilish, ekologik va sanoat, xavfsizligi bo'limi)</option>
+                      <option value="head_division_construction_repair">Bo'lim boshlig'i (Qurilish va ta'mirlash bo'limi)</option>
+                      <option value="senior_engineer_construction_repair">Yetakchi muhandis (Qurilish va ta'mirlash bo'limi)</option>
+                      <option value="head_division_transport_special">Bo'lim boshlig'i (Transport va maxsus texnika bo'limi)</option>
+                      <option value="senior_engineer_transport_special">Yetakchi muhandis (Transport va maxsus texnika bo'limi)</option>
+                      <option value="dispatcher_transport_special">Dispetcher (Transport va maxsus texnika bo'limi)</option>
+                      <option value="senior_engineer_cadastre">Yetakchi muhandis (Kadastr bo'limi)</option>
+                      <option value="head_division_energy_sources_balance">Bo'lim boshlig'i (Energiya manbalari balansini tuzish bo'limi)</option>
+                      <option value="senior_specialist_energy_sources_balance">Yetakchi mutaxassis (Energiya manbalari balansini tuzish bo'limi)</option>
+                      <option value="head_division_local_consumers">Bo'lim boshlig'i (Mahalla iste'molchilari bilan ishlash bo'limi)</option>
+                      <option value="chief_specialist_local_consumers">Bosh mutaxassis (Mahalla iste'molchilari bilan ishlash bo'limi)</option>
+                      <option value="senior_engineer_local_consumers">Yetakchi muhandis (Mahalla iste'molchilari bilan ishlash bo'limi)</option>
+                      <option value="chief_specialist_electronic_gas">Bosh mutaxassis (Elektron gaz hisoblash uskunalarini texnik jihatdan, tartibga solish va muvofiqlashtirish bo'limi)</option>
+                      <option value="senior_engineer_electronic_gas">Yetakchi muhandis (Elektron gaz hisoblash uskunalarini texnik jihatdan, tartibga solish va muvofiqlashtirish bo'limi)</option>
+                      <option value="head_division_small_medium_business">Bo'lim boshlig'i (Kichik, o'rta biznes va byudjet, iste'molchilari bilan ishlash bo'limi)</option>
+                      <option value="senior_engineer_small_medium_business">Yetakchi muhandis (Kichik, o'rta biznes va byudjet, iste'molchilari bilan ishlash bo'limi)</option>
+                      <option value="head_division_large_consumers">Bo'lim boshlig'i (Yirik iste'molchilar bilan ishlash bo'limi)</option>
+                      <option value="senior_engineer_large_consumers">Yetakchi muhandis (Yirik iste'molchilar bilan ishlash bo'limi)</option>
+                      <option value="head_division_metrological_support">Bo'lim boshlig'i (Metrologik ta'minot bo'limi)</option>
+                      <option value="senior_engineer_metrological_support">Yetakchi muhandis (Metrologik ta'minot bo'limi)</option>
+                      <option value="senior_specialist_digitalization">Yetakchi mutaxassis (Raqamlashtirish bo'limi)</option>
+                      <option value="head_division_control_appeals">Bo'lim boshlig'i (Nazorat va murojaatlar bilan ishlash bo'limi)</option>
+                      <option value="senior_specialist_control_appeals">Yetakchi mutaxassis (Nazorat va murojaatlar bilan ishlash bo'limi)</option>
+                      <option value="director_assistant_control_appeals">Direktorning yordamchisi (Nazorat va murojaatlar bilan ishlash bo'limi)</option>
+                      <option value="call_center_operator">Call Centre operatori (Call Centre xizmati)</option>
+                      <option value="head_division_legal">Bo'lim boshlig'i (Yuridik bo'lim)</option>
+                      <option value="lawyer_legal">Yurist (Yuridik bo'lim)</option>
+                      <option value="head_division_hr_management">Bo'lim boshlig'i (Kadrlarni boshqarish bo'limi)</option>
+                      <option value="senior_specialist_hr_management">Yetakchi mutaxassis (Kadrlarni boshqarish bo'limi)</option>
+                      <option value="head_division_material_resources">Bo'lim boshlig'i (Moddiy resurslardan oqilona foydalanish va korrupsiyaga qarshi siyosatni amalga oshirish bo'limi)</option>
+                      <option value="senior_specialist_material_resources">Yetakchi mutaxassis (Moddiy resurslardan oqilona foydalanish va korrupsiyaga qarshi siyosatni amalga oshirish bo'limi)</option>
+                      <option value="head_division_economic_analysis">Bo'lim boshlig'i (Iqtisodiy tahlil bo'limi)</option>
+                      <option value="senior_economist_economic_analysis">Yetakchi iqtisodchi (Iqtisodiy tahlil bo'limi)</option>
+                      <option value="senior_accountant_accounting">Yetakchi hisobchi (Buxgalteriya hisobi bo'limi)</option>
+                      <option value="accountant_accounting">Hisobchi (Buxgalteriya hisobi bo'limi)</option>
+                      <option value="senior_engineer_communication_ict">Yetakchi muhandis (Aloqa va AKT xizmati)</option>
+                      <option value="technician_communication_ict">Texnik (Aloqa va AKT xizmati)</option>
+                      <option value="senior_specialist_special_affairs">Maxsus ishlar bo'yicha yetakchi mutaxassis (Aloqa va AKT xizmati)</option>
+                      <option value="warehouse_manager_reserve">Ombor mudiri (Zaxira omborxonasi)</option>
+                      <option value="head_division_economy_management">Bo'lim boshlig'i (Xo'jalik boshqaruvi bo'limi)</option>
+                      <option value="guard_economy_management">Qorovul (Xo'jalik boshqaruvi bo'limi)</option>
+                      <option value="head_city_district_gas">Boshliq ("Shahar/tumangaz" gaz ta'minoti bo'limi)</option>
+                      <option value="chief_engineer_city_district_gas">Bosh muhandis ("Shahar/tumangaz" gaz ta'minoti bo'limi)</option>
+                      <option value="service_head_gas_objects_technical">Xizmat boshlig'i (Gaz ta'minoti ob'ektlarini texnik tiklash va ishlatish xizmati)</option>
+                      <option value="master_gas_objects_technical">Usta (Gaz ta'minoti ob'ektlarini texnik tiklash va ishlatish xizmati)</option>
+                      <option value="network_service_specialist">Tarmoqlarga xizmat ko'rsatish chilangari (Gaz ta'minoti ob'ektlarini texnik tiklash va ishlatish xizmati)</option>
+                      <option value="electrical_gas_welder">Elektrgazpayvandchi (Gaz ta'minoti ob'ektlarini texnik tiklash va ishlatish xizmati)</option>
+                      <option value="senior_engineer_labor_protection_safety">Yetakchi muhandis (Mehnat muhofazasi va texnika xavfsizligi bo'limi)</option>
+                      <option value="dispatcher_emergency">Dispetcher (Avariya dispetcherlik xizmati)</option>
+                      <option value="emergency_repair_specialist">Avariya tiklash ishlari bo'yicha navbatchi chilangar (Avariya dispetcherlik xizmati)</option>
+                      <option value="driver_dispatcher_emergency">Haydovchi (navbatchi) (Avariya dispetcherlik xizmati)</option>
+                      <option value="senior_specialist_control_appeals">Yetakchi mutaxassis (Nazorat va murojaatlar bo'limi)</option>
+                      <option value="accounting_technician_control">Hisob bo'yicha texnik (Nazorat va murojaatlar bo'limi)</option>
+                      <option value="guard_control_appeals">Qorovul (Nazorat va murojaatlar bo'limi)</option>
+                      <option value="service_head_local_service">Xizmat boshlig'i (Mahallabay ishlash xizmati)</option>
+                      <option value="senior_engineer_local_service">Yetakchi muhandis (Mahallabay ishlash xizmati)</option>
+                      <option value="operator_local_service">Operator (Mahallabay ishlash xizmati)</option>
+                      <option value="large_region">Yirik hudud</option>
+                      <option value="local_gas_specialist_large_region">Mahalla gazchisi (Yirik hudud)</option>
+                      <option value="head_division_small_medium_business_local">Bo'lim boshlig'i (Kichik, o'rta biznes va byudjet, iste'molchilari bilan ishlash bo'limi)</option>
+                      <option value="senior_engineer_small_medium_business_local">Yetakchi muhandis (Kichik, o'rta biznes va byudjet, iste'molchilari bilan ishlash bo'limi)</option>
+                      <option value="head_division_metrological_support_local">Bo'lim boshlig'i (Metrologik ta'minot bo'limi)</option>
+                      <option value="engineer_metrologist">Muhandis-metrolog (Metrologik ta'minot bo'limi)</option>
                     </select>
                   )}
                 />
@@ -211,15 +281,21 @@ export const SettingsModal: FC<Props> = ({isOpen, onClose}) => {
                 <Controller
                   name="position"
                   control={control}
-                  rules={{required: t('settings.positionRequired')}}
-                  render={({field}) => (
+                  rules={{ required: t('settings.positionRequired') }}
+                  render={({ field }) => (
                     <select
                       {...field}
                       className={`w-full px-4 py-3 border border-gray-300 rounded-lg text-base focus:outline-none focus:ring-2 focus:ring-[#00A2DE] focus:border-[#00A2DE] bg-white ${errors.position ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : ''}`}
                     >
-                      <option value="position1">{t('position.position1')}</option>
-                      <option value="position2">{t('position.position2')}</option>
-                      <option value="position3">{t('position.position3')}</option>
+                      <option value="ijro_apparati">Ijro apparati</option>
+                      <option value="mahalla_consumers_lpg">Mahalla iste'molchilarini suyultirilgan gaz bilan ta'minlash bo'limi</option>
+                      <option value="lpg_facilities">Suyultirilgan gaz inshootlarini ishlatish bo'limi</option>
+                      <option value="district_city_lpg">Suyultirilgan gaz ta'minoti bo'yicha tuman (shahar) bo'limlari</option>
+                      <option value="household_cylinder_repair">Maishiy gaz ballonlarni ta'mirlash va sinovdan o'tkazish bo'yicha sex</option>
+                      <option value="household_cylinder_repair_chiroqchi">Maishiy gaz ballonlarni ta'mirlash va sinovdan o'tkazish bo'yicha sex (Chiroqchi GTSh)</option>
+                      <option value="household_cylinder_repair_kasbi">Maishiy gaz ballonlarni ta'mirlash va sinovdan o'tkazish bo'yicha sex (Kasbi GTSh)</option>
+                      <option value="household_cylinder_repair_dehqonobod">Maishiy gaz ballonlarni ta'mirlash va sinovdan o'tkazish bo'yicha sex (Dehqonobod GTSh)</option>
+                      <option value="gas_filling_stations">Gaz to'ldirish shahobchalari</option>
                     </select>
                   )}
                 />
@@ -294,7 +370,7 @@ export const SettingsModal: FC<Props> = ({isOpen, onClose}) => {
               >
                 <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                        d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+                    d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
                 </svg>
                 {t('settings.logout')}
               </button>
@@ -310,7 +386,7 @@ export const SettingsModal: FC<Props> = ({isOpen, onClose}) => {
                   <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
                 ) : (
                   <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7"/>
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                   </svg>
                 )}
                 {t('settings.save')}

@@ -22,29 +22,29 @@ export interface CertificateData {
   certificate_number: string;
 }
 
-// Fetch certificate data
-export const fetchCertificateData = async (userId: number): Promise<CertificateData> => {
+// Fetch certificate data by certificate ID
+export const fetchCertificateData = async (certificateId: string): Promise<CertificateData> => {
   const response = await customInstance<CertificateData>({
     method: 'GET',
-    url: `/api/certificate/user/${userId}/certificate/data/`
+    url: `/api/certificate/test/certificate/${certificateId}/data/`
   });
   return response;
 };
 
-// Download certificate
-export const downloadCertificate = async (userId: number): Promise<Blob> => {
+// Download certificate by certificate ID
+export const downloadCertificate = async (certificateId: string): Promise<Blob> => {
   const response = await customInstance<Blob>({
     method: 'GET',
-    url: `/api/certificate/user/${userId}/certificate/download/`,
+    url: `/api/certificate/test/certificate/${certificateId}/download/`,
     responseType: 'blob'
   });
   return response;
 };
 
 // Hook for fetching certificate data
-export const useCertificateData = (userId: number) => {
+export const useCertificateData = (certificateId: string) => {
   return {
-    fetchData: () => fetchCertificateData(userId),
-    download: () => downloadCertificate(userId)
+    fetchData: () => fetchCertificateData(certificateId),
+    download: () => downloadCertificate(certificateId)
   };
 };

@@ -501,8 +501,14 @@ const TestPage: FC = () => {
                   disabled={isExpired || !hasAnswers}
                   onClick={() => go(1)}
                   className={`${ACTION_BTN_STYLES} !bg-[#00A2DE] text-white !text-base ${isExpired || !hasAnswers ? 'opacity-50 !cursor-not-allowed' : ''}`}>
-                  {isLastQuestion ? t('test.finish') : t('test.next')}
-                  {!isLastQuestion && <img src={'/icon/arrow-r-w.svg'} alt={'icon left'}/>}
+                  <span className={'md:inline hidden'}>{isLastQuestion ? t('test.finish') : t('test.next')}</span>
+                  {!isLastQuestion ? <img src={'/icon/arrow-r-w.svg'} alt={'icon left'}/> :
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path
+                        d="M7.24967 9.99999L9.08301 11.8333L12.7497 8.16666M19.1663 9.99999C19.1663 15.0626 15.0623 19.1667 9.99967 19.1667C4.93706 19.1667 0.833008 15.0626 0.833008 9.99999C0.833008 4.93738 4.93706 0.833328 9.99967 0.833328C15.0623 0.833328 19.1663 4.93738 19.1663 9.99999Z"
+                        stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                  }
                 </button>
               </div>
             </div>
