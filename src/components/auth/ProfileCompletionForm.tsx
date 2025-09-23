@@ -15,6 +15,7 @@ type ProfileFormValues = {
   name: string;
   branch: string;
   position: string;
+  region: string;
   employee_level: 'junior' | 'engineer';
   work_domain: 'natural_gas' | 'lpg_gas';
 };
@@ -40,6 +41,7 @@ export const ProfileCompletionForm: FC<Props> = () => {
       name: user?.name || '',
       branch: user?.branch || '',
       position: user?.position || '',
+      region: (user as any)?.region || '',
       employee_level: (user as any)?.employee_level || 'junior',
       work_domain: (user as any)?.work_domain || 'natural_gas'
     },
@@ -53,6 +55,7 @@ export const ProfileCompletionForm: FC<Props> = () => {
         name: user.name || '',
         branch: user.branch || '',
         position: user.position || '',
+        region: (user as any)?.region || '',
         employee_level: (user as any)?.employee_level || 'junior',
         work_domain: (user as any)?.work_domain || 'natural_gas'
       });
@@ -81,6 +84,7 @@ export const ProfileCompletionForm: FC<Props> = () => {
         name: values.name.trim(),
         branch: values.branch.trim(),
         position: values.position.trim(),
+        region: values.region.trim(),
         employee_level: values.employee_level,
         work_domain: values.work_domain
       });
@@ -107,6 +111,12 @@ export const ProfileCompletionForm: FC<Props> = () => {
           message: error.response.data.position[0] || t('profileCompletion.positionRequired')
         });
       }
+      if (error?.response?.data?.region) {
+        setError('region', {
+          type: 'manual',
+          message: error.response.data.region[0] || t('profileCompletion.regionRequired')
+        });
+      }
       if (error?.response?.data?.employee_level) {
         setError('employee_level', {
           type: 'manual',
@@ -121,7 +131,7 @@ export const ProfileCompletionForm: FC<Props> = () => {
       }
 
       // General error if no specific field errors
-      if (!error?.response?.data?.name && !error?.response?.data?.branch && !error?.response?.data?.position && !error?.response?.data?.employee_level && !error?.response?.data?.work_domain) {
+      if (!error?.response?.data?.name && !error?.response?.data?.branch && !error?.response?.data?.position && !error?.response?.data?.region && !error?.response?.data?.employee_level && !error?.response?.data?.work_domain) {
         setError('root', {
           type: 'manual',
           message: t('profileCompletion.saveError')
@@ -286,6 +296,43 @@ export const ProfileCompletionForm: FC<Props> = () => {
         />
         {errors.position && (
           <p className="text-red-600 text-base mt-1">{errors.position.message}</p>
+        )}
+      </div>
+
+      {/* Region Field */}
+      <div>
+        <label className="block text-base text-black font-medium mb-1.5">
+          {t('profileCompletion.region')} *
+        </label>
+        <Controller
+          name="region"
+          control={control}
+          rules={{ required: t('profileCompletion.regionRequired') }}
+          render={({ field }) => (
+            <select
+              {...field}
+              className={`${authInputStyle} ${errors.region ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : ''}`}
+            >
+              <option value="">{t('profileCompletion.selectRegion')}</option>
+              <option value="toshkent">Toshkent</option>
+              <option value="toshkent_viloyati">Toshkent viloyati</option>
+              <option value="andijon">Andijon</option>
+              <option value="buxoro">Buxoro</option>
+              <option value="fargona">Farg'ona</option>
+              <option value="jizzax">Jizzax</option>
+              <option value="xorazm">Xorazm</option>
+              <option value="namangan">Namangan</option>
+              <option value="navoiy">Navoiy</option>
+              <option value="qashqadaryo">Qashqadaryo</option>
+              <option value="qoraqalpogiston">Qoraqalpog'iston</option>
+              <option value="samarqand">Samarqand</option>
+              <option value="sirdaryo">Sirdaryo</option>
+              <option value="surxondaryo">Surxondaryo</option>
+            </select>
+          )}
+        />
+        {errors.region && (
+          <p className="text-red-600 text-base mt-1">{errors.region.message}</p>
         )}
       </div>
 

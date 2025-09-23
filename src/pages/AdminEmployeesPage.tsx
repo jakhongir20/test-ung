@@ -127,22 +127,29 @@ const AdminEmployeesPage: FC = () => {
       render: (value) => value || t('admin.na')
     },
     {
-      key: 'best_score',
-      title: t('table.lastScore'),
+      key: 'total_questions',
+      title: t('table.totalQuestions'),
       sortable: true,
-      render: (value) => value || 0
+      render: (_, user) => {
+        // Calculate total questions from survey history or use total_attempts as proxy
+        if (user.survey_history && user.survey_history.length > 0) {
+          const totalQuestions = user.survey_history.reduce((total: number, session: any) => {
+            return total + (session.answers?.length || 0);
+          }, 0);
+          return totalQuestions || 0;
+        }
+        // Fallback to total_attempts if no survey history
+        return user.total_attempts || 0;
+      }
     },
     {
-      key: 'total_attempts',
-      title: t('table.attempts'),
+      key: 'final_score',
+      title: t('table.finalScore'),
       sortable: true,
-      render: (value) => value || 0
-    },
-    {
-      key: 'status',
-      title: t('table.status'),
-      sortable: true,
-      render: (value) => <StatusBadge status={value || 'unknown'} />
+      render: (_, user) => {
+        // Use best_score as final test score
+        return user.best_score ? Number(user.best_score).toFixed(2) : '0.00';
+      }
     },
     {
       key: 'actions',

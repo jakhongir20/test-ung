@@ -192,6 +192,8 @@ const dictionary: Dictionary = {
   'table.lastScore': { uz: 'Oxirgi ball', 'uz-cyrl': 'Охирги балл', ru: 'Последний балл' },
   'table.attempts': { uz: 'Urinishlar soni', 'uz-cyrl': 'Уринишлар сони', ru: 'Количество попыток' },
   'table.status': { uz: 'Holat', 'uz-cyrl': 'Ҳолат', ru: 'Статус' },
+  'table.totalQuestions': { uz: 'Jami savollar soni', 'uz-cyrl': 'Жами саволлар сони', ru: 'Общее количество вопросов' },
+  'table.finalScore': { uz: 'Yakuniy ball', 'uz-cyrl': 'Якуний балл', ru: 'Финальный балл' },
   'table.phone': { uz: 'Telefon', 'uz-cyrl': 'Телефон', ru: 'Телефон' },
   'table.dateJoined': { uz: 'Ro\'yxatdan o\'tgan sana', 'uz-cyrl': 'Рўйхатдан ўтган сана', ru: 'Дата регистрации' },
   'table.lastLogin': { uz: 'Oxirgi kirish', 'uz-cyrl': 'Охирги кириш', ru: 'Последний вход' },
@@ -257,6 +259,11 @@ const dictionary: Dictionary = {
     'uz-cyrl': 'Амалий тест натижаларингизни кўриб чиқинг, ишлаш даражаингизни чуқуррок ўрганинг ва тест кунидан олдин кучли томонларингизни билинг.',
     ru: 'Просмотрите результаты практического теста, углубитесь в свою производительность и изучите свои сильные стороны перед днем теста.'
   },
+  'session.personalizedGreeting': {
+    uz: 'Hurmatli {name}, oxirgi topshirgan testdan siz {score} bal topladingiz.',
+    'uz-cyrl': 'Ҳурматли {name}, охирги топширган тестдан сиз {score} балл топладингиз.',
+    ru: 'Уважаемый {name}, за последний сданный тест вы набрали {score} баллов.'
+  },
   'session.testNumber': { uz: 'Test #{number}', 'uz-cyrl': 'Тест #{number}', ru: 'Тест #{number}' },
   'session.testDesc': {
     uz: 'Bu yerda siz test natijalaringizni bilib olishingiz mumkin.',
@@ -266,7 +273,7 @@ const dictionary: Dictionary = {
   'session.totalQuestions': { uz: 'Jami savollar', 'uz-cyrl': 'Жами саволлар', ru: 'Всего вопросов' },
   'session.correctAnswers': { uz: 'To\'g\'ri javoblar', 'uz-cyrl': 'Тўғри жавоблар', ru: 'Правильные ответы' },
   'session.incorrectAnswers': { uz: 'Noto\'g\'ri javoblar', 'uz-cyrl': 'Нотўғри жавоблар', ru: 'Неправильные ответы' },
-  'session.scorePercentage': { uz: 'Ball foizi', 'uz-cyrl': 'Балл фоизи', ru: 'Процент баллов' },
+  'session.scorePoints': { uz: 'Balllar', 'uz-cyrl': 'Балллар', ru: 'Баллы' },
   'session.questions': { uz: 'SAVOLLAR', 'uz-cyrl': 'САВОЛЛАР', ru: 'ВОПРОСЫ' },
   'session.questionTitle': { uz: 'SAVOL MATNI', 'uz-cyrl': 'САВОЛ МАТНИ', ru: 'ТЕКСТ ВОПРОСА' },
   'session.correctAnswer': { uz: 'TO\'G\'RI JAVOB', 'uz-cyrl': 'ТЎҒРИ ЖАВОБ', ru: 'ПРАВИЛЬНЫЙ ОТВЕТ' },
@@ -417,6 +424,17 @@ const dictionary: Dictionary = {
     uz: 'Lavozim kiritilishi shart',
     'uz-cyrl': 'Лавозим киритилиши шарт',
     ru: 'Должность обязательна'
+  },
+  'profileCompletion.region': { uz: 'Viloyat', 'uz-cyrl': 'Вилоят', ru: 'Область' },
+  'profileCompletion.selectRegion': {
+    uz: 'Viloyatni tanlang',
+    'uz-cyrl': 'Вилоятни танланг',
+    ru: 'Выберите область'
+  },
+  'profileCompletion.regionRequired': {
+    uz: 'Viloyat tanlanishi shart',
+    'uz-cyrl': 'Вилоят танланиши шарт',
+    ru: 'Область обязательна'
   },
   'profileCompletion.saveSuccess': {
     uz: 'Profil muvaffaqiyatli saqlandi',

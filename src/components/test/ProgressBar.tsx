@@ -10,7 +10,7 @@ interface Props {
   title: string;
   current: number;
   total: number;
-  isFinishing: boolean
+  isFinishing: boolean;
   endTime?: number;
   timeLimitMinutes?: number; // Total test duration in minutes
   onExpire?: () => void;
@@ -18,58 +18,68 @@ interface Props {
 }
 
 export const ProgressBar: FC<Props> = ({
-                                         title,
-                                         current,
-                                         total,
-                                         endTime,
-                                         timeLimitMinutes,
-                                         isFinishing,
-                                         onExpire,
-                                         onFinish
-                                       }) => {
-  const {t} = useI18n();
+  title,
+  current,
+  total,
+  endTime,
+  timeLimitMinutes,
+  isFinishing,
+  onExpire,
+  onFinish
+}) => {
+  const { t } = useI18n();
   const [timeProgress, setTimeProgress] = useState(0);
 
-  if (endTime && endTime > 0 && timeLimitMinutes) {
-    // Convert endTime to Date object for useTimer (same as CachedTimer)
-    const expiryDate = new Date(endTime);
+  // Always call useTimer hook, but only use it when conditions are met
+  const { seconds, minutes, hours } = useTimer({
+    expiryTimestamp: endTime && endTime > 0 && timeLimitMinutes ? new Date(endTime) : new Date(Date.now() + 1000),
+    onExpire: onExpire || (() => { }),
+    autoStart: !!(endTime && endTime > 0 && timeLimitMinutes), // Only start timer when conditions are met
+  });
 
-    const {seconds, minutes, hours} = useTimer({
-      expiryTimestamp: expiryDate,
-      onExpire: onExpire || (() => {
-      }),
-    });
+  // Update progress every 10 seconds - only when timer is active
+  useEffect(() => {
+    if (!(endTime && endTime > 0 && timeLimitMinutes)) {
+      return; // Don't update progress if timer is not active
+    }
 
-    // Calculate total seconds remaining (including seconds for more precise progress)
-    const totalSecondsRemaining = hours * 3600 + minutes * 60 + seconds;
-    const totalSecondsInTest = timeLimitMinutes * 60;
+    const updateProgress = () => {
+      // Calculate progress based on actual time elapsed from start
+      const now = Date.now();
+      const testStartTime = endTime - (timeLimitMinutes * 60 * 1000); // Calculate start time
+      const totalTestMs = timeLimitMinutes * 60 * 1000; // Total test duration in milliseconds
+      const elapsedMs = now - testStartTime; // Time elapsed since test started
 
-    // Update progress every 10 seconds
-    useEffect(() => {
-      const updateProgress = () => {
-        // Calculate progress based on time remaining
-        if (totalSecondsRemaining <= 0) {
-          setTimeProgress(100); // Test expired
-        } else {
-          // Calculate progress: (total time - remaining time) / total time * 100
-          const elapsedSeconds = totalSecondsInTest - totalSecondsRemaining;
-          const progress = Math.max(0, Math.min(100, (elapsedSeconds / totalSecondsInTest) * 100));
-          setTimeProgress(progress);
-        }
-      };
+      // Calculate progress percentage: elapsed time / total time * 100
+      const progress = Math.max(0, Math.min(100, (elapsedMs / totalTestMs) * 100));
 
-      // Update immediately
-      updateProgress();
+      // Debug logging
+      console.log('Progress calculation (direct):', {
+        now,
+        endTime,
+        testStartTime,
+        totalTestMs,
+        elapsedMs,
+        progress: `${progress.toFixed(1)}%`,
+        timeLimitMinutes,
+        remainingMs: endTime - now
+      });
 
-      // Update every 10 seconds
-      const interval = setInterval(updateProgress, 10000);
+      setTimeProgress(progress);
+    };
 
-      return () => clearInterval(interval);
-    }, [totalSecondsRemaining, totalSecondsInTest]);
-  }
+    // Update immediately
+    updateProgress();
 
-  // Use time-based progress if available, otherwise fall back to question-based progress
-  const progressPercentage = endTime && endTime > 0 && timeLimitMinutes ? timeProgress : (total > 0 ? (current / total) * 100 : 0);
+    // Update every 10 seconds
+    const interval = setInterval(updateProgress, 10000);
+
+    return () => clearInterval(interval);
+  }, [endTime, timeLimitMinutes]);
+
+  // Use time-based progress if available and valid, otherwise fall back to question-based progress
+  const isValidTimeProgress = endTime && endTime > 0 && timeLimitMinutes && timeProgress >= 0 && timeProgress <= 100;
+  const progressPercentage = isValidTimeProgress ? timeProgress : (total > 0 ? (current / total) * 100 : 0);
 
   return (
     <div className={`${CARD_STYLES} relative`}>
@@ -85,7 +95,7 @@ export const ProgressBar: FC<Props> = ({
           <div className={'flex items-center gap-1 md:gap-2'}>
             <div
               className={`${ACTION_BTN_STYLES} flex items-center !cursor-default pointer-events-none  justify-center !p-0 !w-[42px] md:!w-[46px]`}>
-              <img className={'!w-[18px]'} src={'/icon/clock.svg'} alt={'icon left'}/>
+              <img className={'!w-[18px]'} src={'/icon/clock.svg'} alt={'icon left'} />
             </div>
             {endTime && (
               <span className="text-base font-medium text-gray-700">
@@ -105,7 +115,7 @@ export const ProgressBar: FC<Props> = ({
             disabled={isFinishing}
             className={`${ACTION_BTN_STYLES} !text-base ${isFinishing && 'opacity-50 !cursor-not-allowed'} `}>
             {t('test.finishTest')}
-            {isFinishing ? <LoadingSvg color={'blue'}/> : <img src={'/icon/check-circle.svg'} alt={'icon left'}/>}
+            {isFinishing ? <LoadingSvg color={'blue'} /> : <img src={'/icon/check-circle.svg'} alt={'icon left'} />}
           </button>
         </div>
       </div>
@@ -115,7 +125,7 @@ export const ProgressBar: FC<Props> = ({
         className="w-full bg-transparent absolute bottom-0 left-0 h-2 overflow-hidden rounded-bl-[16px] rounded-br-[16px]">
         <div
           className="bg-[#00A2DE] h-2 transition-all duration-300 ease-out"
-          style={{width: `${progressPercentage}%`}}
+          style={{ width: `${progressPercentage}%` }}
         />
       </div>
     </div>

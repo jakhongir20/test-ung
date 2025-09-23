@@ -9,6 +9,8 @@ import {
   useSessionProgress,
   useSubmitAnswer
 } from '../api/surveys';
+import { useQueryClient } from '@tanstack/react-query';
+import { customInstance } from '../api/mutator/custom-instance';
 import { handleAuthError } from '../api/auth';
 import { useI18n } from "../i18n.tsx";
 import { ACTION_BTN_STYLES, CARD_STYLES } from "../components/test/test.data.ts";
@@ -32,6 +34,7 @@ const TestPage: FC = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const {t} = useI18n();
+  const queryClient = useQueryClient();
 
   // Function to determine survey category based on survey data
   const getSurveyCategory = (surveyData: any): string => {
@@ -218,6 +221,56 @@ const TestPage: FC = () => {
   const built = byOrder[order];
   const selected = answers[order] || [];
   const textAnswer = textAnswers[order] || '';
+
+  // Ensure we have valid values for ProgressBar
+  const safeOrder = Math.max(order, 1);
+  const safeTotal = Math.max(total, 1);
+
+  // Prefetch next question for smoother navigation
+  useEffect(() => {
+    if (sessionId && navigationData?.has_next && navigationData.next_order) {
+      const nextOrder = navigationData.next_order;
+
+      // Only prefetch if we don't already have this question cached
+      if (!byOrder[nextOrder]) {
+        queryClient.prefetchQuery({
+          queryKey: ['sessionsGetQuestionRetrieve', sessionId, {order: nextOrder}],
+          queryFn: async () => {
+            const response = await customInstance({
+              method: 'GET',
+              url: `/api/sessions/${sessionId}/get_question/`,
+              params: {order: nextOrder}
+            });
+            return response;
+          },
+          staleTime: 5 * 60 * 1000, // 5 minutes
+          gcTime: 10 * 60 * 1000, // 10 minutes
+        });
+      }
+    }
+
+    // Also prefetch previous question for smoother backward navigation
+    if (sessionId && navigationData?.has_previous && navigationData.previous_order) {
+      const prevOrder = navigationData.previous_order;
+
+      // Only prefetch if we don't already have this question cached
+      if (!byOrder[prevOrder]) {
+        queryClient.prefetchQuery({
+          queryKey: ['sessionsGetQuestionRetrieve', sessionId, {order: prevOrder}],
+          queryFn: async () => {
+            const response = await customInstance({
+              method: 'GET',
+              url: `/api/sessions/${sessionId}/get_question/`,
+              params: {order: prevOrder}
+            });
+            return response;
+          },
+          staleTime: 5 * 60 * 1000, // 5 minutes
+          gcTime: 10 * 60 * 1000, // 10 minutes
+        });
+      }
+    }
+  }, [sessionId, navigationData?.has_next, navigationData?.next_order, navigationData?.has_previous, navigationData?.previous_order, byOrder, queryClient]);
 
   // Check if current question has any answers selected
   const hasAnswers = built?.isOpen ? textAnswer.trim().length > 0 : selected.length > 0;
@@ -412,26 +465,6 @@ const TestPage: FC = () => {
     );
   }
 
-  // Show loading state
-  if (isLoading || current === null) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="max-w-md mx-auto bg-white rounded-lg shadow-lg p-6 text-center">
-          <div className="w-16 h-16 mx-auto mb-4 bg-cyan-100 rounded-full flex items-center justify-center">
-            <svg className="w-8 h-8 text-cyan-600 animate-spin" fill="none" viewBox="0 0 24 24">
-              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-              <path className="opacity-75" fill="currentColor"
-                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-            </svg>
-          </div>
-          <h2 className="text-xl font-semibold text-gray-900 mb-2">{t('loading.test')}</h2>
-          <p className="text-gray-600">
-            {t('loading.testDesc')}
-          </p>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <BackgroundWrapper>
@@ -442,8 +475,8 @@ const TestPage: FC = () => {
           <FadeIn delay={100}>
             <ProgressBar
               title={getSurveyCategory(sessionData?.survey?.time_limit_minutes)}
-              current={order}
-              total={total}
+              current={safeOrder}
+              total={safeTotal}
               isFinishing={isFinishing}
               endTime={expiresAtMs}
               timeLimitMinutes={sessionData?.survey?.time_limit_minutes}
@@ -478,8 +511,37 @@ const TestPage: FC = () => {
               />
             </FadeIn>
           ) : (
-            <section
-              className="rounded-2xl bg-white shadow-sm ring-1 ring-gray-200 p-6">{t('test.loadingQuestion')}</section>
+            <section className="rounded-2xl bg-white shadow-sm ring-1 ring-gray-200 p-6">
+              <div className="animate-pulse">
+                {/* Question number skeleton */}
+                <div className="h-6 bg-gray-200 rounded w-20 mb-4"></div>
+
+                {/* Question title skeleton */}
+                <div className="space-y-2 mb-6">
+                  <div className="h-4 bg-gray-200 rounded w-full"></div>
+                  <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+                  <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+                </div>
+
+                {/* Answer options skeleton */}
+                <div className="space-y-3">
+                  {[1, 2, 3, 4].map((i) => (
+                    <div key={i} className="flex items-center space-x-3">
+                      <div className="w-6 h-6 bg-gray-200 rounded-full"></div>
+                      <div className="h-4 bg-gray-200 rounded w-full"></div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Loading text */}
+                <div className="mt-6 text-center">
+                  <div className="inline-flex items-center space-x-2 text-gray-500">
+                    <div className="w-4 h-4 border-2 border-gray-300 border-t-blue-600 rounded-full animate-spin"></div>
+                    <span>{t('test.loadingQuestion')}</span>
+                  </div>
+                </div>
+              </div>
+            </section>
           )}
 
           <div className="relative">
@@ -487,7 +549,7 @@ const TestPage: FC = () => {
               <button
                 onClick={() => setNavOpen((v) => !v)}
                 className={ACTION_BTN_STYLES}>
-                {t('test.questionOf', {current: order, total})}
+                {t('test.questionOf', {current: safeOrder, total: safeTotal})}
                 <img src="/icon/arrow-t.svg" alt=""/>
               </button>
               <div className="flex items-center gap-2">
@@ -498,24 +560,51 @@ const TestPage: FC = () => {
                   <img src={'/icon/arrow-l-w.svg'} alt={'icon left'}/>
                 </button>
                 <button
-                  disabled={isExpired || !hasAnswers}
+                  disabled={isExpired || !hasAnswers || isLoading}
                   onClick={() => go(1)}
-                  className={`${ACTION_BTN_STYLES} !bg-[#00A2DE] text-white !text-base ${isExpired || !hasAnswers ? 'opacity-50 !cursor-not-allowed' : ''}`}>
-                  <span className={'md:inline hidden'}>{isLastQuestion ? t('test.finish') : t('test.next')}</span>
-                  {!isLastQuestion ? <img src={'/icon/arrow-r-w.svg'} alt={'icon left'}/> :
-                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <path
-                        d="M7.24967 9.99999L9.08301 11.8333L12.7497 8.16666M19.1663 9.99999C19.1663 15.0626 15.0623 19.1667 9.99967 19.1667C4.93706 19.1667 0.833008 15.0626 0.833008 9.99999C0.833008 4.93738 4.93706 0.833328 9.99967 0.833328C15.0623 0.833328 19.1663 4.93738 19.1663 9.99999Z"
-                        stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                    </svg>
-                  }
+                  onMouseEnter={() => {
+                    // Prefetch next question on hover for even smoother experience
+                    if (!isLastQuestion && sessionId && navigationData?.has_next && navigationData.next_order) {
+                      const nextOrder = navigationData.next_order;
+                      if (!byOrder[nextOrder]) {
+                        queryClient.prefetchQuery({
+                          queryKey: ['sessionsGetQuestionRetrieve', sessionId, {order: nextOrder}],
+                          queryFn: async () => {
+                            const response = await customInstance({
+                              method: 'GET',
+                              url: `/api/sessions/${sessionId}/get_question/`,
+                              params: {order: nextOrder}
+                            });
+                            return response;
+                          },
+                          staleTime: 5 * 60 * 1000,
+                          gcTime: 10 * 60 * 1000,
+                        });
+                      }
+                    }
+                  }}
+                  className={`${ACTION_BTN_STYLES} !bg-[#00A2DE] text-white !text-base ${isExpired || !hasAnswers || isLoading ? 'opacity-50 !cursor-not-allowed' : ''}`}>
+                  {isLoading ? (
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"/>
+                  ) : (
+                    <>
+                      <span className={'md:inline hidden'}>{isLastQuestion ? t('test.finish') : t('test.next')}</span>
+                      {!isLastQuestion ? <img src={'/icon/arrow-r-w.svg'} alt={'icon left'}/> :
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <path
+                            d="M7.24967 9.99999L9.08301 11.8333L12.7497 8.16666M19.1663 9.99999C19.1663 15.0626 15.0623 19.1667 9.99967 19.1667C4.93706 19.1667 0.833008 15.0626 0.833008 9.99999C0.833008 4.93738 4.93706 0.833328 9.99967 0.833328C15.0623 0.833328 19.1663 4.93738 19.1663 9.99999Z"
+                            stroke="#ffffff" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                        </svg>
+                      }
+                    </>
+                  )}
                 </button>
               </div>
             </div>
 
             <QuestionNavigator
-              total={total}
-              currentIndex={Math.max(order - 1, 0)} // Convert order to zero-based index for navigator
+              total={safeTotal}
+              currentIndex={Math.max(safeOrder - 1, 0)} // Convert order to zero-based index for navigator
               answered={answeredFlags}
               open={navOpen}
               onClose={() => setNavOpen(false)}

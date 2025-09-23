@@ -10,7 +10,7 @@ export default function AuthLayout() {
       <div className="flex flex-col justify-center items-center rounded-xl">
         <div className={'mb-6'}>
           <div className="flex items-center justify-center mb-8 md:mb-10 gap-2 text-xl font-bold text-orange-600">
-            <img src="/logo.svg" className="w-[300px] md:w-[350px]" alt="logo"/>
+            <img src="/logo.svg" className="w-[350px] md:w-[380px]" alt="logo"/>
           </div>
           <Outlet/>
           <div className="flex text-[#90A1B9] mt-3 text-sm px-6 justify-between">

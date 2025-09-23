@@ -3,7 +3,11 @@ import { useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { useI18n } from '../i18n';
 import { handleAuthError } from '../api/auth';
-import { useSessionsAllAnswersRetrieve, useSessionsRetrieve } from '../api/generated/respondentWebAPI';
+import {
+  useSessionsAllAnswersRetrieve,
+  useSessionsRetrieve,
+  useUsersMeRetrieve
+} from '../api/generated/respondentWebAPI';
 import { MyProfileBanner } from "../components/MyProfileBanner.tsx";
 import type { Column } from "../components/DataTable.tsx";
 import { DataTable } from "../components/DataTable.tsx";
@@ -12,12 +16,13 @@ import { StatusBadge } from "../components/StatusBadge.tsx";
 import { BackgroundWrapper } from "../components/BackgroundWrapper.tsx";
 
 const UserSessionDetailsPage: FC = () => {
-  const {t} = useI18n();
-  const {id} = useParams<{ id: string; }>();
+  const { t } = useI18n();
+  const { id } = useParams<{ id: string; }>();
 
   // Fetch session details for regular users
   const sessionQuery = useSessionsRetrieve(id!);
   const allAnswersQuery = useSessionsAllAnswersRetrieve(id!);
+  const userQuery = useUsersMeRetrieve();
 
   // Handle authentication errors
   useEffect(() => {
@@ -38,7 +43,7 @@ const UserSessionDetailsPage: FC = () => {
             <svg className="w-8 h-8 text-cyan-600 animate-spin" fill="none" viewBox="0 0 24 24">
               <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
               <path className="opacity-75" fill="currentColor"
-                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
             </svg>
           </div>
           <h2 className="text-xl font-semibold text-gray-900 mb-2">{t('loading.sessionDetails')}</h2>
@@ -58,7 +63,7 @@ const UserSessionDetailsPage: FC = () => {
           <div className="w-16 h-16 mx-auto mb-4 bg-red-100 rounded-full flex items-center justify-center">
             <svg className="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"/>
+                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
             </svg>
           </div>
           <h2 className="text-xl font-semibold text-gray-900 mb-2">{t('error.connection')}</h2>
@@ -81,10 +86,12 @@ const UserSessionDetailsPage: FC = () => {
 
   const sessionData = sessionQuery.data as any;
   const allAnswersData = allAnswersQuery.data as any;
+  const userData = userQuery.data as any;
 
   // Debug logging to understand data structure
   console.log('Session Data:', sessionData);
   console.log('All Answers Data:', allAnswersData);
+  console.log('User Data:', userData);
 
   // Extract session and questions data
   // For sessionsRetrieve, the data is directly on the response, not nested under 'session'
@@ -111,7 +118,7 @@ const UserSessionDetailsPage: FC = () => {
   console.log('Session Object:', session);
 
   const getAnswerStatus = (question: any) => {
-    if (!question.answer) return {status: 'incorrect', text: t('session.incorrect')};
+    if (!question.answer) return { status: 'incorrect', text: t('session.incorrect') };
     const isCorrect = question.answer.is_correct;
     return {
       status: isCorrect ? 'correct' : 'incorrect',
@@ -206,7 +213,7 @@ const UserSessionDetailsPage: FC = () => {
       className: 'whitespace-nowrap',
       render: (_, question) => {
         const answerStatus = getAnswerStatus(question);
-        return <StatusBadge status={answerStatus.status}/>;
+        return <StatusBadge status={answerStatus.status} />;
       }
     },
   ];
@@ -223,15 +230,21 @@ const UserSessionDetailsPage: FC = () => {
   return (
     <BackgroundWrapper>
       <div className="min-h-screen md:p-6">
-        <MyProfileBanner title={t('session.scoreDetails')} description={t('session.scoreDetailsDesc')}/>
-        <br/>
+        <MyProfileBanner title={t('session.scoreDetails')} description={t('session.scoreDetailsDesc')} />
+        <br />
         <div className={CARD_STYLES}>
           <div className="">
             <h2 className="text-2xl font-bold text-gray-900 mb-2">
-              {session?.survey?.title || t('session.testNumber', {number: 1})}
+              {session?.survey?.title || t('session.testNumber', { number: 1 })}
             </h2>
             <p className="text-gray-600 mb-6">
-              {t('session.testDesc')}
+              {userData?.name
+                ? t('session.personalizedGreeting', {
+                  name: userData.name,
+                  score: correctAnswers
+                })
+                : t('session.testDesc')
+              }
             </p>
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               {[
@@ -251,8 +264,8 @@ const UserSessionDetailsPage: FC = () => {
                   color: 'text-red-600'
                 },
                 {
-                  value: `${sessionPercentage}%`,
-                  label: t('session.scorePercentage'),
+                  value: correctAnswers,
+                  label: t('session.scorePoints'),
                   color: 'text-purple-600'
                 }
               ].map((stat, idx) => (

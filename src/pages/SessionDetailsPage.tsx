@@ -4,6 +4,7 @@ import { useParams } from 'react-router-dom';
 import { useI18n } from '../i18n';
 import { handleAuthError } from '../api/auth';
 import { useModeratorUserSessionDetails } from '../api/moderator';
+import { useUsersMeRetrieve } from '../api/generated/respondentWebAPI';
 import { useAuthStore } from '../stores/authStore';
 import { MyProfileBanner } from "../components/MyProfileBanner.tsx";
 import type { Column } from "../components/DataTable.tsx";
@@ -25,6 +26,7 @@ const SessionDetailsPage: FC = () => {
 
   // Fetch session details with moderator API
   const sessionQuery = useModeratorUserSessionDetails(id);
+  const userQuery = useUsersMeRetrieve();
 
   // Handle authentication errors
   useEffect(() => {
@@ -83,6 +85,7 @@ const SessionDetailsPage: FC = () => {
   }
 
   const sessionData = sessionQuery.data as any;
+  const userData = userQuery.data as any;
   const session = sessionData?.session;
   const questions = sessionData?.questions || [];
 
@@ -90,9 +93,6 @@ const SessionDetailsPage: FC = () => {
   const totalQuestions = questions.length;
   const correctAnswers = questions.filter((q: any) => q.answer && q.answer.is_correct).length;
   const incorrectAnswers = totalQuestions - correctAnswers;
-
-  // Use session data for additional statistics
-  const sessionPercentage = session?.percentage || 0;
 
   const getAnswerStatus = (question: any) => {
     if (!question.answer) return { status: 'incorrect', text: t('session.incorrect') };
@@ -236,7 +236,13 @@ const SessionDetailsPage: FC = () => {
               {session?.survey?.title || t('session.testNumber', { number: 1 })}
             </h2>
             <p className="text-gray-600 mb-6">
-              {t('session.testDesc')}
+              {userData?.name
+                ? t('session.personalizedGreeting', {
+                  name: userData.name,
+                  score: correctAnswers
+                })
+                : t('session.testDesc')
+              }
             </p>
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               {[
@@ -256,8 +262,8 @@ const SessionDetailsPage: FC = () => {
                   color: 'text-red-600'
                 },
                 {
-                  value: `${sessionPercentage}%`,
-                  label: t('session.scorePercentage'),
+                  value: correctAnswers,
+                  label: t('session.scorePoints'),
                   color: 'text-purple-600'
                 }
               ].map((stat, idx) => (
