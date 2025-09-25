@@ -14,13 +14,13 @@ const CertificatePage: FC = () => {
   useEffect(() => {
     const loadCertificateData = async () => {
       if (!id) {
-        setError('Certificate ID is required');
+        setError('User ID is required');
         setIsLoading(false);
         return;
       }
 
-      console.log('🔍 Loading certificate data for ID:', id);
-      console.log('🌐 API URL:', `/api/certificate/test/certificate/${id}/data/`);
+      console.log('🔍 Loading certificate data for User ID:', id);
+      console.log('🌐 API URL:', `/api/certificate/user/${id}/certificate/data/`);
 
       try {
         setIsLoading(true);
@@ -50,8 +50,8 @@ const CertificatePage: FC = () => {
   const handleDownload = async () => {
     if (!id || !certificateData) return;
 
-    console.log('📥 Starting certificate download for ID:', id);
-    console.log('🌐 Download URL:', `/api/certificate/test/certificate/${id}/download/`);
+    console.log('📥 Starting certificate download for User ID:', id);
+    console.log('🌐 Download URL:', `/api/certificate/user/${id}/certificate/download/`);
 
     try {
       setIsDownloading(true);
@@ -62,7 +62,7 @@ const CertificatePage: FC = () => {
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
-      link.download = `certificate_${certificateData.user.name}_${certificateData.certificate_number}.pdf`;
+      link.download = `certificate_${certificateData.user_name}_${certificateData.id}.pdf`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
@@ -121,10 +121,10 @@ const CertificatePage: FC = () => {
   }
 
   // Extract data from API response
-  const userName = certificateData.user.name;
-  const userPosition = certificateData.user.position;
-  const userBranch = certificateData.user.branch;
-  const certificateNumber = certificateData.certificate_number;
+  const userName = certificateData.user_name;
+  const userPosition = certificateData.user_position;
+  const userBranch = certificateData.user_branch;
+  const certificateNumber = certificateData.certificate_order;
 
   return (
     <div

@@ -641,6 +641,40 @@
                 }
             }
         },
+        "/api/gtf/": {
+            "get": {
+                "operationId": "gtf_list",
+                "description": "Получить список всех ГТФ (филиалов).",
+                "summary": "Список ГТФ",
+                "tags": [
+                    "ГТФ"
+                ],
+                "security": [
+                    {
+                        "jwtAuth": []
+                    },
+                    {
+                        "cookieAuth": []
+                    },
+                    {
+                        "tokenAuth": []
+                    },
+                    {}
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/GtfListResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            }
+        },
         "/api/branches/": {
             "get": {
                 "operationId": "branches_list",
@@ -3941,6 +3975,47 @@
                 },
                 "required": [
                     "branches"
+                ]
+            },
+            "Gtf": {
+                "type": "object",
+                "description": "Модель ГТФ (филиала).",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "description": "ID ГТФ"
+                    },
+                    "name_uz": {
+                        "type": "string",
+                        "description": "Название на узбекском языке"
+                    },
+                    "name_uz_cyrl": {
+                        "type": "string",
+                        "description": "Название на узбекском языке (кириллица)"
+                    },
+                    "name_ru": {
+                        "type": "string",
+                        "description": "Название на русском языке"
+                    }
+                },
+                "required": [
+                    "id",
+                    "name_uz"
+                ]
+            },
+            "GtfListResponse": {
+                "type": "object",
+                "description": "Ответ со списком ГТФ.",
+                "properties": {
+                    "gtf": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/Gtf"
+                        }
+                    }
+                },
+                "required": [
+                    "gtf"
                 ]
             }
         },

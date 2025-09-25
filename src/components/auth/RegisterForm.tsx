@@ -1,10 +1,9 @@
 import type { FC } from 'react';
 import { useEffect, useRef } from "react";
 import { Controller, useForm } from "react-hook-form";
-import { MaskedInput } from "antd-mask-input";
 import { Link, useNavigate } from "react-router-dom";
 import { useRegister } from "../../api/auth.ts";
-import { usePositionsList, useBranchesList } from "../../api/generated/respondentWebAPI";
+import { usePositionsList, useBranchesList, useGtfList } from "../../api/generated/respondentWebAPI";
 import { FormButton } from "./FormButton.tsx";
 import { useI18n } from "../../i18n";
 
@@ -13,18 +12,15 @@ interface Props {
 }
 
 type RegisterFormValues = {
-  phone: string;
+  login: string;
   password: string;
   confirmPassword: string;
   name: string;
   position_id: number;
   gtf_id: number;
+  branch_id: number;
 };
 
-const uzPhoneValidate = (val: string, t: (key: string) => string) => {
-  const onlyDigits = (val || '').replace(/\D/g, '');
-  return onlyDigits.length === 12 && onlyDigits.startsWith('998') || t('auth.invalidPhone');
-};
 
 export const authInputStyle = 'block !border-1 w-full !text-[#64748B] focus:!text-black !text-base !h-11 !rounded-xl border-[#E2E8F0] focus:ring-[#00A2DE] focus:border-[#00A2DE] px-3 py-2';
 
@@ -33,9 +29,10 @@ export const RegisterForm: FC<Props> = ({ }) => {
   const register = useRegister();
   const { t, lang } = useI18n();
 
-  // Fetch positions and branches from API
+  // Fetch positions, branches, and GTF from API
   const { data: positionsData, isLoading: positionsLoading, error: positionsError } = usePositionsList();
   const { data: branchesData, isLoading: branchesLoading, error: branchesError } = useBranchesList();
+  const { data: gtfData, isLoading: gtfLoading, error: gtfError } = useGtfList();
 
   const {
     control,
@@ -43,20 +40,23 @@ export const RegisterForm: FC<Props> = ({ }) => {
     formState: { errors, isSubmitting },
     clearErrors,
     trigger,
-    watch
+    watch,
+    setValue
   } = useForm<RegisterFormValues>({
     defaultValues: {
-      phone: '',
+      login: '',
       password: '',
       confirmPassword: '',
       name: '',
       position_id: 0,
-      gtf_id: 0
+      gtf_id: 0,
+      branch_id: 0
     },
   });
 
   const prevLangRef = useRef(lang);
   const password = watch('password');
+  const branchId = watch('branch_id');
 
   // Helper function to get localized name
   const getLocalizedName = (item: any) => {
@@ -72,8 +72,14 @@ export const RegisterForm: FC<Props> = ({ }) => {
     }
   };
 
+  // Filter positions based on selected branch
+  const filteredPositions = positionsData?.positions?.filter((position: any) => {
+    if (!branchId || branchId === 0) return true; // Show all positions if no branch selected
+    return position.branch?.id === branchId;
+  }) || [];
+
   // Show error if API calls failed
-  if (positionsError || branchesError) {
+  if (positionsError || branchesError || gtfError) {
     return (
       <div className="text-center py-8">
         <div className="text-red-600 text-base mb-4">
@@ -99,10 +105,18 @@ export const RegisterForm: FC<Props> = ({ }) => {
     }
   }, [lang, clearErrors, trigger, errors]);
 
+  // Reset position when branch changes
+  useEffect(() => {
+    setValue('position_id', 0);
+  }, [branchId, setValue]);
+
   // Create reactive validation rules
-  const phoneValidationRules = {
+  const loginValidationRules = {
     required: t('auth.fieldRequired'),
-    validate: (val: string) => uzPhoneValidate(val, t)
+    minLength: {
+      value: 1,
+      message: t('auth.loginMinLength')
+    }
   };
 
   const passwordValidationRules = {
@@ -129,7 +143,7 @@ export const RegisterForm: FC<Props> = ({ }) => {
   const onSubmit = async (values: RegisterFormValues) => {
     try {
       await register.mutateAsync({
-        phone: values.phone.replace(/\s/g, ''),
+        phone: values.login,
         password: values.password,
         name: values.name,
         position_id: values.position_id,
@@ -138,8 +152,19 @@ export const RegisterForm: FC<Props> = ({ }) => {
       navigate('/', { replace: true });
     } catch (error: any) {
       // Handle registration errors
-      if (error?.response?.data?.phone_number) {
-        console.error('Phone number already exists');
+      console.error('Registration error:', error);
+
+      // Show server error message
+      if (error?.response?.data?.non_field_errors) {
+        alert(error.response.data.non_field_errors[0]);
+      } else if (error?.response?.data?.detail) {
+        alert(error.response.data.detail);
+      } else if (error?.response?.data?.message) {
+        alert(error.response.data.message);
+      } else if (error?.response?.data?.phone_number) {
+        alert(error.response.data.phone_number[0]);
+      } else {
+        alert(t('auth.registerError'));
       }
     }
   };
@@ -147,22 +172,21 @@ export const RegisterForm: FC<Props> = ({ }) => {
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="">
       <div className={'mb-6'}>
-        <label className="block text-base text-black font-medium mb-1.5">{t('auth.phoneNumber')}</label>
+        <label className="block text-base text-black font-medium mb-1.5">{t('auth.login')}</label>
         <Controller
-          name="phone"
+          name="login"
           control={control}
-          rules={phoneValidationRules}
+          rules={loginValidationRules}
           render={({ field }) => (
-            <MaskedInput
+            <input
               {...field}
-              mask="+998 00 000 00 00"
-              placeholder={t('auth.phonePlaceholder')}
-              size="large"
+              type="text"
+              placeholder={t('auth.loginPlaceholder')}
               className={authInputStyle}
             />
           )}
         />
-        {errors.phone && <p className="text-red-600 text-base mt-1">{errors.phone.message}</p>}
+        {errors.login && <p className="text-red-600 text-base mt-1">{errors.login.message}</p>}
       </div>
 
       <div className={'mb-6'}>
@@ -220,15 +244,35 @@ export const RegisterForm: FC<Props> = ({ }) => {
       </div>
 
       <div className={'mb-6'}>
+        <label className="block text-base text-black font-medium mb-1.5">Филиал</label>
+        <Controller
+          name="branch_id"
+          control={control}
+          rules={{ required: t('auth.fieldRequired'), validate: (v: number) => v !== 0 || t('auth.fieldRequired') }}
+          render={({ field }) => (
+            <select {...field} className={authInputStyle} disabled={branchesLoading}>
+              <option value={0}>Выберите филиал</option>
+              {branchesData?.branches?.map((branch) => (
+                <option key={branch.id} value={branch.id}>
+                  {getLocalizedName(branch)}
+                </option>
+              ))}
+            </select>
+          )}
+        />
+        {errors.branch_id && <p className="text-red-600 text-base mt-1">{errors.branch_id.message}</p>}
+      </div>
+
+      <div className={'mb-6'}>
         <label className="block text-base text-black font-medium mb-1.5">{t('auth.position')}</label>
         <Controller
           name="position_id"
           control={control}
-          rules={{ required: t('auth.fieldRequired') }}
+          rules={{ required: t('auth.fieldRequired'), validate: (v: number) => v !== 0 || t('auth.fieldRequired') }}
           render={({ field }) => (
-            <select {...field} className={authInputStyle} disabled={positionsLoading}>
-              <option value={0}>{t('auth.selectPosition')}</option>
-              {positionsData?.positions?.map((position) => (
+            <select {...field} className={authInputStyle} disabled={positionsLoading || !branchId || branchId === 0}>
+              <option value={0}>{branchId && branchId !== 0 ? t('auth.selectPosition') : 'Сначала выберите филиал'}</option>
+              {filteredPositions.map((position) => (
                 <option key={position.id} value={position.id}>
                   {getLocalizedName(position)}
                 </option>
@@ -244,13 +288,13 @@ export const RegisterForm: FC<Props> = ({ }) => {
         <Controller
           name="gtf_id"
           control={control}
-          rules={{ required: t('auth.fieldRequired') }}
+          rules={{ required: t('auth.fieldRequired'), validate: (v: number) => v !== 0 || t('auth.fieldRequired') }}
           render={({ field }) => (
-            <select {...field} className={authInputStyle} disabled={branchesLoading}>
+            <select {...field} className={authInputStyle} disabled={gtfLoading}>
               <option value={0}>{t('auth.selectBranch')}</option>
-              {branchesData?.branches?.map((branch) => (
-                <option key={branch.id} value={branch.id}>
-                  {getLocalizedName(branch)}
+              {gtfData?.gtf?.map((gtf) => (
+                <option key={gtf.id} value={gtf.id}>
+                  {getLocalizedName(gtf)}
                 </option>
               ))}
             </select>
@@ -259,7 +303,7 @@ export const RegisterForm: FC<Props> = ({ }) => {
         {errors.gtf_id && <p className="text-red-600 text-base mt-1">{errors.gtf_id.message}</p>}
       </div>
 
-      <FormButton isLoading={isSubmitting || positionsLoading || branchesLoading} title={t('auth.register')} />
+      <FormButton isLoading={isSubmitting || positionsLoading || branchesLoading || gtfLoading} title={t('auth.register')} />
 
       <div className="text-center mt-4">
         <p className="text-gray-600 text-base">

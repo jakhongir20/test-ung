@@ -5,7 +5,6 @@ import { useI18n } from '../i18n';
 import { handleAuthError } from '../api/auth';
 import { useModeratorUserSessionDetails } from '../api/moderator';
 import { useUsersMeRetrieve } from '../api/generated/respondentWebAPI';
-import { useAuthStore } from '../stores/authStore';
 import { MyProfileBanner } from "../components/MyProfileBanner.tsx";
 import type { Column } from "../components/DataTable.tsx";
 import { DataTable } from "../components/DataTable.tsx";
@@ -17,16 +16,15 @@ import UserSessionDetailsPage from './UserSessionDetailsPage';
 const SessionDetailsPage: FC = () => {
   const { t } = useI18n();
   const { id } = useParams<{ id: string; }>();
-  const user = useAuthStore((s) => s.user);
+  const userQuery = useUsersMeRetrieve();
 
-  // If user is not a moderator, redirect to user session details page
-  if (user && !user.is_moderator) {
+  // If user is not a moderator (based on users/me), redirect to user session details page
+  if (userQuery.data && !userQuery.data.is_moderator) {
     return <UserSessionDetailsPage />;
   }
 
   // Fetch session details with moderator API
   const sessionQuery = useModeratorUserSessionDetails(id);
-  const userQuery = useUsersMeRetrieve();
 
   // Handle authentication errors
   useEffect(() => {

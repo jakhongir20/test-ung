@@ -76,20 +76,8 @@ const AdminEmployeesPage: FC = () => {
 
   const confirmCertificateDownload = () => {
     if (certificateModal.userId) {
-      // Get the user details to find the latest completed session
-      const userDetails = users.find((u: any) => u.id === certificateModal.userId);
-      if (userDetails && userDetails.survey_history && userDetails.survey_history.length > 0) {
-        // Find the latest completed session
-        const latestSession = userDetails.survey_history.find((session: any) => session.status === 'completed');
-        if (latestSession && latestSession.id) {
-          // Open certificate page with session ID
-          window.open(`/certificate/${latestSession.id}`, '_blank');
-        } else {
-          alert(t('certificate.noCompletedSessions'));
-        }
-      } else {
-        alert(t('certificate.noSurveyHistory'));
-      }
+      // Open certificate page with user ID (new API structure)
+      window.open(`/certificate/${certificateModal.userId}`, '_blank');
     }
     setCertificateModal({
       isOpen: false,
@@ -121,7 +109,7 @@ const AdminEmployeesPage: FC = () => {
       render: (value) => value || t('admin.na')
     },
     {
-      key: 'position',
+      key: 'position_name',
       title: t('table.position'),
       sortable: true,
       render: (value) => value || t('admin.na')
@@ -170,7 +158,8 @@ const AdminEmployeesPage: FC = () => {
             title={t('certificate.downloadTitle')}
           >
             <svg className="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
             </svg>
           </button>
         </div>
@@ -209,7 +198,9 @@ const AdminEmployeesPage: FC = () => {
     <div>
 
       {selectedUserId && (
-        <div style={{ display: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 9999, width: '100%', height: '100%' }} className="!fixed inset-0 h-screen w-full top-0 bottom-0 left-0 right-0 z-[9999]">
+        <div
+          style={{ display: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 9999, width: '100%', height: '100%' }}
+          className="!fixed inset-0 h-screen w-full top-0 bottom-0 left-0 right-0 z-[9999]">
           {/* Backdrop */}
           <div className="absolute inset-0 bg-black/30" onClick={() => setSelectedUserId(null)} />
 
@@ -386,22 +377,18 @@ const AdminEmployeesPage: FC = () => {
                 </div>
               </div>
             </section>
-
-
-
-            {/* Certificate Download Confirmation Modal */}
-            <ConfirmationModal
-              isOpen={certificateModal.isOpen}
-              onClose={cancelCertificateDownload}
-              onConfirm={confirmCertificateDownload}
-              title={t('certificate.downloadTitle')}
-              message={t('certificate.downloadMessage', { userName: certificateModal.userName })}
-              confirmText={t('certificate.download')}
-              cancelText={t('certificate.cancel')}
-            />
           </div>
         </PageTransition>
       </BackgroundWrapper>
+      <ConfirmationModal
+        isOpen={certificateModal.isOpen}
+        onClose={cancelCertificateDownload}
+        onConfirm={confirmCertificateDownload}
+        title={t('certificate.downloadTitle')}
+        message={t('certificate.downloadMessage', { userName: certificateModal.userName })}
+        confirmText={t('certificate.download')}
+        cancelText={t('certificate.cancel')}
+      />
     </div>
 
   );

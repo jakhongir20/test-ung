@@ -461,7 +461,7 @@ const dictionary: Dictionary = {
   'logout': { uz: 'Chiqish', 'uz-cyrl': 'Чиқиш', ru: 'Выйти' },
 
   // Auth Pages
-  'auth.login': { uz: 'Kirish', 'uz-cyrl': 'Кириш', ru: 'Войти' },
+  'auth.login': { uz: 'Логин', 'uz-cyrl': 'Логин', ru: 'Логин' },
   'auth.phoneNumber': { uz: 'Telefon raqami', 'uz-cyrl': 'Телефон рақами', ru: 'Номер телефона' },
   'auth.getCode': { uz: 'Kod olish', 'uz-cyrl': 'Код олиш', ru: 'Получить код' },
   'auth.fieldRequired': { uz: 'Maydon majburiy', 'uz-cyrl': 'Майдон мажбурий', ru: 'Поле обязательно' },
@@ -470,12 +470,15 @@ const dictionary: Dictionary = {
   'auth.confirmLogin': { uz: 'Kirishni tasdiqlash', 'uz-cyrl': 'Киришни тасдиқлаш', ru: 'Подтверждение входа' },
 
   // New password-based auth
+  'auth.loginPlaceholder': { uz: 'Логинни киритинг', 'uz-cyrl': 'Логинни киритинг', ru: 'Введите логин' },
+  'auth.loginMinLength': { uz: 'Логин камида 1 белгидан иборат бўлиши керак', 'uz-cyrl': 'Логин камида 1 белгидан иборат бўлиши керак', ru: 'Логин должен содержать минимум 1 символ' },
   'auth.password': { uz: 'Parol', 'uz-cyrl': 'Парол', ru: 'Пароль' },
   'auth.passwordPlaceholder': { uz: 'Parolingizni kiriting', 'uz-cyrl': 'Паролингизни киритинг', ru: 'Введите пароль' },
   'auth.passwordMinLength': { uz: 'Parol kamida 6 belgidan iborat bo\'lishi kerak', 'uz-cyrl': 'Парол камида 6 белгидан иборат бўлиши керак', ru: 'Пароль должен содержать минимум 6 символов' },
   'auth.confirmPassword': { uz: 'Parolni tasdiqlash', 'uz-cyrl': 'Паролни тасдиқлаш', ru: 'Подтверждение пароля' },
   'auth.confirmPasswordPlaceholder': { uz: 'Parolni qayta kiriting', 'uz-cyrl': 'Паролни қайта киритинг', ru: 'Повторите пароль' },
-  'auth.passwordsDoNotMatch': { uz: 'Parollar mos kelmaydi', 'uz-cyrl': 'Пароллар мос келмайди', ru: 'Пароли не совпадают' },
+  'auth.loginError': { uz: 'Kirishda xatolik yuz berdi. Texnik yordamga murojaat qiling yoki keyinroq urinib ko\'ring.', 'uz-cyrl': 'Киришда хатолик юз берди. Техник ёрдамга муроожаат қилинг ёки кейинроқ уриниб кўринг.', ru: 'Ошибка при входе. Обратитесь в тех. поддержку или повторите позже.' },
+  'auth.registerError': { uz: 'Ro\'yxatdan o\'tishda xatolik yuz berdi. Texnik yordamga murojaat qiling yoki keyinroq urinib ko\'ring.', 'uz-cyrl': 'Рўйхатдан ўтишда хатолик юз берди. Техник ёрдамга муроожаат қилинг ёки кейинроқ уриниб кўринг.', ru: 'Ошибка при регистрации. Обратитесь в тех. поддержку или повторите позже.' },
   'auth.register': { uz: 'Ro\'yxatdan o\'tish', 'uz-cyrl': 'Рўйхатдан ўтиш', ru: 'Регистрация' },
   'auth.fullName': { uz: 'To\'liq ism', 'uz-cyrl': 'Тўлиқ исм', ru: 'Полное имя' },
   'auth.fullNamePlaceholder': { uz: 'To\'liq ismingizni kiriting', 'uz-cyrl': 'Тўлиқ исмингизни киритинг', ru: 'Введите полное имя' },

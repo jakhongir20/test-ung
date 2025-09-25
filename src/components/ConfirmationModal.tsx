@@ -12,22 +12,22 @@ interface ConfirmationModalProps {
 }
 
 export const ConfirmationModal: FC<ConfirmationModalProps> = ({
-  isOpen,
-  onClose,
-  onConfirm,
-  title,
-  message,
-  confirmText = 'OK',
-  cancelText = 'Cancel',
-  isLoading = false
-}) => {
+                                                                isOpen,
+                                                                onClose,
+                                                                onConfirm,
+                                                                title,
+                                                                message,
+                                                                confirmText = 'OK',
+                                                                cancelText = 'Cancel',
+                                                                isLoading = false
+                                                              }) => {
   if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
       {/* Backdrop */}
       <div
-        className="absolute inset-0 bg-black bg-opacity-50 transition-opacity"
+        className="absolute w-full h-full inset-0 bg-black bg-opacity-50 transition-opacity"
         onClick={onClose}
       />
 
@@ -44,7 +44,7 @@ export const ConfirmationModal: FC<ConfirmationModalProps> = ({
             disabled={isLoading}
           >
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12"/>
             </svg>
           </button>
         </div>

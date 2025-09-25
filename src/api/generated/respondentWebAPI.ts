@@ -54,6 +54,7 @@ import type {
   BranchesListResponse,
   CurrentSessionRetrieve200,
   CustomTokenObtainPairRequest,
+  GtfListResponse,
   LoginResponse,
   ModeratorDashboardRetrieve200,
   ModeratorSurveysDashboardStatsRetrieve200,
@@ -744,6 +745,95 @@ export function usePositionsList<TData = Awaited<ReturnType<typeof positionsList
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
   const queryOptions = getPositionsListQueryOptions(options)
+
+  const query = useQuery(queryOptions , queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  query.queryKey = queryOptions.queryKey ;
+
+  return query;
+}
+
+
+
+
+/**
+ * Получить список всех ГТФ (филиалов).
+ * @summary Список ГТФ
+ */
+export const gtfList = (
+    
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+      
+      
+      return customInstance<GtfListResponse>(
+      {url: `/api/gtf/`, method: 'GET', signal
+    },
+      options);
+    }
+  
+
+export const getGtfListQueryKey = () => {
+    return [`/api/gtf/`] as const;
+    }
+
+    
+export const getGtfListQueryOptions = <TData = Awaited<ReturnType<typeof gtfList>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof gtfList>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGtfListQueryKey();
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof gtfList>>> = ({ signal }) => gtfList(requestOptions, signal);
+
+      
+
+      
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof gtfList>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GtfListQueryResult = NonNullable<Awaited<ReturnType<typeof gtfList>>>
+export type GtfListQueryError = unknown
+
+
+export function useGtfList<TData = Awaited<ReturnType<typeof gtfList>>, TError = unknown>(
+  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof gtfList>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof gtfList>>,
+          TError,
+          Awaited<ReturnType<typeof gtfList>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGtfList<TData = Awaited<ReturnType<typeof gtfList>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof gtfList>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof gtfList>>,
+          TError,
+          Awaited<ReturnType<typeof gtfList>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGtfList<TData = Awaited<ReturnType<typeof gtfList>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof gtfList>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Список ГТФ
+ */
+
+export function useGtfList<TData = Awaited<ReturnType<typeof gtfList>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof gtfList>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getGtfListQueryOptions(options)
 
   const query = useQuery(queryOptions , queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 

@@ -37,6 +37,8 @@ export * from './branchesListResponse';
 export * from './currentSessionRetrieve200';
 export * from './currentSessionRetrieve200Session';
 export * from './customTokenObtainPairRequest';
+export * from './gtf';
+export * from './gtfListResponse';
 export * from './loginResponse';
 export * from './moderatorDashboardRetrieve200';
 export * from './moderatorDashboardRetrieve200RecentActivityItem';

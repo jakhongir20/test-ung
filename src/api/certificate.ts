@@ -1,50 +1,50 @@
 import { customInstance } from './mutator/custom-instance';
 
-// Certificate data response type
+// Certificate data response type based on new API structure
 export interface CertificateData {
   id: string;
-  user: {
-    id: number;
-    name: string;
-    position: string;
-    branch: string;
-    phone_number: string;
-  };
-  survey: {
-    id: number;
-    title: string;
-    description: string;
-  };
-  percentage: number;
+  certificate_order: number;
+  attempt_number: number;
+  user_name: string;
+  user_branch: string;
+  user_position: string;
+  user_work_domain: string;
+  user_employee_level: string;
+  survey_title: string;
+  survey_description: string;
   score: number;
   total_points: number;
+  percentage: string;
+  is_passed: boolean;
+  started_at: string;
   completed_at: string;
-  certificate_number: string;
+  duration_minutes: number;
+  language: string;
 }
 
-// Fetch certificate data by certificate ID
-export const fetchCertificateData = async (certificateId: string): Promise<CertificateData> => {
+// Fetch certificate data by user ID
+export const fetchCertificateData = async (userId: string): Promise<CertificateData> => {
   const response = await customInstance<CertificateData>({
     method: 'GET',
-    url: `/api/certificate/test/certificate/${certificateId}/data/`
+    url: `/api/certificate/user/${userId}/certificate/data/`
   });
   return response;
 };
 
-// Download certificate by certificate ID
-export const downloadCertificate = async (certificateId: string): Promise<Blob> => {
+// Download certificate by user ID
+export const downloadCertificate = async (userId: string): Promise<Blob> => {
   const response = await customInstance<Blob>({
     method: 'GET',
-    url: `/api/certificate/test/certificate/${certificateId}/download/`,
+    url: `/api/certificate/user/${userId}/certificate/download/`,
     responseType: 'blob'
   });
   return response;
 };
 
 // Hook for fetching certificate data
-export const useCertificateData = (certificateId: string) => {
+export const useCertificateData = (userId: string) => {
   return {
-    fetchData: () => fetchCertificateData(certificateId),
-    download: () => downloadCertificate(certificateId)
+    fetchData: () => fetchCertificateData(userId),
+    download: () => downloadCertificate(userId)
   };
 };

@@ -5,8 +5,13 @@ export type AuthUser = {
   id: number
   phone_number: string
   name: string
-  branch: string
-  position: string
+  position: number | string
+  branch_name?: string
+  position_name?: string
+  gtf?: number
+  gtf_name?: string
+  work_domain?: string
+  employee_level?: string
   is_moderator: boolean
   is_phone_verified: boolean
 }

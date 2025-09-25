@@ -24,16 +24,55 @@ function getInstance(): AxiosInstance {
   instance.interceptors.request.use((config) => {
     try {
       const seg = (typeof window !== 'undefined' ? window.location.pathname : '/').split('/')[1];
-      const lang = ['ru', 'uz'].includes(seg) ? seg : (localStorage.getItem('lang') ?? 'ru');
+      const stored = localStorage.getItem('lang');
+      const normalized = (v: string | null | undefined) => (v === 'ru' || v === 'uz' || v === 'uz-cyrl') ? v : null;
+      const lang = normalized(seg) || normalized(stored) || 'uz';
       config.headers = config.headers ?? {};
       config.headers['Accept-Language'] = lang as string;
     } catch {
     }
 
     const token = localStorage.getItem('accessToken');
+    console.log('🔑 Token check:', { 
+      hasToken: !!token, 
+      tokenLength: token?.length, 
+      url: config.url,
+      method: config.method,
+      tokenPreview: token ? token.substring(0, 20) + '...' : 'null'
+    });
+    
     if (token) {
-      config.headers = config.headers ?? {};
-      config.headers['Authorization'] = `Bearer ${token}` as string;
+      // Don't add authorization header for auth endpoints
+      const authEndpoints = [
+        '/api/auth/password-login/',
+        '/api/auth/register/',
+        '/api/auth/send-otp/',
+        '/api/auth/verify-otp/',
+        '/api/auth/login/',
+        '/api/auth/token/refresh/'
+      ];
+      
+      const isAuthEndpoint = authEndpoints.some(endpoint => 
+        config.url?.includes(endpoint)
+      );
+      
+      console.log('🔒 Auth endpoint check:', { 
+        isAuthEndpoint, 
+        url: config.url 
+      });
+      
+      if (!isAuthEndpoint) {
+        config.headers = config.headers ?? {};
+        config.headers['Authorization'] = `Bearer ${token}`;
+        console.log('✅ Authorization header added:', {
+          headerValue: `Bearer ${token.substring(0, 20)}...`,
+          fullHeaders: config.headers
+        });
+      } else {
+        console.log('🚫 Skipping auth header for auth endpoint');
+      }
+    } else {
+      console.log('❌ No token found in localStorage');
     }
 
     return config;
@@ -60,6 +99,7 @@ function getInstance(): AxiosInstance {
 
         const refreshToken = localStorage.getItem('refreshToken');
         if (!refreshToken) {
+          console.log('❌ No refresh token found, clearing all tokens');
           localStorage.removeItem('accessToken');
           localStorage.removeItem('refreshToken');
           processQueue(new Error('No refresh token'), null);
@@ -69,7 +109,11 @@ function getInstance(): AxiosInstance {
 
         try {
           const refreshUrl = `${BASE_URL}/api/auth/token/refresh/`;
-          const res = await axios.post(refreshUrl, { refresh: refreshToken });
+          const seg = (typeof window !== 'undefined' ? window.location.pathname : '/').split('/')[1];
+          const stored = localStorage.getItem('lang');
+          const normalized = (v: string | null | undefined) => (v === 'ru' || v === 'uz' || v === 'uz-cyrl') ? v : null;
+          const lang = normalized(seg) || normalized(stored) || 'uz';
+          const res = await axios.post(refreshUrl, { refresh: refreshToken }, { headers: { 'Accept-Language': lang } });
           const access = res.data?.access as string | undefined;
           const newRefresh = (res.data?.refresh as string | undefined) ?? refreshToken;
 
@@ -82,6 +126,7 @@ function getInstance(): AxiosInstance {
           isRefreshing = false;
           return instance!(originalRequest);
         } catch (refreshErr) {
+          console.log('❌ Token refresh failed, clearing all tokens');
           localStorage.removeItem('accessToken');
           localStorage.removeItem('refreshToken');
           processQueue(refreshErr, null);
@@ -110,4 +155,10 @@ export const customInstance = async <T>(
   const response = await axiosInstance({...config, ...options});
   // response is an AxiosResponse because response interceptor returns the raw response
   return (response as AxiosResponse).data as T;
+};
+
+// Function to refresh the instance after login
+export const refreshInstance = () => {
+  instance = null;
+  console.log('🔄 Axios instance refreshed');
 };
