@@ -43,12 +43,15 @@ import type {
 
 import type {
   AuthLoginCreate400,
+  AuthPasswordLoginCreate400,
+  AuthRegisterCreate400,
   AuthSendOtpCreate400,
   AuthToken,
   AuthTokenCreate2401,
   AuthTokenRequest,
   AuthVerifyOtpCreate200,
   AuthVerifyOtpCreate400,
+  BranchesListResponse,
   CurrentSessionRetrieve200,
   CustomTokenObtainPairRequest,
   LoginResponse,
@@ -69,8 +72,11 @@ import type {
   ModeratorUsersSurveyHistoryRetrieve200Item,
   ModeratorUsersSurveyHistoryRetrieveParams,
   OTPResponse,
+  PasswordLoginRequest,
   PatchedUserRequest,
   PhoneLoginRequest,
+  PositionsListResponse,
+  RegisterRequest,
   SchemaRetrieve200Four,
   SchemaRetrieve200One,
   SchemaRetrieve200Three,
@@ -528,6 +534,316 @@ export const useAuthVerifyOtpCreate = <TError = AuthVerifyOtpCreate400,
       return useMutation(mutationOptions , queryClient);
     }
     
+/**
+ * Авторизует пользователя по номеру телефона и паролю.
+ * @summary Вход через пароль
+ */
+export const authPasswordLoginCreate = (
+    passwordLoginRequest: PasswordLoginRequest,
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+      
+      
+      return customInstance<LoginResponse>(
+      {url: `/api/auth/password-login/`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: passwordLoginRequest, signal
+    },
+      options);
+    }
+  
+
+
+export const getAuthPasswordLoginCreateMutationOptions = <TError = AuthPasswordLoginCreate400,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof authPasswordLoginCreate>>, TError,{data: PasswordLoginRequest}, TContext>, request?: SecondParameter<typeof customInstance>}
+): UseMutationOptions<Awaited<ReturnType<typeof authPasswordLoginCreate>>, TError,{data: PasswordLoginRequest}, TContext> => {
+
+const mutationKey = ['authPasswordLoginCreate'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof authPasswordLoginCreate>>, {data: PasswordLoginRequest}> = (props) => {
+          const {data} = props ?? {};
+
+          return  authPasswordLoginCreate(data,requestOptions)
+        }
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type AuthPasswordLoginCreateMutationResult = NonNullable<Awaited<ReturnType<typeof authPasswordLoginCreate>>>
+    export type AuthPasswordLoginCreateMutationBody = PasswordLoginRequest
+    export type AuthPasswordLoginCreateMutationError = AuthPasswordLoginCreate400
+
+    /**
+ * @summary Вход через пароль
+ */
+export const useAuthPasswordLoginCreate = <TError = AuthPasswordLoginCreate400,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof authPasswordLoginCreate>>, TError,{data: PasswordLoginRequest}, TContext>, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof authPasswordLoginCreate>>,
+        TError,
+        {data: PasswordLoginRequest},
+        TContext
+      > => {
+
+      const mutationOptions = getAuthPasswordLoginCreateMutationOptions(options);
+
+      return useMutation(mutationOptions , queryClient);
+    }
+    
+/**
+ * Регистрирует нового пользователя с номером телефона и паролем.
+ * @summary Регистрация нового пользователя
+ */
+export const authRegisterCreate = (
+    registerRequest: RegisterRequest,
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+      
+      
+      return customInstance<LoginResponse>(
+      {url: `/api/auth/register/`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: registerRequest, signal
+    },
+      options);
+    }
+  
+
+
+export const getAuthRegisterCreateMutationOptions = <TError = AuthRegisterCreate400,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof authRegisterCreate>>, TError,{data: RegisterRequest}, TContext>, request?: SecondParameter<typeof customInstance>}
+): UseMutationOptions<Awaited<ReturnType<typeof authRegisterCreate>>, TError,{data: RegisterRequest}, TContext> => {
+
+const mutationKey = ['authRegisterCreate'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof authRegisterCreate>>, {data: RegisterRequest}> = (props) => {
+          const {data} = props ?? {};
+
+          return  authRegisterCreate(data,requestOptions)
+        }
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type AuthRegisterCreateMutationResult = NonNullable<Awaited<ReturnType<typeof authRegisterCreate>>>
+    export type AuthRegisterCreateMutationBody = RegisterRequest
+    export type AuthRegisterCreateMutationError = AuthRegisterCreate400
+
+    /**
+ * @summary Регистрация нового пользователя
+ */
+export const useAuthRegisterCreate = <TError = AuthRegisterCreate400,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof authRegisterCreate>>, TError,{data: RegisterRequest}, TContext>, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof authRegisterCreate>>,
+        TError,
+        {data: RegisterRequest},
+        TContext
+      > => {
+
+      const mutationOptions = getAuthRegisterCreateMutationOptions(options);
+
+      return useMutation(mutationOptions , queryClient);
+    }
+    
+/**
+ * Получить список всех должностей.
+ * @summary Список должностей
+ */
+export const positionsList = (
+    
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+      
+      
+      return customInstance<PositionsListResponse>(
+      {url: `/api/positions/`, method: 'GET', signal
+    },
+      options);
+    }
+  
+
+export const getPositionsListQueryKey = () => {
+    return [`/api/positions/`] as const;
+    }
+
+    
+export const getPositionsListQueryOptions = <TData = Awaited<ReturnType<typeof positionsList>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof positionsList>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getPositionsListQueryKey();
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof positionsList>>> = ({ signal }) => positionsList(requestOptions, signal);
+
+      
+
+      
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof positionsList>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type PositionsListQueryResult = NonNullable<Awaited<ReturnType<typeof positionsList>>>
+export type PositionsListQueryError = unknown
+
+
+export function usePositionsList<TData = Awaited<ReturnType<typeof positionsList>>, TError = unknown>(
+  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof positionsList>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof positionsList>>,
+          TError,
+          Awaited<ReturnType<typeof positionsList>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function usePositionsList<TData = Awaited<ReturnType<typeof positionsList>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof positionsList>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof positionsList>>,
+          TError,
+          Awaited<ReturnType<typeof positionsList>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function usePositionsList<TData = Awaited<ReturnType<typeof positionsList>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof positionsList>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Список должностей
+ */
+
+export function usePositionsList<TData = Awaited<ReturnType<typeof positionsList>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof positionsList>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getPositionsListQueryOptions(options)
+
+  const query = useQuery(queryOptions , queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  query.queryKey = queryOptions.queryKey ;
+
+  return query;
+}
+
+
+
+
+/**
+ * Получить список всех ГТФ (филиалов).
+ * @summary Список ГТФ
+ */
+export const branchesList = (
+    
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+      
+      
+      return customInstance<BranchesListResponse>(
+      {url: `/api/branches/`, method: 'GET', signal
+    },
+      options);
+    }
+  
+
+export const getBranchesListQueryKey = () => {
+    return [`/api/branches/`] as const;
+    }
+
+    
+export const getBranchesListQueryOptions = <TData = Awaited<ReturnType<typeof branchesList>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof branchesList>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getBranchesListQueryKey();
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof branchesList>>> = ({ signal }) => branchesList(requestOptions, signal);
+
+      
+
+      
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof branchesList>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type BranchesListQueryResult = NonNullable<Awaited<ReturnType<typeof branchesList>>>
+export type BranchesListQueryError = unknown
+
+
+export function useBranchesList<TData = Awaited<ReturnType<typeof branchesList>>, TError = unknown>(
+  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof branchesList>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof branchesList>>,
+          TError,
+          Awaited<ReturnType<typeof branchesList>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useBranchesList<TData = Awaited<ReturnType<typeof branchesList>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof branchesList>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof branchesList>>,
+          TError,
+          Awaited<ReturnType<typeof branchesList>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useBranchesList<TData = Awaited<ReturnType<typeof branchesList>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof branchesList>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Список ГТФ
+ */
+
+export function useBranchesList<TData = Awaited<ReturnType<typeof branchesList>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof branchesList>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getBranchesListQueryOptions(options)
+
+  const query = useQuery(queryOptions , queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  query.queryKey = queryOptions.queryKey ;
+
+  return query;
+}
+
+
+
+
 /**
  * Получить информацию о текущей активной сессии пользователя.
     

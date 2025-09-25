@@ -86,7 +86,6 @@ const SessionDetailsPage: FC = () => {
 
   const sessionData = sessionQuery.data as any;
   const userData = userQuery.data as any;
-  const session = sessionData?.session;
   const questions = sessionData?.questions || [];
 
   // Calculate statistics
@@ -232,10 +231,7 @@ const SessionDetailsPage: FC = () => {
         <br />
         <div className={CARD_STYLES}>
           <div className="">
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">
-              {session?.survey?.title || t('session.testNumber', { number: 1 })}
-            </h2>
-            <p className="text-gray-600 mb-6">
+            <h2 className="text-2xl font-bold text-gray-900 mb-6">
               {userData?.name
                 ? t('session.personalizedGreeting', {
                   name: userData.name,
@@ -243,7 +239,7 @@ const SessionDetailsPage: FC = () => {
                 })
                 : t('session.testDesc')
               }
-            </p>
+            </h2>
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               {[
                 {

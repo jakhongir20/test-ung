@@ -1,8 +1,8 @@
-import { useAuthLoginCreate, useAuthSendOtpCreate, useAuthTokenRefreshCreate } from './generated/respondentWebAPI'
+import { useAuthLoginCreate, useAuthSendOtpCreate, useAuthTokenRefreshCreate, useAuthPasswordLoginCreate, useAuthRegisterCreate } from './generated/respondentWebAPI'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useAuthStore } from '../stores/authStore'
 import { customInstance } from './mutator/custom-instance'
-import type { UserProfileUpdateRequest } from './generated/models'
+import type { PatchedUserRequest } from './generated/models'
 
 export type Tokens = { access: string; refresh: string }
 
@@ -100,7 +100,7 @@ export function useRefresh() {
 }
 
 // Custom API function for updating user profile
-export const updateUserProfile = async (data: UserProfileUpdateRequest) => {
+export const updateUserProfile = async (data: PatchedUserRequest) => {
   return customInstance({
     method: 'POST',
     url: '/api/users/me/update/',
@@ -140,6 +140,53 @@ export const logout = () => {
     window.location.href = '/login';
   }
 };
+
+// Password-based login hook
+export function usePasswordLogin() {
+  const m = useAuthPasswordLoginCreate()
+  const qc = useQueryClient()
+  const setUser = useAuthStore((s) => s.setUser)
+  return useMutation({
+    mutationFn: (args: { phone: string; password: string }) => m.mutateAsync({
+      data: {
+        phone_number: args.phone,
+        password: args.password
+      }
+    }),
+    onSuccess: (data) => {
+      const res = (data as any)?.tokens
+      const user = (data as any)?.user
+      if (res?.access && res?.refresh) tokenStorage.setTokens({access: res.access, refresh: res.refresh})
+      if (user) setUser(user)
+      qc.invalidateQueries()
+    },
+  })
+}
+
+// Register hook
+export function useRegister() {
+  const m = useAuthRegisterCreate()
+  const qc = useQueryClient()
+  const setUser = useAuthStore((s) => s.setUser)
+  return useMutation({
+    mutationFn: (args: { phone: string; password: string; name: string; position_id: number; gtf_id: number }) => m.mutateAsync({
+      data: {
+        phone_number: args.phone,
+        password: args.password,
+        name: args.name,
+        position_id: args.position_id,
+        gtf_id: args.gtf_id
+      }
+    }),
+    onSuccess: (data) => {
+      const res = (data as any)?.tokens
+      const user = (data as any)?.user
+      if (res?.access && res?.refresh) tokenStorage.setTokens({access: res.access, refresh: res.refresh})
+      if (user) setUser(user)
+      qc.invalidateQueries()
+    },
+  })
+}
 
 
 

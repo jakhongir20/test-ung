@@ -200,9 +200,10 @@ const UserSessionDetailsPage: FC = () => {
       title: t('session.questionTitle'),
       className: 'max-w-md',
       render: (_, question) => {
+        // debugger
         return (
           <div className="truncate">
-            {question.question?.text || `Question ${question.order}`}
+            {question?.questionText || `Question ${question.order}`}
           </div>
         );
       }
@@ -234,10 +235,7 @@ const UserSessionDetailsPage: FC = () => {
         <br />
         <div className={CARD_STYLES}>
           <div className="">
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">
-              {session?.survey?.title || t('session.testNumber', { number: 1 })}
-            </h2>
-            <p className="text-gray-600 mb-6">
+            <h2 className="text-2xl font-bold text-gray-900 mb-6">
               {userData?.name
                 ? t('session.personalizedGreeting', {
                   name: userData.name,
@@ -245,7 +243,7 @@ const UserSessionDetailsPage: FC = () => {
                 })
                 : t('session.testDesc')
               }
-            </p>
+            </h2>
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               {[
                 {

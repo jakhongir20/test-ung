@@ -19,7 +19,7 @@ const dictionary: Dictionary = {
   },
   'profile.myDetails': { uz: 'Mening maʼlumotlarim', 'uz-cyrl': 'Менинг маълумотларим', ru: 'Мои данные' },
   'profile.fio': { uz: 'FISH', 'uz-cyrl': 'ФИШ', ru: 'ФИО' },
-  'profile.branch': { uz: 'Adminstratsiya', 'uz-cyrl': 'Администрация', ru: 'Администрация' },
+  'profile.branch': { uz: 'GTF', 'uz-cyrl': 'ГТФ', ru: 'ГТФ' },
   'profile.position': { uz: 'Lavozim', 'uz-cyrl': 'Лавозим', ru: 'Должность' },
   'profile.results': {
     uz: 'So\'nggi test natijalari',
@@ -137,7 +137,7 @@ const dictionary: Dictionary = {
     'uz-cyrl': 'Исм ёки телефон бўйича қидириш...',
     ru: 'Поиск по имени или телефону...'
   },
-  'admin.allBranches': { uz: 'Barcha adminstratsiyalar', 'uz-cyrl': 'Барча администрациялар', ru: 'Все администрации' },
+  'admin.allBranches': { uz: 'Barcha GTFlar', 'uz-cyrl': 'Барча ГТФлар', ru: 'Все ГТФ' },
   'admin.allPositions': { uz: 'Barcha lavozimlar', 'uz-cyrl': 'Барча лавозимлар', ru: 'Все должности' },
   'admin.allStatuses': { uz: 'Barcha holatlar', 'uz-cyrl': 'Барча ҳолатлар', ru: 'Все статусы' },
   'admin.previous': { uz: 'Oldingi', 'uz-cyrl': 'Олдинги', ru: 'Предыдущий' },
@@ -187,7 +187,7 @@ const dictionary: Dictionary = {
 
   // Table Headers
   'table.name': { uz: 'F.I.Sh.', 'uz-cyrl': 'Ф.И.Ш.', ru: 'Ф.И.О.' },
-  'table.branch': { uz: 'Adminstratsiya', 'uz-cyrl': 'Администрация', ru: 'Администрация' },
+  'table.branch': { uz: 'GTF', 'uz-cyrl': 'ГТФ', ru: 'ГТФ' },
   'table.position': { uz: 'Lavozim', 'uz-cyrl': 'Лавозим', ru: 'Должность' },
   'table.lastScore': { uz: 'Oxirgi ball', 'uz-cyrl': 'Охирги балл', ru: 'Последний балл' },
   'table.attempts': { uz: 'Urinishlar soni', 'uz-cyrl': 'Уринишлар сони', ru: 'Количество попыток' },
@@ -387,16 +387,16 @@ const dictionary: Dictionary = {
     'uz-cyrl': 'Исмингизни киритинг',
     ru: 'Введите ваше имя'
   },
-  'profileCompletion.branch': { uz: 'Adminstratsiya', 'uz-cyrl': 'Администрация', ru: 'Администрация' },
+  'profileCompletion.branch': { uz: 'GTF', 'uz-cyrl': 'ГТФ', ru: 'ГТФ' },
   'profileCompletion.branchPlaceholder': {
-    uz: 'Adminstratsiya nomini kiriting',
-    'uz-cyrl': 'Администрация номини киритинг',
-    ru: 'Введите название администрации'
+    uz: 'GTF nomini kiriting',
+    'uz-cyrl': 'ГТФ номини киритинг',
+    ru: 'Введите название ГТФ'
   },
   'profileCompletion.selectBranch': {
-    uz: 'Adminstratsiyani tanlang',
-    'uz-cyrl': 'Администрацияни танланг',
-    ru: 'Выберите администрацию'
+    uz: 'GTFni tanlang',
+    'uz-cyrl': 'ГТФни танланг',
+    ru: 'Выберите ГТФ'
   },
   'profileCompletion.position': { uz: 'Lavozim', 'uz-cyrl': 'Лавозим', ru: 'Должность' },
   'profileCompletion.positionPlaceholder': {
@@ -416,9 +416,9 @@ const dictionary: Dictionary = {
     ru: 'Имя обязательно'
   },
   'profileCompletion.branchRequired': {
-    uz: 'Adminstratsiya kiritilishi shart',
-    'uz-cyrl': 'Администрация киритилиши шарт',
-    ru: 'Администрация обязателен'
+    uz: 'GTF kiritilishi shart',
+    'uz-cyrl': 'ГТФ киритилиши шарт',
+    ru: 'ГТФ обязателен'
   },
   'profileCompletion.positionRequired': {
     uz: 'Lavozim kiritilishi shart',
@@ -469,6 +469,24 @@ const dictionary: Dictionary = {
   'auth.phonePlaceholder': { uz: '+998', 'uz-cyrl': '+998', ru: '+998' },
   'auth.confirmLogin': { uz: 'Kirishni tasdiqlash', 'uz-cyrl': 'Киришни тасдиқлаш', ru: 'Подтверждение входа' },
 
+  // New password-based auth
+  'auth.password': { uz: 'Parol', 'uz-cyrl': 'Парол', ru: 'Пароль' },
+  'auth.passwordPlaceholder': { uz: 'Parolingizni kiriting', 'uz-cyrl': 'Паролингизни киритинг', ru: 'Введите пароль' },
+  'auth.passwordMinLength': { uz: 'Parol kamida 6 belgidan iborat bo\'lishi kerak', 'uz-cyrl': 'Парол камида 6 белгидан иборат бўлиши керак', ru: 'Пароль должен содержать минимум 6 символов' },
+  'auth.confirmPassword': { uz: 'Parolni tasdiqlash', 'uz-cyrl': 'Паролни тасдиқлаш', ru: 'Подтверждение пароля' },
+  'auth.confirmPasswordPlaceholder': { uz: 'Parolni qayta kiriting', 'uz-cyrl': 'Паролни қайта киритинг', ru: 'Повторите пароль' },
+  'auth.passwordsDoNotMatch': { uz: 'Parollar mos kelmaydi', 'uz-cyrl': 'Пароллар мос келмайди', ru: 'Пароли не совпадают' },
+  'auth.register': { uz: 'Ro\'yxatdan o\'tish', 'uz-cyrl': 'Рўйхатдан ўтиш', ru: 'Регистрация' },
+  'auth.fullName': { uz: 'To\'liq ism', 'uz-cyrl': 'Тўлиқ исм', ru: 'Полное имя' },
+  'auth.fullNamePlaceholder': { uz: 'To\'liq ismingizni kiriting', 'uz-cyrl': 'Тўлиқ исмингизни киритинг', ru: 'Введите полное имя' },
+  'auth.nameMinLength': { uz: 'Ism kamida 2 belgidan iborat bo\'lishi kerak', 'uz-cyrl': 'Исм камида 2 белгидан иборат бўлиши керак', ru: 'Имя должно содержать минимум 2 символа' },
+  'auth.position': { uz: 'Lavozim', 'uz-cyrl': 'Лавозим', ru: 'Должность' },
+  'auth.selectPosition': { uz: 'Lavozimni tanlang', 'uz-cyrl': 'Лавозимни танланг', ru: 'Выберите должность' },
+  'auth.branch': { uz: 'GTF', 'uz-cyrl': 'ГТФ', ru: 'ГТФ' },
+  'auth.selectBranch': { uz: 'GTFni tanlang', 'uz-cyrl': 'ГТФни танланг', ru: 'Выберите ГТФ' },
+  'auth.noAccount': { uz: 'Hisobingiz yo\'qmi?', 'uz-cyrl': 'Ҳисобингиз йўқми?', ru: 'Нет аккаунта?' },
+  'auth.haveAccount': { uz: 'Hisobingiz bormi?', 'uz-cyrl': 'Ҳисобингиз борми?', ru: 'Есть аккаунт?' },
+
   // Additional Information Form
   'additionalInfo.title': { uz: 'Qo\'shimcha ma\'lumot', 'uz-cyrl': 'Қўшимча маълумот', ru: 'Дополнительная информация' },
   'additionalInfo.name': { uz: 'Ism', 'uz-cyrl': 'Исм', ru: 'Имя' },
@@ -500,10 +518,10 @@ const dictionary: Dictionary = {
   // Settings Modal
   'settings.title': { uz: 'Sozlamalar', 'uz-cyrl': 'Созламалар', ru: 'Настройки' },
   'settings.fullName': { uz: 'To\'liq ism', 'uz-cyrl': 'Тўлиқ исм', ru: 'ФИО' },
-  'settings.branch': { uz: 'Adminstratsiya', 'uz-cyrl': 'Администрация', ru: 'Администрация' },
+  'settings.branch': { uz: 'GTF', 'uz-cyrl': 'ГТФ', ru: 'ГТФ' },
   'settings.position': { uz: 'Lavozim', 'uz-cyrl': 'Лавозим', ru: 'Должность' },
   'settings.fullNamePlaceholder': { uz: 'To\'liq ism', 'uz-cyrl': 'Тўлиқ исм', ru: 'ФИО' },
-  'settings.branchPlaceholder': { uz: 'Adminstratsiya', 'uz-cyrl': 'Администрация', ru: 'Администрация' },
+  'settings.branchPlaceholder': { uz: 'GTF', 'uz-cyrl': 'ГТФ', ru: 'ГТФ' },
   'settings.positionPlaceholder': { uz: 'Lavozim', 'uz-cyrl': 'Лавозим', ru: 'Должность' },
   'settings.save': { uz: 'Saqlash', 'uz-cyrl': 'Сақлаш', ru: 'Сохранить' },
   'settings.logout': { uz: 'Hisobdan chiqish', 'uz-cyrl': 'Ҳисобдан чиқиш', ru: 'Выйти' },
@@ -513,9 +531,9 @@ const dictionary: Dictionary = {
     ru: 'ФИО обязательно'
   },
   'settings.branchRequired': {
-    uz: 'Adminstratsiya tanlanishi shart',
-    'uz-cyrl': 'Администрация танланиши шарт',
-    ru: 'Администрация обязателен'
+    uz: 'GTF tanlanishi shart',
+    'uz-cyrl': 'ГТФ танланиши шарт',
+    ru: 'ГТФ обязателен'
   },
   'settings.positionRequired': {
     uz: 'Lavozim tanlanishi shart',
@@ -558,26 +576,26 @@ const dictionary: Dictionary = {
     ru: 'Выберите должность'
   },
   'settings.selectAdministration': {
-    uz: 'Adminstratsiyani tanlang',
-    'uz-cyrl': 'Администрацияни танланг',
-    ru: 'Выберите администрацию'
+    uz: 'GTFni tanlang',
+    'uz-cyrl': 'ГТФни танланг',
+    ru: 'Выберите ГТФ'
   },
 
   // Administration Options
   'admin.administration1': {
-    uz: 'Adminstratsiya',
-    'uz-cyrl': 'Администрация',
-    ru: 'Администрация'
+    uz: 'GTF',
+    'uz-cyrl': 'ГТФ',
+    ru: 'ГТФ'
   },
   'admin.administration2': {
-    uz: 'Adminstratsiya 2',
-    'uz-cyrl': 'Администрация 2',
-    ru: 'Администрация 2'
+    uz: 'GTF 2',
+    'uz-cyrl': 'ГТФ 2',
+    ru: 'ГТФ 2'
   },
   'admin.administration3': {
-    uz: 'Adminstratsiya 3',
-    'uz-cyrl': 'Администрация 3',
-    ru: 'Администрация 3'
+    uz: 'GTF 3',
+    'uz-cyrl': 'ГТФ 3',
+    ru: 'ГТФ 3'
   },
 
   // Position Options

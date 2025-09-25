@@ -24,12 +24,16 @@
  */
 
 export * from './authLoginCreate400';
+export * from './authPasswordLoginCreate400';
+export * from './authRegisterCreate400';
 export * from './authSendOtpCreate400';
 export * from './authToken';
 export * from './authTokenCreate2401';
 export * from './authTokenRequest';
 export * from './authVerifyOtpCreate200';
 export * from './authVerifyOtpCreate400';
+export * from './branch';
+export * from './branchesListResponse';
 export * from './currentSessionRetrieve200';
 export * from './currentSessionRetrieve200Session';
 export * from './customTokenObtainPairRequest';
@@ -63,8 +67,12 @@ export * from './moderatorUsersSurveyHistoryRetrieve200ItemAnswersItemSelectedCh
 export * from './moderatorUsersSurveyHistoryRetrieve200ItemSurvey';
 export * from './moderatorUsersSurveyHistoryRetrieveParams';
 export * from './oTPResponse';
+export * from './passwordLoginRequest';
 export * from './patchedUserRequest';
 export * from './phoneLoginRequest';
+export * from './position';
+export * from './positionsListResponse';
+export * from './registerRequest';
 export * from './schemaRetrieve200Four';
 export * from './schemaRetrieve200One';
 export * from './schemaRetrieve200Three';

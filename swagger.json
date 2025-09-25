@@ -436,6 +436,245 @@
                 }
             }
         },
+        "/api/auth/password-login/": {
+            "post": {
+                "operationId": "auth_password_login_create",
+                "description": "Авторизует пользователя по номеру телефона и паролю.",
+                "summary": "Вход через пароль",
+                "tags": [
+                    "Аутентификация"
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/PasswordLoginRequest"
+                            },
+                            "examples": {
+                                "УспешныйВход": {
+                                    "value": {
+                                        "phone_number": "+998901234567",
+                                        "password": "secret123"
+                                    },
+                                    "summary": "Успешный вход"
+                                }
+                            }
+                        },
+                        "application/x-www-form-urlencoded": {
+                            "schema": {
+                                "$ref": "#/components/schemas/PasswordLoginRequest"
+                            }
+                        },
+                        "multipart/form-data": {
+                            "schema": {
+                                "$ref": "#/components/schemas/PasswordLoginRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "security": [
+                    {
+                        "jwtAuth": []
+                    },
+                    {
+                        "cookieAuth": []
+                    },
+                    {
+                        "tokenAuth": []
+                    },
+                    {}
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/LoginResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "400": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "non_field_errors": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "string"
+                                            },
+                                            "example": [
+                                                "Invalid credentials"
+                                            ]
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            }
+        },
+        "/api/auth/register/": {
+            "post": {
+                "operationId": "auth_register_create",
+                "description": "Регистрирует нового пользователя с номером телефона и паролем.",
+                "summary": "Регистрация нового пользователя",
+                "tags": [
+                    "Аутентификация"
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/RegisterRequest"
+                            },
+                            "examples": {
+                                "УспешнаяРегистрация": {
+                                    "value": {
+                                        "phone_number": "+998901234567",
+                                        "password": "secret123",
+                                        "name": "Иван Иванов",
+                                        "position_id": 0,
+                                        "gtf_id": 0
+                                    },
+                                    "summary": "Успешная регистрация"
+                                }
+                            }
+                        },
+                        "application/x-www-form-urlencoded": {
+                            "schema": {
+                                "$ref": "#/components/schemas/RegisterRequest"
+                            }
+                        },
+                        "multipart/form-data": {
+                            "schema": {
+                                "$ref": "#/components/schemas/RegisterRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "security": [
+                    {
+                        "jwtAuth": []
+                    },
+                    {
+                        "cookieAuth": []
+                    },
+                    {
+                        "tokenAuth": []
+                    },
+                    {}
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/LoginResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "400": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "phone_number": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "string"
+                                            },
+                                            "example": [
+                                                "User with this phone number already exists"
+                                            ]
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            }
+        },
+        "/api/positions/": {
+            "get": {
+                "operationId": "positions_list",
+                "description": "Получить список всех должностей.",
+                "summary": "Список должностей",
+                "tags": [
+                    "Должности"
+                ],
+                "security": [
+                    {
+                        "jwtAuth": []
+                    },
+                    {
+                        "cookieAuth": []
+                    },
+                    {
+                        "tokenAuth": []
+                    },
+                    {}
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PositionsListResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            }
+        },
+        "/api/branches/": {
+            "get": {
+                "operationId": "branches_list",
+                "description": "Получить список всех ГТФ (филиалов).",
+                "summary": "Список ГТФ",
+                "tags": [
+                    "ГТФ"
+                ],
+                "security": [
+                    {
+                        "jwtAuth": []
+                    },
+                    {
+                        "cookieAuth": []
+                    },
+                    {
+                        "tokenAuth": []
+                    },
+                    {}
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BranchesListResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            }
+        },
         "/api/current-session/": {
             "get": {
                 "operationId": "current_session_retrieve",
@@ -3557,6 +3796,151 @@
                 "required": [
                     "otp_code",
                     "phone_number"
+                ]
+            },
+            "PasswordLoginRequest": {
+                "type": "object",
+                "description": "Сериализатор для входа по номеру телефона и паролю.",
+                "properties": {
+                    "phone_number": {
+                        "type": "string",
+                        "minLength": 1,
+                        "description": "Номер телефона"
+                    },
+                    "password": {
+                        "type": "string",
+                        "minLength": 1,
+                        "description": "Пароль пользователя"
+                    }
+                },
+                "required": [
+                    "phone_number",
+                    "password"
+                ]
+            },
+            "RegisterRequest": {
+                "type": "object",
+                "description": "Сериализатор для регистрации нового пользователя.",
+                "properties": {
+                    "phone_number": {
+                        "type": "string",
+                        "minLength": 1,
+                        "description": "Номер телефона"
+                    },
+                    "password": {
+                        "type": "string",
+                        "minLength": 1,
+                        "description": "Пароль пользователя"
+                    },
+                    "name": {
+                        "type": "string",
+                        "minLength": 1,
+                        "description": "Полное имя пользователя"
+                    },
+                    "position_id": {
+                        "type": "integer",
+                        "description": "ID должности"
+                    },
+                    "gtf_id": {
+                        "type": "integer",
+                        "description": "ID филиала"
+                    }
+                },
+                "required": [
+                    "phone_number",
+                    "password",
+                    "name",
+                    "position_id",
+                    "gtf_id"
+                ]
+            },
+            "Position": {
+                "type": "object",
+                "description": "Модель должности.",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "description": "ID должности"
+                    },
+                    "name_uz": {
+                        "type": "string",
+                        "description": "Название на узбекском языке"
+                    },
+                    "name_uz_cyrl": {
+                        "type": "string",
+                        "description": "Название на узбекском языке (кириллица)"
+                    },
+                    "name_ru": {
+                        "type": "string",
+                        "description": "Название на русском языке"
+                    },
+                    "work_domain": {
+                        "type": "string",
+                        "description": "Область работы"
+                    },
+                    "branch": {
+                        "$ref": "#/components/schemas/Branch"
+                    }
+                },
+                "required": [
+                    "id",
+                    "name_uz"
+                ]
+            },
+            "Branch": {
+                "type": "object",
+                "description": "Модель ГТФ (филиала).",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "description": "ID ГТФ"
+                    },
+                    "name_uz": {
+                        "type": "string",
+                        "description": "Название на узбекском языке"
+                    },
+                    "name_uz_cyrl": {
+                        "type": "string",
+                        "description": "Название на узбекском языке (кириллица)"
+                    },
+                    "name_ru": {
+                        "type": "string",
+                        "description": "Название на русском языке"
+                    }
+                },
+                "required": [
+                    "id",
+                    "name_uz"
+                ]
+            },
+            "PositionsListResponse": {
+                "type": "object",
+                "description": "Ответ со списком должностей.",
+                "properties": {
+                    "positions": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/Position"
+                        }
+                    }
+                },
+                "required": [
+                    "positions"
+                ]
+            },
+            "BranchesListResponse": {
+                "type": "object",
+                "description": "Ответ со списком ГТФ.",
+                "properties": {
+                    "branches": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/Branch"
+                        }
+                    }
+                },
+                "required": [
+                    "branches"
                 ]
             }
         },
