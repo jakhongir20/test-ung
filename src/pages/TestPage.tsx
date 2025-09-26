@@ -24,6 +24,8 @@ type BuiltQuestion = {
   isOpen: boolean;
   choiceLetterToId: Record<string, number>;
   mediaUrl?: string;
+  // Keep original question object so we can rebuild on language change
+  sourceQuestion: any;
 };
 
 
@@ -33,7 +35,7 @@ const TestPage: FC = () => {
   const [isExpired, setExpired] = useState(false);
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const {t} = useI18n();
+  const { t, lang } = useI18n();
   const queryClient = useQueryClient();
 
   // Function to determine survey category based on survey data
@@ -154,18 +156,18 @@ const TestPage: FC = () => {
     // First try navigation endpoint data
     if (currentQuestionFromNav && !byOrder[currentQuestionFromNav.order]) {
       const built = buildQuestionFrom(currentQuestionFromNav);
-      setByOrder((prev) => ({...prev, [currentQuestionFromNav.order]: built}));
+      setByOrder((prev) => ({ ...prev, [currentQuestionFromNav.order]: built }));
 
       // Load existing answer if available
       if (existingAnswer) {
         if (built.isOpen && existingAnswer.text_answer) {
-          setTextAnswers((prev) => ({...prev, [currentQuestionFromNav.order]: existingAnswer.text_answer}));
+          setTextAnswers((prev) => ({ ...prev, [currentQuestionFromNav.order]: existingAnswer.text_answer }));
         } else if (existingAnswer.choice_ids && existingAnswer.choice_ids.length > 0) {
           // Convert choice IDs back to letters
           const letters = Object.keys(built.choiceLetterToId).filter(letter =>
             existingAnswer.choice_ids.includes(built.choiceLetterToId[letter])
           );
-          setAnswers((prev) => ({...prev, [currentQuestionFromNav.order]: letters}));
+          setAnswers((prev) => ({ ...prev, [currentQuestionFromNav.order]: letters }));
         }
       }
       return;
@@ -175,7 +177,7 @@ const TestPage: FC = () => {
     const currentQ = sessionData?.current_question;
     if (currentQ && !byOrder[currentQ.order]) {
       const built = buildQuestionFrom(currentQ);
-      setByOrder((prev) => ({...prev, [currentQ.order]: built}));
+      setByOrder((prev) => ({ ...prev, [currentQ.order]: built }));
       setCurrent(currentQ.order);
       return;
     }
@@ -186,7 +188,7 @@ const TestPage: FC = () => {
       const startQ = (storedSession as any)?.current_question;
       if (startQ && !byOrder[startQ.order]) {
         const built = buildQuestionFrom(startQ);
-        setByOrder((prev) => ({...prev, [startQ.order]: built}));
+        setByOrder((prev) => ({ ...prev, [startQ.order]: built }));
         setCurrent(startQ.order);
       }
     } catch {
@@ -194,6 +196,21 @@ const TestPage: FC = () => {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentQuestionFromNav, existingAnswer, sessionData, sessionId]);
+
+  function getLocalizedText(entity: any): string {
+    if (!entity) return '';
+    const byLang: Record<string, string | undefined> = {
+      uz: entity.text_uz,
+      'uz-cyrl': entity.text_uz_cyrl,
+      ru: entity.text_ru,
+    };
+    const candidate = byLang[lang];
+    return (
+      (typeof candidate === 'string' && candidate.trim().length > 0 ? candidate : undefined) ||
+      (typeof entity.text === 'string' && entity.text.trim().length > 0 ? entity.text : undefined) ||
+      entity.text_ru || entity.text_uz || entity.text_uz_cyrl || ''
+    );
+  }
 
   function buildQuestionFrom(qObj: any): BuiltQuestion {
     const q = qObj.question ?? qObj; // accept either wrapper or plain
@@ -203,17 +220,31 @@ const TestPage: FC = () => {
     const options: Option[] = isOpen ? [] : (q.choices ?? []).sort((a: any, b: any) => (a.order ?? 0) - (b.order ?? 0)).map((c: any, idx: number) => {
       const key = letters[idx] ?? String(idx + 1);
       choiceLetterToId[key] = c.id;
-      return {key, label: c.text};
+      return { key, label: getLocalizedText(c) };
     });
     return {
-      title: q.text,
+      title: getLocalizedText(q),
       options,
       multiple: q.question_type === 'multiple',
       isOpen,
       choiceLetterToId,
-      mediaUrl: q.image ?? undefined
+      mediaUrl: q.image ?? undefined,
+      sourceQuestion: qObj,
     };
   }
+
+  // When language changes, rebuild the cached questions using their source
+  useEffect(() => {
+    setByOrder((prev) => {
+      const next: Record<number, BuiltQuestion> = {};
+      for (const [orderStr, built] of Object.entries(prev)) {
+        const orderNum = Number(orderStr);
+        const rebuilt = built?.sourceQuestion ? buildQuestionFrom(built.sourceQuestion) : built;
+        next[orderNum] = rebuilt;
+      }
+      return next;
+    });
+  }, [lang]);
 
   // Use navigation endpoint data as primary source, fallback to session data
   const currentQuestion = currentQuestionFromNav ?? sessionData?.current_question ?? progressData?.session?.current_question;
@@ -234,12 +265,12 @@ const TestPage: FC = () => {
       // Only prefetch if we don't already have this question cached
       if (!byOrder[nextOrder]) {
         queryClient.prefetchQuery({
-          queryKey: ['sessionsGetQuestionRetrieve', sessionId, {order: nextOrder}],
+          queryKey: ['sessionsGetQuestionRetrieve', sessionId, { order: nextOrder }],
           queryFn: async () => {
             const response = await customInstance({
               method: 'GET',
               url: `/api/sessions/${sessionId}/get_question/`,
-              params: {order: nextOrder}
+              params: { order: nextOrder }
             });
             return response;
           },
@@ -256,12 +287,12 @@ const TestPage: FC = () => {
       // Only prefetch if we don't already have this question cached
       if (!byOrder[prevOrder]) {
         queryClient.prefetchQuery({
-          queryKey: ['sessionsGetQuestionRetrieve', sessionId, {order: prevOrder}],
+          queryKey: ['sessionsGetQuestionRetrieve', sessionId, { order: prevOrder }],
           queryFn: async () => {
             const response = await customInstance({
               method: 'GET',
               url: `/api/sessions/${sessionId}/get_question/`,
-              params: {order: prevOrder}
+              params: { order: prevOrder }
             });
             return response;
           },
@@ -284,12 +315,12 @@ const TestPage: FC = () => {
       const next = (built?.multiple ?? false)
         ? cur.includes(key) ? cur.filter((k) => k !== key) : [...cur, key]
         : [key];
-      return {...prev, [order]: next};
+      return { ...prev, [order]: next };
     });
   }
 
   function handleTextChange(value: string) {
-    setTextAnswers((prev) => ({...prev, [order]: value}));
+    setTextAnswers((prev) => ({ ...prev, [order]: value }));
   }
 
   const [isFinishing, setIsFinishing] = useState(false);
@@ -358,8 +389,8 @@ const TestPage: FC = () => {
         }
 
         try {
-          console.log('Submitting answer:', {sessionId, payload});
-          const res: any = await submitAnswer.mutateAsync({sessionId, payload});
+          console.log('Submitting answer:', { sessionId, payload });
+          const res: any = await submitAnswer.mutateAsync({ sessionId, payload });
           console.log('Submit response:', res);
 
           // Check if this was the last question and if the session was automatically finished
@@ -403,7 +434,7 @@ const TestPage: FC = () => {
             const nextQ = res.session.current_question;
             if (nextQ.order) {
               const bq = buildQuestionFrom(nextQ);
-              setByOrder((prev) => ({...prev, [nextQ.order]: bq}));
+              setByOrder((prev) => ({ ...prev, [nextQ.order]: bq }));
               setCurrent(nextQ.order);
             }
           }
@@ -436,7 +467,7 @@ const TestPage: FC = () => {
   }
 
   const questionsData = progressData?.questions ?? [];
-  const answeredFlags = Array.from({length: Math.max(total, 0)}).map((_, i) => !!answers[i + 1]?.length || !!questionsData[i]?.is_answered);
+  const answeredFlags = Array.from({ length: Math.max(total, 0) }).map((_, i) => !!answers[i + 1]?.length || !!questionsData[i]?.is_answered);
 
 
   // Show error state
@@ -447,7 +478,7 @@ const TestPage: FC = () => {
           <div className="w-16 h-16 mx-auto mb-4 bg-red-100 rounded-full flex items-center justify-center">
             <svg className="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"/>
+                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
             </svg>
           </div>
           <h2 className="text-xl font-semibold text-gray-900 mb-2">{t('error.connection')}</h2>
@@ -549,15 +580,15 @@ const TestPage: FC = () => {
               <button
                 onClick={() => setNavOpen((v) => !v)}
                 className={ACTION_BTN_STYLES}>
-                {t('test.questionOf', {current: safeOrder, total: safeTotal})}
-                <img src="/icon/arrow-t.svg" alt=""/>
+                {t('test.questionOf', { current: safeOrder, total: safeTotal })}
+                <img src="/icon/arrow-t.svg" alt="" />
               </button>
               <div className="flex items-center gap-2">
                 <button
                   disabled={isExpired || !navigationData?.has_previous}
                   onClick={() => go(-1)}
                   className={`${ACTION_BTN_STYLES} !bg-[#00A2DE] text-white`}>
-                  <img src={'/icon/arrow-l-w.svg'} alt={'icon left'}/>
+                  <img src={'/icon/arrow-l-w.svg'} alt={'icon left'} />
                 </button>
                 <button
                   disabled={isExpired || !hasAnswers || isLoading}
@@ -568,12 +599,12 @@ const TestPage: FC = () => {
                       const nextOrder = navigationData.next_order;
                       if (!byOrder[nextOrder]) {
                         queryClient.prefetchQuery({
-                          queryKey: ['sessionsGetQuestionRetrieve', sessionId, {order: nextOrder}],
+                          queryKey: ['sessionsGetQuestionRetrieve', sessionId, { order: nextOrder }],
                           queryFn: async () => {
                             const response = await customInstance({
                               method: 'GET',
                               url: `/api/sessions/${sessionId}/get_question/`,
-                              params: {order: nextOrder}
+                              params: { order: nextOrder }
                             });
                             return response;
                           },
@@ -585,15 +616,15 @@ const TestPage: FC = () => {
                   }}
                   className={`${ACTION_BTN_STYLES} !bg-[#00A2DE] text-white !text-base ${isExpired || !hasAnswers || isLoading ? 'opacity-50 !cursor-not-allowed' : ''}`}>
                   {isLoading ? (
-                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"/>
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
                   ) : (
                     <>
                       <span className={'md:inline hidden'}>{isLastQuestion ? t('test.finish') : t('test.next')}</span>
-                      {!isLastQuestion ? <img src={'/icon/arrow-r-w.svg'} alt={'icon left'}/> :
+                      {!isLastQuestion ? <img src={'/icon/arrow-r-w.svg'} alt={'icon left'} /> :
                         <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
                           <path
                             d="M7.24967 9.99999L9.08301 11.8333L12.7497 8.16666M19.1663 9.99999C19.1663 15.0626 15.0623 19.1667 9.99967 19.1667C4.93706 19.1667 0.833008 15.0626 0.833008 9.99999C0.833008 4.93738 4.93706 0.833328 9.99967 0.833328C15.0623 0.833328 19.1663 4.93738 19.1663 9.99999Z"
-                            stroke="#ffffff" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                            stroke="#ffffff" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
                         </svg>
                       }
                     </>

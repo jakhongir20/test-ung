@@ -14,7 +14,7 @@ import { PageTransition } from "../components/animations";
 
 
 const AdminEmployeesPage: FC = () => {
-  const { t } = useI18n();
+  const { t, lang } = useI18n();
   const [branch, setBranch] = useState<string>('');
   const [position, setPosition] = useState<string>('');
   const [testStatus, setTestStatus] = useState<string>('');
@@ -112,7 +112,15 @@ const AdminEmployeesPage: FC = () => {
       key: 'position_name',
       title: t('table.position'),
       sortable: true,
-      render: (value) => value || t('admin.na')
+      render: (_, user) => {
+        const localized =
+          lang === 'uz'
+            ? (user.position_name_uz || user.position_name_uz_cyrl || user.position_name_ru || user.position_name)
+            : lang === 'uz-cyrl'
+              ? (user.position_name_uz_cyrl || user.position_name_uz || user.position_name_ru || user.position_name)
+              : (user.position_name_ru || user.position_name_uz || user.position_name_uz_cyrl || user.position_name);
+        return localized || t('admin.na');
+      }
     },
     {
       key: 'total_questions',
@@ -128,6 +136,24 @@ const AdminEmployeesPage: FC = () => {
         }
         // Fallback to total_attempts if no survey history
         return user.total_attempts || 0;
+      }
+    },
+    {
+      key: 'total_questions',
+      title: t('table.totalQuestions30'),
+      sortable: true,
+      render: () => {
+        // TODO: Calculate total questions in the last 30 days
+        return 30;
+      }
+    },
+    {
+      key: 'total_questions',
+      title: t('table.totalCorrectQuestions'),
+      sortable: true,
+      render: () => {
+        // TODO: Calculate total questions in the last 30 days
+        return 10;
       }
     },
     {
