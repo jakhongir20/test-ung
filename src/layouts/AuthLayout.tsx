@@ -6,7 +6,7 @@ export default function AuthLayout() {
   const {t} = useI18n();
 
   return (
-    <div className="grid min-h-screen grid-cols-1 gap-4 p-4 md:grid-cols-[1fr_1.3fr]">
+    <div className="grid min-h-screen grid-cols-1 gap-4 p-4 md:grid-cols-[1fr_1.3fr] ">
       <div className="flex flex-col justify-center items-center rounded-xl">
         <div className={'mb-6'}>
           <div className="flex items-center justify-center mb-8 md:mb-10 gap-2 text-xl font-bold text-orange-600">

@@ -14,7 +14,7 @@ import { PageTransition } from "../components/animations";
 
 
 const AdminEmployeesPage: FC = () => {
-  const {t, lang} = useI18n();
+  const { t, lang } = useI18n();
   const [branch, setBranch] = useState<string>('');
   const [position, setPosition] = useState<string>('');
   const [testStatus, setTestStatus] = useState<string>('');
@@ -175,7 +175,7 @@ const AdminEmployeesPage: FC = () => {
             className="inline-flex h-8 w-8 items-center justify-center rounded-lg ring-1 ring-gray-200 hover:bg-gray-50"
             aria-label={t('admin.aboutEmployee')}
           >
-            <img src="/icon/eye.svg" alt=""/>
+            <img src="/icon/eye.svg" alt="" />
           </button>
           <button
             onClick={() => handleCertificateDownload(user.id, user.name)}
@@ -185,7 +185,7 @@ const AdminEmployeesPage: FC = () => {
           >
             <svg className="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                    d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
             </svg>
           </button>
         </div>
@@ -202,7 +202,7 @@ const AdminEmployeesPage: FC = () => {
           <div className="w-16 h-16 mx-auto mb-4 bg-red-100 rounded-full flex items-center justify-center">
             <svg className="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"/>
+                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
             </svg>
           </div>
           <h2 className="text-xl font-semibold text-gray-900 mb-2">{t('error.connection')}</h2>
@@ -225,10 +225,10 @@ const AdminEmployeesPage: FC = () => {
 
       {selectedUserId && (
         <div
-          style={{display: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 9999, width: '100%', height: '100%'}}
+          style={{ display: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 9999, width: '100%', height: '100%' }}
           className="!fixed inset-0 h-screen w-full top-0 bottom-0 left-0 right-0 z-[9999]">
           {/* Backdrop */}
-          <div className="absolute inset-0 bg-black/30" onClick={() => setSelectedUserId(null)}/>
+          <div className="absolute inset-0 bg-black/30" onClick={() => setSelectedUserId(null)} />
 
           {/* Drawer */}
           <div
@@ -249,7 +249,7 @@ const AdminEmployeesPage: FC = () => {
                     <div className="flex items-start justify-between">
                       <div className={'flex items-center gap-4'}>
                         <h4 className="text-lg font-semibold">{t('admin.aboutEmployee')}</h4>
-                        <StatusBadge status={(selectedUser as any).status || 'unknown'}/>
+                        <StatusBadge status={(selectedUser as any).status || 'unknown'} />
                       </div>
                       <button
                         onClick={() => setSelectedUserId(null)}
@@ -353,8 +353,8 @@ const AdminEmployeesPage: FC = () => {
       <BackgroundWrapper>
         <PageTransition>
           <div className="md:p-6">
-            <MyProfileBanner/>
-            <br/>
+            <MyProfileBanner />
+            <br />
 
             <section className={CARD_STYLES}>
               <div className="">
@@ -362,17 +362,17 @@ const AdminEmployeesPage: FC = () => {
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
                   <select value={branch} onChange={(e) => setBranch(e.target.value)}
-                          className="rounded-lg border-gray-300 focus:ring-cyan-500 focus:border-cyan-500">
+                    className="rounded-lg border-gray-300 focus:ring-cyan-500 focus:border-cyan-500">
                     <option value="">{t('admin.allBranches')}</option>
                     {branches.map((b) => <option key={b} value={b}>{b}</option>)}
                   </select>
                   <select value={position} onChange={(e) => setPosition(e.target.value)}
-                          className="rounded-lg border-gray-300 focus:ring-cyan-500 focus:border-cyan-500">
+                    className="rounded-lg border-gray-300 focus:ring-cyan-500 focus:border-cyan-500">
                     <option value="">{t('admin.allPositions')}</option>
                     {positions.map((p) => <option key={p} value={p}>{p}</option>)}
                   </select>
                   <select value={testStatus} onChange={(e) => setTestStatus(e.target.value)}
-                          className="rounded-lg border-gray-300 focus:ring-cyan-500 focus:border-cyan-500">
+                    className="rounded-lg border-gray-300 focus:ring-cyan-500 focus:border-cyan-500">
                     <option value="">{t('admin.allStatuses')}</option>
                     {(['Refunded', 'Passed', 'Failed'] as const).map((s) => (
                       <option key={s} value={s}>{t(`status.${s.toLowerCase()}` as any)}</option>
@@ -411,7 +411,7 @@ const AdminEmployeesPage: FC = () => {
         onClose={cancelCertificateDownload}
         onConfirm={confirmCertificateDownload}
         title={t('certificate.downloadTitle')}
-        message={t('certificate.downloadMessage', {userName: certificateModal.userName})}
+        message={t('certificate.downloadMessage', { userName: certificateModal.userName })}
         confirmText={t('certificate.download')}
         cancelText={t('certificate.cancel')}
       />

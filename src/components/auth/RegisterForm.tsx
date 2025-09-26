@@ -72,10 +72,11 @@ export const RegisterForm: FC<Props> = ({ }) => {
     }
   };
 
-  // Filter positions based on selected branch
+  // Filter positions based on selected branch (include global positions with no branch)
   const filteredPositions = positionsData?.positions?.filter((position: any) => {
-    if (!branchId || branchId === 0) return true; // Show all positions if no branch selected
-    return position.branch?.id === branchId;
+    if (!branchId || branchId === 0) return true;
+    const posBranchId = position?.branch?.id;
+    return posBranchId === branchId || posBranchId == null;
   }) || [];
 
   // Show error if API calls failed
@@ -244,14 +245,14 @@ export const RegisterForm: FC<Props> = ({ }) => {
       </div>
 
       <div className={'mb-6'}>
-        <label className="block text-base text-black font-medium mb-1.5">Филиал</label>
+        <label className="block text-base text-black font-medium mb-1.5">{t('auth.branch')}</label>
         <Controller
           name="branch_id"
           control={control}
           rules={{ required: t('auth.fieldRequired'), validate: (v: number) => v !== 0 || t('auth.fieldRequired') }}
           render={({ field }) => (
             <select {...field} className={authInputStyle} disabled={branchesLoading}>
-              <option value={0}>Выберите филиал</option>
+              <option value={0}>{t('auth.selectBranch')}</option>
               {branchesData?.branches?.map((branch) => (
                 <option key={branch.id} value={branch.id}>
                   {getLocalizedName(branch)}
@@ -271,7 +272,7 @@ export const RegisterForm: FC<Props> = ({ }) => {
           rules={{ required: t('auth.fieldRequired'), validate: (v: number) => v !== 0 || t('auth.fieldRequired') }}
           render={({ field }) => (
             <select {...field} className={authInputStyle} disabled={positionsLoading || !branchId || branchId === 0}>
-              <option value={0}>{branchId && branchId !== 0 ? t('auth.selectPosition') : 'Сначала выберите филиал'}</option>
+              <option value={0}>{t('auth.selectPosition')}</option>
               {filteredPositions.map((position) => (
                 <option key={position.id} value={position.id}>
                   {getLocalizedName(position)}

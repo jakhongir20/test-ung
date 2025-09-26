@@ -14,9 +14,17 @@ import { BackgroundWrapper } from "../components/BackgroundWrapper.tsx";
 import UserSessionDetailsPage from './UserSessionDetailsPage';
 
 const SessionDetailsPage: FC = () => {
-  const { t } = useI18n();
+  const { t, lang } = useI18n();
   const { id } = useParams<{ id: string; }>();
   const userQuery = useUsersMeRetrieve();
+
+  const sessionQuery = useModeratorUserSessionDetails(id);
+
+  useEffect(() => {
+    if (sessionQuery.error && handleAuthError(sessionQuery.error)) {
+      return; // Already redirected to login
+    }
+  }, [sessionQuery.error]);
 
   // If user is not a moderator (based on users/me), redirect to user session details page
   if (userQuery.data && !userQuery.data.is_moderator) {
@@ -24,14 +32,8 @@ const SessionDetailsPage: FC = () => {
   }
 
   // Fetch session details with moderator API
-  const sessionQuery = useModeratorUserSessionDetails(id);
 
   // Handle authentication errors
-  useEffect(() => {
-    if (sessionQuery.error && handleAuthError(sessionQuery.error)) {
-      return; // Already redirected to login
-    }
-  }, [sessionQuery.error]);
 
   // Loading state
   if (sessionQuery.isLoading) {
@@ -100,6 +102,21 @@ const SessionDetailsPage: FC = () => {
     };
   };
 
+  const getLocalizedText = (entity: any): string => {
+    if (!entity) return '';
+    const byLang: Record<string, string | undefined> = {
+      uz: entity.text_uz,
+      'uz-cyrl': entity.text_uz_cyrl,
+      ru: entity.text_ru,
+    };
+    const candidate = byLang[lang];
+    return (
+      (typeof candidate === 'string' && candidate.trim().length > 0 ? candidate : undefined) ||
+      (typeof entity.text === 'string' && entity.text.trim().length > 0 ? entity.text : undefined) ||
+      entity.text_ru || entity.text_uz || entity.text_uz_cyrl || ''
+    );
+  };
+
   const getAnswerLetter = (answer: any, question: any) => {
     if (!answer) return '-';
 
@@ -112,9 +129,10 @@ const SessionDetailsPage: FC = () => {
     if (answer.selected_choices && answer.selected_choices.length > 0) {
       const selectedChoice = answer.selected_choices[0];
 
-      // If selected_choices[0] has text, use it
-      if (selectedChoice.text && selectedChoice.text.trim() !== '') {
-        return selectedChoice.text;
+      // If selected choice has text, use localized version
+      const localized = getLocalizedText(selectedChoice);
+      if (localized && localized.trim() !== '') {
+        return localized;
       }
 
       // Fallback to letter index
@@ -125,10 +143,9 @@ const SessionDetailsPage: FC = () => {
     // For multiple choice questions
     if (answer.selected_choices && answer.selected_choices.length > 1) {
       const selectedTexts = answer.selected_choices.map((choice: any) => {
-        // Use text if available, otherwise use letter index
-        if (choice.text && choice.text.trim() !== '') {
-          return choice.text;
-        }
+        // Use localized text if available, otherwise use letter index
+        const localized = getLocalizedText(choice);
+        if (localized && localized.trim() !== '') return localized;
         const choiceIndex = question.question.choices.findIndex((c: any) => c.id === choice.id);
         return String.fromCharCode(65 + choiceIndex);
       });
@@ -174,9 +191,11 @@ const SessionDetailsPage: FC = () => {
       title: t('session.questionTitle'),
       className: 'max-w-md',
       render: (_, question) => {
+        const q = question?.question;
+        const text = q ? getLocalizedText(q) : `Question ${question.order}`;
         return (
           <div className="truncate">
-            {question.question?.text || `Question ${question.order}`}
+            {text}
           </div>
         );
       }
