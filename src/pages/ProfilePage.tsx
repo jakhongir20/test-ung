@@ -1,12 +1,13 @@
 import type { FC } from 'react';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useI18n } from '../i18n';
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { useCurrentSession, useMyHistory, useStartSurvey } from '../api/surveys';
 import { handleAuthError } from '../api/auth';
 import { MyProfileBanner } from "../components/MyProfileBanner.tsx";
 import { ProfileCardItem } from "../components/ProfileCardItem.tsx";
 import { BackgroundWrapper } from "../components/BackgroundWrapper.tsx";
+import { FaceVerificationModal } from "../components/FaceVerificationModal.tsx";
 import { FadeIn, PageTransition, StaggeredFadeIn } from "../components/animations";
 import LoadingSvg from "../components/LoadingSvg.tsx";
 
@@ -38,11 +39,26 @@ interface Session {
 }
 
 const ProfilePage: FC = () => {
-  const {t} = useI18n();
+  const { t } = useI18n();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const currentSession = useCurrentSession();
   const myHistory = useMyHistory();
   const startSurvey = useStartSurvey();
+
+  // Face verification state
+  const [isFaceVerificationOpen, setIsFaceVerificationOpen] = useState(false);
+  const [faceVerificationError, setFaceVerificationError] = useState<string | null>(null);
+
+  // Check for test termination error
+  useEffect(() => {
+    const error = searchParams.get('error');
+    if (error === 'test_terminated') {
+      setFaceVerificationError(t('faceMonitoring.testTerminatedMessage'));
+      // Clear the URL parameter
+      navigate('/profile', { replace: true });
+    }
+  }, [searchParams, navigate, t]);
 
   // Check for active session on component mount
   useEffect(() => {
@@ -64,9 +80,16 @@ const ProfilePage: FC = () => {
   const historyData = myHistory.data as Session[] | undefined;
   const surveyHistory = historyData || [];
 
-  const handleStartTest = async () => {
+  const handleStartTest = () => {
+    // Open face verification modal first
+    setIsFaceVerificationOpen(true);
+    setFaceVerificationError(null);
+  };
+
+  const handleFaceVerificationSuccess = async () => {
+    setIsFaceVerificationOpen(false);
     try {
-      const res = await startSurvey.mutateAsync({id: 1, count: 30});
+      const res = await startSurvey.mutateAsync({ id: 1, count: 30 });
       localStorage.setItem('currentSurveySession', JSON.stringify(res));
       navigate(`/test?sessionId=${res.id}`);
     } catch (error) {
@@ -75,7 +98,17 @@ const ProfilePage: FC = () => {
         return; // Already redirected to login
       }
     }
-  }
+  };
+
+  const handleFaceVerificationError = (error: string) => {
+    setFaceVerificationError(error);
+    setIsFaceVerificationOpen(false);
+  };
+
+  const handleFaceVerificationClose = () => {
+    setIsFaceVerificationOpen(false);
+    setFaceVerificationError(null);
+  };
 
   // Loading state
   if (myHistory.isLoading) {
@@ -86,7 +119,7 @@ const ProfilePage: FC = () => {
             <svg className="w-8 h-8 text-cyan-600 animate-spin" fill="none" viewBox="0 0 24 24">
               <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
               <path className="opacity-75" fill="currentColor"
-                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
             </svg>
           </div>
           <h2 className="text-xl font-semibold text-gray-900 mb-2">{t('loading.profile')}</h2>
@@ -106,7 +139,7 @@ const ProfilePage: FC = () => {
           <div className="w-16 h-16 mx-auto mb-4 bg-red-100 rounded-full flex items-center justify-center">
             <svg className="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"/>
+                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
             </svg>
           </div>
           <h2 className="text-xl font-semibold text-gray-900 mb-2">{t('error.connection')}</h2>
@@ -129,8 +162,28 @@ const ProfilePage: FC = () => {
       <PageTransition>
         <div className="space-y-6 md:p-6">
           <FadeIn delay={100}>
-            <MyProfileBanner/>
+            <MyProfileBanner />
           </FadeIn>
+
+          {/* Face Verification Error Display */}
+          {faceVerificationError && (
+            <FadeIn delay={150}>
+              <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+                <div className="flex items-center gap-2">
+                  <svg className="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                  </svg>
+                  <p className="text-red-800 text-sm">{faceVerificationError}</p>
+                </div>
+                <button
+                  onClick={() => setFaceVerificationError(null)}
+                  className="mt-2 text-red-600 hover:text-red-800 text-sm underline"
+                >
+                  {t('dismiss')}
+                </button>
+              </div>
+            </FadeIn>
+          )}
 
           <FadeIn delay={200}>
             <section
@@ -139,13 +192,14 @@ const ProfilePage: FC = () => {
                 <h3 className="text-base md:text-2xl font-semibold">{t('profile.results')}</h3>
                 <button
                   onClick={handleStartTest}
-                  className="inline-flex whitespace-nowrap items-center rounded-xl bg-[#F58634] px-4 h-10 md:h-[46px] md:px-5 text-white hover:bg-cyan-700 transition-colors duration-200"
+                  disabled={startSurvey.isPending}
+                  className="inline-flex whitespace-nowrap items-center rounded-xl bg-[#F58634] px-4 h-10 md:h-[46px] md:px-5 text-white hover:bg-cyan-700 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                   <span className={'justify-center flex gap-3 items-center'}>
-                     {t('profile.newTest')}
-                     {startSurvey.isPending &&
-                       <LoadingSvg/>
-                     }</span>
+                  <span className={'justify-center flex gap-3 items-center'}>
+                    {t('profile.newTest')}
+                    {startSurvey.isPending &&
+                      <LoadingSvg />
+                    }</span>
                 </button>
               </div>
 
@@ -154,7 +208,7 @@ const ProfilePage: FC = () => {
                   <div className="w-16 h-16 mx-auto mb-4 bg-gray-100 rounded-full flex items-center justify-center">
                     <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                            d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                        d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                     </svg>
                   </div>
                   <h3 className="text-lg font-medium text-gray-900 mb-2">{t('empty.noTestHistory')}</h3>
@@ -171,7 +225,7 @@ const ProfilePage: FC = () => {
                     <span className={'justify-center flex gap-3 items-center'}>
                       {t('empty.startFirstTest')}
                       {startSurvey.isPending &&
-                        <LoadingSvg/>
+                        <LoadingSvg />
                       }</span>
                   </button>
                   {/*<button*/}
@@ -183,9 +237,9 @@ const ProfilePage: FC = () => {
                 </div>
               ) : (
                 <StaggeredFadeIn delay={300} staggerDelay={100} direction="top"
-                                 className="mt-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 auto-rows-fr">
+                  className="mt-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 auto-rows-fr">
                   {surveyHistory.map((session: Session, index: number) => (
-                    <ProfileCardItem key={session.id} survey={session} index={index} noButton={false}/>
+                    <ProfileCardItem key={session.id} survey={session} index={index} noButton={false} />
                   ))}
                 </StaggeredFadeIn>
               )}
@@ -193,6 +247,14 @@ const ProfilePage: FC = () => {
           </FadeIn>
         </div>
       </PageTransition>
+
+      {/* Face Verification Modal */}
+      <FaceVerificationModal
+        isOpen={isFaceVerificationOpen}
+        onClose={handleFaceVerificationClose}
+        onSuccess={handleFaceVerificationSuccess}
+        onError={handleFaceVerificationError}
+      />
     </BackgroundWrapper>
   );
 };

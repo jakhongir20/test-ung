@@ -19,6 +19,7 @@
     "@types/js-cookie": "^3.0.6",
     "antd-mask-input": "^2.0.7",
     "axios": "^1.11.0",
+    "face-api.js": "^0.22.2",
     "js-cookie": "^3.0.5",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",

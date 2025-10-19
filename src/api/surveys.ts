@@ -61,6 +61,47 @@ export function useFinishSession() {
   })
 }
 
+// Face monitoring violation tracking
+export function useReportViolation() {
+  return useMutation({
+    mutationFn: async (data: {
+      sessionId: string;
+      violationType: 'no_face' | 'multiple_faces' | 'face_lost' | 'tab_switched';
+      detectionData?: any;
+      timestamp: string;
+    }) => {
+      const response = await customInstance({
+        method: 'POST',
+        url: `/api/sessions/${data.sessionId}/report_violation/`,
+        data: {
+          violation_type: data.violationType,
+          detection_data: data.detectionData,
+          timestamp: data.timestamp
+        }
+      });
+      return response;
+    }
+  });
+}
+
+// Get current violation count from server
+export function useGetViolationCount(sessionId?: string) {
+  return useQuery({
+    queryKey: ['sessionViolationCount', sessionId],
+    queryFn: async () => {
+      if (!sessionId) return null;
+      const response = await customInstance({
+        method: 'GET',
+        url: `/api/sessions/${sessionId}/violation_count/`
+      });
+      return response;
+    },
+    enabled: !!sessionId,
+    refetchInterval: 5000, // Check every 5 seconds
+    retry: 1
+  });
+}
+
 // Custom sessions API implementation since orval didn't generate it
 interface SessionSurvey {
   id: number;

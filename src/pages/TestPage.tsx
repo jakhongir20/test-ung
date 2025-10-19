@@ -15,6 +15,7 @@ import { handleAuthError } from '../api/auth';
 import { useI18n } from "../i18n.tsx";
 import { ACTION_BTN_STYLES, CARD_STYLES } from "../components/test/test.data.ts";
 import { BackgroundWrapper } from "../components/BackgroundWrapper.tsx";
+import { FaceMonitoring } from "../components/FaceMonitoring.tsx";
 import { FadeIn, PageTransition } from "../components/animations";
 
 type BuiltQuestion = {
@@ -93,6 +94,10 @@ const TestPage: FC = () => {
   const [navOpen, setNavOpen] = useState(false);
   const hasInitialized = useRef(false); // Track if we've already initialized the current order
 
+  // Face monitoring state
+  const [isFaceMonitoringActive, setIsFaceMonitoringActive] = useState(false);
+  const [faceViolationCount, setFaceViolationCount] = useState(0);
+
   // Get current question using the navigation endpoint - only call when we have valid data
   const questionQuery = useGetQuestion(sessionId, current ?? undefined);
 
@@ -142,6 +147,42 @@ const TestPage: FC = () => {
       }
     }
   }, [sessionData, progressData, current]);
+
+  // Start face monitoring when test begins
+  useEffect(() => {
+    if (current !== null && !isExpired) {
+      setIsFaceMonitoringActive(true);
+      console.log('Face monitoring started for test');
+    }
+  }, [current, isExpired]);
+
+  // Face monitoring handlers
+  const handleFaceViolation = (violationType: 'no_face' | 'multiple_faces' | 'face_lost' | 'tab_switched') => {
+    console.log(`Face violation detected: ${violationType}`);
+    setFaceViolationCount(prev => prev + 1);
+  };
+
+  const handleTestTermination = async () => {
+    console.log('Test terminated due to face monitoring violations');
+    setIsFaceMonitoringActive(false);
+
+    try {
+      // Cancel the session
+      await customInstance({
+        method: 'POST',
+        url: `/api/sessions/${sessionId}/cancel/`
+      });
+
+      // Clear session data
+      localStorage.removeItem('currentSurveySession');
+
+      // Navigate to profile with error message
+      navigate('/profile?error=test_terminated');
+    } catch (error) {
+      console.error('Error terminating test:', error);
+      navigate('/profile?error=test_terminated');
+    }
+  };
 
   // When expired, cleanup and push to profile
   useEffect(() => {
@@ -647,6 +688,15 @@ const TestPage: FC = () => {
           </div>
         </div>
       </PageTransition>
+
+      {/* Face Monitoring Component */}
+      <FaceMonitoring
+        isActive={isFaceMonitoringActive}
+        sessionId={sessionId || ''}
+        onViolation={handleFaceViolation}
+        onTestTerminated={handleTestTermination}
+        checkInterval={10000} // Check every 10 seconds
+      />
     </BackgroundWrapper>
   );
 };
