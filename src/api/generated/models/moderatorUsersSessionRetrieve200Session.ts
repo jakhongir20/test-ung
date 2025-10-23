@@ -22,5 +22,27 @@
     
  * OpenAPI spec version: 1.0.0
  */
+import type { ModeratorUsersSessionRetrieve200SessionSurvey } from './moderatorUsersSessionRetrieve200SessionSurvey';
+import type { ModeratorUsersSessionRetrieve200SessionUser } from './moderatorUsersSessionRetrieve200SessionUser';
 
-export type SessionsRetrieve200Survey = { [key: string]: unknown };
+export type ModeratorUsersSessionRetrieve200Session = {
+  id?: string;
+  survey?: ModeratorUsersSessionRetrieve200SessionSurvey;
+  user?: ModeratorUsersSessionRetrieve200SessionUser;
+  attempt_number?: number;
+  status?: string;
+  score?: number;
+  total_points?: number;
+  percentage?: number;
+  is_passed?: boolean;
+  started_at?: string;
+  /** @nullable */
+  completed_at?: string | null;
+  /** @nullable */
+  duration_minutes?: number | null;
+  language?: string;
+  can_retake?: boolean;
+  retake_reason?: string;
+  /** @nullable */
+  retake_granted_by?: string | null;
+};

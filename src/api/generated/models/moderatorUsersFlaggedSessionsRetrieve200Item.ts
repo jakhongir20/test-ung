@@ -22,30 +22,15 @@
     
  * OpenAPI spec version: 1.0.0
  */
-import type { PatchedUserRequestWorkDomain } from './patchedUserRequestWorkDomain';
-import type { PatchedUserRequestEmployeeLevel } from './patchedUserRequestEmployeeLevel';
+import type { ModeratorUsersFlaggedSessionsRetrieve200ItemUser } from './moderatorUsersFlaggedSessionsRetrieve200ItemUser';
+import type { ModeratorUsersFlaggedSessionsRetrieve200ItemSurvey } from './moderatorUsersFlaggedSessionsRetrieve200ItemSurvey';
 
-/**
- * Сериализатор для модели пользователя.
- */
-export interface PatchedUserRequest {
-  /**
-   * @maxLength 32
-   * @nullable
-   */
-  phone_number?: string | null;
-  /** @maxLength 255 */
-  name?: string;
-  /** @nullable */
-  position?: number | null;
-  /** @nullable */
-  gtf?: number | null;
-  /** * `natural_gas` - Natural Gas
-* `lpg_gas` - LPG Gas
-* `both` - Both */
-  work_domain?: PatchedUserRequestWorkDomain;
-  /** * `junior` - Junior
-* `engineer` - Engineer */
-  employee_level?: PatchedUserRequestEmployeeLevel;
-  is_moderator?: boolean;
-}
+export type ModeratorUsersFlaggedSessionsRetrieve200Item = {
+  session_id?: string;
+  user?: ModeratorUsersFlaggedSessionsRetrieve200ItemUser;
+  survey?: ModeratorUsersFlaggedSessionsRetrieve200ItemSurvey;
+  violations_count?: number;
+  started_at?: string;
+  has_recording?: boolean;
+  review_status?: string;
+};

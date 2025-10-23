@@ -10,6 +10,7 @@ import { BackgroundWrapper } from "../components/BackgroundWrapper.tsx";
 import { FaceVerificationModal } from "../components/FaceVerificationModal.tsx";
 import { FadeIn, PageTransition, StaggeredFadeIn } from "../components/animations";
 import LoadingSvg from "../components/LoadingSvg.tsx";
+import { useAuthStore } from "../stores/authStore";
 
 // Type for session data from the API
 interface Session {
@@ -45,10 +46,12 @@ const ProfilePage: FC = () => {
   const currentSession = useCurrentSession();
   const myHistory = useMyHistory();
   const startSurvey = useStartSurvey();
+  const { user } = useAuthStore();
 
   // Face verification state
   const [isFaceVerificationOpen, setIsFaceVerificationOpen] = useState(false);
   const [faceVerificationError, setFaceVerificationError] = useState<string | null>(null);
+  const [pendingSessionId, setPendingSessionId] = useState<string | null>(null);
 
   // Check for test termination error
   useEffect(() => {
@@ -80,23 +83,29 @@ const ProfilePage: FC = () => {
   const historyData = myHistory.data as Session[] | undefined;
   const surveyHistory = historyData || [];
 
-  const handleStartTest = () => {
-    // Open face verification modal first
-    setIsFaceVerificationOpen(true);
-    setFaceVerificationError(null);
+  const handleStartTest = async () => {
+    try {
+      // Start the survey first to get sessionId
+      const res = await startSurvey.mutateAsync({ id: 1, count: 30 });
+      setPendingSessionId(res.id);
+      localStorage.setItem('currentSurveySession', JSON.stringify(res));
+
+      // Open face verification modal with sessionId
+      setIsFaceVerificationOpen(true);
+      setFaceVerificationError(null);
+    } catch (error) {
+      // Check if it's an authentication error and handle it
+      if (handleAuthError(error)) {
+        return;
+      }
+      console.log('Failed to start survey:', error);
+    }
   };
 
   const handleFaceVerificationSuccess = async () => {
     setIsFaceVerificationOpen(false);
-    try {
-      const res = await startSurvey.mutateAsync({ id: 1, count: 30 });
-      localStorage.setItem('currentSurveySession', JSON.stringify(res));
-      navigate(`/test?sessionId=${res.id}`);
-    } catch (error) {
-      // Check if it's an authentication error and handle it
-      if (handleAuthError(error)) {
-        return; // Already redirected to login
-      }
+    if (pendingSessionId) {
+      navigate(`/test?sessionId=${pendingSessionId}`);
     }
   };
 
@@ -254,6 +263,8 @@ const ProfilePage: FC = () => {
         onClose={handleFaceVerificationClose}
         onSuccess={handleFaceVerificationSuccess}
         onError={handleFaceVerificationError}
+        sessionId={pendingSessionId || undefined}
+        userId={user?.id?.toString()}
       />
     </BackgroundWrapper>
   );

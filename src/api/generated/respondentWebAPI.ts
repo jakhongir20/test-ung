@@ -43,24 +43,27 @@ import type {
 
 import type {
   AuthLoginCreate400,
-  AuthPasswordLoginCreate400,
+  AuthPasswordLoginCreate401,
+  AuthPasswordLoginCreateBody,
   AuthRegisterCreate400,
+  AuthRegisterCreateBody,
   AuthSendOtpCreate400,
   AuthToken,
   AuthTokenCreate2401,
   AuthTokenRequest,
   AuthVerifyOtpCreate200,
   AuthVerifyOtpCreate400,
-  BranchesListResponse,
+  BranchesRetrieve200,
   CurrentSessionRetrieve200,
   CustomTokenObtainPairRequest,
-  GtfListResponse,
+  GtfRetrieve200,
   LoginResponse,
   ModeratorDashboardRetrieve200,
   ModeratorSurveysDashboardStatsRetrieve200,
   ModeratorSurveysDetailedResultsRetrieve200,
   ModeratorSurveysList200ItemItem,
   ModeratorSurveysRetrieve200,
+  ModeratorUsersFlaggedSessionsRetrieve200Item,
   ModeratorUsersGrantRetakeCreate200,
   ModeratorUsersGrantRetakeCreate404,
   ModeratorUsersGrantRetakeCreateBodyFour,
@@ -70,14 +73,33 @@ import type {
   ModeratorUsersListParams,
   ModeratorUsersOverviewRetrieve200Item,
   ModeratorUsersRetrieve200,
+  ModeratorUsersReviewSessionCreate200,
+  ModeratorUsersReviewSessionCreateBodyOne,
+  ModeratorUsersReviewSessionCreateBodyThree,
+  ModeratorUsersSessionRetrieve200,
+  ModeratorUsersSessionRetrieve404,
+  ModeratorUsersSessionViolationsRetrieve200Item,
   ModeratorUsersSurveyHistoryRetrieve200Item,
   ModeratorUsersSurveyHistoryRetrieveParams,
   OTPResponse,
-  PasswordLoginRequest,
   PatchedUserRequest,
   PhoneLoginRequest,
-  PositionsListResponse,
-  RegisterRequest,
+  PositionsRetrieve200,
+  ProctorHeartbeatCreate200,
+  ProctorHeartbeatCreateBodyOne,
+  ProctorHeartbeatCreateBodyThree,
+  ProctorMergeChunksCreate200,
+  ProctorMergeChunksCreateBodyOne,
+  ProctorMergeChunksCreateBodyThree,
+  ProctorRecordViolationCreate200,
+  ProctorRecordViolationCreateBody,
+  ProctorSessionChunksRetrieve200,
+  ProctorUploadChunkCreate200,
+  ProctorUploadChunkCreateBody,
+  ProctorUploadRecordingCreate200,
+  ProctorUploadRecordingCreateBody,
+  ProctorVerifyInitialCreate200,
+  ProctorVerifyInitialCreateBody,
   SchemaRetrieve200Four,
   SchemaRetrieve200One,
   SchemaRetrieve200Three,
@@ -103,11 +125,11 @@ import type {
   SessionsPreviousQuestionRetrieve404,
   SessionsPreviousQuestionRetrieveParams,
   SessionsProgressRetrieve200,
-  SessionsRetrieve200,
   SessionsSubmitAnswerCreate200,
   SessionsSubmitAnswerCreate400,
   SessionsSubmitAnswerCreateBodyOne,
   SessionsSubmitAnswerCreateBodyThree,
+  SurveySession,
   SurveySessionRequest,
   SurveysList200ItemItem,
   SurveysListParams,
@@ -122,8 +144,10 @@ import type {
   TokenRefreshRequest,
   TokenResponse,
   User,
+  UserProfileUpdateRequest,
   UserRequest,
   UserSearchResponse,
+  UsersMeUpdateCreate400,
   UsersSearchRetrieve403,
   UsersSearchRetrieveParams,
   VerifyOTPRequest
@@ -263,6 +287,138 @@ export const useAuthLoginCreate = <TError = AuthLoginCreate400,
       > => {
 
       const mutationOptions = getAuthLoginCreateMutationOptions(options);
+
+      return useMutation(mutationOptions , queryClient);
+    }
+    
+/**
+ * Возвращает JWT токены при корректном phone_number/password.
+ * @summary Логин по телефону и паролю
+ */
+export const authPasswordLoginCreate = (
+    authPasswordLoginCreateBody: AuthPasswordLoginCreateBody,
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+      
+      
+      return customInstance<TokenResponse>(
+      {url: `/api/auth/password-login/`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: authPasswordLoginCreateBody, signal
+    },
+      options);
+    }
+  
+
+
+export const getAuthPasswordLoginCreateMutationOptions = <TError = AuthPasswordLoginCreate401,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof authPasswordLoginCreate>>, TError,{data: AuthPasswordLoginCreateBody}, TContext>, request?: SecondParameter<typeof customInstance>}
+): UseMutationOptions<Awaited<ReturnType<typeof authPasswordLoginCreate>>, TError,{data: AuthPasswordLoginCreateBody}, TContext> => {
+
+const mutationKey = ['authPasswordLoginCreate'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof authPasswordLoginCreate>>, {data: AuthPasswordLoginCreateBody}> = (props) => {
+          const {data} = props ?? {};
+
+          return  authPasswordLoginCreate(data,requestOptions)
+        }
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type AuthPasswordLoginCreateMutationResult = NonNullable<Awaited<ReturnType<typeof authPasswordLoginCreate>>>
+    export type AuthPasswordLoginCreateMutationBody = AuthPasswordLoginCreateBody
+    export type AuthPasswordLoginCreateMutationError = AuthPasswordLoginCreate401
+
+    /**
+ * @summary Логин по телефону и паролю
+ */
+export const useAuthPasswordLoginCreate = <TError = AuthPasswordLoginCreate401,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof authPasswordLoginCreate>>, TError,{data: AuthPasswordLoginCreateBody}, TContext>, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof authPasswordLoginCreate>>,
+        TError,
+        {data: AuthPasswordLoginCreateBody},
+        TContext
+      > => {
+
+      const mutationOptions = getAuthPasswordLoginCreateMutationOptions(options);
+
+      return useMutation(mutationOptions , queryClient);
+    }
+    
+/**
+ * Создает пользователя по phone_number и password. Опционально: name, position_id, gtf_id.
+ * @summary Регистрация пользователя (телефон + пароль)
+ */
+export const authRegisterCreate = (
+    authRegisterCreateBody: AuthRegisterCreateBody,
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+      
+      
+      return customInstance<LoginResponse>(
+      {url: `/api/auth/register/`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: authRegisterCreateBody, signal
+    },
+      options);
+    }
+  
+
+
+export const getAuthRegisterCreateMutationOptions = <TError = AuthRegisterCreate400,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof authRegisterCreate>>, TError,{data: AuthRegisterCreateBody}, TContext>, request?: SecondParameter<typeof customInstance>}
+): UseMutationOptions<Awaited<ReturnType<typeof authRegisterCreate>>, TError,{data: AuthRegisterCreateBody}, TContext> => {
+
+const mutationKey = ['authRegisterCreate'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof authRegisterCreate>>, {data: AuthRegisterCreateBody}> = (props) => {
+          const {data} = props ?? {};
+
+          return  authRegisterCreate(data,requestOptions)
+        }
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type AuthRegisterCreateMutationResult = NonNullable<Awaited<ReturnType<typeof authRegisterCreate>>>
+    export type AuthRegisterCreateMutationBody = AuthRegisterCreateBody
+    export type AuthRegisterCreateMutationError = AuthRegisterCreate400
+
+    /**
+ * @summary Регистрация пользователя (телефон + пароль)
+ */
+export const useAuthRegisterCreate = <TError = AuthRegisterCreate400,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof authRegisterCreate>>, TError,{data: AuthRegisterCreateBody}, TContext>, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof authRegisterCreate>>,
+        TError,
+        {data: AuthRegisterCreateBody},
+        TContext
+      > => {
+
+      const mutationOptions = getAuthRegisterCreateMutationOptions(options);
 
       return useMutation(mutationOptions , queryClient);
     }
@@ -536,393 +692,265 @@ export const useAuthVerifyOtpCreate = <TError = AuthVerifyOtpCreate400,
     }
     
 /**
- * Авторизует пользователя по номеру телефона и паролю.
- * @summary Вход через пароль
+ * Возвращает список всех уникальных филиалов (branch) из базы данных пользователей.
+ * @summary Получить все филиалы
  */
-export const authPasswordLoginCreate = (
-    passwordLoginRequest: PasswordLoginRequest,
- options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
-) => {
-      
-      
-      return customInstance<LoginResponse>(
-      {url: `/api/auth/password-login/`, method: 'POST',
-      headers: {'Content-Type': 'application/json', },
-      data: passwordLoginRequest, signal
-    },
-      options);
-    }
-  
-
-
-export const getAuthPasswordLoginCreateMutationOptions = <TError = AuthPasswordLoginCreate400,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof authPasswordLoginCreate>>, TError,{data: PasswordLoginRequest}, TContext>, request?: SecondParameter<typeof customInstance>}
-): UseMutationOptions<Awaited<ReturnType<typeof authPasswordLoginCreate>>, TError,{data: PasswordLoginRequest}, TContext> => {
-
-const mutationKey = ['authPasswordLoginCreate'];
-const {mutation: mutationOptions, request: requestOptions} = options ?
-      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
-      options
-      : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }, request: undefined};
-
-      
-
-
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof authPasswordLoginCreate>>, {data: PasswordLoginRequest}> = (props) => {
-          const {data} = props ?? {};
-
-          return  authPasswordLoginCreate(data,requestOptions)
-        }
-
-        
-
-
-  return  { mutationFn, ...mutationOptions }}
-
-    export type AuthPasswordLoginCreateMutationResult = NonNullable<Awaited<ReturnType<typeof authPasswordLoginCreate>>>
-    export type AuthPasswordLoginCreateMutationBody = PasswordLoginRequest
-    export type AuthPasswordLoginCreateMutationError = AuthPasswordLoginCreate400
-
-    /**
- * @summary Вход через пароль
- */
-export const useAuthPasswordLoginCreate = <TError = AuthPasswordLoginCreate400,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof authPasswordLoginCreate>>, TError,{data: PasswordLoginRequest}, TContext>, request?: SecondParameter<typeof customInstance>}
- , queryClient?: QueryClient): UseMutationResult<
-        Awaited<ReturnType<typeof authPasswordLoginCreate>>,
-        TError,
-        {data: PasswordLoginRequest},
-        TContext
-      > => {
-
-      const mutationOptions = getAuthPasswordLoginCreateMutationOptions(options);
-
-      return useMutation(mutationOptions , queryClient);
-    }
-    
-/**
- * Регистрирует нового пользователя с номером телефона и паролем.
- * @summary Регистрация нового пользователя
- */
-export const authRegisterCreate = (
-    registerRequest: RegisterRequest,
- options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
-) => {
-      
-      
-      return customInstance<LoginResponse>(
-      {url: `/api/auth/register/`, method: 'POST',
-      headers: {'Content-Type': 'application/json', },
-      data: registerRequest, signal
-    },
-      options);
-    }
-  
-
-
-export const getAuthRegisterCreateMutationOptions = <TError = AuthRegisterCreate400,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof authRegisterCreate>>, TError,{data: RegisterRequest}, TContext>, request?: SecondParameter<typeof customInstance>}
-): UseMutationOptions<Awaited<ReturnType<typeof authRegisterCreate>>, TError,{data: RegisterRequest}, TContext> => {
-
-const mutationKey = ['authRegisterCreate'];
-const {mutation: mutationOptions, request: requestOptions} = options ?
-      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
-      options
-      : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }, request: undefined};
-
-      
-
-
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof authRegisterCreate>>, {data: RegisterRequest}> = (props) => {
-          const {data} = props ?? {};
-
-          return  authRegisterCreate(data,requestOptions)
-        }
-
-        
-
-
-  return  { mutationFn, ...mutationOptions }}
-
-    export type AuthRegisterCreateMutationResult = NonNullable<Awaited<ReturnType<typeof authRegisterCreate>>>
-    export type AuthRegisterCreateMutationBody = RegisterRequest
-    export type AuthRegisterCreateMutationError = AuthRegisterCreate400
-
-    /**
- * @summary Регистрация нового пользователя
- */
-export const useAuthRegisterCreate = <TError = AuthRegisterCreate400,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof authRegisterCreate>>, TError,{data: RegisterRequest}, TContext>, request?: SecondParameter<typeof customInstance>}
- , queryClient?: QueryClient): UseMutationResult<
-        Awaited<ReturnType<typeof authRegisterCreate>>,
-        TError,
-        {data: RegisterRequest},
-        TContext
-      > => {
-
-      const mutationOptions = getAuthRegisterCreateMutationOptions(options);
-
-      return useMutation(mutationOptions , queryClient);
-    }
-    
-/**
- * Получить список всех должностей.
- * @summary Список должностей
- */
-export const positionsList = (
+export const branchesRetrieve = (
     
  options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
 ) => {
       
       
-      return customInstance<PositionsListResponse>(
-      {url: `/api/positions/`, method: 'GET', signal
-    },
-      options);
-    }
-  
-
-export const getPositionsListQueryKey = () => {
-    return [`/api/positions/`] as const;
-    }
-
-    
-export const getPositionsListQueryOptions = <TData = Awaited<ReturnType<typeof positionsList>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof positionsList>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
-) => {
-
-const {query: queryOptions, request: requestOptions} = options ?? {};
-
-  const queryKey =  queryOptions?.queryKey ?? getPositionsListQueryKey();
-
-  
-
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof positionsList>>> = ({ signal }) => positionsList(requestOptions, signal);
-
-      
-
-      
-
-   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof positionsList>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
-}
-
-export type PositionsListQueryResult = NonNullable<Awaited<ReturnType<typeof positionsList>>>
-export type PositionsListQueryError = unknown
-
-
-export function usePositionsList<TData = Awaited<ReturnType<typeof positionsList>>, TError = unknown>(
-  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof positionsList>>, TError, TData>> & Pick<
-        DefinedInitialDataOptions<
-          Awaited<ReturnType<typeof positionsList>>,
-          TError,
-          Awaited<ReturnType<typeof positionsList>>
-        > , 'initialData'
-      >, request?: SecondParameter<typeof customInstance>}
- , queryClient?: QueryClient
-  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function usePositionsList<TData = Awaited<ReturnType<typeof positionsList>>, TError = unknown>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof positionsList>>, TError, TData>> & Pick<
-        UndefinedInitialDataOptions<
-          Awaited<ReturnType<typeof positionsList>>,
-          TError,
-          Awaited<ReturnType<typeof positionsList>>
-        > , 'initialData'
-      >, request?: SecondParameter<typeof customInstance>}
- , queryClient?: QueryClient
-  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function usePositionsList<TData = Awaited<ReturnType<typeof positionsList>>, TError = unknown>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof positionsList>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
- , queryClient?: QueryClient
-  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-/**
- * @summary Список должностей
- */
-
-export function usePositionsList<TData = Awaited<ReturnType<typeof positionsList>>, TError = unknown>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof positionsList>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
- , queryClient?: QueryClient 
- ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
-
-  const queryOptions = getPositionsListQueryOptions(options)
-
-  const query = useQuery(queryOptions , queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
-
-  query.queryKey = queryOptions.queryKey ;
-
-  return query;
-}
-
-
-
-
-/**
- * Получить список всех ГТФ (филиалов).
- * @summary Список ГТФ
- */
-export const gtfList = (
-    
- options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
-) => {
-      
-      
-      return customInstance<GtfListResponse>(
-      {url: `/api/gtf/`, method: 'GET', signal
-    },
-      options);
-    }
-  
-
-export const getGtfListQueryKey = () => {
-    return [`/api/gtf/`] as const;
-    }
-
-    
-export const getGtfListQueryOptions = <TData = Awaited<ReturnType<typeof gtfList>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof gtfList>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
-) => {
-
-const {query: queryOptions, request: requestOptions} = options ?? {};
-
-  const queryKey =  queryOptions?.queryKey ?? getGtfListQueryKey();
-
-  
-
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof gtfList>>> = ({ signal }) => gtfList(requestOptions, signal);
-
-      
-
-      
-
-   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof gtfList>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
-}
-
-export type GtfListQueryResult = NonNullable<Awaited<ReturnType<typeof gtfList>>>
-export type GtfListQueryError = unknown
-
-
-export function useGtfList<TData = Awaited<ReturnType<typeof gtfList>>, TError = unknown>(
-  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof gtfList>>, TError, TData>> & Pick<
-        DefinedInitialDataOptions<
-          Awaited<ReturnType<typeof gtfList>>,
-          TError,
-          Awaited<ReturnType<typeof gtfList>>
-        > , 'initialData'
-      >, request?: SecondParameter<typeof customInstance>}
- , queryClient?: QueryClient
-  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGtfList<TData = Awaited<ReturnType<typeof gtfList>>, TError = unknown>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof gtfList>>, TError, TData>> & Pick<
-        UndefinedInitialDataOptions<
-          Awaited<ReturnType<typeof gtfList>>,
-          TError,
-          Awaited<ReturnType<typeof gtfList>>
-        > , 'initialData'
-      >, request?: SecondParameter<typeof customInstance>}
- , queryClient?: QueryClient
-  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGtfList<TData = Awaited<ReturnType<typeof gtfList>>, TError = unknown>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof gtfList>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
- , queryClient?: QueryClient
-  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-/**
- * @summary Список ГТФ
- */
-
-export function useGtfList<TData = Awaited<ReturnType<typeof gtfList>>, TError = unknown>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof gtfList>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
- , queryClient?: QueryClient 
- ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
-
-  const queryOptions = getGtfListQueryOptions(options)
-
-  const query = useQuery(queryOptions , queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
-
-  query.queryKey = queryOptions.queryKey ;
-
-  return query;
-}
-
-
-
-
-/**
- * Получить список всех ГТФ (филиалов).
- * @summary Список ГТФ
- */
-export const branchesList = (
-    
- options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
-) => {
-      
-      
-      return customInstance<BranchesListResponse>(
+      return customInstance<BranchesRetrieve200>(
       {url: `/api/branches/`, method: 'GET', signal
     },
       options);
     }
   
 
-export const getBranchesListQueryKey = () => {
+export const getBranchesRetrieveQueryKey = () => {
     return [`/api/branches/`] as const;
     }
 
     
-export const getBranchesListQueryOptions = <TData = Awaited<ReturnType<typeof branchesList>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof branchesList>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+export const getBranchesRetrieveQueryOptions = <TData = Awaited<ReturnType<typeof branchesRetrieve>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof branchesRetrieve>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
 ) => {
 
 const {query: queryOptions, request: requestOptions} = options ?? {};
 
-  const queryKey =  queryOptions?.queryKey ?? getBranchesListQueryKey();
+  const queryKey =  queryOptions?.queryKey ?? getBranchesRetrieveQueryKey();
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof branchesList>>> = ({ signal }) => branchesList(requestOptions, signal);
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof branchesRetrieve>>> = ({ signal }) => branchesRetrieve(requestOptions, signal);
 
       
 
       
 
-   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof branchesList>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof branchesRetrieve>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
 }
 
-export type BranchesListQueryResult = NonNullable<Awaited<ReturnType<typeof branchesList>>>
-export type BranchesListQueryError = unknown
+export type BranchesRetrieveQueryResult = NonNullable<Awaited<ReturnType<typeof branchesRetrieve>>>
+export type BranchesRetrieveQueryError = unknown
 
 
-export function useBranchesList<TData = Awaited<ReturnType<typeof branchesList>>, TError = unknown>(
-  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof branchesList>>, TError, TData>> & Pick<
+export function useBranchesRetrieve<TData = Awaited<ReturnType<typeof branchesRetrieve>>, TError = unknown>(
+  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof branchesRetrieve>>, TError, TData>> & Pick<
         DefinedInitialDataOptions<
-          Awaited<ReturnType<typeof branchesList>>,
+          Awaited<ReturnType<typeof branchesRetrieve>>,
           TError,
-          Awaited<ReturnType<typeof branchesList>>
+          Awaited<ReturnType<typeof branchesRetrieve>>
         > , 'initialData'
       >, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useBranchesList<TData = Awaited<ReturnType<typeof branchesList>>, TError = unknown>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof branchesList>>, TError, TData>> & Pick<
+export function useBranchesRetrieve<TData = Awaited<ReturnType<typeof branchesRetrieve>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof branchesRetrieve>>, TError, TData>> & Pick<
         UndefinedInitialDataOptions<
-          Awaited<ReturnType<typeof branchesList>>,
+          Awaited<ReturnType<typeof branchesRetrieve>>,
           TError,
-          Awaited<ReturnType<typeof branchesList>>
+          Awaited<ReturnType<typeof branchesRetrieve>>
         > , 'initialData'
       >, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useBranchesList<TData = Awaited<ReturnType<typeof branchesList>>, TError = unknown>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof branchesList>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+export function useBranchesRetrieve<TData = Awaited<ReturnType<typeof branchesRetrieve>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof branchesRetrieve>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
- * @summary Список ГТФ
+ * @summary Получить все филиалы
  */
 
-export function useBranchesList<TData = Awaited<ReturnType<typeof branchesList>>, TError = unknown>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof branchesList>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+export function useBranchesRetrieve<TData = Awaited<ReturnType<typeof branchesRetrieve>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof branchesRetrieve>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
  , queryClient?: QueryClient 
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
-  const queryOptions = getBranchesListQueryOptions(options)
+  const queryOptions = getBranchesRetrieveQueryOptions(options)
+
+  const query = useQuery(queryOptions , queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  query.queryKey = queryOptions.queryKey ;
+
+  return query;
+}
+
+
+
+
+/**
+ * Получить данные сертификата для завершенной сессии опроса.
+    
+    Возвращает информацию о пользователе, опросе и результатах для отображения на фронтенде.
+ * @summary Получить данные сертификата
+ */
+export const certificateCertificateDataRetrieve = (
+    sessionId: string,
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+      
+      
+      return customInstance<unknown>(
+      {url: `/api/certificate/certificate/${sessionId}/data/`, method: 'GET', signal
+    },
+      options);
+    }
+  
+
+export const getCertificateCertificateDataRetrieveQueryKey = (sessionId?: string,) => {
+    return [`/api/certificate/certificate/${sessionId}/data/`] as const;
+    }
+
+    
+export const getCertificateCertificateDataRetrieveQueryOptions = <TData = Awaited<ReturnType<typeof certificateCertificateDataRetrieve>>, TError = unknown | unknown>(sessionId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof certificateCertificateDataRetrieve>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getCertificateCertificateDataRetrieveQueryKey(sessionId);
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof certificateCertificateDataRetrieve>>> = ({ signal }) => certificateCertificateDataRetrieve(sessionId, requestOptions, signal);
+
+      
+
+      
+
+   return  { queryKey, queryFn, enabled: !!(sessionId), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof certificateCertificateDataRetrieve>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type CertificateCertificateDataRetrieveQueryResult = NonNullable<Awaited<ReturnType<typeof certificateCertificateDataRetrieve>>>
+export type CertificateCertificateDataRetrieveQueryError = unknown | unknown
+
+
+export function useCertificateCertificateDataRetrieve<TData = Awaited<ReturnType<typeof certificateCertificateDataRetrieve>>, TError = unknown | unknown>(
+ sessionId: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof certificateCertificateDataRetrieve>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof certificateCertificateDataRetrieve>>,
+          TError,
+          Awaited<ReturnType<typeof certificateCertificateDataRetrieve>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useCertificateCertificateDataRetrieve<TData = Awaited<ReturnType<typeof certificateCertificateDataRetrieve>>, TError = unknown | unknown>(
+ sessionId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof certificateCertificateDataRetrieve>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof certificateCertificateDataRetrieve>>,
+          TError,
+          Awaited<ReturnType<typeof certificateCertificateDataRetrieve>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useCertificateCertificateDataRetrieve<TData = Awaited<ReturnType<typeof certificateCertificateDataRetrieve>>, TError = unknown | unknown>(
+ sessionId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof certificateCertificateDataRetrieve>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Получить данные сертификата
+ */
+
+export function useCertificateCertificateDataRetrieve<TData = Awaited<ReturnType<typeof certificateCertificateDataRetrieve>>, TError = unknown | unknown>(
+ sessionId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof certificateCertificateDataRetrieve>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getCertificateCertificateDataRetrieveQueryOptions(sessionId,options)
+
+  const query = useQuery(queryOptions , queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  query.queryKey = queryOptions.queryKey ;
+
+  return query;
+}
+
+
+
+
+/**
+ * Получить данные сертификата для пользователя по его UUID.
+    
+    Возвращает информацию о сессии с наивысшим баллом у пользователя.
+ * @summary Получить данные сертификата по UUID пользователя
+ */
+export const certificateUserCertificateDataRetrieve = (
+    userUuid: string,
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+      
+      
+      return customInstance<unknown>(
+      {url: `/api/certificate/user/${userUuid}/certificate/data/`, method: 'GET', signal
+    },
+      options);
+    }
+  
+
+export const getCertificateUserCertificateDataRetrieveQueryKey = (userUuid?: string,) => {
+    return [`/api/certificate/user/${userUuid}/certificate/data/`] as const;
+    }
+
+    
+export const getCertificateUserCertificateDataRetrieveQueryOptions = <TData = Awaited<ReturnType<typeof certificateUserCertificateDataRetrieve>>, TError = unknown>(userUuid: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof certificateUserCertificateDataRetrieve>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getCertificateUserCertificateDataRetrieveQueryKey(userUuid);
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof certificateUserCertificateDataRetrieve>>> = ({ signal }) => certificateUserCertificateDataRetrieve(userUuid, requestOptions, signal);
+
+      
+
+      
+
+   return  { queryKey, queryFn, enabled: !!(userUuid), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof certificateUserCertificateDataRetrieve>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type CertificateUserCertificateDataRetrieveQueryResult = NonNullable<Awaited<ReturnType<typeof certificateUserCertificateDataRetrieve>>>
+export type CertificateUserCertificateDataRetrieveQueryError = unknown
+
+
+export function useCertificateUserCertificateDataRetrieve<TData = Awaited<ReturnType<typeof certificateUserCertificateDataRetrieve>>, TError = unknown>(
+ userUuid: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof certificateUserCertificateDataRetrieve>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof certificateUserCertificateDataRetrieve>>,
+          TError,
+          Awaited<ReturnType<typeof certificateUserCertificateDataRetrieve>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useCertificateUserCertificateDataRetrieve<TData = Awaited<ReturnType<typeof certificateUserCertificateDataRetrieve>>, TError = unknown>(
+ userUuid: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof certificateUserCertificateDataRetrieve>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof certificateUserCertificateDataRetrieve>>,
+          TError,
+          Awaited<ReturnType<typeof certificateUserCertificateDataRetrieve>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useCertificateUserCertificateDataRetrieve<TData = Awaited<ReturnType<typeof certificateUserCertificateDataRetrieve>>, TError = unknown>(
+ userUuid: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof certificateUserCertificateDataRetrieve>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Получить данные сертификата по UUID пользователя
+ */
+
+export function useCertificateUserCertificateDataRetrieve<TData = Awaited<ReturnType<typeof certificateUserCertificateDataRetrieve>>, TError = unknown>(
+ userUuid: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof certificateUserCertificateDataRetrieve>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getCertificateUserCertificateDataRetrieveQueryOptions(userUuid,options)
 
   const query = useQuery(queryOptions , queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 
@@ -1015,6 +1043,95 @@ export function useCurrentSessionRetrieve<TData = Awaited<ReturnType<typeof curr
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
   const queryOptions = getCurrentSessionRetrieveQueryOptions(options)
+
+  const query = useQuery(queryOptions , queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  query.queryKey = queryOptions.queryKey ;
+
+  return query;
+}
+
+
+
+
+/**
+ * Возвращает список GTFStaff.
+ * @summary Получить все GTF
+ */
+export const gtfRetrieve = (
+    
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+      
+      
+      return customInstance<GtfRetrieve200>(
+      {url: `/api/gtf/`, method: 'GET', signal
+    },
+      options);
+    }
+  
+
+export const getGtfRetrieveQueryKey = () => {
+    return [`/api/gtf/`] as const;
+    }
+
+    
+export const getGtfRetrieveQueryOptions = <TData = Awaited<ReturnType<typeof gtfRetrieve>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof gtfRetrieve>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGtfRetrieveQueryKey();
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof gtfRetrieve>>> = ({ signal }) => gtfRetrieve(requestOptions, signal);
+
+      
+
+      
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof gtfRetrieve>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GtfRetrieveQueryResult = NonNullable<Awaited<ReturnType<typeof gtfRetrieve>>>
+export type GtfRetrieveQueryError = unknown
+
+
+export function useGtfRetrieve<TData = Awaited<ReturnType<typeof gtfRetrieve>>, TError = unknown>(
+  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof gtfRetrieve>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof gtfRetrieve>>,
+          TError,
+          Awaited<ReturnType<typeof gtfRetrieve>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGtfRetrieve<TData = Awaited<ReturnType<typeof gtfRetrieve>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof gtfRetrieve>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof gtfRetrieve>>,
+          TError,
+          Awaited<ReturnType<typeof gtfRetrieve>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGtfRetrieve<TData = Awaited<ReturnType<typeof gtfRetrieve>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof gtfRetrieve>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Получить все GTF
+ */
+
+export function useGtfRetrieve<TData = Awaited<ReturnType<typeof gtfRetrieve>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof gtfRetrieve>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getGtfRetrieveQueryOptions(options)
 
   const query = useQuery(queryOptions , queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 
@@ -1827,6 +1944,95 @@ export function useModeratorUsersSurveyHistoryRetrieve<TData = Awaited<ReturnTyp
 
 
 /**
+ * Получить список сессий, помеченных для проверки из-за нарушений прокторинга.
+ * @summary Сессии с нарушениями
+ */
+export const moderatorUsersFlaggedSessionsRetrieve = (
+    
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+      
+      
+      return customInstance<ModeratorUsersFlaggedSessionsRetrieve200Item[]>(
+      {url: `/api/moderator/users/flagged-sessions/`, method: 'GET', signal
+    },
+      options);
+    }
+  
+
+export const getModeratorUsersFlaggedSessionsRetrieveQueryKey = () => {
+    return [`/api/moderator/users/flagged-sessions/`] as const;
+    }
+
+    
+export const getModeratorUsersFlaggedSessionsRetrieveQueryOptions = <TData = Awaited<ReturnType<typeof moderatorUsersFlaggedSessionsRetrieve>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof moderatorUsersFlaggedSessionsRetrieve>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getModeratorUsersFlaggedSessionsRetrieveQueryKey();
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof moderatorUsersFlaggedSessionsRetrieve>>> = ({ signal }) => moderatorUsersFlaggedSessionsRetrieve(requestOptions, signal);
+
+      
+
+      
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof moderatorUsersFlaggedSessionsRetrieve>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type ModeratorUsersFlaggedSessionsRetrieveQueryResult = NonNullable<Awaited<ReturnType<typeof moderatorUsersFlaggedSessionsRetrieve>>>
+export type ModeratorUsersFlaggedSessionsRetrieveQueryError = unknown
+
+
+export function useModeratorUsersFlaggedSessionsRetrieve<TData = Awaited<ReturnType<typeof moderatorUsersFlaggedSessionsRetrieve>>, TError = unknown>(
+  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof moderatorUsersFlaggedSessionsRetrieve>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof moderatorUsersFlaggedSessionsRetrieve>>,
+          TError,
+          Awaited<ReturnType<typeof moderatorUsersFlaggedSessionsRetrieve>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useModeratorUsersFlaggedSessionsRetrieve<TData = Awaited<ReturnType<typeof moderatorUsersFlaggedSessionsRetrieve>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof moderatorUsersFlaggedSessionsRetrieve>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof moderatorUsersFlaggedSessionsRetrieve>>,
+          TError,
+          Awaited<ReturnType<typeof moderatorUsersFlaggedSessionsRetrieve>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useModeratorUsersFlaggedSessionsRetrieve<TData = Awaited<ReturnType<typeof moderatorUsersFlaggedSessionsRetrieve>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof moderatorUsersFlaggedSessionsRetrieve>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Сессии с нарушениями
+ */
+
+export function useModeratorUsersFlaggedSessionsRetrieve<TData = Awaited<ReturnType<typeof moderatorUsersFlaggedSessionsRetrieve>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof moderatorUsersFlaggedSessionsRetrieve>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getModeratorUsersFlaggedSessionsRetrieveQueryOptions(options)
+
+  const query = useQuery(queryOptions , queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  query.queryKey = queryOptions.queryKey ;
+
+  return query;
+}
+
+
+
+
+/**
  * Получить краткий обзор всех пользователей для панели модератора.
  * @summary Обзор пользователей
  */
@@ -1915,6 +2121,858 @@ export function useModeratorUsersOverviewRetrieve<TData = Awaited<ReturnType<typ
 
 
 
+/**
+ * Модератор проверяет и выносит решение по сессии с нарушениями.
+ * @summary Проверить сессию
+ */
+export const moderatorUsersReviewSessionCreate = (
+    moderatorUsersReviewSessionCreateBody: ModeratorUsersReviewSessionCreateBodyOne | unknown | ModeratorUsersReviewSessionCreateBodyThree,
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+      
+      
+      return customInstance<ModeratorUsersReviewSessionCreate200>(
+      {url: `/api/moderator/users/review-session/`, method: 'POST',
+      data: moderatorUsersReviewSessionCreateBody, signal
+    },
+      options);
+    }
+  
+
+
+export const getModeratorUsersReviewSessionCreateMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof moderatorUsersReviewSessionCreate>>, TError,{data: ModeratorUsersReviewSessionCreateBodyOne | unknown | ModeratorUsersReviewSessionCreateBodyThree}, TContext>, request?: SecondParameter<typeof customInstance>}
+): UseMutationOptions<Awaited<ReturnType<typeof moderatorUsersReviewSessionCreate>>, TError,{data: ModeratorUsersReviewSessionCreateBodyOne | unknown | ModeratorUsersReviewSessionCreateBodyThree}, TContext> => {
+
+const mutationKey = ['moderatorUsersReviewSessionCreate'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof moderatorUsersReviewSessionCreate>>, {data: ModeratorUsersReviewSessionCreateBodyOne | unknown | ModeratorUsersReviewSessionCreateBodyThree}> = (props) => {
+          const {data} = props ?? {};
+
+          return  moderatorUsersReviewSessionCreate(data,requestOptions)
+        }
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type ModeratorUsersReviewSessionCreateMutationResult = NonNullable<Awaited<ReturnType<typeof moderatorUsersReviewSessionCreate>>>
+    export type ModeratorUsersReviewSessionCreateMutationBody = ModeratorUsersReviewSessionCreateBodyOne | unknown | ModeratorUsersReviewSessionCreateBodyThree
+    export type ModeratorUsersReviewSessionCreateMutationError = unknown
+
+    /**
+ * @summary Проверить сессию
+ */
+export const useModeratorUsersReviewSessionCreate = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof moderatorUsersReviewSessionCreate>>, TError,{data: ModeratorUsersReviewSessionCreateBodyOne | unknown | ModeratorUsersReviewSessionCreateBodyThree}, TContext>, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof moderatorUsersReviewSessionCreate>>,
+        TError,
+        {data: ModeratorUsersReviewSessionCreateBodyOne | unknown | ModeratorUsersReviewSessionCreateBodyThree},
+        TContext
+      > => {
+
+      const mutationOptions = getModeratorUsersReviewSessionCreateMutationOptions(options);
+
+      return useMutation(mutationOptions , queryClient);
+    }
+    
+/**
+ * Получить детальную информацию о конкретной сессии опроса по её ID.
+        
+        Включает все ответы пользователя, баллы и детальную статистику.
+ * @summary Детали сессии опроса
+ */
+export const moderatorUsersSessionRetrieve = (
+    sessionId: string,
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+      
+      
+      return customInstance<ModeratorUsersSessionRetrieve200>(
+      {url: `/api/moderator/users/session/${sessionId}/`, method: 'GET', signal
+    },
+      options);
+    }
+  
+
+export const getModeratorUsersSessionRetrieveQueryKey = (sessionId?: string,) => {
+    return [`/api/moderator/users/session/${sessionId}/`] as const;
+    }
+
+    
+export const getModeratorUsersSessionRetrieveQueryOptions = <TData = Awaited<ReturnType<typeof moderatorUsersSessionRetrieve>>, TError = ModeratorUsersSessionRetrieve404>(sessionId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof moderatorUsersSessionRetrieve>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getModeratorUsersSessionRetrieveQueryKey(sessionId);
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof moderatorUsersSessionRetrieve>>> = ({ signal }) => moderatorUsersSessionRetrieve(sessionId, requestOptions, signal);
+
+      
+
+      
+
+   return  { queryKey, queryFn, enabled: !!(sessionId), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof moderatorUsersSessionRetrieve>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type ModeratorUsersSessionRetrieveQueryResult = NonNullable<Awaited<ReturnType<typeof moderatorUsersSessionRetrieve>>>
+export type ModeratorUsersSessionRetrieveQueryError = ModeratorUsersSessionRetrieve404
+
+
+export function useModeratorUsersSessionRetrieve<TData = Awaited<ReturnType<typeof moderatorUsersSessionRetrieve>>, TError = ModeratorUsersSessionRetrieve404>(
+ sessionId: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof moderatorUsersSessionRetrieve>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof moderatorUsersSessionRetrieve>>,
+          TError,
+          Awaited<ReturnType<typeof moderatorUsersSessionRetrieve>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useModeratorUsersSessionRetrieve<TData = Awaited<ReturnType<typeof moderatorUsersSessionRetrieve>>, TError = ModeratorUsersSessionRetrieve404>(
+ sessionId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof moderatorUsersSessionRetrieve>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof moderatorUsersSessionRetrieve>>,
+          TError,
+          Awaited<ReturnType<typeof moderatorUsersSessionRetrieve>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useModeratorUsersSessionRetrieve<TData = Awaited<ReturnType<typeof moderatorUsersSessionRetrieve>>, TError = ModeratorUsersSessionRetrieve404>(
+ sessionId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof moderatorUsersSessionRetrieve>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Детали сессии опроса
+ */
+
+export function useModeratorUsersSessionRetrieve<TData = Awaited<ReturnType<typeof moderatorUsersSessionRetrieve>>, TError = ModeratorUsersSessionRetrieve404>(
+ sessionId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof moderatorUsersSessionRetrieve>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getModeratorUsersSessionRetrieveQueryOptions(sessionId,options)
+
+  const query = useQuery(queryOptions , queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  query.queryKey = queryOptions.queryKey ;
+
+  return query;
+}
+
+
+
+
+/**
+ * Получить все нарушения для конкретной сессии.
+ * @summary Нарушения сессии
+ */
+export const moderatorUsersSessionViolationsRetrieve = (
+    sessionId: string,
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+      
+      
+      return customInstance<ModeratorUsersSessionViolationsRetrieve200Item[]>(
+      {url: `/api/moderator/users/session/${sessionId}/violations/`, method: 'GET', signal
+    },
+      options);
+    }
+  
+
+export const getModeratorUsersSessionViolationsRetrieveQueryKey = (sessionId?: string,) => {
+    return [`/api/moderator/users/session/${sessionId}/violations/`] as const;
+    }
+
+    
+export const getModeratorUsersSessionViolationsRetrieveQueryOptions = <TData = Awaited<ReturnType<typeof moderatorUsersSessionViolationsRetrieve>>, TError = unknown>(sessionId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof moderatorUsersSessionViolationsRetrieve>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getModeratorUsersSessionViolationsRetrieveQueryKey(sessionId);
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof moderatorUsersSessionViolationsRetrieve>>> = ({ signal }) => moderatorUsersSessionViolationsRetrieve(sessionId, requestOptions, signal);
+
+      
+
+      
+
+   return  { queryKey, queryFn, enabled: !!(sessionId), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof moderatorUsersSessionViolationsRetrieve>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type ModeratorUsersSessionViolationsRetrieveQueryResult = NonNullable<Awaited<ReturnType<typeof moderatorUsersSessionViolationsRetrieve>>>
+export type ModeratorUsersSessionViolationsRetrieveQueryError = unknown
+
+
+export function useModeratorUsersSessionViolationsRetrieve<TData = Awaited<ReturnType<typeof moderatorUsersSessionViolationsRetrieve>>, TError = unknown>(
+ sessionId: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof moderatorUsersSessionViolationsRetrieve>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof moderatorUsersSessionViolationsRetrieve>>,
+          TError,
+          Awaited<ReturnType<typeof moderatorUsersSessionViolationsRetrieve>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useModeratorUsersSessionViolationsRetrieve<TData = Awaited<ReturnType<typeof moderatorUsersSessionViolationsRetrieve>>, TError = unknown>(
+ sessionId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof moderatorUsersSessionViolationsRetrieve>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof moderatorUsersSessionViolationsRetrieve>>,
+          TError,
+          Awaited<ReturnType<typeof moderatorUsersSessionViolationsRetrieve>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useModeratorUsersSessionViolationsRetrieve<TData = Awaited<ReturnType<typeof moderatorUsersSessionViolationsRetrieve>>, TError = unknown>(
+ sessionId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof moderatorUsersSessionViolationsRetrieve>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Нарушения сессии
+ */
+
+export function useModeratorUsersSessionViolationsRetrieve<TData = Awaited<ReturnType<typeof moderatorUsersSessionViolationsRetrieve>>, TError = unknown>(
+ sessionId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof moderatorUsersSessionViolationsRetrieve>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getModeratorUsersSessionViolationsRetrieveQueryOptions(sessionId,options)
+
+  const query = useQuery(queryOptions , queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  query.queryKey = queryOptions.queryKey ;
+
+  return query;
+}
+
+
+
+
+/**
+ * Возвращает список всех должностей (position) с информацией о филиале и домене работы.
+ * @summary Получить все должности
+ */
+export const positionsRetrieve = (
+    
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+      
+      
+      return customInstance<PositionsRetrieve200>(
+      {url: `/api/positions/`, method: 'GET', signal
+    },
+      options);
+    }
+  
+
+export const getPositionsRetrieveQueryKey = () => {
+    return [`/api/positions/`] as const;
+    }
+
+    
+export const getPositionsRetrieveQueryOptions = <TData = Awaited<ReturnType<typeof positionsRetrieve>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof positionsRetrieve>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getPositionsRetrieveQueryKey();
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof positionsRetrieve>>> = ({ signal }) => positionsRetrieve(requestOptions, signal);
+
+      
+
+      
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof positionsRetrieve>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type PositionsRetrieveQueryResult = NonNullable<Awaited<ReturnType<typeof positionsRetrieve>>>
+export type PositionsRetrieveQueryError = unknown
+
+
+export function usePositionsRetrieve<TData = Awaited<ReturnType<typeof positionsRetrieve>>, TError = unknown>(
+  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof positionsRetrieve>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof positionsRetrieve>>,
+          TError,
+          Awaited<ReturnType<typeof positionsRetrieve>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function usePositionsRetrieve<TData = Awaited<ReturnType<typeof positionsRetrieve>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof positionsRetrieve>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof positionsRetrieve>>,
+          TError,
+          Awaited<ReturnType<typeof positionsRetrieve>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function usePositionsRetrieve<TData = Awaited<ReturnType<typeof positionsRetrieve>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof positionsRetrieve>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Получить все должности
+ */
+
+export function usePositionsRetrieve<TData = Awaited<ReturnType<typeof positionsRetrieve>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof positionsRetrieve>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getPositionsRetrieveQueryOptions(options)
+
+  const query = useQuery(queryOptions , queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  query.queryKey = queryOptions.queryKey ;
+
+  return query;
+}
+
+
+
+
+/**
+ * Regular heartbeat with face verification status (every 5 seconds).
+ * @summary Proctoring heartbeat
+ */
+export const proctorHeartbeatCreate = (
+    proctorHeartbeatCreateBody: ProctorHeartbeatCreateBodyOne | unknown | ProctorHeartbeatCreateBodyThree,
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+      
+      
+      return customInstance<ProctorHeartbeatCreate200>(
+      {url: `/api/proctor/heartbeat/`, method: 'POST',
+      data: proctorHeartbeatCreateBody, signal
+    },
+      options);
+    }
+  
+
+
+export const getProctorHeartbeatCreateMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof proctorHeartbeatCreate>>, TError,{data: ProctorHeartbeatCreateBodyOne | unknown | ProctorHeartbeatCreateBodyThree}, TContext>, request?: SecondParameter<typeof customInstance>}
+): UseMutationOptions<Awaited<ReturnType<typeof proctorHeartbeatCreate>>, TError,{data: ProctorHeartbeatCreateBodyOne | unknown | ProctorHeartbeatCreateBodyThree}, TContext> => {
+
+const mutationKey = ['proctorHeartbeatCreate'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof proctorHeartbeatCreate>>, {data: ProctorHeartbeatCreateBodyOne | unknown | ProctorHeartbeatCreateBodyThree}> = (props) => {
+          const {data} = props ?? {};
+
+          return  proctorHeartbeatCreate(data,requestOptions)
+        }
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type ProctorHeartbeatCreateMutationResult = NonNullable<Awaited<ReturnType<typeof proctorHeartbeatCreate>>>
+    export type ProctorHeartbeatCreateMutationBody = ProctorHeartbeatCreateBodyOne | unknown | ProctorHeartbeatCreateBodyThree
+    export type ProctorHeartbeatCreateMutationError = unknown
+
+    /**
+ * @summary Proctoring heartbeat
+ */
+export const useProctorHeartbeatCreate = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof proctorHeartbeatCreate>>, TError,{data: ProctorHeartbeatCreateBodyOne | unknown | ProctorHeartbeatCreateBodyThree}, TContext>, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof proctorHeartbeatCreate>>,
+        TError,
+        {data: ProctorHeartbeatCreateBodyOne | unknown | ProctorHeartbeatCreateBodyThree},
+        TContext
+      > => {
+
+      const mutationOptions = getProctorHeartbeatCreateMutationOptions(options);
+
+      return useMutation(mutationOptions , queryClient);
+    }
+    
+/**
+ * Merge all video chunks into a single recording file.
+ * @summary Merge video chunks
+ */
+export const proctorMergeChunksCreate = (
+    proctorMergeChunksCreateBody: ProctorMergeChunksCreateBodyOne | unknown | ProctorMergeChunksCreateBodyThree,
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+      
+      
+      return customInstance<ProctorMergeChunksCreate200>(
+      {url: `/api/proctor/merge-chunks/`, method: 'POST',
+      data: proctorMergeChunksCreateBody, signal
+    },
+      options);
+    }
+  
+
+
+export const getProctorMergeChunksCreateMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof proctorMergeChunksCreate>>, TError,{data: ProctorMergeChunksCreateBodyOne | unknown | ProctorMergeChunksCreateBodyThree}, TContext>, request?: SecondParameter<typeof customInstance>}
+): UseMutationOptions<Awaited<ReturnType<typeof proctorMergeChunksCreate>>, TError,{data: ProctorMergeChunksCreateBodyOne | unknown | ProctorMergeChunksCreateBodyThree}, TContext> => {
+
+const mutationKey = ['proctorMergeChunksCreate'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof proctorMergeChunksCreate>>, {data: ProctorMergeChunksCreateBodyOne | unknown | ProctorMergeChunksCreateBodyThree}> = (props) => {
+          const {data} = props ?? {};
+
+          return  proctorMergeChunksCreate(data,requestOptions)
+        }
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type ProctorMergeChunksCreateMutationResult = NonNullable<Awaited<ReturnType<typeof proctorMergeChunksCreate>>>
+    export type ProctorMergeChunksCreateMutationBody = ProctorMergeChunksCreateBodyOne | unknown | ProctorMergeChunksCreateBodyThree
+    export type ProctorMergeChunksCreateMutationError = unknown
+
+    /**
+ * @summary Merge video chunks
+ */
+export const useProctorMergeChunksCreate = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof proctorMergeChunksCreate>>, TError,{data: ProctorMergeChunksCreateBodyOne | unknown | ProctorMergeChunksCreateBodyThree}, TContext>, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof proctorMergeChunksCreate>>,
+        TError,
+        {data: ProctorMergeChunksCreateBodyOne | unknown | ProctorMergeChunksCreateBodyThree},
+        TContext
+      > => {
+
+      const mutationOptions = getProctorMergeChunksCreateMutationOptions(options);
+
+      return useMutation(mutationOptions , queryClient);
+    }
+    
+/**
+ * Record a proctoring violation during survey session.
+ * @summary Record violation
+ */
+export const proctorRecordViolationCreate = (
+    proctorRecordViolationCreateBody: ProctorRecordViolationCreateBody,
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+      
+      const formData = new FormData();
+formData.append(`session_id`, proctorRecordViolationCreateBody.session_id)
+formData.append(`violation_type`, proctorRecordViolationCreateBody.violation_type)
+if(proctorRecordViolationCreateBody.snapshot !== undefined) {
+ formData.append(`snapshot`, proctorRecordViolationCreateBody.snapshot)
+ }
+if(proctorRecordViolationCreateBody.face_count !== undefined) {
+ formData.append(`face_count`, proctorRecordViolationCreateBody.face_count.toString())
+ }
+if(proctorRecordViolationCreateBody.confidence_score !== undefined) {
+ formData.append(`confidence_score`, proctorRecordViolationCreateBody.confidence_score.toString())
+ }
+
+      return customInstance<ProctorRecordViolationCreate200>(
+      {url: `/api/proctor/record-violation/`, method: 'POST',
+      headers: {'Content-Type': 'multipart/form-data', },
+       data: formData, signal
+    },
+      options);
+    }
+  
+
+
+export const getProctorRecordViolationCreateMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof proctorRecordViolationCreate>>, TError,{data: ProctorRecordViolationCreateBody}, TContext>, request?: SecondParameter<typeof customInstance>}
+): UseMutationOptions<Awaited<ReturnType<typeof proctorRecordViolationCreate>>, TError,{data: ProctorRecordViolationCreateBody}, TContext> => {
+
+const mutationKey = ['proctorRecordViolationCreate'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof proctorRecordViolationCreate>>, {data: ProctorRecordViolationCreateBody}> = (props) => {
+          const {data} = props ?? {};
+
+          return  proctorRecordViolationCreate(data,requestOptions)
+        }
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type ProctorRecordViolationCreateMutationResult = NonNullable<Awaited<ReturnType<typeof proctorRecordViolationCreate>>>
+    export type ProctorRecordViolationCreateMutationBody = ProctorRecordViolationCreateBody
+    export type ProctorRecordViolationCreateMutationError = unknown
+
+    /**
+ * @summary Record violation
+ */
+export const useProctorRecordViolationCreate = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof proctorRecordViolationCreate>>, TError,{data: ProctorRecordViolationCreateBody}, TContext>, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof proctorRecordViolationCreate>>,
+        TError,
+        {data: ProctorRecordViolationCreateBody},
+        TContext
+      > => {
+
+      const mutationOptions = getProctorRecordViolationCreateMutationOptions(options);
+
+      return useMutation(mutationOptions , queryClient);
+    }
+    
+/**
+ * Get all video chunks for a session.
+ * @summary Get video chunks
+ */
+export const proctorSessionChunksRetrieve = (
+    sessionId: string,
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+      
+      
+      return customInstance<ProctorSessionChunksRetrieve200>(
+      {url: `/api/proctor/session/${sessionId}/chunks/`, method: 'GET', signal
+    },
+      options);
+    }
+  
+
+export const getProctorSessionChunksRetrieveQueryKey = (sessionId?: string,) => {
+    return [`/api/proctor/session/${sessionId}/chunks/`] as const;
+    }
+
+    
+export const getProctorSessionChunksRetrieveQueryOptions = <TData = Awaited<ReturnType<typeof proctorSessionChunksRetrieve>>, TError = unknown>(sessionId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof proctorSessionChunksRetrieve>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getProctorSessionChunksRetrieveQueryKey(sessionId);
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof proctorSessionChunksRetrieve>>> = ({ signal }) => proctorSessionChunksRetrieve(sessionId, requestOptions, signal);
+
+      
+
+      
+
+   return  { queryKey, queryFn, enabled: !!(sessionId), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof proctorSessionChunksRetrieve>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type ProctorSessionChunksRetrieveQueryResult = NonNullable<Awaited<ReturnType<typeof proctorSessionChunksRetrieve>>>
+export type ProctorSessionChunksRetrieveQueryError = unknown
+
+
+export function useProctorSessionChunksRetrieve<TData = Awaited<ReturnType<typeof proctorSessionChunksRetrieve>>, TError = unknown>(
+ sessionId: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof proctorSessionChunksRetrieve>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof proctorSessionChunksRetrieve>>,
+          TError,
+          Awaited<ReturnType<typeof proctorSessionChunksRetrieve>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useProctorSessionChunksRetrieve<TData = Awaited<ReturnType<typeof proctorSessionChunksRetrieve>>, TError = unknown>(
+ sessionId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof proctorSessionChunksRetrieve>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof proctorSessionChunksRetrieve>>,
+          TError,
+          Awaited<ReturnType<typeof proctorSessionChunksRetrieve>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useProctorSessionChunksRetrieve<TData = Awaited<ReturnType<typeof proctorSessionChunksRetrieve>>, TError = unknown>(
+ sessionId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof proctorSessionChunksRetrieve>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Get video chunks
+ */
+
+export function useProctorSessionChunksRetrieve<TData = Awaited<ReturnType<typeof proctorSessionChunksRetrieve>>, TError = unknown>(
+ sessionId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof proctorSessionChunksRetrieve>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getProctorSessionChunksRetrieveQueryOptions(sessionId,options)
+
+  const query = useQuery(queryOptions , queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  query.queryKey = queryOptions.queryKey ;
+
+  return query;
+}
+
+
+
+
+/**
+ * Upload a video chunk during session recording.
+ * @summary Upload video chunk
+ */
+export const proctorUploadChunkCreate = (
+    proctorUploadChunkCreateBody: ProctorUploadChunkCreateBody,
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+      
+      const formData = new FormData();
+formData.append(`session_id`, proctorUploadChunkCreateBody.session_id)
+formData.append(`chunk_number`, proctorUploadChunkCreateBody.chunk_number.toString())
+formData.append(`video_chunk`, proctorUploadChunkCreateBody.video_chunk)
+formData.append(`duration_seconds`, proctorUploadChunkCreateBody.duration_seconds.toString())
+formData.append(`start_time`, proctorUploadChunkCreateBody.start_time.toString())
+formData.append(`end_time`, proctorUploadChunkCreateBody.end_time.toString())
+if(proctorUploadChunkCreateBody.has_audio !== undefined) {
+ formData.append(`has_audio`, proctorUploadChunkCreateBody.has_audio.toString())
+ }
+if(proctorUploadChunkCreateBody.resolution !== undefined) {
+ formData.append(`resolution`, proctorUploadChunkCreateBody.resolution)
+ }
+if(proctorUploadChunkCreateBody.fps !== undefined) {
+ formData.append(`fps`, proctorUploadChunkCreateBody.fps.toString())
+ }
+
+      return customInstance<ProctorUploadChunkCreate200>(
+      {url: `/api/proctor/upload-chunk/`, method: 'POST',
+      headers: {'Content-Type': 'multipart/form-data', },
+       data: formData, signal
+    },
+      options);
+    }
+  
+
+
+export const getProctorUploadChunkCreateMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof proctorUploadChunkCreate>>, TError,{data: ProctorUploadChunkCreateBody}, TContext>, request?: SecondParameter<typeof customInstance>}
+): UseMutationOptions<Awaited<ReturnType<typeof proctorUploadChunkCreate>>, TError,{data: ProctorUploadChunkCreateBody}, TContext> => {
+
+const mutationKey = ['proctorUploadChunkCreate'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof proctorUploadChunkCreate>>, {data: ProctorUploadChunkCreateBody}> = (props) => {
+          const {data} = props ?? {};
+
+          return  proctorUploadChunkCreate(data,requestOptions)
+        }
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type ProctorUploadChunkCreateMutationResult = NonNullable<Awaited<ReturnType<typeof proctorUploadChunkCreate>>>
+    export type ProctorUploadChunkCreateMutationBody = ProctorUploadChunkCreateBody
+    export type ProctorUploadChunkCreateMutationError = unknown
+
+    /**
+ * @summary Upload video chunk
+ */
+export const useProctorUploadChunkCreate = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof proctorUploadChunkCreate>>, TError,{data: ProctorUploadChunkCreateBody}, TContext>, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof proctorUploadChunkCreate>>,
+        TError,
+        {data: ProctorUploadChunkCreateBody},
+        TContext
+      > => {
+
+      const mutationOptions = getProctorUploadChunkCreateMutationOptions(options);
+
+      return useMutation(mutationOptions , queryClient);
+    }
+    
+/**
+ * Upload full session video recording.
+ * @summary Upload recording
+ */
+export const proctorUploadRecordingCreate = (
+    proctorUploadRecordingCreateBody: ProctorUploadRecordingCreateBody,
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+      
+      const formData = new FormData();
+formData.append(`session_id`, proctorUploadRecordingCreateBody.session_id)
+formData.append(`video`, proctorUploadRecordingCreateBody.video)
+formData.append(`duration_seconds`, proctorUploadRecordingCreateBody.duration_seconds.toString())
+
+      return customInstance<ProctorUploadRecordingCreate200>(
+      {url: `/api/proctor/upload-recording/`, method: 'POST',
+      headers: {'Content-Type': 'multipart/form-data', },
+       data: formData, signal
+    },
+      options);
+    }
+  
+
+
+export const getProctorUploadRecordingCreateMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof proctorUploadRecordingCreate>>, TError,{data: ProctorUploadRecordingCreateBody}, TContext>, request?: SecondParameter<typeof customInstance>}
+): UseMutationOptions<Awaited<ReturnType<typeof proctorUploadRecordingCreate>>, TError,{data: ProctorUploadRecordingCreateBody}, TContext> => {
+
+const mutationKey = ['proctorUploadRecordingCreate'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof proctorUploadRecordingCreate>>, {data: ProctorUploadRecordingCreateBody}> = (props) => {
+          const {data} = props ?? {};
+
+          return  proctorUploadRecordingCreate(data,requestOptions)
+        }
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type ProctorUploadRecordingCreateMutationResult = NonNullable<Awaited<ReturnType<typeof proctorUploadRecordingCreate>>>
+    export type ProctorUploadRecordingCreateMutationBody = ProctorUploadRecordingCreateBody
+    export type ProctorUploadRecordingCreateMutationError = unknown
+
+    /**
+ * @summary Upload recording
+ */
+export const useProctorUploadRecordingCreate = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof proctorUploadRecordingCreate>>, TError,{data: ProctorUploadRecordingCreateBody}, TContext>, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof proctorUploadRecordingCreate>>,
+        TError,
+        {data: ProctorUploadRecordingCreateBody},
+        TContext
+      > => {
+
+      const mutationOptions = getProctorUploadRecordingCreateMutationOptions(options);
+
+      return useMutation(mutationOptions , queryClient);
+    }
+    
+/**
+ * Verify and store user's face at the start of survey session.
+ * @summary Verify initial face
+ */
+export const proctorVerifyInitialCreate = (
+    proctorVerifyInitialCreateBody: ProctorVerifyInitialCreateBody,
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+      
+      const formData = new FormData();
+formData.append(`session_id`, proctorVerifyInitialCreateBody.session_id)
+formData.append(`face_image`, proctorVerifyInitialCreateBody.face_image)
+
+      return customInstance<ProctorVerifyInitialCreate200>(
+      {url: `/api/proctor/verify-initial/`, method: 'POST',
+      headers: {'Content-Type': 'multipart/form-data', },
+       data: formData, signal
+    },
+      options);
+    }
+  
+
+
+export const getProctorVerifyInitialCreateMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof proctorVerifyInitialCreate>>, TError,{data: ProctorVerifyInitialCreateBody}, TContext>, request?: SecondParameter<typeof customInstance>}
+): UseMutationOptions<Awaited<ReturnType<typeof proctorVerifyInitialCreate>>, TError,{data: ProctorVerifyInitialCreateBody}, TContext> => {
+
+const mutationKey = ['proctorVerifyInitialCreate'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof proctorVerifyInitialCreate>>, {data: ProctorVerifyInitialCreateBody}> = (props) => {
+          const {data} = props ?? {};
+
+          return  proctorVerifyInitialCreate(data,requestOptions)
+        }
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type ProctorVerifyInitialCreateMutationResult = NonNullable<Awaited<ReturnType<typeof proctorVerifyInitialCreate>>>
+    export type ProctorVerifyInitialCreateMutationBody = ProctorVerifyInitialCreateBody
+    export type ProctorVerifyInitialCreateMutationError = unknown
+
+    /**
+ * @summary Verify initial face
+ */
+export const useProctorVerifyInitialCreate = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof proctorVerifyInitialCreate>>, TError,{data: ProctorVerifyInitialCreateBody}, TContext>, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof proctorVerifyInitialCreate>>,
+        TError,
+        {data: ProctorVerifyInitialCreateBody},
+        TContext
+      > => {
+
+      const mutationOptions = getProctorVerifyInitialCreateMutationOptions(options);
+
+      return useMutation(mutationOptions , queryClient);
+    }
+    
 /**
  * OpenApi3 schema for this API. Format can be selected via content negotiation.
 
@@ -2005,6 +3063,95 @@ export function useSchemaRetrieve<TData = Awaited<ReturnType<typeof schemaRetrie
 
 
 /**
+ * Получить список всех сессий прохождения опросов текущим пользователем.
+ * @summary Список сессий
+ */
+export const sessionsList = (
+    
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+      
+      
+      return customInstance<SurveySession[]>(
+      {url: `/api/sessions/`, method: 'GET', signal
+    },
+      options);
+    }
+  
+
+export const getSessionsListQueryKey = () => {
+    return [`/api/sessions/`] as const;
+    }
+
+    
+export const getSessionsListQueryOptions = <TData = Awaited<ReturnType<typeof sessionsList>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof sessionsList>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getSessionsListQueryKey();
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof sessionsList>>> = ({ signal }) => sessionsList(requestOptions, signal);
+
+      
+
+      
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof sessionsList>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type SessionsListQueryResult = NonNullable<Awaited<ReturnType<typeof sessionsList>>>
+export type SessionsListQueryError = unknown
+
+
+export function useSessionsList<TData = Awaited<ReturnType<typeof sessionsList>>, TError = unknown>(
+  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof sessionsList>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof sessionsList>>,
+          TError,
+          Awaited<ReturnType<typeof sessionsList>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useSessionsList<TData = Awaited<ReturnType<typeof sessionsList>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof sessionsList>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof sessionsList>>,
+          TError,
+          Awaited<ReturnType<typeof sessionsList>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useSessionsList<TData = Awaited<ReturnType<typeof sessionsList>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof sessionsList>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Список сессий
+ */
+
+export function useSessionsList<TData = Awaited<ReturnType<typeof sessionsList>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof sessionsList>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getSessionsListQueryOptions(options)
+
+  const query = useQuery(queryOptions , queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  query.queryKey = queryOptions.queryKey ;
+
+  return query;
+}
+
+
+
+
+/**
  * Получить подробную информацию о сессии прохождения опроса.
  * @summary Детали сессии
  */
@@ -2014,7 +3161,7 @@ export const sessionsRetrieve = (
 ) => {
       
       
-      return customInstance<SessionsRetrieve200>(
+      return customInstance<SurveySession>(
       {url: `/api/sessions/${id}/`, method: 'GET', signal
     },
       options);
@@ -3598,6 +4745,74 @@ export function useUsersMeRetrieve<TData = Awaited<ReturnType<typeof usersMeRetr
 
 
 
+/**
+ * Обновить данные профиля текущего пользователя.
+        
+        Позволяет обновить поля: name, position, gtf, work_domain, employee_level.
+ * @summary Обновить мой профиль
+ */
+export const usersMeUpdateCreate = (
+    userProfileUpdateRequest: UserProfileUpdateRequest,
+ options?: SecondParameter<typeof customInstance>,signal?: AbortSignal
+) => {
+      
+      
+      return customInstance<User>(
+      {url: `/api/users/me/update/`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: userProfileUpdateRequest, signal
+    },
+      options);
+    }
+  
+
+
+export const getUsersMeUpdateCreateMutationOptions = <TError = UsersMeUpdateCreate400,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof usersMeUpdateCreate>>, TError,{data: UserProfileUpdateRequest}, TContext>, request?: SecondParameter<typeof customInstance>}
+): UseMutationOptions<Awaited<ReturnType<typeof usersMeUpdateCreate>>, TError,{data: UserProfileUpdateRequest}, TContext> => {
+
+const mutationKey = ['usersMeUpdateCreate'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof usersMeUpdateCreate>>, {data: UserProfileUpdateRequest}> = (props) => {
+          const {data} = props ?? {};
+
+          return  usersMeUpdateCreate(data,requestOptions)
+        }
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type UsersMeUpdateCreateMutationResult = NonNullable<Awaited<ReturnType<typeof usersMeUpdateCreate>>>
+    export type UsersMeUpdateCreateMutationBody = UserProfileUpdateRequest
+    export type UsersMeUpdateCreateMutationError = UsersMeUpdateCreate400
+
+    /**
+ * @summary Обновить мой профиль
+ */
+export const useUsersMeUpdateCreate = <TError = UsersMeUpdateCreate400,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof usersMeUpdateCreate>>, TError,{data: UserProfileUpdateRequest}, TContext>, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof usersMeUpdateCreate>>,
+        TError,
+        {data: UserProfileUpdateRequest},
+        TContext
+      > => {
+
+      const mutationOptions = getUsersMeUpdateCreateMutationOptions(options);
+
+      return useMutation(mutationOptions , queryClient);
+    }
+    
 /**
  * Поиск пользователей по имени или номеру телефона.
         

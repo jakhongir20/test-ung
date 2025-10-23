@@ -22,6 +22,8 @@
     
  * OpenAPI spec version: 1.0.0
  */
+import type { UserWorkDomain } from './userWorkDomain';
+import type { UserEmployeeLevel } from './userEmployeeLevel';
 
 /**
  * Сериализатор для модели пользователя.
@@ -29,16 +31,35 @@
 export interface User {
   readonly id: number;
   /**
-   * @maxLength 128
+   * @maxLength 32
    * @nullable
    */
   phone_number?: string | null;
   /** @maxLength 255 */
   name?: string;
-  /** @maxLength 100 */
-  branch?: string;
-  /** @maxLength 100 */
-  position?: string;
+  /** @nullable */
+  position?: number | null;
+  /** @nullable */
+  gtf?: number | null;
+  /** * `natural_gas` - Natural Gas
+* `lpg_gas` - LPG Gas
+* `both` - Both */
+  work_domain?: UserWorkDomain;
+  /** * `junior` - Junior
+* `engineer` - Engineer */
+  employee_level?: UserEmployeeLevel;
   is_moderator?: boolean;
   readonly is_phone_verified: boolean;
+  readonly branch_name: string;
+  readonly position_name: string;
+  readonly gtf_name: string;
+  readonly branch_name_uz: string;
+  readonly branch_name_uz_cyrl: string;
+  readonly branch_name_ru: string;
+  readonly position_name_uz: string;
+  readonly position_name_uz_cyrl: string;
+  readonly position_name_ru: string;
+  readonly gtf_name_uz: string;
+  readonly gtf_name_uz_cyrl: string;
+  readonly gtf_name_ru: string;
 }

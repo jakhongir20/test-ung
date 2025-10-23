@@ -1,12 +1,31 @@
-import { useSurveysStartCreate, useSessionsProgressRetrieve, useSessionsSubmitAnswerCreate, useCurrentSessionRetrieve, useSessionsRetrieve, useSessionsGetQuestionRetrieve, useSessionsFinishCreate } from './generated/respondentWebAPI'
-import { useMutation, useQuery } from '@tanstack/react-query'
-import { customInstance } from './mutator/custom-instance'
+import {
+  useSurveysStartCreate,
+  useSessionsProgressRetrieve,
+  useSessionsSubmitAnswerCreate,
+  useCurrentSessionRetrieve,
+  useSessionsRetrieve,
+  useSessionsGetQuestionRetrieve,
+  useSessionsFinishCreate,
+  useProctorVerifyInitialCreate,
+  useProctorHeartbeatCreate,
+  useProctorRecordViolationCreate,
+  useProctorUploadRecordingCreate,
+  useModeratorUsersFlaggedSessionsRetrieve,
+  useModeratorUsersSessionViolationsRetrieve,
+  useModeratorUsersReviewSessionCreate,
+} from './generated/respondentWebAPI';
+import { useMutation, useQuery } from '@tanstack/react-query';
+import { customInstance } from './mutator/custom-instance';
 
 export function useStartSurvey() {
-  const m = useSurveysStartCreate()
+  const m = useSurveysStartCreate();
   return useMutation({
-    mutationFn: (args: { id: number; count?: number }) => m.mutateAsync({ id: args.id, data: { questions_count: args.count ?? 30 } }),
-  })
+    mutationFn: (args: { id: number; count?: number }) =>
+      m.mutateAsync({
+        id: args.id,
+        data: { questions_count: args.count ?? 30 },
+      }),
+  });
 }
 
 export function useSessionProgress(sessionId?: string) {
@@ -14,92 +33,105 @@ export function useSessionProgress(sessionId?: string) {
     query: {
       enabled: !!sessionId,
       retry: 1,
-      retryDelay: 1000
-    }
-  })
+      retryDelay: 1000,
+    },
+  });
 }
 
 export function useSubmitAnswer() {
-  const m = useSessionsSubmitAnswerCreate()
+  const m = useSessionsSubmitAnswerCreate();
   return useMutation({
-    mutationFn: (args: { sessionId: string; payload: any }) => m.mutateAsync({ id: args.sessionId, data: args.payload }),
-  })
+    mutationFn: (args: { sessionId: string; payload: unknown }) =>
+      m.mutateAsync({ id: args.sessionId, data: args.payload }),
+  });
 }
 
 export function useCurrentSession() {
-  return useCurrentSessionRetrieve()
+  return useCurrentSessionRetrieve();
 }
 
 export function useSessionDetails(sessionId?: string) {
-  return useSessionsRetrieve(sessionId ?? '', { 
-    query: { 
+  return useSessionsRetrieve(sessionId ?? '', {
+    query: {
       enabled: !!sessionId,
       retry: 1,
-      retryDelay: 1000
-    } 
-  })
+      retryDelay: 1000,
+    },
+  });
 }
 
 export function useGetQuestion(sessionId?: string, order?: number) {
   return useSessionsGetQuestionRetrieve(
-    sessionId ?? '', 
-    { order: order ?? 1 }, 
-    { 
-      query: { 
+    sessionId ?? '',
+    { order: order ?? 1 },
+    {
+      query: {
         enabled: !!sessionId && !!order && order > 0,
         retry: 1, // Only retry once on failure
-        retryDelay: 1000 // Wait 1 second before retry
-      } 
+        retryDelay: 1000, // Wait 1 second before retry
+      },
     }
-  )
+  );
 }
 
 export function useFinishSession() {
-  const m = useSessionsFinishCreate()
+  const m = useSessionsFinishCreate();
   return useMutation({
-    mutationFn: (sessionId: string) => m.mutateAsync({ id: sessionId, data: { expires_at: new Date().toISOString() } }),
-  })
-}
-
-// Face monitoring violation tracking
-export function useReportViolation() {
-  return useMutation({
-    mutationFn: async (data: {
-      sessionId: string;
-      violationType: 'no_face' | 'multiple_faces' | 'face_lost' | 'tab_switched';
-      detectionData?: any;
-      timestamp: string;
-    }) => {
-      const response = await customInstance({
-        method: 'POST',
-        url: `/api/sessions/${data.sessionId}/report_violation/`,
-        data: {
-          violation_type: data.violationType,
-          detection_data: data.detectionData,
-          timestamp: data.timestamp
-        }
-      });
-      return response;
-    }
+    mutationFn: (sessionId: string) =>
+      m.mutateAsync({
+        id: sessionId,
+        data: { expires_at: new Date().toISOString() },
+      }),
   });
 }
 
-// Get current violation count from server
-export function useGetViolationCount(sessionId?: string) {
-  return useQuery({
-    queryKey: ['sessionViolationCount', sessionId],
-    queryFn: async () => {
-      if (!sessionId) return null;
-      const response = await customInstance({
-        method: 'GET',
-        url: `/api/sessions/${sessionId}/violation_count/`
-      });
-      return response;
+// Proctor API endpoints for face ID monitoring - using generated methods
+export function useProctorVerifyInitial() {
+  return useProctorVerifyInitialCreate();
+}
+
+export function useProctorHeartbeat() {
+  return useProctorHeartbeatCreate();
+}
+
+export function useProctorRecordViolation() {
+  return useProctorRecordViolationCreate();
+}
+
+export function useProctorUploadRecording() {
+  return useProctorUploadRecordingCreate();
+}
+
+// Moderator API endpoints - using generated methods
+export function useModeratorFlaggedSessions() {
+  return useModeratorUsersFlaggedSessionsRetrieve({
+    query: {
+      refetchInterval: 30000, // Check every 30 seconds
+      retry: 1,
     },
-    enabled: !!sessionId,
-    refetchInterval: 5000, // Check every 5 seconds
-    retry: 1
   });
+}
+
+export function useModeratorSessionViolations(sessionId?: string) {
+  return useModeratorUsersSessionViolationsRetrieve(sessionId || '', {
+    query: {
+      enabled: !!sessionId,
+      retry: 1,
+    },
+  });
+}
+
+export function useModeratorReviewSession() {
+  return useModeratorUsersReviewSessionCreate();
+}
+
+// Legacy methods for backward compatibility (can be removed later)
+export function useReportViolation() {
+  return useProctorRecordViolation();
+}
+
+export function useGetViolationCount(sessionId?: string) {
+  return useModeratorSessionViolations(sessionId);
 }
 
 // Custom sessions API implementation since orval didn't generate it
@@ -117,7 +149,7 @@ interface SessionSurvey {
 interface Session {
   id: string;
   survey: SessionSurvey;
-  status: "started" | "completed" | "cancelled" | "expired";
+  status: 'started' | 'completed' | 'cancelled' | 'expired';
   attempt_number: number;
   started_at: string;
   expires_at: string;
@@ -145,8 +177,6 @@ export function useMyHistory() {
     queryFn: fetchSessions,
     enabled: true,
     retry: 1,
-    retryDelay: 1000
+    retryDelay: 1000,
   });
 }
-
-

@@ -23,18 +23,8 @@
  * OpenAPI spec version: 1.0.0
  */
 
-/**
- * Сериализатор для входа по номеру телефона и паролю.
- */
-export interface PasswordLoginRequest {
-  /**
-   * Номер телефона
-   * @minLength 1
-   */
-  phone_number: string;
-  /**
-   * Пароль пользователя
-   * @minLength 1
-   */
-  password: string;
-}
+export type ProctorUploadChunkCreate200 = {
+  chunk_id?: number;
+  status?: string;
+  total_chunks?: number;
+};

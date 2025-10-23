@@ -22,30 +22,13 @@
     
  * OpenAPI spec version: 1.0.0
  */
-import type { PatchedUserRequestWorkDomain } from './patchedUserRequestWorkDomain';
-import type { PatchedUserRequestEmployeeLevel } from './patchedUserRequestEmployeeLevel';
 
-/**
- * Сериализатор для модели пользователя.
- */
-export interface PatchedUserRequest {
-  /**
-   * @maxLength 32
-   * @nullable
-   */
-  phone_number?: string | null;
-  /** @maxLength 255 */
-  name?: string;
-  /** @nullable */
-  position?: number | null;
-  /** @nullable */
-  gtf?: number | null;
-  /** * `natural_gas` - Natural Gas
-* `lpg_gas` - LPG Gas
-* `both` - Both */
-  work_domain?: PatchedUserRequestWorkDomain;
-  /** * `junior` - Junior
-* `engineer` - Engineer */
-  employee_level?: PatchedUserRequestEmployeeLevel;
-  is_moderator?: boolean;
-}
+export type ModeratorUsersSessionRetrieve200QuestionsItemQuestion = {
+  id?: number;
+  text?: string;
+  question_type?: string;
+  category?: string;
+  work_domain?: string;
+  points?: number;
+  order?: number;
+};

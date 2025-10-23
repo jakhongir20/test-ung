@@ -22,30 +22,8 @@
     
  * OpenAPI spec version: 1.0.0
  */
-import type { PatchedUserRequestWorkDomain } from './patchedUserRequestWorkDomain';
-import type { PatchedUserRequestEmployeeLevel } from './patchedUserRequestEmployeeLevel';
 
 /**
- * Сериализатор для модели пользователя.
+ * Unspecified request body
  */
-export interface PatchedUserRequest {
-  /**
-   * @maxLength 32
-   * @nullable
-   */
-  phone_number?: string | null;
-  /** @maxLength 255 */
-  name?: string;
-  /** @nullable */
-  position?: number | null;
-  /** @nullable */
-  gtf?: number | null;
-  /** * `natural_gas` - Natural Gas
-* `lpg_gas` - LPG Gas
-* `both` - Both */
-  work_domain?: PatchedUserRequestWorkDomain;
-  /** * `junior` - Junior
-* `engineer` - Engineer */
-  employee_level?: PatchedUserRequestEmployeeLevel;
-  is_moderator?: boolean;
-}
+export type ProctorHeartbeatCreateBodyOne = {[key: string]: unknown};

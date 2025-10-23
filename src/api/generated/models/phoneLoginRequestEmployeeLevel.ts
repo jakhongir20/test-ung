@@ -23,6 +23,17 @@
  * OpenAPI spec version: 1.0.0
  */
 
-export type AuthPasswordLoginCreate400 = {
-  non_field_errors?: string[];
-};
+/**
+ * Уровень сотрудника (для новых пользователей)
+
+* `junior` - Junior
+* `engineer` - Engineer
+ */
+export type PhoneLoginRequestEmployeeLevel = typeof PhoneLoginRequestEmployeeLevel[keyof typeof PhoneLoginRequestEmployeeLevel];
+
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const PhoneLoginRequestEmployeeLevel = {
+  junior: 'junior',
+  engineer: 'engineer',
+} as const;

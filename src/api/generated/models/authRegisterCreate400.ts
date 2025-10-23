@@ -23,6 +23,4 @@
  * OpenAPI spec version: 1.0.0
  */
 
-export type AuthRegisterCreate400 = {
-  phone_number?: string[];
-};
+export type AuthRegisterCreate400 = {[key: string]: unknown};

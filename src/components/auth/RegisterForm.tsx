@@ -3,7 +3,7 @@ import { useEffect, useRef } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { Link, useNavigate } from "react-router-dom";
 import { useRegister } from "../../api/auth.ts";
-import { usePositionsList, useBranchesList, useGtfList } from "../../api/generated/respondentWebAPI";
+import { usePositionsRetrieve, useBranchesRetrieve, useGtfRetrieve } from "../../api/generated/respondentWebAPI";
 import { FormButton } from "./FormButton.tsx";
 import { useI18n } from "../../i18n";
 
@@ -30,9 +30,9 @@ export const RegisterForm: FC<Props> = ({ }) => {
   const { t, lang } = useI18n();
 
   // Fetch positions, branches, and GTF from API
-  const { data: positionsData, isLoading: positionsLoading, error: positionsError } = usePositionsList();
-  const { data: branchesData, isLoading: branchesLoading, error: branchesError } = useBranchesList();
-  const { data: gtfData, isLoading: gtfLoading, error: gtfError } = useGtfList();
+  const { data: positionsData, isLoading: positionsLoading, error: positionsError } = usePositionsRetrieve();
+  const { data: branchesData, isLoading: branchesLoading, error: branchesError } = useBranchesRetrieve();
+  const { data: gtfData, isLoading: gtfLoading, error: gtfError } = useGtfRetrieve();
 
   const {
     control,

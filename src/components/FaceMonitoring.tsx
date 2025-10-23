@@ -2,11 +2,12 @@ import type { FC } from 'react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import * as faceapi from 'face-api.js';
 import { useI18n } from '../i18n';
-import { useReportViolation, useGetViolationCount } from '../api/surveys';
+import { useProctorHeartbeat, useProctorRecordViolation, useModeratorSessionViolations } from '../api/surveys';
 
 interface FaceMonitoringProps {
   isActive: boolean;
   sessionId: string; // Required for server communication
+  userId?: string; // Add userId for proctor API
   onViolation: (violationType: 'no_face' | 'multiple_faces' | 'face_lost' | 'tab_switched') => void;
   onTestTerminated: () => void;
   checkInterval?: number; // milliseconds between checks
@@ -30,6 +31,7 @@ const ViolationAlert: FC<ViolationAlertProps> = ({
   const { t } = useI18n();
 
   // Debug the values being passed to the alert
+  console.log(`🔍 Face Monitoring Alert: isOpen=${isOpen}, violationType=${violationType}, attemptCount=${attemptCount}, maxAttempts=${maxAttempts}`);
 
   if (!isOpen) return null;
 
@@ -126,6 +128,7 @@ const ViolationAlert: FC<ViolationAlertProps> = ({
 export const FaceMonitoring: FC<FaceMonitoringProps> = ({
   isActive,
   sessionId,
+  userId, // Add userId parameter
   onViolation,
   onTestTerminated,
   checkInterval = 10000 // 10 seconds default
@@ -144,11 +147,12 @@ export const FaceMonitoring: FC<FaceMonitoringProps> = ({
   const maxViolations = 3;
   const violationCooldown = 5000; // 5 seconds cooldown between violations
 
-  // Server-side violation tracking
-  const reportViolation = useReportViolation();
-  const violationCountQuery = useGetViolationCount(sessionId);
-  const serverViolationCount = (violationCountQuery.data as any)?.violation_count || 0;
-  const shouldTerminate = (violationCountQuery.data as any)?.should_terminate || false;
+  // Proctor API hooks
+  const proctorHeartbeat = useProctorHeartbeat();
+  const proctorRecordViolation = useProctorRecordViolation();
+  const violationCountQuery = useModeratorSessionViolations(sessionId);
+  const serverViolationCount = (violationCountQuery.data as { violation_count?: number; })?.violation_count || 0;
+  const shouldTerminate = (violationCountQuery.data as { should_terminate?: boolean; })?.should_terminate || false;
 
   // Handle server-side termination
   useEffect(() => {
@@ -220,14 +224,15 @@ export const FaceMonitoring: FC<FaceMonitoringProps> = ({
 
         setIsModelsLoaded(true);
 
-      } catch (err) {
-
+      } catch {
+        /* Handle error silently */
       }
     };
 
     if (isActive) {
       loadModels();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isActive]);
 
   // Initialize camera when monitoring starts
@@ -253,8 +258,7 @@ export const FaceMonitoring: FC<FaceMonitoringProps> = ({
             startMonitoring();
           };
         }
-      } catch (err) {
-
+      } catch {
         // Don't show error to user, just log it
       }
     };
@@ -267,6 +271,7 @@ export const FaceMonitoring: FC<FaceMonitoringProps> = ({
         streamRef.current = null;
       }
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isActive, isModelsLoaded]);
 
   const detectFace = useCallback(async () => {
@@ -279,7 +284,7 @@ export const FaceMonitoring: FC<FaceMonitoringProps> = ({
       );
 
       // Log detailed face detection data for server communication
-      const detectionData = {
+      console.log('📊 Face Detection Data:', {
         timestamp: new Date().toISOString(),
         faceCount: detections.length,
         detections: detections.map(detection => ({
@@ -295,34 +300,41 @@ export const FaceMonitoring: FC<FaceMonitoringProps> = ({
           width: videoRef.current.videoWidth,
           height: videoRef.current.videoHeight
         }
-      };
+      });
+
+      // Send heartbeat to proctor API
+      if (sessionId && userId) {
+        try {
+          await proctorHeartbeat.mutateAsync({
+            data: {
+              session_id: sessionId,
+              face_count: detections.length,
+              confidence_score: detections.length > 0 ? detections[0].score : 0,
+              timestamp: new Date().toISOString(),
+            },
+          });
+        } catch (error) {
+          console.log('❌ Face Monitoring: Failed to send heartbeat:', error);
+        }
+      }
 
       return detections.length;
-    } catch (err) {
-
-      // Log error data for server
-      const errorData = {
-        timestamp: new Date().toISOString(),
-        error: 'face_detection_failed',
-        errorMessage: err instanceof Error ? err.message : 'Unknown error'
-      };
-
+    } catch {
+      console.log('❌ Face Monitoring: Face detection error occurred');
       return null;
     }
-  }, [isModelsLoaded]);
+  }, [sessionId, userId, isModelsLoaded, proctorHeartbeat]);
 
   const handleTabSwitch = useCallback(async () => {
     const now = Date.now();
 
     // Check cooldown period
     if (now - lastViolationTime < violationCooldown) {
-
       return;
     }
 
     // Only handle violation if alert is not already showing
     if (showViolationAlert) {
-
       return;
     }
 
@@ -331,38 +343,34 @@ export const FaceMonitoring: FC<FaceMonitoringProps> = ({
     setLastViolationTime(now);
 
     try {
-      // Report tab switch violation to server
-      await reportViolation.mutateAsync({
-        sessionId,
-        violationType: 'tab_switched',
-        detectionData: {
-          timestamp: new Date().toISOString(),
-          event: 'tab_switch',
-          pageHidden: document.hidden,
-          visibilityState: document.visibilityState
-        },
-        timestamp: new Date().toISOString()
-      });
-
+      // Report tab switch violation to proctor API
+      if (sessionId && userId) {
+        await proctorRecordViolation.mutateAsync({
+          data: {
+            session_id: sessionId,
+            violation_type: 'tab_switched',
+            face_count: 0,
+            confidence_score: 0,
+          },
+        });
+      }
     } catch (error) {
-
+      console.log('❌ Face Monitoring: Failed to report tab switch violation:', error);
     }
 
     onViolation('tab_switched');
-  }, [sessionId, lastViolationTime, violationCooldown, showViolationAlert, reportViolation, onViolation]);
+  }, [sessionId, userId, lastViolationTime, violationCooldown, showViolationAlert, proctorRecordViolation, onViolation]);
 
-  const handleViolation = useCallback(async (violationType: 'no_face' | 'multiple_faces' | 'face_lost', detectionData?: any) => {
+  const handleViolation = useCallback(async (violationType: 'no_face' | 'multiple_faces' | 'face_lost', detectionData?: { faceCount?: number; confidence?: number; }) => {
     const now = Date.now();
 
     // Check cooldown period
     if (now - lastViolationTime < violationCooldown) {
-
       return;
     }
 
     // Only handle violation if alert is not already showing
     if (showViolationAlert) {
-
       return;
     }
 
@@ -371,20 +379,23 @@ export const FaceMonitoring: FC<FaceMonitoringProps> = ({
     setLastViolationTime(now);
 
     try {
-      // Report violation to server
-      await reportViolation.mutateAsync({
-        sessionId,
-        violationType,
-        detectionData,
-        timestamp: new Date().toISOString()
-      });
-
+      // Report violation to proctor API
+      if (sessionId && userId) {
+        await proctorRecordViolation.mutateAsync({
+          data: {
+            session_id: sessionId,
+            violation_type: violationType,
+            face_count: detectionData?.faceCount || 0,
+            confidence_score: detectionData?.confidence || 0,
+          },
+        });
+      }
     } catch (error) {
-
+      console.log('❌ Face Monitoring: Failed to report violation:', error);
     }
 
     onViolation(violationType);
-  }, [sessionId, lastViolationTime, violationCooldown, showViolationAlert, reportViolation, onViolation]);
+  }, [sessionId, userId, lastViolationTime, violationCooldown, showViolationAlert, proctorRecordViolation, onViolation]);
 
   const startMonitoring = useCallback(() => {
     if (!isActive || !isModelsLoaded) return;

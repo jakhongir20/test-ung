@@ -22,30 +22,11 @@
     
  * OpenAPI spec version: 1.0.0
  */
-import type { PatchedUserRequestWorkDomain } from './patchedUserRequestWorkDomain';
-import type { PatchedUserRequestEmployeeLevel } from './patchedUserRequestEmployeeLevel';
+import type { ProctorSessionChunksRetrieve200ChunksItem } from './proctorSessionChunksRetrieve200ChunksItem';
 
-/**
- * Сериализатор для модели пользователя.
- */
-export interface PatchedUserRequest {
-  /**
-   * @maxLength 32
-   * @nullable
-   */
-  phone_number?: string | null;
-  /** @maxLength 255 */
-  name?: string;
-  /** @nullable */
-  position?: number | null;
-  /** @nullable */
-  gtf?: number | null;
-  /** * `natural_gas` - Natural Gas
-* `lpg_gas` - LPG Gas
-* `both` - Both */
-  work_domain?: PatchedUserRequestWorkDomain;
-  /** * `junior` - Junior
-* `engineer` - Engineer */
-  employee_level?: PatchedUserRequestEmployeeLevel;
-  is_moderator?: boolean;
-}
+export type ProctorSessionChunksRetrieve200 = {
+  session_id?: string;
+  total_chunks?: number;
+  total_duration?: number;
+  chunks?: ProctorSessionChunksRetrieve200ChunksItem[];
+};

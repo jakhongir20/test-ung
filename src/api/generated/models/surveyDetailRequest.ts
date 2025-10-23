@@ -55,4 +55,16 @@ export interface SurveyDetailRequest {
    * @maximum 2147483647
    */
   max_attempts?: number;
+  /**
+   * Percentage of questions from Safety, Logic (IQ), Psychology category
+   * @minimum 0
+   * @maximum 100
+   */
+  safety_logic_psychology_percentage?: number;
+  /**
+   * Percentage of questions from Other category
+   * @minimum 0
+   * @maximum 100
+   */
+  other_percentage?: number;
 }

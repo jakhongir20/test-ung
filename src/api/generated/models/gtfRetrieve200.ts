@@ -22,11 +22,5 @@
     
  * OpenAPI spec version: 1.0.0
  */
-import type { Position } from './position';
 
-/**
- * Ответ со списком должностей.
- */
-export interface PositionsListResponse {
-  positions: Position[];
-}
+export type GtfRetrieve200 = {[key: string]: unknown};

@@ -24,15 +24,6 @@
  */
 
 /**
- * Модель ГТФ (филиала).
+ * Unspecified request body
  */
-export interface Branch {
-  /** ID ГТФ */
-  id: number;
-  /** Название на узбекском языке */
-  name_uz: string;
-  /** Название на узбекском языке (кириллица) */
-  name_uz_cyrl?: string;
-  /** Название на русском языке */
-  name_ru?: string;
-}
+export type ProctorHeartbeatCreateBodyThree = {[key: string]: unknown};

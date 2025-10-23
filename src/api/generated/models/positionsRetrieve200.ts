@@ -23,16 +23,4 @@
  * OpenAPI spec version: 1.0.0
  */
 
-/**
- * Модель ГТФ (филиала).
- */
-export interface Gtf {
-  /** ID ГТФ */
-  id: number;
-  /** Название на узбекском языке */
-  name_uz: string;
-  /** Название на узбекском языке (кириллица) */
-  name_uz_cyrl?: string;
-  /** Название на русском языке */
-  name_ru?: string;
-}
+export type PositionsRetrieve200 = {[key: string]: unknown};

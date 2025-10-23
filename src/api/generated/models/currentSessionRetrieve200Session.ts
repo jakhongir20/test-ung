@@ -26,5 +26,6 @@ import type { SurveySession } from './surveySession';
 
 /**
  * Информация о сессии или null
+ * @nullable
  */
 export type CurrentSessionRetrieve200Session = SurveySession | null;

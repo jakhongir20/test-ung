@@ -22,11 +22,5 @@
     
  * OpenAPI spec version: 1.0.0
  */
-import type { Gtf } from './gtf';
 
-/**
- * Ответ со списком ГТФ.
- */
-export interface GtfListResponse {
-  gtf: Gtf[];
-}
+export type ModeratorUsersFlaggedSessionsRetrieve200ItemUser = { [key: string]: unknown };

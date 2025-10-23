@@ -22,21 +22,48 @@
     
  * OpenAPI spec version: 1.0.0
  */
-import type { Branch } from './branch';
 
 /**
- * Модель должности.
+ * Serializer for survey detail view.
  */
-export interface Position {
-  /** ID должности */
-  id: number;
-  /** Название на узбекском языке */
-  name_uz: string;
-  /** Название на узбекском языке (кириллица) */
-  name_uz_cyrl?: string;
-  /** Название на русском языке */
-  name_ru?: string;
-  /** Область работы */
-  work_domain?: string;
-  branch?: Branch;
+export interface SurveyDetail {
+  readonly id: number;
+  /** @maxLength 200 */
+  title: string;
+  description?: string;
+  /**
+   * @minimum 1
+   * @maximum 240
+   */
+  time_limit_minutes?: number;
+  /**
+   * Number of random questions to show from the pool
+   * @minimum 1
+   * @maximum 100
+   */
+  questions_count?: number;
+  /**
+   * Minimum score percentage to pass
+   * @minimum 0
+   * @maximum 100
+   */
+  passing_score?: number;
+  /**
+   * @minimum 1
+   * @maximum 2147483647
+   */
+  max_attempts?: number;
+  /**
+   * Percentage of questions from Safety, Logic (IQ), Psychology category
+   * @minimum 0
+   * @maximum 100
+   */
+  safety_logic_psychology_percentage?: number;
+  /**
+   * Percentage of questions from Other category
+   * @minimum 0
+   * @maximum 100
+   */
+  other_percentage?: number;
+  readonly total_questions: string;
 }

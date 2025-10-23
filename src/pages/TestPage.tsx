@@ -17,6 +17,7 @@ import { ACTION_BTN_STYLES, CARD_STYLES } from "../components/test/test.data.ts"
 import { BackgroundWrapper } from "../components/BackgroundWrapper.tsx";
 import { FaceMonitoring } from "../components/FaceMonitoring.tsx";
 import { FadeIn, PageTransition } from "../components/animations";
+import { useAuthStore } from "../stores/authStore";
 
 type BuiltQuestion = {
   title: string;
@@ -38,6 +39,7 @@ const TestPage: FC = () => {
   const [searchParams] = useSearchParams();
   const { t, lang } = useI18n();
   const queryClient = useQueryClient();
+  const { user } = useAuthStore();
 
   // Function to determine survey category based on survey data
   const getSurveyCategory = (surveyData: any): string => {
@@ -688,6 +690,7 @@ const TestPage: FC = () => {
       <FaceMonitoring
         isActive={isFaceMonitoringActive}
         sessionId={sessionId || ''}
+        userId={user?.id?.toString()}
         onViolation={handleFaceViolation}
         onTestTerminated={handleTestTermination}
         checkInterval={10000} // Check every 10 seconds

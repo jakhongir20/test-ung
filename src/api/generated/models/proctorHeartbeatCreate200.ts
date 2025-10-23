@@ -22,11 +22,7 @@
     
  * OpenAPI spec version: 1.0.0
  */
-import type { Branch } from './branch';
 
-/**
- * Ответ со списком ГТФ.
- */
-export interface BranchesListResponse {
-  branches: Branch[];
-}
+export type ProctorHeartbeatCreate200 = {
+  status?: string;
+};

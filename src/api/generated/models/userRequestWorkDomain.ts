@@ -22,30 +22,19 @@
     
  * OpenAPI spec version: 1.0.0
  */
-import type { PatchedUserRequestWorkDomain } from './patchedUserRequestWorkDomain';
-import type { PatchedUserRequestEmployeeLevel } from './patchedUserRequestEmployeeLevel';
 
 /**
- * Сериализатор для модели пользователя.
- */
-export interface PatchedUserRequest {
-  /**
-   * @maxLength 32
-   * @nullable
-   */
-  phone_number?: string | null;
-  /** @maxLength 255 */
-  name?: string;
-  /** @nullable */
-  position?: number | null;
-  /** @nullable */
-  gtf?: number | null;
-  /** * `natural_gas` - Natural Gas
+ * * `natural_gas` - Natural Gas
 * `lpg_gas` - LPG Gas
-* `both` - Both */
-  work_domain?: PatchedUserRequestWorkDomain;
-  /** * `junior` - Junior
-* `engineer` - Engineer */
-  employee_level?: PatchedUserRequestEmployeeLevel;
-  is_moderator?: boolean;
-}
+* `both` - Both
+ */
+export type UserRequestWorkDomain = typeof UserRequestWorkDomain[keyof typeof UserRequestWorkDomain];
+
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const UserRequestWorkDomain = {
+  natural_gas: 'natural_gas',
+  lpg_gas: 'lpg_gas',
+  both: 'both',
+  '': '',
+} as const;

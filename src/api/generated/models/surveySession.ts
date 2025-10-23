@@ -22,30 +22,50 @@
     
  * OpenAPI spec version: 1.0.0
  */
-import type { PatchedUserRequestWorkDomain } from './patchedUserRequestWorkDomain';
-import type { PatchedUserRequestEmployeeLevel } from './patchedUserRequestEmployeeLevel';
+import type { SurveyDetail } from './surveyDetail';
+import type { SurveySessionStatus } from './surveySessionStatus';
 
 /**
- * Сериализатор для модели пользователя.
+ * Serializer for survey sessions.
  */
-export interface PatchedUserRequest {
+export interface SurveySession {
+  readonly id: string;
+  readonly survey: SurveyDetail;
+  /** * `started` - Started
+* `in_progress` - In Progress
+* `completed` - Completed
+* `expired` - Expired
+* `cancelled` - Cancelled */
+  status?: SurveySessionStatus;
   /**
-   * @maxLength 32
+   * @minimum 0
+   * @maximum 2147483647
+   */
+  attempt_number?: number;
+  readonly started_at: string;
+  expires_at: string;
+  /** @maxLength 10 */
+  language?: string;
+  readonly progress: string;
+  readonly time_remaining: string;
+  readonly current_question: string;
+  /**
+   * @minimum 0
+   * @maximum 2147483647
    * @nullable
    */
-  phone_number?: string | null;
-  /** @maxLength 255 */
-  name?: string;
+  score?: number | null;
+  /**
+   * @minimum 0
+   * @maximum 2147483647
+   * @nullable
+   */
+  total_points?: number | null;
+  /**
+   * @nullable
+   * @pattern ^-?\d{0,3}(?:\.\d{0,2})?$
+   */
+  percentage?: string | null;
   /** @nullable */
-  position?: number | null;
-  /** @nullable */
-  gtf?: number | null;
-  /** * `natural_gas` - Natural Gas
-* `lpg_gas` - LPG Gas
-* `both` - Both */
-  work_domain?: PatchedUserRequestWorkDomain;
-  /** * `junior` - Junior
-* `engineer` - Engineer */
-  employee_level?: PatchedUserRequestEmployeeLevel;
-  is_moderator?: boolean;
+  is_passed?: boolean | null;
 }

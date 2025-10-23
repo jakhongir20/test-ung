@@ -22,6 +22,8 @@
     
  * OpenAPI spec version: 1.0.0
  */
+import type { PhoneLoginRequestWorkDomain } from './phoneLoginRequestWorkDomain';
+import type { PhoneLoginRequestEmployeeLevel } from './phoneLoginRequestEmployeeLevel';
 
 /**
  * Сериализатор для входа/регистрации по номеру телефона.
@@ -44,16 +46,18 @@ export interface PhoneLoginRequest {
    * @maxLength 255
    */
   name?: string;
-  /**
-   * Филиал (для новых пользователей)
-   * @minLength 1
-   * @maxLength 100
-   */
-  branch?: string;
-  /**
-   * Должность (для новых пользователей)
-   * @minLength 1
-   * @maxLength 100
-   */
-  position?: string;
+  /** ID должности (для новых пользователей) */
+  position_id?: number;
+  /** ID GTF (для новых пользователей) */
+  gtf_id?: number;
+  /** Домен работы (для новых пользователей)
+
+* `natural_gas` - Natural Gas
+* `lpg_gas` - LPG Gas */
+  work_domain?: PhoneLoginRequestWorkDomain;
+  /** Уровень сотрудника (для новых пользователей)
+
+* `junior` - Junior
+* `engineer` - Engineer */
+  employee_level?: PhoneLoginRequestEmployeeLevel;
 }

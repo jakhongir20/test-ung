@@ -1,22 +1,28 @@
 import type { FC } from 'react';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useCallback } from 'react';
 import * as faceapi from 'face-api.js';
 import { useI18n } from '../i18n';
+import { useProctorVerifyInitial } from '../api/surveys';
 
 interface FaceVerificationModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSuccess: () => void;
   onError: (error: string) => void;
+  sessionId?: string;
+  userId?: string;
 }
 
 export const FaceVerificationModal: FC<FaceVerificationModalProps> = ({
   isOpen,
   onClose,
   onSuccess,
-  onError
+  onError,
+  sessionId,
+  userId
 }) => {
   const { t } = useI18n();
+  const proctorVerifyInitial = useProctorVerifyInitial();
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
@@ -26,6 +32,7 @@ export const FaceVerificationModal: FC<FaceVerificationModalProps> = ({
   const [detectionCount, setDetectionCount] = useState(0);
   const [error, setError] = useState<string | null>(null);
   const [isModelsLoaded, setIsModelsLoaded] = useState(false);
+  const [attemptCount, setAttemptCount] = useState(0);
 
   // Load face-api.js models
   useEffect(() => {
@@ -42,7 +49,9 @@ export const FaceVerificationModal: FC<FaceVerificationModalProps> = ({
         ]);
 
         setIsModelsLoaded(true);
-      } catch (err) {
+        console.log('🎯 Face Verification: Models loaded successfully');
+      } catch {
+        console.log('❌ Face Verification: Failed to load face detection models');
         onError('Failed to load face detection models');
       } finally {
         setIsLoading(false);
@@ -54,47 +63,10 @@ export const FaceVerificationModal: FC<FaceVerificationModalProps> = ({
     }
   }, [isOpen, onError]);
 
-  // Initialize camera and start detection
-  useEffect(() => {
-    const initializeCamera = async () => {
-      if (!isOpen || !isModelsLoaded) return;
-
-      try {
-        const stream = await navigator.mediaDevices.getUserMedia({
-          video: {
-            width: { ideal: 480 },
-            height: { ideal: 320 },
-            facingMode: 'user'
-          }
-        });
-
-        if (videoRef.current) {
-          videoRef.current.srcObject = stream;
-          streamRef.current = stream;
-
-          videoRef.current.onloadedmetadata = () => {
-            videoRef.current?.play();
-            startFaceDetection();
-          };
-        }
-      } catch (err) {
-        onError('Camera access denied. Please allow camera access to continue.');
-      }
-    };
-
-    initializeCamera();
-
-    return () => {
-      if (streamRef.current) {
-        streamRef.current.getTracks().forEach(track => track.stop());
-        streamRef.current = null;
-      }
-    };
-  }, [isOpen, isModelsLoaded, onError]);
-
-  const startFaceDetection = async () => {
+  const startFaceDetection = useCallback(async () => {
     if (!videoRef.current || !canvasRef.current || !isModelsLoaded) return;
 
+    console.log('🚀 Face Verification: Starting face detection process');
     setIsDetecting(true);
     let consecutiveDetections = 0;
     const requiredDetections = 10; // Require 10 consecutive detections for verification
@@ -119,6 +91,29 @@ export const FaceVerificationModal: FC<FaceVerificationModalProps> = ({
 
         // Clear canvas
         ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        // Log detection data for backend developer
+        const detectionData = {
+          timestamp: new Date().toISOString(),
+          faceCount: detections.length,
+          videoDimensions: {
+            width: videoRef.current.videoWidth,
+            height: videoRef.current.videoHeight
+          },
+          detections: detections.map(detection => ({
+            confidence: detection.detection.score,
+            box: {
+              x: detection.detection.box.x,
+              y: detection.detection.box.y,
+              width: detection.detection.box.width,
+              height: detection.detection.box.height
+            },
+            landmarks: detection.landmarks?.positions?.length || 0,
+            expressions: detection.expressions ? Object.keys(detection.expressions).length : 0
+          }))
+        };
+
+        console.log('📊 Face Detection Data for Backend:', detectionData);
 
         if (detections.length === 1) {
           // Clear any previous errors when face is detected
@@ -146,20 +141,62 @@ export const FaceVerificationModal: FC<FaceVerificationModalProps> = ({
           consecutiveDetections++;
           setDetectionCount(consecutiveDetections);
 
+          console.log(`✅ Face Verification: Valid face detected! Count: ${consecutiveDetections}/${requiredDetections}`);
+
           // Check if we have enough consecutive detections
           if (consecutiveDetections >= requiredDetections) {
+            console.log('🎉 Face Verification: SUCCESS! Verification completed');
             shouldContinueDetection = false;
             setIsDetecting(false);
-            onSuccess();
+
+            // Send verification data to proctor API
+            if (sessionId && userId) {
+              try {
+                // Capture face image from canvas
+                const canvas = canvasRef.current;
+                if (canvas) {
+                  canvas.toBlob(async (blob) => {
+                    if (blob) {
+                      try {
+                        await proctorVerifyInitial.mutateAsync({
+                          data: {
+                            session_id: sessionId,
+                            face_image: blob,
+                          },
+                        });
+                        console.log('✅ Face Verification: Data sent to proctor API successfully');
+                        onSuccess();
+                      } catch (error) {
+                        console.log('❌ Face Verification: Failed to send data to proctor API:', error);
+                        onSuccess(); // Still proceed with success even if API call fails
+                      }
+                    } else {
+                      onSuccess(); // Proceed even if blob creation fails
+                    }
+                  }, 'image/jpeg', 0.8);
+                } else {
+                  onSuccess(); // Proceed even if canvas is not available
+                }
+              } catch (error) {
+                console.log('❌ Face Verification: Failed to send data to proctor API:', error);
+                onSuccess(); // Still proceed with success even if API call fails
+              }
+            } else {
+              onSuccess();
+            }
             return;
           }
         } else if (detections.length === 0) {
           consecutiveDetections = 0;
           setDetectionCount(0);
+          console.log('⚠️ Face Verification: No face detected - attempt failed');
+          setAttemptCount(prev => prev + 1);
           setError('No face detected. Please position your face in the camera view.');
         } else {
           consecutiveDetections = 0;
           setDetectionCount(0);
+          console.log(`⚠️ Face Verification: Multiple faces detected (${detections.length}) - attempt failed`);
+          setAttemptCount(prev => prev + 1);
           setError('Multiple faces detected. Please ensure only one person is in the camera view.');
         }
 
@@ -168,6 +205,8 @@ export const FaceVerificationModal: FC<FaceVerificationModalProps> = ({
           requestAnimationFrame(detectFaces);
         }
       } catch (err) {
+        console.log('❌ Face Verification: Face detection error occurred', err);
+        setAttemptCount(prev => prev + 1);
         setError('Face detection failed. Please try again.');
         shouldContinueDetection = false;
         setIsDetecting(false);
@@ -175,12 +214,94 @@ export const FaceVerificationModal: FC<FaceVerificationModalProps> = ({
     };
 
     detectFaces();
-  };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isModelsLoaded, onSuccess, sessionId, userId, proctorVerifyInitial]);
+
+  // Initialize camera and start detection
+  useEffect(() => {
+    const initializeCamera = async () => {
+      if (!isOpen || !isModelsLoaded) return;
+
+      try {
+        console.log('📷 Face Verification: Requesting camera access...');
+        const stream = await navigator.mediaDevices.getUserMedia({
+          video: {
+            width: { ideal: 480 },
+            height: { ideal: 320 },
+            facingMode: 'user'
+          }
+        });
+
+        console.log('✅ Face Verification: Camera access granted');
+        if (videoRef.current) {
+          videoRef.current.srcObject = stream;
+          streamRef.current = stream;
+
+          videoRef.current.onloadedmetadata = () => {
+            videoRef.current?.play();
+            startFaceDetection();
+          };
+        }
+      } catch (err) {
+        console.log('❌ Face Verification: Camera access denied', err);
+        setAttemptCount(prev => prev + 1);
+        onError(t('faceVerification.cameraAccessDenied'));
+      }
+    };
+
+    initializeCamera();
+
+    return () => {
+      if (streamRef.current) {
+        streamRef.current.getTracks().forEach(track => track.stop());
+        streamRef.current = null;
+      }
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isOpen, isModelsLoaded, onError, t]);
+
+  // Log when modal opens
+  useEffect(() => {
+    if (isOpen) {
+      console.log('🚀 Face Verification: Modal opened - starting verification process');
+      setAttemptCount(0);
+    }
+  }, [isOpen]);
+
+  // Log attempt summary for backend developer
+  useEffect(() => {
+    if (attemptCount > 0) {
+      const attemptSummary = {
+        timestamp: new Date().toISOString(),
+        attemptCount,
+        detectionCount,
+        isSuccess: detectionCount >= 10,
+        error: error || null,
+        sessionData: {
+          // This is what should be sent to backend
+          userId: 'current_user_id', // Get from auth context
+          sessionId: 'current_session_id', // Get from current session
+          verificationType: 'face_verification',
+          attemptNumber: attemptCount,
+          success: detectionCount >= 10,
+          detectionData: {
+            consecutiveDetections: detectionCount,
+            requiredDetections: 10,
+            lastError: error || null
+          }
+        }
+      };
+
+      console.log('📋 Face Verification Attempt Summary for Backend:', JSON.stringify(attemptSummary, null, 2));
+    }
+  }, [attemptCount, detectionCount, error]);
 
   const handleClose = () => {
+    console.log(`📊 Face Verification: Modal closed. Total attempts: ${attemptCount}`);
     setIsDetecting(false);
     setDetectionCount(0);
     setError(null);
+    setAttemptCount(0);
     if (streamRef.current) {
       streamRef.current.getTracks().forEach(track => track.stop());
       streamRef.current = null;

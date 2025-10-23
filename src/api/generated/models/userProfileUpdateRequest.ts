@@ -22,30 +22,24 @@
     
  * OpenAPI spec version: 1.0.0
  */
-import type { PatchedUserRequestWorkDomain } from './patchedUserRequestWorkDomain';
-import type { PatchedUserRequestEmployeeLevel } from './patchedUserRequestEmployeeLevel';
+import type { UserProfileUpdateRequestEmployeeLevel } from './userProfileUpdateRequestEmployeeLevel';
+import type { UserProfileUpdateRequestWorkDomain } from './userProfileUpdateRequestWorkDomain';
 
 /**
- * Сериализатор для модели пользователя.
+ * Сериализатор для обновления профиля пользователя.
  */
-export interface PatchedUserRequest {
-  /**
-   * @maxLength 32
-   * @nullable
-   */
-  phone_number?: string | null;
+export interface UserProfileUpdateRequest {
   /** @maxLength 255 */
   name?: string;
   /** @nullable */
   position?: number | null;
   /** @nullable */
   gtf?: number | null;
+  /** * `junior` - Junior
+* `engineer` - Engineer */
+  employee_level?: UserProfileUpdateRequestEmployeeLevel;
   /** * `natural_gas` - Natural Gas
 * `lpg_gas` - LPG Gas
 * `both` - Both */
-  work_domain?: PatchedUserRequestWorkDomain;
-  /** * `junior` - Junior
-* `engineer` - Engineer */
-  employee_level?: PatchedUserRequestEmployeeLevel;
-  is_moderator?: boolean;
+  work_domain?: UserProfileUpdateRequestWorkDomain;
 }

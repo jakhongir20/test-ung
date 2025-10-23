@@ -23,4 +23,4 @@
  * OpenAPI spec version: 1.0.0
  */
 
-export type SessionsRetrieve200Progress = { [key: string]: unknown };
+export type AuthPasswordLoginCreate401 = {[key: string]: unknown};

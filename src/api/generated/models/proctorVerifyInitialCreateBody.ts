@@ -23,27 +23,7 @@
  * OpenAPI spec version: 1.0.0
  */
 
-/**
- * Сериализатор для регистрации нового пользователя.
- */
-export interface RegisterRequest {
-  /**
-   * Номер телефона
-   * @minLength 1
-   */
-  phone_number: string;
-  /**
-   * Пароль пользователя
-   * @minLength 1
-   */
-  password: string;
-  /**
-   * Полное имя пользователя
-   * @minLength 1
-   */
-  name: string;
-  /** ID должности */
-  position_id: number;
-  /** ID филиала */
-  gtf_id: number;
-}
+export type ProctorVerifyInitialCreateBody = {
+  session_id: string;
+  face_image: Blob;
+};

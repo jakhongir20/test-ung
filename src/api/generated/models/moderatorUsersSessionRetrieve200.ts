@@ -22,8 +22,10 @@
     
  * OpenAPI spec version: 1.0.0
  */
+import type { ModeratorUsersSessionRetrieve200Session } from './moderatorUsersSessionRetrieve200Session';
+import type { ModeratorUsersSessionRetrieve200QuestionsItem } from './moderatorUsersSessionRetrieve200QuestionsItem';
 
-/**
- * @nullable
- */
-export type SessionsRetrieve200CurrentQuestion = { [key: string]: unknown } | null;
+export type ModeratorUsersSessionRetrieve200 = {
+  session?: ModeratorUsersSessionRetrieve200Session;
+  questions?: ModeratorUsersSessionRetrieve200QuestionsItem[];
+};
