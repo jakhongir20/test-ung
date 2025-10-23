@@ -40,6 +40,11 @@ const dictionary: Dictionary = {
   'faceVerification.detecting': { uz: 'Yuz aniqlanmoqda...', 'uz-cyrl': 'Юз аниқланмоқда...', ru: 'Обнаружение лица...' },
   'faceVerification.faceDetected': { uz: 'Yuz aniqlandi! Iltimos, harakatsiz turing...', 'uz-cyrl': 'Юз аниқланди! Илтимос, ҳаракатсиз туринг...', ru: 'Лицо обнаружено! Пожалуйста, не двигайтесь...' },
   'faceVerification.cancel': { uz: 'Bekor qilish', 'uz-cyrl': 'Бекор қилиш', ru: 'Отмена' },
+  'faceVerification.cameraAccessDenied': {
+    uz: 'Kamera ruxsati rad etildi. Davom etish uchun kameraga ruxsat bering.',
+    'uz-cyrl': 'Камера рухсати рад этилди. Давом этиш учун камерага рухсат беринг.',
+    ru: 'Доступ к камере запрещен. Пожалуйста, разрешите доступ к камере для продолжения.'
+  },
   'dismiss': { uz: 'Yopish', 'uz-cyrl': 'Ёпиш', ru: 'Закрыть' },
 
   // Face Monitoring
