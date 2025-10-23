@@ -19,24 +19,16 @@ const CertificatePage: FC = () => {
         return;
       }
 
-      console.log('🔍 Loading certificate data for User ID:', id);
-      console.log('🌐 API URL:', `/api/certificate/user/${id}/certificate/data/`);
 
       try {
         setIsLoading(true);
         setError(null);
         const data = await fetchCertificateData(id);
-        console.log('✅ Certificate data loaded successfully:', data);
+
         setCertificateData(data);
       } catch (err: any) {
-        console.error('❌ Error fetching certificate data:', err);
-        console.error('Error details:', {
-          message: err?.message,
-          status: err?.response?.status,
-          statusText: err?.response?.statusText,
-          data: err?.response?.data,
-          url: err?.config?.url
-        });
+
+
         setError(err?.response?.data?.message || 'Failed to load certificate data');
       } finally {
         setIsLoading(false);
@@ -50,13 +42,10 @@ const CertificatePage: FC = () => {
   const handleDownload = async () => {
     if (!id || !certificateData) return;
 
-    console.log('📥 Starting certificate download for User ID:', id);
-    console.log('🌐 Download URL:', `/api/certificate/user/${id}/certificate/download/`);
 
     try {
       setIsDownloading(true);
       const blob = await downloadCertificate(id);
-      console.log('✅ Certificate download successful, blob size:', blob.size);
 
       // Create download link
       const url = window.URL.createObjectURL(blob);
@@ -68,16 +57,9 @@ const CertificatePage: FC = () => {
       document.body.removeChild(link);
       window.URL.revokeObjectURL(url);
 
-      console.log('📁 Certificate file downloaded successfully');
     } catch (err: any) {
-      console.error('❌ Error downloading certificate:', err);
-      console.error('Error details:', {
-        message: err?.message,
-        status: err?.response?.status,
-        statusText: err?.response?.statusText,
-        data: err?.response?.data,
-        url: err?.config?.url
-      });
+
+
       setError('Failed to download certificate');
     } finally {
       setIsDownloading(false);

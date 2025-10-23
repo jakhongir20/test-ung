@@ -11,12 +11,12 @@ interface FaceVerificationModalProps {
 }
 
 export const FaceVerificationModal: FC<FaceVerificationModalProps> = ({
-                                                                        isOpen,
-                                                                        onClose,
-                                                                        onSuccess,
-                                                                        onError
-                                                                      }) => {
-  const {t} = useI18n();
+  isOpen,
+  onClose,
+  onSuccess,
+  onError
+}) => {
+  const { t } = useI18n();
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
@@ -42,9 +42,7 @@ export const FaceVerificationModal: FC<FaceVerificationModalProps> = ({
         ]);
 
         setIsModelsLoaded(true);
-        console.log('Face-api.js models loaded successfully');
       } catch (err) {
-        console.error('Error loading face-api.js models:', err);
         onError('Failed to load face detection models');
       } finally {
         setIsLoading(false);
@@ -64,8 +62,8 @@ export const FaceVerificationModal: FC<FaceVerificationModalProps> = ({
       try {
         const stream = await navigator.mediaDevices.getUserMedia({
           video: {
-            width: {ideal: 480},
-            height: {ideal: 320},
+            width: { ideal: 480 },
+            height: { ideal: 320 },
             facingMode: 'user'
           }
         });
@@ -80,7 +78,6 @@ export const FaceVerificationModal: FC<FaceVerificationModalProps> = ({
           };
         }
       } catch (err) {
-        console.error('Error accessing camera:', err);
         onError('Camera access denied. Please allow camera access to continue.');
       }
     };
@@ -148,11 +145,9 @@ export const FaceVerificationModal: FC<FaceVerificationModalProps> = ({
 
           consecutiveDetections++;
           setDetectionCount(consecutiveDetections);
-          console.log(`Face detected! Count: ${consecutiveDetections}/${requiredDetections}`);
 
           // Check if we have enough consecutive detections
           if (consecutiveDetections >= requiredDetections) {
-            console.log('Face verification successful!');
             shouldContinueDetection = false;
             setIsDetecting(false);
             onSuccess();
@@ -161,12 +156,10 @@ export const FaceVerificationModal: FC<FaceVerificationModalProps> = ({
         } else if (detections.length === 0) {
           consecutiveDetections = 0;
           setDetectionCount(0);
-          console.log('No face detected');
           setError('No face detected. Please position your face in the camera view.');
         } else {
           consecutiveDetections = 0;
           setDetectionCount(0);
-          console.log(`Multiple faces detected: ${detections.length}`);
           setError('Multiple faces detected. Please ensure only one person is in the camera view.');
         }
 
@@ -175,7 +168,6 @@ export const FaceVerificationModal: FC<FaceVerificationModalProps> = ({
           requestAnimationFrame(detectFaces);
         }
       } catch (err) {
-        console.error('Face detection error:', err);
         setError('Face detection failed. Please try again.');
         shouldContinueDetection = false;
         setIsDetecting(false);
@@ -219,7 +211,7 @@ export const FaceVerificationModal: FC<FaceVerificationModalProps> = ({
             disabled={isLoading}
           >
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12"/>
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
             </svg>
           </button>
         </div>
@@ -232,7 +224,7 @@ export const FaceVerificationModal: FC<FaceVerificationModalProps> = ({
                 <svg className="w-8 h-8 text-blue-600 animate-spin" fill="none" viewBox="0 0 24 24">
                   <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                   <path className="opacity-75" fill="currentColor"
-                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                 </svg>
               </div>
               <p className="text-gray-600">

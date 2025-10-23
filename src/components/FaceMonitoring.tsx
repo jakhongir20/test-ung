@@ -30,7 +30,6 @@ const ViolationAlert: FC<ViolationAlertProps> = ({
   const { t } = useI18n();
 
   // Debug the values being passed to the alert
-  console.log(`ViolationAlert rendered: isOpen=${isOpen}, violationType=${violationType}, attemptCount=${attemptCount}, maxAttempts=${maxAttempts}`);
 
   if (!isOpen) return null;
 
@@ -52,7 +51,7 @@ const ViolationAlert: FC<ViolationAlertProps> = ({
       default:
         message = t('faceMonitoring.violationDetected');
     }
-    console.log(`Violation message for ${violationType}:`, message);
+
     return message;
   };
 
@@ -154,7 +153,7 @@ export const FaceMonitoring: FC<FaceMonitoringProps> = ({
   // Handle server-side termination
   useEffect(() => {
     if (shouldTerminate) {
-      console.log('Server requested test termination due to violations');
+
       setIsMonitoring(false);
       onTestTerminated();
     }
@@ -163,7 +162,7 @@ export const FaceMonitoring: FC<FaceMonitoringProps> = ({
   // Update violation alert when server count changes
   useEffect(() => {
     if (serverViolationCount > 0 && !showViolationAlert) {
-      console.log(`Server violation count updated: ${serverViolationCount}`);
+
       setShowViolationAlert(true);
     }
   }, [serverViolationCount, showViolationAlert]);
@@ -172,11 +171,10 @@ export const FaceMonitoring: FC<FaceMonitoringProps> = ({
   useEffect(() => {
     const handleVisibilityChange = () => {
       const isVisible = !document.hidden;
-      console.log(`Page visibility changed: ${isVisible ? 'visible' : 'hidden'}`);
 
       if (!isVisible && isPageVisible && isActive) {
         // Page became hidden while monitoring is active
-        console.log('Tab/window switched - triggering violation');
+
         handleTabSwitch();
       }
 
@@ -189,13 +187,13 @@ export const FaceMonitoring: FC<FaceMonitoringProps> = ({
     // Also listen for window focus/blur events for additional detection
     const handleWindowBlur = () => {
       if (isActive && isPageVisible) {
-        console.log('Window lost focus - triggering violation');
+
         handleTabSwitch();
       }
     };
 
     const handleWindowFocus = () => {
-      console.log('Window gained focus');
+
       setIsPageVisible(true);
     };
 
@@ -221,9 +219,9 @@ export const FaceMonitoring: FC<FaceMonitoringProps> = ({
         ]);
 
         setIsModelsLoaded(true);
-        console.log('Face monitoring models loaded successfully');
+
       } catch (err) {
-        console.error('Error loading face monitoring models:', err);
+
       }
     };
 
@@ -256,7 +254,7 @@ export const FaceMonitoring: FC<FaceMonitoringProps> = ({
           };
         }
       } catch (err) {
-        console.error('Error accessing camera for monitoring:', err);
+
         // Don't show error to user, just log it
       }
     };
@@ -299,11 +297,8 @@ export const FaceMonitoring: FC<FaceMonitoringProps> = ({
         }
       };
 
-      console.log('Face Detection Data for Server:', JSON.stringify(detectionData, null, 2));
-
       return detections.length;
     } catch (err) {
-      console.error('Face detection error during monitoring:', err);
 
       // Log error data for server
       const errorData = {
@@ -311,8 +306,6 @@ export const FaceMonitoring: FC<FaceMonitoringProps> = ({
         error: 'face_detection_failed',
         errorMessage: err instanceof Error ? err.message : 'Unknown error'
       };
-
-      console.log('Face Detection Error Data for Server:', JSON.stringify(errorData, null, 2));
 
       return null;
     }
@@ -323,21 +316,19 @@ export const FaceMonitoring: FC<FaceMonitoringProps> = ({
 
     // Check cooldown period
     if (now - lastViolationTime < violationCooldown) {
-      console.log('Tab switch violation cooldown active, skipping');
+
       return;
     }
 
     // Only handle violation if alert is not already showing
     if (showViolationAlert) {
-      console.log('Violation alert already showing, skipping tab switch violation');
+
       return;
     }
 
     setCurrentViolationType('tab_switched');
     setShowViolationAlert(true);
     setLastViolationTime(now);
-
-    console.log('Reporting tab switch violation to server');
 
     try {
       // Report tab switch violation to server
@@ -353,9 +344,8 @@ export const FaceMonitoring: FC<FaceMonitoringProps> = ({
         timestamp: new Date().toISOString()
       });
 
-      console.log('Tab switch violation reported to server successfully');
     } catch (error) {
-      console.error('Failed to report tab switch violation to server:', error);
+
     }
 
     onViolation('tab_switched');
@@ -366,21 +356,19 @@ export const FaceMonitoring: FC<FaceMonitoringProps> = ({
 
     // Check cooldown period
     if (now - lastViolationTime < violationCooldown) {
-      console.log('Violation cooldown active, skipping');
+
       return;
     }
 
     // Only handle violation if alert is not already showing
     if (showViolationAlert) {
-      console.log('Violation alert already showing, skipping');
+
       return;
     }
 
     setCurrentViolationType(violationType);
     setShowViolationAlert(true);
     setLastViolationTime(now);
-
-    console.log(`Reporting violation to server: ${violationType}`);
 
     try {
       // Report violation to server
@@ -391,9 +379,8 @@ export const FaceMonitoring: FC<FaceMonitoringProps> = ({
         timestamp: new Date().toISOString()
       });
 
-      console.log('Violation reported to server successfully');
     } catch (error) {
-      console.error('Failed to report violation to server:', error);
+
     }
 
     onViolation(violationType);
@@ -421,7 +408,6 @@ export const FaceMonitoring: FC<FaceMonitoringProps> = ({
       // faceCount === 1 is good, no violation
     }, checkInterval);
 
-    console.log('Face monitoring started');
   }, [isActive, isModelsLoaded, detectFace, checkInterval, handleViolation]);
 
   const stopMonitoring = useCallback(() => {
@@ -431,14 +417,14 @@ export const FaceMonitoring: FC<FaceMonitoringProps> = ({
     }
 
     setIsMonitoring(false);
-    console.log('Face monitoring stopped');
+
   }, []);
 
   const handleViolationAlertClose = useCallback(() => {
     setShowViolationAlert(false);
 
     // Server will handle termination logic
-    console.log('Violation alert closed');
+
   }, []);
 
 

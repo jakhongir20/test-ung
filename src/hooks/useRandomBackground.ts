@@ -47,10 +47,9 @@ export const useRandomBackground = () => {
         // Since these are imported modules, they should be available immediately
         setBackgroundImage(selectedImage);
         setIsLoading(false);
-        console.log(`✅ Loaded random background image: ${randomIndex + 1}`);
-        
+
       } catch (error) {
-        console.error('Error loading background image:', error);
+
         // Use a fallback image
         const fallbackIndex = Math.floor(Math.random() * FALLBACK_IMAGES.length);
         setBackgroundImage(FALLBACK_IMAGES[fallbackIndex]);

@@ -141,7 +141,7 @@ const TestPage: FC = () => {
     if (!hasInitialized.current && current === null) {
       const sessionCurrentOrder = sessionData?.current_question?.order ?? progressData?.session?.current_question?.order;
       if (sessionCurrentOrder) {
-        console.log('Initializing current order to:', sessionCurrentOrder);
+
         setCurrent(sessionCurrentOrder);
         hasInitialized.current = true;
       }
@@ -152,18 +152,18 @@ const TestPage: FC = () => {
   useEffect(() => {
     if (current !== null && !isExpired) {
       setIsFaceMonitoringActive(true);
-      console.log('Face monitoring started for test');
+
     }
   }, [current, isExpired]);
 
   // Face monitoring handlers
   const handleFaceViolation = (violationType: 'no_face' | 'multiple_faces' | 'face_lost' | 'tab_switched') => {
-    console.log(`Face violation detected: ${violationType}`);
+
     setFaceViolationCount(prev => prev + 1);
   };
 
   const handleTestTermination = async () => {
-    console.log('Test terminated due to face monitoring violations');
+
     setIsFaceMonitoringActive(false);
 
     try {
@@ -179,7 +179,7 @@ const TestPage: FC = () => {
       // Navigate to profile with error message
       navigate('/profile?error=test_terminated');
     } catch (error) {
-      console.error('Error terminating test:', error);
+
       navigate('/profile?error=test_terminated');
     }
   };
@@ -374,13 +374,12 @@ const TestPage: FC = () => {
 
     setIsFinishing(true);
     try {
-      console.log('Manually finishing session:', sessionId);
+
       await finishSession.mutateAsync(sessionId);
       // Clean up and navigate to main page
       localStorage.removeItem('currentSurveySession');
       navigate('/');
     } catch (error) {
-      console.error('Manual finish error:', error);
 
       // Check if it's an authentication error and handle it
       if (handleAuthError(error)) {
@@ -403,7 +402,7 @@ const TestPage: FC = () => {
         const currentQuestionId = currentQuestionFromNav?.question?.id ?? currentQuestion?.question?.id;
 
         if (!currentQuestionId) {
-          console.error('No question ID found for submission');
+
           return;
         }
 
@@ -415,7 +414,7 @@ const TestPage: FC = () => {
           // For open-ended questions, submit text answer
           const trimmedAnswer = textAnswer.trim();
           if (trimmedAnswer.length === 0) {
-            console.error('Empty text answer');
+
             return;
           }
           payload.text_answer = trimmedAnswer;
@@ -423,22 +422,21 @@ const TestPage: FC = () => {
           // For multiple choice questions, submit choice IDs
           const choiceIds = selected.map((letter) => built.choiceLetterToId[letter]).filter(Boolean);
           if (choiceIds.length === 0) {
-            console.error('No valid choice IDs');
+
             return;
           }
           payload.choice_ids = choiceIds;
         }
 
         try {
-          console.log('Submitting answer:', { sessionId, payload });
+
           const res: any = await submitAnswer.mutateAsync({ sessionId, payload });
-          console.log('Submit response:', res);
 
           // Check if this was the last question and if the session was automatically finished
           if (isLastQuestion) {
             // If final_score is present in the response, the session was automatically finished
             if (res?.final_score) {
-              console.log('Session automatically finished by submit_answer');
+
               // Clean up and navigate to main page
               localStorage.removeItem('currentSurveySession');
               navigate('/');
@@ -446,16 +444,14 @@ const TestPage: FC = () => {
             } else {
               // Manually finish the session if it wasn't automatically finished
               try {
-                console.log('Manually finishing session:', sessionId);
+
                 const finishRes = await finishSession.mutateAsync(sessionId);
-                console.log('Finish response:', finishRes);
 
                 // Clean up and navigate to main page
                 localStorage.removeItem('currentSurveySession');
                 navigate('/');
                 return;
               } catch (finishError) {
-                console.error('Finish session error:', finishError);
 
                 // Check if it's an authentication error and handle it
                 if (handleAuthError(finishError)) {
@@ -484,7 +480,6 @@ const TestPage: FC = () => {
           await sessionQuery.refetch();
           await progressQuery.refetch();
         } catch (error) {
-          console.error('Submit answer error:', error);
 
           // Check if it's an authentication error and handle it
           if (handleAuthError(error)) {

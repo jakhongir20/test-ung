@@ -63,7 +63,6 @@ export const LoginForm: FC<Props> = ({ }) => {
       navigate('/', { replace: true });
     } catch (error: any) {
       // Handle login errors
-      console.error('Login error:', error);
 
       // Show server error message
       if (error?.response?.data?.non_field_errors) {

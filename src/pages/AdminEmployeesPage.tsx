@@ -45,7 +45,7 @@ const AdminEmployeesPage: FC = () => {
 
   // Fetch selected user details
   const userDetailsQuery = useModeratorUserDetails(selectedUserId ?? undefined);
-  console.log('userDetailsQuery', userDetailsQuery);
+
   const selectedUser = userDetailsQuery.data;
 
   // Extract unique branches and positions from the data

@@ -32,16 +32,9 @@ export const tokenStorage = {
   },
   setTokens(tokens?: Tokens) {
     if (!tokens) {
-      console.log('❌ setTokens called with no tokens');
+
       return;
     }
-
-    console.log('💾 setTokens called with:', {
-      hasAccess: !!tokens.access,
-      hasRefresh: !!tokens.refresh,
-      accessLength: tokens.access?.length,
-      refreshLength: tokens.refresh?.length
-    });
 
     localStorage.setItem('accessToken', tokens.access);
     localStorage.setItem('refreshToken', tokens.refresh);
@@ -49,15 +42,10 @@ export const tokenStorage = {
     // Verify storage immediately
     const storedAccess = localStorage.getItem('accessToken');
     const storedRefresh = localStorage.getItem('refreshToken');
-    console.log('✅ Tokens stored successfully:', {
-      storedAccessLength: storedAccess?.length,
-      storedRefreshLength: storedRefresh?.length,
-      accessMatches: storedAccess === tokens.access,
-      refreshMatches: storedRefresh === tokens.refresh
-    });
+
   },
   clear() {
-    console.log('🗑️ Clearing tokens from localStorage');
+
     localStorage.removeItem('accessToken');
     localStorage.removeItem('refreshToken');
   },
@@ -189,30 +177,15 @@ export function usePasswordLogin() {
         localStorage.setItem('accessToken', res.access);
         localStorage.setItem('refreshToken', res.refresh);
 
-        console.log('💾 Tokens stored directly:', {
-          accessLength: res.access.length,
-          refreshLength: res.refresh.length
-        });
-
         // Verify storage immediately
         const storedAccess = localStorage.getItem('accessToken');
         const storedRefresh = localStorage.getItem('refreshToken');
-        console.log('🔍 Direct storage verification:', {
-          storedAccessLength: storedAccess?.length,
-          storedRefreshLength: storedRefresh?.length,
-          matchesAccess: storedAccess === res.access,
-          matchesRefresh: storedRefresh === res.refresh
-        });
 
         // Wait a bit more to ensure tokens are fully stored
         await new Promise(resolve => setTimeout(resolve, 200));
 
         // Double-check tokens are still there
         const finalCheck = localStorage.getItem('accessToken');
-        console.log('🔍 Final token check:', {
-          hasToken: !!finalCheck,
-          tokenLength: finalCheck?.length
-        });
 
         // Refresh the Axios instance to pick up new tokens
         refreshInstance();
@@ -233,17 +206,14 @@ export function usePasswordLogin() {
 
       // Wait for critical queries to be set up
       try {
-        console.log('🚀 Starting prefetch with token:', !!localStorage.getItem('accessToken'));
 
         // Temporarily disable prefetch to test token storage
-        console.log('⏸️ Prefetch disabled for testing token storage');
 
         // Prefetch critical data that will be needed on the main page
         // await Promise.all([
         //   qc.prefetchQuery({
         //     queryKey: ['/api/users/me/'],
         //     queryFn: () => {
-        //       console.log('📡 Prefetching /api/users/me/ with token:', !!localStorage.getItem('accessToken'));
         //       return customInstance({ method: 'GET', url: '/api/users/me/' });
         //     },
         //     staleTime: 5 * 60 * 1000, // 5 minutes
@@ -251,7 +221,6 @@ export function usePasswordLogin() {
         //   qc.prefetchQuery({
         //     queryKey: ['/api/positions/'],
         //     queryFn: () => {
-        //       console.log('📡 Prefetching /api/positions/ with token:', !!localStorage.getItem('accessToken'));
         //       return customInstance({ method: 'GET', url: '/api/positions/' });
         //     },
         //     staleTime: 10 * 60 * 1000, // 10 minutes
@@ -259,15 +228,13 @@ export function usePasswordLogin() {
         //   qc.prefetchQuery({
         //     queryKey: ['/api/branches/'],
         //     queryFn: () => {
-        //       console.log('📡 Prefetching /api/branches/ with token:', !!localStorage.getItem('accessToken'));
         //       return customInstance({ method: 'GET', url: '/api/branches/' });
         //     },
         //     staleTime: 10 * 60 * 1000, // 10 minutes
         //   })
         // ])
-        console.log('✅ Prefetch skipped for testing');
+
       } catch (error) {
-        console.warn('Failed to prefetch some data:', error)
         // Don't fail the login if prefetch fails
       }
     },
@@ -322,14 +289,10 @@ export function useRegister() {
 
       // Wait for critical queries to be set up
       try {
-        console.log('🚀 Starting prefetch with token:', !!localStorage.getItem('accessToken'));
 
         // Temporarily disable prefetch to test token storage
-        console.log('⏸️ Prefetch disabled for testing token storage');
 
-        console.log('✅ Prefetch skipped for testing');
       } catch (error) {
-        console.warn('Failed to prefetch some data:', error)
         // Don't fail the registration if prefetch fails
       }
     },

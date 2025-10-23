@@ -53,18 +53,6 @@ export const ProgressBar: FC<Props> = ({
       // Calculate progress percentage: elapsed time / total time * 100
       const progress = Math.max(0, Math.min(100, (elapsedMs / totalTestMs) * 100));
 
-      // Debug logging
-      console.log('Progress calculation (direct):', {
-        now,
-        endTime,
-        testStartTime,
-        totalTestMs,
-        elapsedMs,
-        progress: `${progress.toFixed(1)}%`,
-        timeLimitMinutes,
-        remainingMs: endTime - now
-      });
-
       setTimeProgress(progress);
     };
 

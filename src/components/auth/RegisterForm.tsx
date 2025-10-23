@@ -153,7 +153,6 @@ export const RegisterForm: FC<Props> = ({ }) => {
       navigate('/', { replace: true });
     } catch (error: any) {
       // Handle registration errors
-      console.error('Registration error:', error);
 
       // Show server error message
       if (error?.response?.data?.non_field_errors) {

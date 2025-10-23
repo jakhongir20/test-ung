@@ -89,9 +89,8 @@ const UserSessionDetailsPage: FC = () => {
   const userData = userQuery.data as any;
 
   // Debug logging to understand data structure
-  console.log('Session Data:', sessionData);
-  console.log('All Answers Data:', allAnswersData);
-  console.log('User Data:', userData);
+
+
 
   // Extract session and questions data
   // For sessionsRetrieve, the data is directly on the response, not nested under 'session'
@@ -114,8 +113,6 @@ const UserSessionDetailsPage: FC = () => {
     sessionPercentage = Math.round((correctAnswers / totalQuestions) * 100 * 100) / 100; // Round to 2 decimal places
   }
 
-  console.log('Session Percentage:', sessionPercentage);
-  console.log('Session Object:', session);
 
   const getAnswerStatus = (question: any) => {
     if (!question.answer) return { status: 'incorrect', text: t('session.incorrect') };

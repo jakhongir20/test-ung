@@ -113,12 +113,10 @@ export const SettingsModal: FC<Props> = ({ isOpen, onClose }) => {
       });
 
       // Show success message (you could add a toast notification here)
-      console.log(t('settings.saveSuccess'));
 
       // Close modal on success
       onClose();
     } catch (error: any) {
-      console.error('Error updating profile:', error);
 
       // Handle API errors
       if (error?.response?.data?.name) {
