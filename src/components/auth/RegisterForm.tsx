@@ -160,31 +160,81 @@ export const RegisterForm: FC<Props> = ({ }) => {
     setPinflError(null);
 
     try {
-      // Call API to fetch user data by PINFL
-      // Endpoint to be provided by backend - for now using a placeholder
+      // Call API to fetch employee data from 1C by PINFL
       const response = await customInstance({
-        method: 'GET',
-        url: `/api/users/by-pinfl/${pinfl}/`,
+        method: 'POST',
+        url: `/api/1c/get-employee/`,
+        data: {
+          pinfl: pinfl.trim()
+        }
       });
 
-      const userData = response as {
-        name?: string;
-        phone_number?: string;
-        position?: number;
-        gtf?: number;
-        branch?: number;
+      const employeeData = response as {
+        employee_id?: string;
+        tin?: string;
+        full_name?: string;
+        pinfl?: string;
+        org_code?: number;
+        org_name?: string;
+        work_status_date?: string;
+        birth_date?: string;
+        hired_at?: string;
+        fired_at?: string;
+        work_status?: string;
+        passport_issue_date?: string;
+        passport_issued_by?: string;
+        passport_series?: string;
+        home_address?: string;
+        phone?: string;
+        photo?: string;
+        status?: string;
+        fte?: string;
+        position?: string;
+        position_id?: string;
+        position_class?: number;
+        branch?: string;
+        branch_id?: string;
+        department?: string;
+        department_id?: string;
+        department_class?: number;
       };
 
-      // Auto-populate form fields
-      if (userData.name) setValue('name', userData.name);
-      if (userData.phone_number) setValue('login', userData.phone_number);
-      if (userData.position) setValue('position_id', userData.position);
-      if (userData.gtf) setValue('gtf_id', userData.gtf);
-      if (userData.branch) setValue('branch_id', userData.branch);
+      // Check if employee was found
+      if (employeeData.status !== 'OK') {
+        setPinflError(t('auth.pinflNotFound'));
+        return;
+      }
 
-      console.log('✅ User data fetched by PINFL:', userData);
+      // Auto-populate form fields from 1C response
+      if (employeeData.full_name) {
+        setValue('name', employeeData.full_name);
+      }
+
+      if (employeeData.phone) {
+        setValue('login', employeeData.phone);
+      }
+
+      // Find matching position by position_id (UUID)
+      if (employeeData.position_id && positionsData?.positions) {
+        const matchingPosition = (positionsData.positions as Array<{ id: number; uuid?: string; }>)
+          .find((pos: { id: number; uuid?: string; }) => pos.uuid === employeeData.position_id);
+        if (matchingPosition) {
+          setValue('position_id', matchingPosition.id);
+        }
+      }
+
+      // Find matching branch by branch_id (UUID)
+      if (employeeData.branch_id && branchesData?.branches) {
+        const matchingBranch = (branchesData.branches as Array<{ id: number; uuid?: string; }>)
+          .find((branch: { id: number; uuid?: string; }) => branch.uuid === employeeData.branch_id);
+        if (matchingBranch) {
+          setValue('branch_id', matchingBranch.id);
+        }
+      }
+
+      console.log('✅ Employee data fetched from 1C by PINFL:', employeeData);
     } catch (error) {
-      console.log('❌ Failed to fetch user by PINFL:', error);
+      console.log('❌ Failed to fetch employee by PINFL:', error);
       setPinflError(t('auth.pinflNotFound'));
     } finally {
       setIsFetchingPinfl(false);
