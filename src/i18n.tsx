@@ -618,6 +618,10 @@ const dictionary: Dictionary = {
   'auth.selectBranch': { uz: 'GTFni tanlang', 'uz-cyrl': 'ГТФни танланг', ru: 'Выберите ГТФ' },
   'auth.noAccount': { uz: 'Hisobingiz yo\'qmi?', 'uz-cyrl': 'Ҳисобингиз йўқми?', ru: 'Нет аккаунта?' },
   'auth.haveAccount': { uz: 'Hisobingiz bormi?', 'uz-cyrl': 'Ҳисобингиз борми?', ru: 'Есть аккаунт?' },
+  'auth.optional': { uz: 'ixtiyoriy', 'uz-cyrl': 'ихтиёрий', ru: 'необязательно' },
+  'auth.fetch': { uz: 'Yuklash', 'uz-cyrl': 'Юклаш', ru: 'Загрузить' },
+  'auth.pinflEmpty': { uz: 'PINFL raqamini kiriting', 'uz-cyrl': 'PINFL рақамини киритинг', ru: 'Введите номер PINFL' },
+  'auth.pinflNotFound': { uz: 'PINFL bo\'yicha foydalanuvchi topilmadi', 'uz-cyrl': 'PINFL бўйича фойдаланувчи топилмади', ru: 'Пользователь с таким PINFL не найден' },
 
   // Additional Information Form
   'additionalInfo.title': { uz: 'Qo\'shimcha ma\'lumot', 'uz-cyrl': 'Қўшимча маълумот', ru: 'Дополнительная информация' },

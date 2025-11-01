@@ -1,17 +1,19 @@
 import type { FC } from 'react';
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { Link, useNavigate } from "react-router-dom";
 import { useRegister } from "../../api/auth.ts";
 import { usePositionsRetrieve, useBranchesRetrieve, useGtfRetrieve } from "../../api/generated/respondentWebAPI";
 import { FormButton } from "./FormButton.tsx";
 import { useI18n } from "../../i18n";
+import { customInstance } from "../../api/mutator/custom-instance";
 
 interface Props {
   className?: string;
 }
 
 type RegisterFormValues = {
+  pinfl: string;
   login: string;
   password: string;
   confirmPassword: string;
@@ -29,6 +31,10 @@ export const RegisterForm: FC<Props> = ({ }) => {
   const register = useRegister();
   const { t, lang } = useI18n();
 
+  // PINFL fetch state
+  const [isFetchingPinfl, setIsFetchingPinfl] = useState(false);
+  const [pinflError, setPinflError] = useState<string | null>(null);
+
   // Fetch positions, branches, and GTF from API
   const { data: positionsData, isLoading: positionsLoading, error: positionsError } = usePositionsRetrieve();
   const { data: branchesData, isLoading: branchesLoading, error: branchesError } = useBranchesRetrieve();
@@ -44,6 +50,7 @@ export const RegisterForm: FC<Props> = ({ }) => {
     setValue
   } = useForm<RegisterFormValues>({
     defaultValues: {
+      pinfl: '',
       login: '',
       password: '',
       confirmPassword: '',
@@ -57,6 +64,7 @@ export const RegisterForm: FC<Props> = ({ }) => {
   const prevLangRef = useRef(lang);
   const password = watch('password');
   const branchId = watch('branch_id');
+  const pinfl = watch('pinfl');
 
   // Helper function to get localized name
   const getLocalizedName = (item: any) => {
@@ -141,6 +149,48 @@ export const RegisterForm: FC<Props> = ({ }) => {
     }
   };
 
+  // Fetch user data by PINFL
+  const handleFetchByPinfl = async () => {
+    if (!pinfl || pinfl.trim().length === 0) {
+      setPinflError(t('auth.pinflEmpty'));
+      return;
+    }
+
+    setIsFetchingPinfl(true);
+    setPinflError(null);
+
+    try {
+      // Call API to fetch user data by PINFL
+      // Endpoint to be provided by backend - for now using a placeholder
+      const response = await customInstance({
+        method: 'GET',
+        url: `/api/users/by-pinfl/${pinfl}/`,
+      });
+
+      const userData = response as {
+        name?: string;
+        phone_number?: string;
+        position?: number;
+        gtf?: number;
+        branch?: number;
+      };
+
+      // Auto-populate form fields
+      if (userData.name) setValue('name', userData.name);
+      if (userData.phone_number) setValue('login', userData.phone_number);
+      if (userData.position) setValue('position_id', userData.position);
+      if (userData.gtf) setValue('gtf_id', userData.gtf);
+      if (userData.branch) setValue('branch_id', userData.branch);
+
+      console.log('✅ User data fetched by PINFL:', userData);
+    } catch (error) {
+      console.log('❌ Failed to fetch user by PINFL:', error);
+      setPinflError(t('auth.pinflNotFound'));
+    } finally {
+      setIsFetchingPinfl(false);
+    }
+  };
+
   const onSubmit = async (values: RegisterFormValues) => {
     try {
       await register.mutateAsync({
@@ -171,6 +221,45 @@ export const RegisterForm: FC<Props> = ({ }) => {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="">
+      {/* PINFL Field - Optional */}
+      <div className={'mb-6'}>
+        <label className="block text-base text-black font-medium mb-1.5">
+          PINFL
+          {/* <span className="text-gray-500 text-sm font-normal">({t('auth.optional')})</span> */}
+        </label>
+        <div className="flex gap-2">
+          <Controller
+            name="pinfl"
+            control={control}
+            render={({ field }) => (
+              <input
+                {...field}
+                type="text"
+                placeholder="PINFL"
+                className={authInputStyle + ' flex-1'}
+                maxLength={14}
+              />
+            )}
+          />
+          <button
+            type="button"
+            onClick={handleFetchByPinfl}
+            disabled={isFetchingPinfl || !pinfl || pinfl.trim().length === 0}
+            className="px-4 py-2 bg-cyan-600 text-white rounded-xl hover:bg-cyan-700 disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
+          >
+            {isFetchingPinfl ? (
+              <svg className="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+            ) : (
+              t('auth.fetch')
+            )}
+          </button>
+        </div>
+        {pinflError && <p className="text-red-600 text-base mt-1">{pinflError}</p>}
+      </div>
+
       <div className={'mb-6'}>
         <label className="block text-base text-black font-medium mb-1.5">{t('auth.login')}</label>
         <Controller

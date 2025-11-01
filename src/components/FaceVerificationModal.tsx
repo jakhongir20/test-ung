@@ -2,12 +2,11 @@ import type { FC } from 'react';
 import { useEffect, useRef, useState, useCallback } from 'react';
 import * as faceapi from 'face-api.js';
 import { useI18n } from '../i18n';
-import { useProctorVerifyInitial } from '../api/surveys';
 
 interface FaceVerificationModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSuccess: () => void;
+  onSuccess: (faceImageBlob: Blob) => void;
   onError: (error: string) => void;
   sessionId?: string;
   userId?: string;
@@ -17,12 +16,9 @@ export const FaceVerificationModal: FC<FaceVerificationModalProps> = ({
   isOpen,
   onClose,
   onSuccess,
-  onError,
-  sessionId,
-  userId
+  onError
 }) => {
   const { t } = useI18n();
-  const proctorVerifyInitial = useProctorVerifyInitial();
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
@@ -89,8 +85,8 @@ export const FaceVerificationModal: FC<FaceVerificationModalProps> = ({
         canvas.width = videoRef.current.videoWidth;
         canvas.height = videoRef.current.videoHeight;
 
-        // Clear canvas
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        // Draw the full video frame to canvas first
+        ctx.drawImage(videoRef.current, 0, 0, canvas.width, canvas.height);
 
         // Log detection data for backend developer
         const detectionData = {
@@ -149,40 +145,31 @@ export const FaceVerificationModal: FC<FaceVerificationModalProps> = ({
             shouldContinueDetection = false;
             setIsDetecting(false);
 
-            // Send verification data to proctor API
-            if (sessionId && userId) {
-              try {
-                // Capture face image from canvas
-                const canvas = canvasRef.current;
-                if (canvas) {
-                  canvas.toBlob(async (blob) => {
-                    if (blob) {
-                      try {
-                        await proctorVerifyInitial.mutateAsync({
-                          data: {
-                            session_id: sessionId,
-                            face_image: blob,
-                          },
-                        });
-                        console.log('✅ Face Verification: Data sent to proctor API successfully');
-                        onSuccess();
-                      } catch (error) {
-                        console.log('❌ Face Verification: Failed to send data to proctor API:', error);
-                        onSuccess(); // Still proceed with success even if API call fails
-                      }
-                    } else {
-                      onSuccess(); // Proceed even if blob creation fails
-                    }
-                  }, 'image/jpeg', 0.8);
-                } else {
-                  onSuccess(); // Proceed even if canvas is not available
-                }
-              } catch (error) {
-                console.log('❌ Face Verification: Failed to send data to proctor API:', error);
-                onSuccess(); // Still proceed with success even if API call fails
+            // Capture full video frame image from canvas and pass to parent component
+            const canvas = canvasRef.current;
+            const video = videoRef.current;
+            if (canvas && video) {
+              // Ensure we have the latest video frame drawn on canvas
+              const ctx = canvas.getContext('2d');
+              if (ctx) {
+                // Set canvas size to match video dimensions
+                canvas.width = video.videoWidth;
+                canvas.height = video.videoHeight;
+
+                // Draw the full video frame to canvas
+                ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
               }
+
+              // Capture the full image as blob
+              canvas.toBlob((blob) => {
+                if (blob) {
+                  onSuccess(blob);
+                } else {
+                  onError('Failed to capture face image');
+                }
+              }, 'image/jpeg', 0.95); // Higher quality (0.95) for better image
             } else {
-              onSuccess();
+              onError('Canvas or video not available');
             }
             return;
           }
@@ -215,7 +202,7 @@ export const FaceVerificationModal: FC<FaceVerificationModalProps> = ({
 
     detectFaces();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isModelsLoaded, onSuccess, sessionId, userId, proctorVerifyInitial]);
+  }, [isModelsLoaded, onSuccess]);
 
   // Initialize camera and start detection
   useEffect(() => {

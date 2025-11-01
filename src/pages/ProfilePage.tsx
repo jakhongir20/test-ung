@@ -2,7 +2,7 @@ import type { FC } from 'react';
 import { useEffect, useState } from 'react';
 import { useI18n } from '../i18n';
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { useCurrentSession, useMyHistory, useStartSurvey } from '../api/surveys';
+import { useCurrentSession, useMyHistory, useStartSurvey, useProctorVerifyInitial } from '../api/surveys';
 import { handleAuthError } from '../api/auth';
 import { MyProfileBanner } from "../components/MyProfileBanner.tsx";
 import { ProfileCardItem } from "../components/ProfileCardItem.tsx";
@@ -46,6 +46,7 @@ const ProfilePage: FC = () => {
   const currentSession = useCurrentSession();
   const myHistory = useMyHistory();
   const startSurvey = useStartSurvey();
+  const proctorVerifyInitial = useProctorVerifyInitial();
   const { user } = useAuthStore();
 
   // Face verification state
@@ -87,10 +88,15 @@ const ProfilePage: FC = () => {
     try {
       // Start the survey first to get sessionId
       const res = await startSurvey.mutateAsync({ id: 1, count: 30 });
-      setPendingSessionId(res.id);
+      const sessionId = res.id;
+      if (!sessionId) {
+        throw new Error('Failed to get session ID');
+      }
+      setPendingSessionId(sessionId);
       localStorage.setItem('currentSurveySession', JSON.stringify(res));
 
       // Open face verification modal with sessionId
+      // The actual face_image will be sent after successful verification in the modal
       setIsFaceVerificationOpen(true);
       setFaceVerificationError(null);
     } catch (error) {
@@ -102,9 +108,38 @@ const ProfilePage: FC = () => {
     }
   };
 
-  const handleFaceVerificationSuccess = async () => {
+  const handleFaceVerificationSuccess = async (faceImageBlob: Blob) => {
     setIsFaceVerificationOpen(false);
-    if (pendingSessionId) {
+
+    // Send sessionId and face_image to /api/proctor/verify-initial/ after successful verification
+    if (pendingSessionId && faceImageBlob) {
+      try {
+        const verifyResponse = await proctorVerifyInitial.mutateAsync({
+          data: {
+            session_id: pendingSessionId,
+            face_image: faceImageBlob,
+          },
+        });
+
+        // Handle response with status and session_id
+        if (verifyResponse) {
+          const responseData = verifyResponse as { status?: string; session_id?: string; };
+          console.log('Face verification sent successfully:', {
+            status: responseData.status,
+            session_id: responseData.session_id,
+          });
+        }
+
+        // Navigate to test page after successful API call
+        navigate(`/test?sessionId=${pendingSessionId}`);
+      } catch (error) {
+        console.log('Failed to send face verification:', error);
+        setFaceVerificationError('Failed to verify face. Please try again.');
+        // Still navigate to test page even if API call fails
+        navigate(`/test?sessionId=${pendingSessionId}`);
+      }
+    } else if (pendingSessionId) {
+      // Navigate even if blob is missing
       navigate(`/test?sessionId=${pendingSessionId}`);
     }
   };

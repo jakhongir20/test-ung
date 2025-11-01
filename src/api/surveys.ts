@@ -10,6 +10,7 @@ import {
   useProctorHeartbeatCreate,
   useProctorRecordViolationCreate,
   useProctorUploadRecordingCreate,
+  useProctorUploadChunkCreate,
   useModeratorUsersFlaggedSessionsRetrieve,
   useModeratorUsersSessionViolationsRetrieve,
   useModeratorUsersReviewSessionCreate,
@@ -100,6 +101,10 @@ export function useProctorRecordViolation() {
 
 export function useProctorUploadRecording() {
   return useProctorUploadRecordingCreate();
+}
+
+export function useProctorUploadChunk() {
+  return useProctorUploadChunkCreate();
 }
 
 // Moderator API endpoints - using generated methods
