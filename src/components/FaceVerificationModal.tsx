@@ -1,5 +1,5 @@
 import type { FC } from 'react';
-import { useEffect, useRef, useState, useCallback } from 'react';
+import { useEffect, useRef, useState, useCallback, useMemo } from 'react';
 import * as faceapi from 'face-api.js';
 import { useI18n } from '../i18n';
 
@@ -29,6 +29,36 @@ export const FaceVerificationModal: FC<FaceVerificationModalProps> = ({
   const [error, setError] = useState<string | null>(null);
   const [isModelsLoaded, setIsModelsLoaded] = useState(false);
   const [attemptCount, setAttemptCount] = useState(0);
+
+  const verificationSteps = useMemo(
+    () => [
+      { key: 'center', instruction: t('faceVerification.step.center'), label: t('faceVerification.stepLabel.center') },
+      { key: 'left', instruction: t('faceVerification.step.left'), label: t('faceVerification.stepLabel.left') },
+      { key: 'right', instruction: t('faceVerification.step.right'), label: t('faceVerification.stepLabel.right') }
+    ],
+    [t]
+  );
+
+  const totalSteps = verificationSteps.length;
+  const [currentStepIndex, setCurrentStepIndex] = useState(0);
+  const [stepInstruction, setStepInstruction] = useState<string>(verificationSteps[0]?.instruction ?? '');
+  const currentStepIndexRef = useRef(0);
+  const verificationStepsRef = useRef(verificationSteps);
+
+  useEffect(() => {
+    verificationStepsRef.current = verificationSteps;
+    setStepInstruction(verificationSteps[currentStepIndex]?.instruction ?? '');
+  }, [verificationSteps, currentStepIndex]);
+
+  useEffect(() => {
+    currentStepIndexRef.current = currentStepIndex;
+    setDetectionCount(0);
+    if (currentStepIndex === 0) {
+      setError(null);
+    }
+  }, [currentStepIndex]);
+
+  const requiredDetectionsForCurrentStep = currentStepIndex === 0 ? 10 : 5;
 
   // Load face-api.js models
   useEffect(() => {
@@ -65,15 +95,23 @@ export const FaceVerificationModal: FC<FaceVerificationModalProps> = ({
     console.log('🚀 Face Verification: Starting face detection process');
     setIsDetecting(true);
     let consecutiveDetections = 0;
-    const requiredDetections = 10; // Require 10 consecutive detections for verification
     let shouldContinueDetection = true;
 
     const detectFaces = async () => {
       if (!videoRef.current || !canvasRef.current || !shouldContinueDetection) return;
 
+      const stepIndex = currentStepIndexRef.current;
+      const steps = verificationStepsRef.current;
+      const currentStep = steps[stepIndex];
+      const requiredDetectionsForStep = stepIndex === 0 ? 10 : 5;
+      const isLastStep = stepIndex === steps.length - 1;
+
       try {
         const detections = await faceapi
-          .detectAllFaces(videoRef.current, new faceapi.TinyFaceDetectorOptions())
+          .detectAllFaces(
+            videoRef.current,
+            new faceapi.TinyFaceDetectorOptions({ inputSize: 320, scoreThreshold: 0.4 })
+          )
           .withFaceLandmarks()
           .withFaceExpressions();
 
@@ -91,7 +129,9 @@ export const FaceVerificationModal: FC<FaceVerificationModalProps> = ({
         // Log detection data for backend developer
         const detectionData = {
           timestamp: new Date().toISOString(),
+          step: currentStep?.key,
           faceCount: detections.length,
+          requiredDetectionsForStep,
           videoDimensions: {
             width: videoRef.current.videoWidth,
             height: videoRef.current.videoHeight
@@ -134,57 +174,118 @@ export const FaceVerificationModal: FC<FaceVerificationModalProps> = ({
             ctx.fill();
           });
 
-          consecutiveDetections++;
-          setDetectionCount(consecutiveDetections);
+          // Check head pose (yaw angle) to verify correct orientation for current step
+          // Calculate approximate yaw from nose and face center points
+          // When head turns left (counter-clockwise), nose moves right in camera view (positive offset)
+          // When head turns right (clockwise), nose moves left in camera view (negative offset)
+          // So we need to negate to match convention: negative = left, positive = right
+          const noseTip = landmarks.positions[30]; // Nose tip
+          const leftFaceCenter = landmarks.positions[1]; // Left face center point  
+          const rightFaceCenter = landmarks.positions[15]; // Right face center point
 
-          console.log(`✅ Face Verification: Valid face detected! Count: ${consecutiveDetections}/${requiredDetections}`);
+          // Calculate face width and nose position relative to center
+          const faceWidth = Math.abs(rightFaceCenter.x - leftFaceCenter.x);
+          const faceCenterX = (leftFaceCenter.x + rightFaceCenter.x) / 2;
+          const noseOffset = noseTip.x - faceCenterX;
 
-          // Check if we have enough consecutive detections
-          if (consecutiveDetections >= requiredDetections) {
-            console.log('🎉 Face Verification: SUCCESS! Verification completed');
+          // Normalize offset and negate to match yaw convention: negative = left, positive = right
+          const yaw = -noseOffset / (faceWidth / 2);
+
+          // Determine current head position based on yaw angle
+          let currentHeadPosition: 'center' | 'left' | 'right' = 'center';
+          if (yaw < -0.3) {
+            // Looking left
+            currentHeadPosition = 'left';
+          } else if (yaw > 0.3) {
+            // Looking right
+            currentHeadPosition = 'right';
+          }
+          // else: center (yaw between -0.3 and 0.3)
+
+          // Check if head position matches the required step
+          const requiredPosition = currentStep?.key as 'center' | 'left' | 'right';
+          const isCorrectPosition = currentHeadPosition === requiredPosition;
+
+          if (isCorrectPosition) {
+            // Only increment if the face is in the correct position for this step
+            consecutiveDetections++;
+            setDetectionCount(consecutiveDetections);
+            console.log(`✅ Face Verification [${currentStep?.key}]: Valid face detected in correct position (yaw: ${yaw.toFixed(2)})! Count: ${consecutiveDetections}/${requiredDetectionsForStep}`);
+          } else {
+            // Reset count if face is not in correct position
+            consecutiveDetections = 0;
+            setDetectionCount(0);
+            console.log(`⚠️ Face Verification [${currentStep?.key}]: Face detected but wrong position (yaw: ${yaw.toFixed(2)}, current: ${currentHeadPosition}, required: ${requiredPosition})`);
+
+            // Show appropriate error message
+            if (requiredPosition === 'center') {
+              setError(t('faceVerification.lookCenter'));
+            } else if (requiredPosition === 'left') {
+              setError(t('faceVerification.turnLeft'));
+            } else if (requiredPosition === 'right') {
+              setError(t('faceVerification.turnRight'));
+            }
+          }
+
+          // Check if we have enough consecutive detections for the current step
+          if (consecutiveDetections >= requiredDetectionsForStep) {
+            if (!isLastStep) {
+              console.log(`🎯 Face Verification: Step "${currentStep?.key}" completed. Moving to next step.`);
+              consecutiveDetections = 0;
+              setDetectionCount(0);
+              setError(null);
+              const nextIndex = stepIndex + 1;
+              currentStepIndexRef.current = nextIndex;
+              setCurrentStepIndex(nextIndex);
+              requestAnimationFrame(detectFaces);
+              return;
+            }
+
+            console.log('🎉 Face Verification: All steps completed successfully');
             shouldContinueDetection = false;
             setIsDetecting(false);
 
             // Capture full video frame image from canvas and pass to parent component
-            const canvas = canvasRef.current;
             const video = videoRef.current;
             if (canvas && video) {
-              // Ensure we have the latest video frame drawn on canvas
               const ctx = canvas.getContext('2d');
               if (ctx) {
-                // Set canvas size to match video dimensions
                 canvas.width = video.videoWidth;
                 canvas.height = video.videoHeight;
-
-                // Draw the full video frame to canvas
                 ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
               }
 
-              // Capture the full image as blob
               canvas.toBlob((blob) => {
                 if (blob) {
                   onSuccess(blob);
                 } else {
-                  onError('Failed to capture face image');
+                  onError(t('faceVerification.captureError'));
                 }
-              }, 'image/jpeg', 0.95); // Higher quality (0.95) for better image
+              }, 'image/jpeg', 0.95);
             } else {
-              onError('Canvas or video not available');
+              onError(t('faceVerification.captureError'));
             }
             return;
           }
         } else if (detections.length === 0) {
           consecutiveDetections = 0;
           setDetectionCount(0);
-          console.log('⚠️ Face Verification: No face detected - attempt failed');
-          setAttemptCount(prev => prev + 1);
-          setError('No face detected. Please position your face in the camera view.');
+          if (stepIndex === 0) {
+            console.log('⚠️ Face Verification: No face detected - keep facing the camera');
+            setAttemptCount(prev => prev + 1);
+            setError(t('faceVerification.noFaceFront'));
+          } else {
+            console.log(`ℹ️ Face Verification: Waiting for face during step "${currentStep?.key}"`);
+            setError(null);
+          }
         } else {
           consecutiveDetections = 0;
           setDetectionCount(0);
           console.log(`⚠️ Face Verification: Multiple faces detected (${detections.length}) - attempt failed`);
-          setAttemptCount(prev => prev + 1);
-          setError('Multiple faces detected. Please ensure only one person is in the camera view.');
+          if (stepIndex === 0) {
+            setAttemptCount(prev => prev + 1);
+          }
+          setError(t('faceVerification.multipleFaces'));
         }
 
         // Continue detection
@@ -193,16 +294,17 @@ export const FaceVerificationModal: FC<FaceVerificationModalProps> = ({
         }
       } catch (err) {
         console.log('❌ Face Verification: Face detection error occurred', err);
-        setAttemptCount(prev => prev + 1);
-        setError('Face detection failed. Please try again.');
+        if (currentStepIndexRef.current === 0) {
+          setAttemptCount(prev => prev + 1);
+        }
+        setError(t('faceVerification.detectionError'));
         shouldContinueDetection = false;
         setIsDetecting(false);
       }
     };
 
     detectFaces();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isModelsLoaded, onSuccess]);
+  }, [isModelsLoaded, onSuccess, onError, t, error]);
 
   // Initialize camera and start detection
   useEffect(() => {
@@ -252,17 +354,25 @@ export const FaceVerificationModal: FC<FaceVerificationModalProps> = ({
     if (isOpen) {
       console.log('🚀 Face Verification: Modal opened - starting verification process');
       setAttemptCount(0);
+      currentStepIndexRef.current = 0;
+      setCurrentStepIndex(0);
     }
   }, [isOpen]);
 
   // Log attempt summary for backend developer
   useEffect(() => {
     if (attemptCount > 0) {
+      const currentStep = verificationSteps[currentStepIndex];
+      const requiredForStep = currentStepIndex === 0 ? 10 : 5;
       const attemptSummary = {
         timestamp: new Date().toISOString(),
         attemptCount,
         detectionCount,
-        isSuccess: detectionCount >= 10,
+        currentStep: currentStep?.key,
+        requiredDetections: requiredForStep,
+        isSuccess:
+          currentStepIndexRef.current === verificationStepsRef.current.length - 1 &&
+          detectionCount >= requiredForStep,
         error: error || null,
         sessionData: {
           // This is what should be sent to backend
@@ -270,10 +380,13 @@ export const FaceVerificationModal: FC<FaceVerificationModalProps> = ({
           sessionId: 'current_session_id', // Get from current session
           verificationType: 'face_verification',
           attemptNumber: attemptCount,
-          success: detectionCount >= 10,
+          success:
+            currentStepIndexRef.current === verificationStepsRef.current.length - 1 &&
+            detectionCount >= requiredForStep,
           detectionData: {
             consecutiveDetections: detectionCount,
-            requiredDetections: 10,
+            requiredDetections: requiredForStep,
+            currentStep: currentStep?.key,
             lastError: error || null
           }
         }
@@ -281,7 +394,7 @@ export const FaceVerificationModal: FC<FaceVerificationModalProps> = ({
 
       console.log('📋 Face Verification Attempt Summary for Backend:', JSON.stringify(attemptSummary, null, 2));
     }
-  }, [attemptCount, detectionCount, error]);
+  }, [attemptCount, detectionCount, error, currentStepIndex, verificationSteps]);
 
   const handleClose = () => {
     console.log(`📊 Face Verification: Modal closed. Total attempts: ${attemptCount}`);
@@ -289,6 +402,8 @@ export const FaceVerificationModal: FC<FaceVerificationModalProps> = ({
     setDetectionCount(0);
     setError(null);
     setAttemptCount(0);
+    currentStepIndexRef.current = 0;
+    setCurrentStepIndex(0);
     if (streamRef.current) {
       streamRef.current.getTracks().forEach(track => track.stop());
       streamRef.current = null;
@@ -342,9 +457,38 @@ export const FaceVerificationModal: FC<FaceVerificationModalProps> = ({
           ) : (
             <div className="space-y-4">
               <div className="text-center">
-                <p className="text-gray-600 mb-4">
-                  {t('faceVerification.instructions')}
+                <p className="text-gray-600">
+                  {t('faceVerification.multiStepIntro')}
                 </p>
+              </div>
+              <div className="bg-blue-50 border border-blue-100 rounded-lg p-4 text-center">
+                <p className="text-sm font-semibold text-blue-800">
+                  {t('faceVerification.stepProgress', { current: currentStepIndex + 1, total: totalSteps })}
+                </p>
+                <p className="text-sm text-blue-700 mt-1">
+                  {stepInstruction}
+                </p>
+              </div>
+              <div className="flex justify-center gap-4">
+                {verificationSteps.map((step, index) => {
+                  const status = index < currentStepIndex ? 'completed' : index === currentStepIndex ? 'current' : 'upcoming';
+                  const circleClass =
+                    status === 'completed'
+                      ? 'bg-green-500 text-white'
+                      : status === 'current'
+                        ? 'bg-blue-500 text-white'
+                        : 'bg-gray-200 text-gray-500';
+                  return (
+                    <div key={step.key} className="flex flex-col items-center gap-2">
+                      <div className={`w-8 h-8 flex items-center justify-center rounded-full text-sm font-medium ${circleClass}`}>
+                        {index + 1}
+                      </div>
+                      <span className="text-xs text-gray-600 text-center w-20 leading-tight">
+                        {step.label}
+                      </span>
+                    </div>
+                  );
+                })}
               </div>
 
               {/* Camera View */}
@@ -373,7 +517,10 @@ export const FaceVerificationModal: FC<FaceVerificationModalProps> = ({
                       </span>
                     </div>
                     <div className="text-xs text-gray-500">
-                      {`Detection progress: ${detectionCount}/10`}
+                      {t('faceVerification.detectionProgress', {
+                        count: detectionCount,
+                        required: requiredDetectionsForCurrentStep
+                      })}
                     </div>
                   </div>
                 )}
@@ -384,7 +531,7 @@ export const FaceVerificationModal: FC<FaceVerificationModalProps> = ({
                   </div>
                 )}
 
-                {detectionCount > 0 && detectionCount < 10 && !error && (
+                {detectionCount > 0 && detectionCount < requiredDetectionsForCurrentStep && !error && (
                   <div className="text-green-600 text-sm bg-green-50 p-3 rounded-lg">
                     {t('faceVerification.faceDetected')}
                   </div>

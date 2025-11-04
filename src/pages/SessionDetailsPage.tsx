@@ -1,10 +1,10 @@
 import type { FC } from 'react';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { useI18n } from '../i18n';
 import { handleAuthError } from '../api/auth';
 import { useModeratorUserSessionDetails } from '../api/moderator';
-import { useUsersMeRetrieve } from '../api/generated/respondentWebAPI';
+import { useUsersMeRetrieve, useModeratorUsersSessionViolationsRetrieve } from '../api/generated/respondentWebAPI';
 import { MyProfileBanner } from "../components/MyProfileBanner.tsx";
 import type { Column } from "../components/DataTable.tsx";
 import { DataTable } from "../components/DataTable.tsx";
@@ -12,13 +12,64 @@ import { CARD_STYLES } from "../components/test/test.data.ts";
 import { StatusBadge } from "../components/StatusBadge.tsx";
 import { BackgroundWrapper } from "../components/BackgroundWrapper.tsx";
 import UserSessionDetailsPage from './UserSessionDetailsPage';
+import { useQuery } from '@tanstack/react-query';
+import { customInstance } from '../api/mutator/custom-instance';
+
+type TabType = 'results' | 'violations';
+
+interface ViolationData {
+  id: number;
+  timestamp: string;
+  violation_type: string;
+  face_count: number;
+  snapshot_url: string;
+}
+
+interface RecordingData {
+  session_id: string;
+  recording: {
+    playlist_url: string;
+    video_file_url: string;
+    duration_seconds: number;
+    file_size: number;
+    processed: boolean;
+  } | null;
+  chunks: Array<{
+    chunk_number: number;
+    video_url: string;
+    duration_seconds: number;
+    start_time: number;
+    end_time: number;
+  }>;
+}
 
 const SessionDetailsPage: FC = () => {
-  const {t, lang} = useI18n();
-  const {id} = useParams<{ id: string; }>();
+  const { t, lang } = useI18n();
+  const { id } = useParams<{ id: string; }>();
   const userQuery = useUsersMeRetrieve();
+  const [activeTab, setActiveTab] = useState<TabType>('results');
 
   const sessionQuery = useModeratorUserSessionDetails(id);
+
+  // Fetch violations data
+  const violationsQuery = useModeratorUsersSessionViolationsRetrieve(id || '', {
+    query: {
+      enabled: !!id && activeTab === 'violations',
+    }
+  });
+
+  // Fetch recording data
+  const recordingQuery = useQuery({
+    queryKey: ['session-recording', id],
+    queryFn: async () => {
+      if (!id) return null;
+      return customInstance<RecordingData>({
+        method: 'GET',
+        url: `/api/moderator/users/session/${id}/recording/`,
+      });
+    },
+    enabled: !!id && activeTab === 'violations',
+  });
 
   useEffect(() => {
     if (sessionQuery.error && handleAuthError(sessionQuery.error)) {
@@ -28,7 +79,7 @@ const SessionDetailsPage: FC = () => {
 
   // If user is not a moderator (based on users/me), redirect to user session details page
   if (userQuery.data && !userQuery.data.is_moderator) {
-    return <UserSessionDetailsPage/>;
+    return <UserSessionDetailsPage />;
   }
 
   // Fetch session details with moderator API
@@ -44,7 +95,7 @@ const SessionDetailsPage: FC = () => {
             <svg className="w-8 h-8 text-cyan-600 animate-spin" fill="none" viewBox="0 0 24 24">
               <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
               <path className="opacity-75" fill="currentColor"
-                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
             </svg>
           </div>
           <h2 className="text-xl font-semibold text-gray-900 mb-2">{t('loading.sessionDetails')}</h2>
@@ -64,7 +115,7 @@ const SessionDetailsPage: FC = () => {
           <div className="w-16 h-16 mx-auto mb-4 bg-red-100 rounded-full flex items-center justify-center">
             <svg className="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"/>
+                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
             </svg>
           </div>
           <h2 className="text-xl font-semibold text-gray-900 mb-2">{t('error.connection')}</h2>
@@ -94,7 +145,7 @@ const SessionDetailsPage: FC = () => {
   const incorrectAnswers = totalQuestions - correctAnswers;
 
   const getAnswerStatus = (question: any) => {
-    if (!question.answer) return {status: 'incorrect', text: t('session.incorrect')};
+    if (!question.answer) return { status: 'incorrect', text: t('session.incorrect') };
     const isCorrect = question.answer.is_correct;
     return {
       status: isCorrect ? 'correct' : 'incorrect',
@@ -178,6 +229,12 @@ const SessionDetailsPage: FC = () => {
     return 'A';
   };
 
+  const getViolationTypeLabel = (type: string) => {
+    const normalized = type.toLowerCase();
+    const translationKey = `session.violationType.${normalized}`;
+    return t(translationKey);
+  };
+
   // Define table columns
   const columns: Column[] = [
     {
@@ -206,7 +263,7 @@ const SessionDetailsPage: FC = () => {
       className: 'whitespace-nowrap',
       render: (_, question) => {
         const answerStatus = getAnswerStatus(question);
-        return <StatusBadge status={answerStatus.status}/>;
+        return <StatusBadge status={answerStatus.status} />;
       }
     },
     {
@@ -242,8 +299,8 @@ const SessionDetailsPage: FC = () => {
   return (
     <BackgroundWrapper>
       <div className="min-h-screen md:p-6">
-        <MyProfileBanner title={t('session.scoreDetails')} description={t('session.scoreDetailsDesc')}/>
-        <br/>
+        <MyProfileBanner title={t('session.scoreDetails')} description={t('session.scoreDetailsDesc')} />
+        <br />
         <div className={CARD_STYLES}>
           <div className="">
             <h2 className="text-2xl font-bold text-gray-900 mb-6">
@@ -289,14 +346,151 @@ const SessionDetailsPage: FC = () => {
               ))}
             </div>
             <div className={'w-full my-4 md:my-7 h-[1px] bg-[#E2E8F0]'}></div>
+
+            {/* Tabs */}
+            <div className="flex gap-4 mb-6 border-b border-gray-200">
+              <button
+                onClick={() => setActiveTab('results')}
+                className={`px-4 py-2 font-medium transition-colors ${activeTab === 'results'
+                  ? 'text-cyan-600 border-b-2 border-cyan-600'
+                  : 'text-gray-600 hover:text-gray-900'
+                  }`}
+              >
+                {t('session.testResults')}
+              </button>
+              <button
+                onClick={() => setActiveTab('violations')}
+                className={`px-4 py-2 font-medium transition-colors ${activeTab === 'violations'
+                  ? 'text-cyan-600 border-b-2 border-cyan-600'
+                  : 'text-gray-600 hover:text-gray-900'
+                  }`}
+              >
+                {t('session.violationCases')}
+              </button>
+            </div>
+
+            {/* Tab Content */}
+            {activeTab === 'results' && (
+              <DataTable
+                data={tableData}
+                columns={columns}
+                itemsPerPage={10}
+                showPagination={true}
+                emptyMessage={t('session.noQuestions')}
+              />
+            )}
+
+            {activeTab === 'violations' && (
+              <div className="space-y-6">
+                {/* Recording Section */}
+                {recordingQuery.data && (
+                  <div className="bg-white border border-gray-200 rounded-lg p-6">
+                    <h3 className="text-xl font-semibold text-gray-900 mb-4">{t('session.recordingTitle')}</h3>
+
+                    {recordingQuery.data.recording && recordingQuery.data.recording.processed ? (
+                      <div className="space-y-4">
+                        <div className="bg-gray-50 rounded-lg p-4">
+                          <div className="grid grid-cols-2 gap-4">
+                            <div>
+                              <p className="text-sm text-gray-600">{t('session.duration')}</p>
+                              <p className="text-lg font-medium">
+                                {Math.floor(recordingQuery.data.recording.duration_seconds / 60)}:{(recordingQuery.data.recording.duration_seconds % 60).toString().padStart(2, '0')}
+                              </p>
+                            </div>
+                            <div>
+                              <p className="text-sm text-gray-600">{t('session.fileSize')}</p>
+                              <p className="text-lg font-medium">
+                                {(recordingQuery.data.recording.file_size / (1024 * 1024)).toFixed(2)} MB
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+
+                        {recordingQuery.data.recording.video_file_url ? (
+                          <video
+                            controls
+                            className="w-full rounded-lg bg-black"
+                            src={recordingQuery.data.recording.video_file_url}
+                          >
+                            Your browser does not support video playback.
+                          </video>
+                        ) : (
+                          <div className="text-center text-gray-600 text-sm">
+                            {t('session.recordingUnavailable')}
+                          </div>
+                        )}
+                      </div>
+                    ) : (
+                      <div className="text-center text-gray-600 text-sm">
+                        {t('session.recordingProcessing')}
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* Violations Section */}
+                {violationsQuery.data && (violationsQuery.data as ViolationData[]).length > 0 ? (
+                  <div className="bg-white border border-gray-200 rounded-lg p-6">
+                    <h3 className="text-xl font-semibold text-gray-900 mb-4">{t('session.violationsTitle')}</h3>
+                    <div className="space-y-4">
+                      {(violationsQuery.data as ViolationData[]).map((violation) => (
+                        <div key={violation.id} className="border border-gray-200 rounded-lg p-4 hover:border-gray-300 transition-colors">
+                          <div className="flex items-start gap-4">
+                            {/* Snapshot */}
+                            {violation.snapshot_url && (
+                              <div className="flex-shrink-0">
+                                <img
+                                  src={violation.snapshot_url}
+                                  alt={`Violation ${violation.id}`}
+                                  className="w-32 h-32 object-cover rounded-lg border border-gray-300"
+                                />
+                              </div>
+                            )}
+
+                            {/* Violation Details */}
+                            <div className="flex-1">
+                              <div className="flex items-center gap-2 mb-2">
+                                <span className="px-3 py-1 bg-red-100 text-red-800 rounded-full text-sm font-medium uppercase tracking-wide">
+                                  {getViolationTypeLabel(violation.violation_type)}
+                                </span>
+                                <span className="text-sm text-gray-500">
+                                  {new Date(violation.timestamp).toLocaleString(lang === 'ru' ? 'ru-RU' : 'uz-UZ')}
+                                </span>
+                              </div>
+
+                              <div className="grid grid-cols-2 gap-2 text-sm">
+                                <div>
+                                  <span className="text-gray-600">{t('session.faceCount')}:</span>
+                                  <span className="ml-2 font-medium">{violation.face_count}</span>
+                                </div>
+                                <div>
+                                  <span className="text-gray-600">{t('session.violationId')}:</span>
+                                  <span className="ml-2 font-medium">#{violation.id}</span>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ) : (
+                  <div className="text-center py-12">
+                    <div className="w-16 h-16 mx-auto mb-4 bg-gray-100 rounded-full flex items-center justify-center">
+                      <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                          d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                    </div>
+                    <h3 className="text-lg font-medium text-gray-900 mb-2">{t('session.noViolations')}</h3>
+                    <p className="text-gray-600">
+                      {t('session.noViolationsDesc')}
+                    </p>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
-          <DataTable
-            data={tableData}
-            columns={columns}
-            itemsPerPage={10}
-            showPagination={true}
-            emptyMessage={t('session.noQuestions')}
-          />
         </div>
       </div>
     </BackgroundWrapper>

@@ -158,6 +158,9 @@ export const FaceMonitoring: FC<FaceMonitoringProps> = ({
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const chunkNumberRef = useRef<number>(0);
   const currentChunkStartTimeRef = useRef<number>(0);
+  const consecutiveNoFaceCountRef = useRef<number>(0);
+  const consecutiveMultipleFacesCountRef = useRef<number>(0);
+  const consecutiveGoodDetectionsRef = useRef<number>(0);
 
   const [isModelsLoaded, setIsModelsLoaded] = useState(false);
   const [isMonitoring, setIsMonitoring] = useState(false);
@@ -462,7 +465,10 @@ export const FaceMonitoring: FC<FaceMonitoringProps> = ({
     try {
       const detections = await faceapi.detectAllFaces(
         videoRef.current,
-        new faceapi.TinyFaceDetectorOptions()
+        new faceapi.TinyFaceDetectorOptions({
+          inputSize: 320,        // Larger input size for better detection
+          scoreThreshold: 0.4    // Lower threshold to detect faces at angles
+        })
       );
 
       // Log detailed face detection data for server communication
@@ -609,6 +615,11 @@ export const FaceMonitoring: FC<FaceMonitoringProps> = ({
 
     setIsMonitoring(true);
 
+    // Reset consecutive detection counters when starting monitoring
+    consecutiveNoFaceCountRef.current = 0;
+    consecutiveMultipleFacesCountRef.current = 0;
+    consecutiveGoodDetectionsRef.current = 0;
+
     // Start video recording
     startVideoRecording();
 
@@ -617,19 +628,47 @@ export const FaceMonitoring: FC<FaceMonitoringProps> = ({
       const detectionResult = await detectFace();
 
       if (detectionResult === null) {
-        // Detection failed, treat as violation
-        handleViolation('face_lost', { faceCount: 0, confidence: 0 });
+        // Detection failed (error occurred)
+        consecutiveNoFaceCountRef.current++;
+        consecutiveMultipleFacesCountRef.current = 0; // Reset multiple faces counter
+        consecutiveGoodDetectionsRef.current = 0; // Reset good detection counter
+
+        // Only trigger violation after 3 consecutive failures
+        if (consecutiveNoFaceCountRef.current >= 3) {
+          handleViolation('face_lost', { faceCount: 0, confidence: 0 });
+          consecutiveNoFaceCountRef.current = 0; // Reset after violation
+        }
       } else if (detectionResult.faceCount === 0) {
-        // No face detected
-        handleViolation('no_face', { faceCount: 0, confidence: 0 });
+        // No face detected - increment counter
+        consecutiveNoFaceCountRef.current++;
+        consecutiveMultipleFacesCountRef.current = 0; // Reset multiple faces counter
+        consecutiveGoodDetectionsRef.current = 0; // Reset good detection counter
+
+        // Only trigger violation after 3 consecutive failures
+        if (consecutiveNoFaceCountRef.current >= 3) {
+          handleViolation('no_face', { faceCount: 0, confidence: 0 });
+          consecutiveNoFaceCountRef.current = 0; // Reset after violation
+        }
       } else if (detectionResult.faceCount > 1) {
-        // Multiple faces detected
-        handleViolation('multiple_faces', {
-          faceCount: detectionResult.faceCount,
-          confidence: detectionResult.confidence
-        });
+        // Multiple faces detected - increment counter
+        consecutiveMultipleFacesCountRef.current++;
+        consecutiveNoFaceCountRef.current = 0; // Reset no face counter
+        consecutiveGoodDetectionsRef.current = 0; // Reset good detection counter
+
+        // Only trigger violation after 3 consecutive failures
+        if (consecutiveMultipleFacesCountRef.current >= 3) {
+          handleViolation('multiple_faces', {
+            faceCount: detectionResult.faceCount,
+            confidence: detectionResult.confidence
+          });
+          consecutiveMultipleFacesCountRef.current = 0; // Reset after violation
+        }
+      } else if (detectionResult.faceCount === 1) {
+        // Good detection - reset all violation counters and increment good counter
+        consecutiveNoFaceCountRef.current = 0;
+        consecutiveMultipleFacesCountRef.current = 0;
+        consecutiveGoodDetectionsRef.current++;
       }
-      // faceCount === 1 is good, no violation
     }, checkInterval);
 
   }, [isActive, isModelsLoaded, detectFace, checkInterval, handleViolation, startVideoRecording]);

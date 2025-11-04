@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 import { createContext, type FC, type ReactNode, useContext, useEffect, useMemo, useState } from 'react';
 
 export type LanguageCode = 'uz' | 'uz-cyrl' | 'ru';
@@ -39,6 +40,41 @@ const dictionary: Dictionary = {
   },
   'faceVerification.detecting': { uz: 'Yuz aniqlanmoqda...', 'uz-cyrl': 'Юз аниқланмоқда...', ru: 'Обнаружение лица...' },
   'faceVerification.faceDetected': { uz: 'Yuz aniqlandi! Iltimos, harakatsiz turing...', 'uz-cyrl': 'Юз аниқланди! Илтимос, ҳаракатсиз туринг...', ru: 'Лицо обнаружено! Пожалуйста, не двигайтесь...' },
+  'faceVerification.lookCenter': {
+    uz: 'Iltimos, yuzingizni markazga qarating.',
+    'uz-cyrl': 'Илтимос, юзингизни марказга қаратинг.',
+    ru: 'Пожалуйста, смотрите прямо.'
+  },
+  'faceVerification.turnLeft': {
+    uz: 'Iltimos, yuzingizni chap tomonga burang.',
+    'uz-cyrl': 'Илтимос, юзингизни чап томонга буранг.',
+    ru: 'Пожалуйста, поверните лицо влево.'
+  },
+  'faceVerification.turnRight': {
+    uz: 'Iltimos, yuzingizni o\'ng tomonga burang.',
+    'uz-cyrl': 'Илтимос, юзингизни ўнг томонга буранг.',
+    ru: 'Пожалуйста, поверните лицо вправо.'
+  },
+  'faceVerification.verificationComplete': {
+    uz: 'Yuz tekshiruvi yakunlandi!',
+    'uz-cyrl': 'Юз текшируви якунланди!',
+    ru: 'Проверка лица завершена!'
+  },
+  'faceVerification.noFaceDetected': {
+    uz: 'Yuz aniqlanmadi. Iltimos, kameraga qarating.',
+    'uz-cyrl': 'Юз аниқланмади. Илтимос, камерага қаратинг.',
+    ru: 'Лицо не обнаружено. Пожалуйста, смотрите в камеру.'
+  },
+  'faceVerification.multipleFacesDetected': {
+    uz: 'Bir nechta yuz aniqlandi. Iltimos, faqat siz kameraga qarating.',
+    'uz-cyrl': 'Бир нечта юз аниқланди. Илтимос, фақат сиз камерага қаратинг.',
+    ru: 'Обнаружено несколько лиц. Пожалуйста, только вы должны быть в кадре.'
+  },
+  'faceVerification.detectionProgress': {
+    uz: 'Aniqlash jarayoni: {count}/{required}',
+    'uz-cyrl': 'Аниқлаш жараёни: {count}/{required}',
+    ru: 'Прогресс обнаружения: {count}/{required}'
+  },
   'faceVerification.cancel': { uz: 'Bekor qilish', 'uz-cyrl': 'Бекор қилиш', ru: 'Отмена' },
   'faceVerification.cameraAccessDenied': {
     uz: 'Kamera ruxsati rad etildi. Davom etish uchun kameraga ruxsat bering.',
@@ -404,6 +440,62 @@ const dictionary: Dictionary = {
     ru: 'Загружаются данные сессии, пожалуйста подождите...'
   },
   'session.noQuestions': { uz: 'Savollar topilmadi', 'uz-cyrl': 'Саволлар топилмади', ru: 'Вопросы не найдены' },
+  'session.testResults': { uz: 'Test natijalari', 'uz-cyrl': 'Тест натижалари', ru: 'Результаты теста' },
+  'session.violationCases': { uz: 'Qoidabuzarliklar', 'uz-cyrl': 'Қоидабузарликлар', ru: 'Нарушения' },
+  'session.recordingTitle': { uz: 'Video yozuv', 'uz-cyrl': 'Видео ёзув', ru: 'Видеозапись' },
+  'session.recordingProcessing': {
+    uz: 'Video yozuv hali tayyor emas. Iltimos, keyinroq qaytib keling.',
+    'uz-cyrl': 'Видео ёзув ҳали тайёр эмас. Илтимос, кейинроқ қайта келинг.',
+    ru: 'Видеозапись ещё обрабатывается. Пожалуйста, попробуйте позже.'
+  },
+  'session.recordingUnavailable': {
+    uz: 'Video havolasi mavjud emas.',
+    'uz-cyrl': 'Видео ҳаволаси мавжуд эмас.',
+    ru: 'Ссылка на видео отсутствует.'
+  },
+  'session.duration': { uz: 'Davomiylik', 'uz-cyrl': 'Давомийлик', ru: 'Длительность' },
+  'session.fileSize': { uz: 'Fayl hajmi', 'uz-cyrl': 'Файл ҳажми', ru: 'Размер файла' },
+  'session.videoChunks': { uz: 'Video bo\'laklari', 'uz-cyrl': 'Видео бўлаклари', ru: 'Видео-фрагменты' },
+  'session.chunkNumber': { uz: 'Bo\'lak raqami', 'uz-cyrl': 'Бўлак рақами', ru: 'Номер фрагмента' },
+  'session.violationsTitle': { uz: 'Qoidabuzarliklar ro\'yxati', 'uz-cyrl': 'Қоидабузарликлар рўйхати', ru: 'Список нарушений' },
+  'session.faceCount': { uz: 'Yuzlar soni', 'uz-cyrl': 'Юзлар сони', ru: 'Количество лиц' },
+  'session.violationId': { uz: 'Qoidabuzarlik ID', 'uz-cyrl': 'Қоидабузарлик ID', ru: 'ID нарушения' },
+  'session.noViolations': { uz: 'Qoidabuzarliklar topilmadi', 'uz-cyrl': 'Қоидабузарликлар топилмади', ru: 'Нарушения не найдены' },
+  'session.noViolationsDesc': {
+    uz: 'Monitoring davomida hech qanday qoidabuzarlik qayd etilmadi.',
+    'uz-cyrl': 'Мониторинг давомида ҳеч қандай қоидабузарлик қайд этилмади.',
+    ru: 'Во время мониторинга нарушений не обнаружено.'
+  },
+  'session.violationType.no_face': {
+    uz: 'Yuz aniqlanmadi',
+    'uz-cyrl': 'Юз аниқланмади',
+    ru: 'Лицо не обнаружено'
+  },
+  'session.violationType.multiple_faces': {
+    uz: 'Bir nechta yuz',
+    'uz-cyrl': 'Бир нечта юз',
+    ru: 'Несколько лиц'
+  },
+  'session.violationType.multiple_face': {
+    uz: 'Bir nechta yuz',
+    'uz-cyrl': 'Бир нечта юз',
+    ru: 'Несколько лиц'
+  },
+  'session.violationType.face_lost': {
+    uz: 'Yuz yo\'qotildi',
+    'uz-cyrl': 'Юз йўқолди',
+    ru: 'Лицо потеряно'
+  },
+  'session.violationType.tab_switched': {
+    uz: 'Tab almashtirildi',
+    'uz-cyrl': 'Таб алмаштирилди',
+    ru: 'Переключение вкладки'
+  },
+  'session.violationType.switch_tab': {
+    uz: 'Tab almashtirildi',
+    'uz-cyrl': 'Таб алмаштирилди',
+    ru: 'Переключение вкладки'
+  },
 
   // Status translations
   'status.completed': { uz: 'Tugallangan', 'uz-cyrl': 'Тугалланган', ru: 'Завершено' },
@@ -440,13 +532,13 @@ const dictionary: Dictionary = {
   'categories.title': { uz: 'Kategoriyalar', 'uz-cyrl': 'Категориялар', ru: 'Категории' },
   'categories.iqQuestions': { uz: 'Umumiy Kompetensiya', 'uz-cyrl': 'Умумий Компетенция', ru: 'Общая компетенция' },
   'categories.iqQuestionsDesc': {
-    uz: 'Psixologiya, IQ va Xavfsizlik qoidalari bo‘yicha savollarni o‘z ichiga oladi. Fikr yuritish, xulq-atvor va asosiy xavfsizlik bilimlarini baholash uchun mo‘ljallangan. 5 ta savol asosiy ko‘nikmalarni tezkor tekshiradi.',
+    uz: 'Psixologiya, IQ va Xavfsizlik qoidalari bo\'yicha savollarni o\'z ichiga oladi. Fikr yuritish, xulq-atvor va asosiy xavfsizlik bilimlarini baholash uchun mo\'ljallangan. 5 ta savol asosiy ko\'nikmalarni tezkor tekshiradi.',
     'uz-cyrl': 'Психология, IQ ва Хавфсизлик қоидалари бўйича саволларни ўз ичига олади. Фикр юритиш, хулқ-атвор ва асосий хавфсизлик билимларини баҳолаш учун мўлжалланган. 5 та савол асосий кўникмаларни тезкор текширади.',
     ru: 'Включает вопросы по психологии, IQ и правилам безопасности. Предназначена для оценки мышления, поведения и знаний по базовой безопасности. Содержит 5 вопросов для быстрой проверки ключевых навыков.'
   },
-  'categories.mainQuestions': { uz: 'Kasbiy Yo‘nalish', 'uz-cyrl': 'Касбий Йўналиш', ru: 'Профессиональная область' },
+  'categories.mainQuestions': { uz: 'Kasbiy Yo\'nalish', 'uz-cyrl': 'Касбий Йўналиш', ru: 'Профессиональная область' },
   'categories.mainQuestionsDesc': {
-    uz: 'Mazmun tanlangan yo‘nalishga qarab belgilanadi: Suyultirilgan gaz yoki Tabiiy gaz. Maxsus bilimlar, amaliy ko‘nikmalar va soha standartlariga yo‘naltirilgan. 25 ta savol kasbiy kompetensiyani batafsil tekshiradi.',
+    uz: 'Mazmun tanlangan yo\'nalishga qarab belgilanadi: Suyultirilgan gaz yoki Tabiiy gaz. Maxsus bilimlar, amaliy ko\'nikmalar va soha standartlariga yo\'naltirilgan. 25 ta savol kasbiy kompetensiyani batafsil tekshiradi.',
     'uz-cyrl': 'Мазмун танланган йўналишга қараб белгиланади: Суюлтирилган газ ёки Табиий газ. Махсус билимлар, амалий кўникмалар ва соҳа стандартларига йўналтирилган. 25 та савол касбий компетенцияни батафсил текширади.',
     ru: 'Содержание зависит от выбранного направления: Сжиженный газ или Природный газ. Ориентирована на специализированные знания, практические навыки и отраслевые стандарты. Содержит 25 вопросов для детальной проверки профессиональной компетенции.'
   },
@@ -821,7 +913,7 @@ const dictionary: Dictionary = {
 type I18nContextValue = {
   lang: LanguageCode;
   setLang: (l: LanguageCode) => void;
-  t: (key: keyof typeof dictionary, params?: Record<string, string | number>) => string;
+  t: (key: keyof typeof dictionary | string, params?: Record<string, string | number>) => string;
 };
 
 const I18nContext = createContext<I18nContextValue | undefined>(undefined);
@@ -843,7 +935,8 @@ export const I18nProvider: FC<{ children: ReactNode; }> = ({ children }) => {
     lang,
     setLang,
     t: (key, params) => {
-      let text = dictionary?.[key]?.[lang];
+      const dictionaryEntry = dictionary?.[key as keyof typeof dictionary];
+      let text = dictionaryEntry?.[lang] ?? (typeof key === 'string' ? key : '');
       if (params) {
         Object.entries(params).forEach(([paramKey, paramValue]) => {
           text = text.replace(`{${paramKey}}`, String(paramValue));
