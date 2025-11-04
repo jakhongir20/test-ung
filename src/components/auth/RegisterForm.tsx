@@ -247,8 +247,7 @@ export const RegisterForm: FC<Props> = ({ }) => {
         phone: values.login,
         password: values.password,
         name: values.name,
-        position_id: values.position_id,
-        gtf_id: values.gtf_id
+        position_id: values.position_id
       });
       navigate('/', { replace: true });
     } catch (error: any) {
@@ -422,27 +421,7 @@ export const RegisterForm: FC<Props> = ({ }) => {
         {errors.position_id && <p className="text-red-600 text-base mt-1">{errors.position_id.message}</p>}
       </div>
 
-      <div className={'mb-6'}>
-        <label className="block text-base text-black font-medium mb-1.5">{t('auth.branch')}</label>
-        <Controller
-          name="gtf_id"
-          control={control}
-          rules={{ required: t('auth.fieldRequired'), validate: (v: number) => v !== 0 || t('auth.fieldRequired') }}
-          render={({ field }) => (
-            <select {...field} className={authInputStyle} disabled={gtfLoading}>
-              <option value={0}>{t('auth.selectBranch')}</option>
-              {gtfData?.gtf?.map((gtf) => (
-                <option key={gtf.id} value={gtf.id}>
-                  {getLocalizedName(gtf)}
-                </option>
-              ))}
-            </select>
-          )}
-        />
-        {errors.gtf_id && <p className="text-red-600 text-base mt-1">{errors.gtf_id.message}</p>}
-      </div>
-
-      <FormButton isLoading={isSubmitting || positionsLoading || branchesLoading || gtfLoading} title={t('auth.register')} />
+      <FormButton isLoading={isSubmitting || positionsLoading || branchesLoading} title={t('auth.register')} />
 
       <div className="text-center mt-4">
         <p className="text-gray-600 text-base">
