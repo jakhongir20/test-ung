@@ -81,6 +81,66 @@ const dictionary: Dictionary = {
     'uz-cyrl': 'Камера рухсати рад этилди. Давом этиш учун камерага рухсат беринг.',
     ru: 'Доступ к камере запрещен. Пожалуйста, разрешите доступ к камере для продолжения.'
   },
+  'faceVerification.multiStepIntro': {
+    uz: 'Testni boshlash uchun yuzingizni uch bosqichda tekshirish kerak: to\'g\'ri, chap va o\'ng.',
+    'uz-cyrl': 'Тестни бошлаш учун юзингизни уч босқичда текшириш керак: тўғри, чап ва ўнг.',
+    ru: 'Для начала теста необходимо проверить ваше лицо в трех позициях: прямо, влево и вправо.'
+  },
+  'faceVerification.stepProgress': {
+    uz: 'Bosqich {current}/{total}',
+    'uz-cyrl': 'Босқич {current}/{total}',
+    ru: 'Шаг {current}/{total}'
+  },
+  'faceVerification.step.center': {
+    uz: 'Yuzingizni to\'g\'ri qarating',
+    'uz-cyrl': 'Юзингизни тўғри қаратинг',
+    ru: 'Смотрите прямо'
+  },
+  'faceVerification.step.left': {
+    uz: 'Yuzingizni chap tomonga burang',
+    'uz-cyrl': 'Юзингизни чап томонга буранг',
+    ru: 'Поверните лицо влево'
+  },
+  'faceVerification.step.right': {
+    uz: 'Yuzingizni o\'ng tomonga burang',
+    'uz-cyrl': 'Юзингизни ўнг томонга буранг',
+    ru: 'Поверните лицо вправо'
+  },
+  'faceVerification.stepLabel.center': {
+    uz: 'To\'g\'ri',
+    'uz-cyrl': 'Тўғри',
+    ru: 'Прямо'
+  },
+  'faceVerification.stepLabel.left': {
+    uz: 'Chap',
+    'uz-cyrl': 'Чап',
+    ru: 'Влево'
+  },
+  'faceVerification.stepLabel.right': {
+    uz: 'O\'ng',
+    'uz-cyrl': 'Ўнг',
+    ru: 'Вправо'
+  },
+  'faceVerification.noFaceFront': {
+    uz: 'Yuzingiz aniqlanmadi. Iltimos, kameraga to\'g\'ri qarating.',
+    'uz-cyrl': 'Юзингиз аниқланмади. Илтимос, камерага тўғри қаратинг.',
+    ru: 'Ваше лицо не обнаружено. Пожалуйста, смотрите прямо в камеру.'
+  },
+  'faceVerification.multipleFaces': {
+    uz: 'Bir nechta yuz aniqlandi. Iltimos, faqat siz kameraga qarating.',
+    'uz-cyrl': 'Бир нечта юз аниқланди. Илтимос, фақат сиз камерага қаратинг.',
+    ru: 'Обнаружено несколько лиц. Пожалуйста, только вы должны быть в кадре.'
+  },
+  'faceVerification.detectionError': {
+    uz: 'Yuz aniqlashda xatolik yuz berdi. Iltimos, qayta urinib ko\'ring.',
+    'uz-cyrl': 'Юз аниқлашда хатолик юз берди. Илтимос, қайта уриниб кўринг.',
+    ru: 'Произошла ошибка при обнаружении лица. Пожалуйста, попробуйте снова.'
+  },
+  'faceVerification.captureError': {
+    uz: 'Yuz suratini olishda xatolik yuz berdi. Iltimos, qayta urinib ko\'ring.',
+    'uz-cyrl': 'Юз суратини олишда хатолик юз берди. Илтимос, қайта уриниб кўринг.',
+    ru: 'Произошла ошибка при захвате изображения лица. Пожалуйста, попробуйте снова.'
+  },
   'dismiss': { uz: 'Yopish', 'uz-cyrl': 'Ёпиш', ru: 'Закрыть' },
 
   // Face Monitoring
@@ -93,6 +153,11 @@ const dictionary: Dictionary = {
     uz: 'Bir nechta yuz aniqlandi. Iltimos, faqat siz kameraga qarating.',
     'uz-cyrl': 'Бир нечта юз аниқланди. Илтимос, фақат сиз камерага қаратинг.',
     ru: 'Обнаружено несколько лиц. Пожалуйста, только вы должны быть в кадре.'
+  },
+  'faceMonitoring.faceLost': {
+    uz: 'Yuzingiz yo\'qoldi. Iltimos, kameraga qaytib qarating.',
+    'uz-cyrl': 'Юзингиз йўқолди. Илтимос, камерага қайтиб қаратинг.',
+    ru: 'Ваше лицо потеряно. Пожалуйста, вернитесь к камере.'
   },
   'faceMonitoring.tabSwitched': {
     uz: 'Boshqa tab yoki oynaga o\'tish aniqlandi. Iltimos, test sahifasida qoling.',
