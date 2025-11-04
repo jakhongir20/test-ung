@@ -9,10 +9,15 @@ import {
   useSessionProgress,
   useSubmitAnswer
 } from '../api/surveys';
+import { useQueryClient } from '@tanstack/react-query';
+import { customInstance } from '../api/mutator/custom-instance';
 import { handleAuthError } from '../api/auth';
 import { useI18n } from "../i18n.tsx";
 import { ACTION_BTN_STYLES, CARD_STYLES } from "../components/test/test.data.ts";
 import { BackgroundWrapper } from "../components/BackgroundWrapper.tsx";
+import { FaceMonitoring } from "../components/FaceMonitoring.tsx";
+import { FadeIn, PageTransition } from "../components/animations";
+import { useAuthStore } from "../stores/authStore";
 
 type BuiltQuestion = {
   title: string;
@@ -21,6 +26,8 @@ type BuiltQuestion = {
   isOpen: boolean;
   choiceLetterToId: Record<string, number>;
   mediaUrl?: string;
+  // Keep original question object so we can rebuild on language change
+  sourceQuestion: any;
 };
 
 
@@ -30,7 +37,9 @@ const TestPage: FC = () => {
   const [isExpired, setExpired] = useState(false);
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const {t} = useI18n();
+  const { t, lang } = useI18n();
+  const queryClient = useQueryClient();
+  const { user } = useAuthStore();
 
   // Function to determine survey category based on survey data
   const getSurveyCategory = (surveyData: any): string => {
@@ -87,6 +96,10 @@ const TestPage: FC = () => {
   const [navOpen, setNavOpen] = useState(false);
   const hasInitialized = useRef(false); // Track if we've already initialized the current order
 
+  // Face monitoring state
+  const [isFaceMonitoringActive, setIsFaceMonitoringActive] = useState(false);
+  const [faceViolationCount, setFaceViolationCount] = useState(0);
+
   // Get current question using the navigation endpoint - only call when we have valid data
   const questionQuery = useGetQuestion(sessionId, current ?? undefined);
 
@@ -130,12 +143,48 @@ const TestPage: FC = () => {
     if (!hasInitialized.current && current === null) {
       const sessionCurrentOrder = sessionData?.current_question?.order ?? progressData?.session?.current_question?.order;
       if (sessionCurrentOrder) {
-        console.log('Initializing current order to:', sessionCurrentOrder);
+
         setCurrent(sessionCurrentOrder);
         hasInitialized.current = true;
       }
     }
   }, [sessionData, progressData, current]);
+
+  // Start face monitoring when test begins
+  useEffect(() => {
+    if (current !== null && !isExpired) {
+      setIsFaceMonitoringActive(true);
+
+    }
+  }, [current, isExpired]);
+
+  // Face monitoring handlers
+  const handleFaceViolation = (violationType: 'no_face' | 'multiple_faces' | 'face_lost' | 'tab_switched') => {
+
+    setFaceViolationCount(prev => prev + 1);
+  };
+
+  const handleTestTermination = async () => {
+
+    setIsFaceMonitoringActive(false);
+
+    try {
+      // Cancel the session
+      await customInstance({
+        method: 'POST',
+        url: `/api/sessions/${sessionId}/cancel/`
+      });
+
+      // Clear session data
+      localStorage.removeItem('currentSurveySession');
+
+      // Navigate to profile with error message
+      navigate('/profile?error=test_terminated');
+    } catch (error) {
+
+      navigate('/profile?error=test_terminated');
+    }
+  };
 
   // When expired, cleanup and push to profile
   useEffect(() => {
@@ -150,18 +199,18 @@ const TestPage: FC = () => {
     // First try navigation endpoint data
     if (currentQuestionFromNav && !byOrder[currentQuestionFromNav.order]) {
       const built = buildQuestionFrom(currentQuestionFromNav);
-      setByOrder((prev) => ({...prev, [currentQuestionFromNav.order]: built}));
+      setByOrder((prev) => ({ ...prev, [currentQuestionFromNav.order]: built }));
 
       // Load existing answer if available
       if (existingAnswer) {
         if (built.isOpen && existingAnswer.text_answer) {
-          setTextAnswers((prev) => ({...prev, [currentQuestionFromNav.order]: existingAnswer.text_answer}));
+          setTextAnswers((prev) => ({ ...prev, [currentQuestionFromNav.order]: existingAnswer.text_answer }));
         } else if (existingAnswer.choice_ids && existingAnswer.choice_ids.length > 0) {
           // Convert choice IDs back to letters
           const letters = Object.keys(built.choiceLetterToId).filter(letter =>
             existingAnswer.choice_ids.includes(built.choiceLetterToId[letter])
           );
-          setAnswers((prev) => ({...prev, [currentQuestionFromNav.order]: letters}));
+          setAnswers((prev) => ({ ...prev, [currentQuestionFromNav.order]: letters }));
         }
       }
       return;
@@ -171,7 +220,7 @@ const TestPage: FC = () => {
     const currentQ = sessionData?.current_question;
     if (currentQ && !byOrder[currentQ.order]) {
       const built = buildQuestionFrom(currentQ);
-      setByOrder((prev) => ({...prev, [currentQ.order]: built}));
+      setByOrder((prev) => ({ ...prev, [currentQ.order]: built }));
       setCurrent(currentQ.order);
       return;
     }
@@ -182,7 +231,7 @@ const TestPage: FC = () => {
       const startQ = (storedSession as any)?.current_question;
       if (startQ && !byOrder[startQ.order]) {
         const built = buildQuestionFrom(startQ);
-        setByOrder((prev) => ({...prev, [startQ.order]: built}));
+        setByOrder((prev) => ({ ...prev, [startQ.order]: built }));
         setCurrent(startQ.order);
       }
     } catch {
@@ -190,6 +239,21 @@ const TestPage: FC = () => {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentQuestionFromNav, existingAnswer, sessionData, sessionId]);
+
+  function getLocalizedText(entity: any): string {
+    if (!entity) return '';
+    const byLang: Record<string, string | undefined> = {
+      uz: entity.text_uz,
+      'uz-cyrl': entity.text_uz_cyrl,
+      ru: entity.text_ru,
+    };
+    const candidate = byLang[lang];
+    return (
+      (typeof candidate === 'string' && candidate.trim().length > 0 ? candidate : undefined) ||
+      (typeof entity.text === 'string' && entity.text.trim().length > 0 ? entity.text : undefined) ||
+      entity.text_ru || entity.text_uz || entity.text_uz_cyrl || ''
+    );
+  }
 
   function buildQuestionFrom(qObj: any): BuiltQuestion {
     const q = qObj.question ?? qObj; // accept either wrapper or plain
@@ -199,17 +263,31 @@ const TestPage: FC = () => {
     const options: Option[] = isOpen ? [] : (q.choices ?? []).sort((a: any, b: any) => (a.order ?? 0) - (b.order ?? 0)).map((c: any, idx: number) => {
       const key = letters[idx] ?? String(idx + 1);
       choiceLetterToId[key] = c.id;
-      return {key, label: c.text};
+      return { key, label: getLocalizedText(c) };
     });
     return {
-      title: q.text,
+      title: getLocalizedText(q),
       options,
       multiple: q.question_type === 'multiple',
       isOpen,
       choiceLetterToId,
-      mediaUrl: q.image ?? undefined
+      mediaUrl: q.image ?? undefined,
+      sourceQuestion: qObj,
     };
   }
+
+  // When language changes, rebuild the cached questions using their source
+  useEffect(() => {
+    setByOrder((prev) => {
+      const next: Record<number, BuiltQuestion> = {};
+      for (const [orderStr, built] of Object.entries(prev)) {
+        const orderNum = Number(orderStr);
+        const rebuilt = built?.sourceQuestion ? buildQuestionFrom(built.sourceQuestion) : built;
+        next[orderNum] = rebuilt;
+      }
+      return next;
+    });
+  }, [lang]);
 
   // Use navigation endpoint data as primary source, fallback to session data
   const currentQuestion = currentQuestionFromNav ?? sessionData?.current_question ?? progressData?.session?.current_question;
@@ -217,6 +295,56 @@ const TestPage: FC = () => {
   const built = byOrder[order];
   const selected = answers[order] || [];
   const textAnswer = textAnswers[order] || '';
+
+  // Ensure we have valid values for ProgressBar
+  const safeOrder = Math.max(order, 1);
+  const safeTotal = Math.max(total, 1);
+
+  // Prefetch next question for smoother navigation
+  useEffect(() => {
+    if (sessionId && navigationData?.has_next && navigationData.next_order) {
+      const nextOrder = navigationData.next_order;
+
+      // Only prefetch if we don't already have this question cached
+      if (!byOrder[nextOrder]) {
+        queryClient.prefetchQuery({
+          queryKey: ['sessionsGetQuestionRetrieve', sessionId, { order: nextOrder }],
+          queryFn: async () => {
+            const response = await customInstance({
+              method: 'GET',
+              url: `/api/sessions/${sessionId}/get_question/`,
+              params: { order: nextOrder }
+            });
+            return response;
+          },
+          staleTime: 5 * 60 * 1000, // 5 minutes
+          gcTime: 10 * 60 * 1000, // 10 minutes
+        });
+      }
+    }
+
+    // Also prefetch previous question for smoother backward navigation
+    if (sessionId && navigationData?.has_previous && navigationData.previous_order) {
+      const prevOrder = navigationData.previous_order;
+
+      // Only prefetch if we don't already have this question cached
+      if (!byOrder[prevOrder]) {
+        queryClient.prefetchQuery({
+          queryKey: ['sessionsGetQuestionRetrieve', sessionId, { order: prevOrder }],
+          queryFn: async () => {
+            const response = await customInstance({
+              method: 'GET',
+              url: `/api/sessions/${sessionId}/get_question/`,
+              params: { order: prevOrder }
+            });
+            return response;
+          },
+          staleTime: 5 * 60 * 1000, // 5 minutes
+          gcTime: 10 * 60 * 1000, // 10 minutes
+        });
+      }
+    }
+  }, [sessionId, navigationData?.has_next, navigationData?.next_order, navigationData?.has_previous, navigationData?.previous_order, byOrder, queryClient]);
 
   // Check if current question has any answers selected
   const hasAnswers = built?.isOpen ? textAnswer.trim().length > 0 : selected.length > 0;
@@ -230,12 +358,12 @@ const TestPage: FC = () => {
       const next = (built?.multiple ?? false)
         ? cur.includes(key) ? cur.filter((k) => k !== key) : [...cur, key]
         : [key];
-      return {...prev, [order]: next};
+      return { ...prev, [order]: next };
     });
   }
 
   function handleTextChange(value: string) {
-    setTextAnswers((prev) => ({...prev, [order]: value}));
+    setTextAnswers((prev) => ({ ...prev, [order]: value }));
   }
 
   const [isFinishing, setIsFinishing] = useState(false);
@@ -243,18 +371,17 @@ const TestPage: FC = () => {
   async function finishTest() {
     if (!sessionId) {
       alert('No active session to finish');
-      return
+      return;
     }
 
     setIsFinishing(true);
     try {
-      console.log('Manually finishing session:', sessionId);
+
       await finishSession.mutateAsync(sessionId);
       // Clean up and navigate to main page
       localStorage.removeItem('currentSurveySession');
       navigate('/');
     } catch (error) {
-      console.error('Manual finish error:', error);
 
       // Check if it's an authentication error and handle it
       if (handleAuthError(error)) {
@@ -265,7 +392,7 @@ const TestPage: FC = () => {
       localStorage.removeItem('currentSurveySession');
       navigate('/');
     } finally {
-      setIsFinishing(false)
+      setIsFinishing(false);
     }
   }
 
@@ -277,7 +404,7 @@ const TestPage: FC = () => {
         const currentQuestionId = currentQuestionFromNav?.question?.id ?? currentQuestion?.question?.id;
 
         if (!currentQuestionId) {
-          console.error('No question ID found for submission');
+
           return;
         }
 
@@ -289,7 +416,7 @@ const TestPage: FC = () => {
           // For open-ended questions, submit text answer
           const trimmedAnswer = textAnswer.trim();
           if (trimmedAnswer.length === 0) {
-            console.error('Empty text answer');
+
             return;
           }
           payload.text_answer = trimmedAnswer;
@@ -297,22 +424,21 @@ const TestPage: FC = () => {
           // For multiple choice questions, submit choice IDs
           const choiceIds = selected.map((letter) => built.choiceLetterToId[letter]).filter(Boolean);
           if (choiceIds.length === 0) {
-            console.error('No valid choice IDs');
+
             return;
           }
           payload.choice_ids = choiceIds;
         }
 
         try {
-          console.log('Submitting answer:', {sessionId, payload});
-          const res: any = await submitAnswer.mutateAsync({sessionId, payload});
-          console.log('Submit response:', res);
+
+          const res: any = await submitAnswer.mutateAsync({ sessionId, payload });
 
           // Check if this was the last question and if the session was automatically finished
           if (isLastQuestion) {
             // If final_score is present in the response, the session was automatically finished
             if (res?.final_score) {
-              console.log('Session automatically finished by submit_answer');
+
               // Clean up and navigate to main page
               localStorage.removeItem('currentSurveySession');
               navigate('/');
@@ -320,16 +446,14 @@ const TestPage: FC = () => {
             } else {
               // Manually finish the session if it wasn't automatically finished
               try {
-                console.log('Manually finishing session:', sessionId);
+
                 const finishRes = await finishSession.mutateAsync(sessionId);
-                console.log('Finish response:', finishRes);
 
                 // Clean up and navigate to main page
                 localStorage.removeItem('currentSurveySession');
                 navigate('/');
                 return;
               } catch (finishError) {
-                console.error('Finish session error:', finishError);
 
                 // Check if it's an authentication error and handle it
                 if (handleAuthError(finishError)) {
@@ -349,7 +473,7 @@ const TestPage: FC = () => {
             const nextQ = res.session.current_question;
             if (nextQ.order) {
               const bq = buildQuestionFrom(nextQ);
-              setByOrder((prev) => ({...prev, [nextQ.order]: bq}));
+              setByOrder((prev) => ({ ...prev, [nextQ.order]: bq }));
               setCurrent(nextQ.order);
             }
           }
@@ -358,7 +482,6 @@ const TestPage: FC = () => {
           await sessionQuery.refetch();
           await progressQuery.refetch();
         } catch (error) {
-          console.error('Submit answer error:', error);
 
           // Check if it's an authentication error and handle it
           if (handleAuthError(error)) {
@@ -382,7 +505,7 @@ const TestPage: FC = () => {
   }
 
   const questionsData = progressData?.questions ?? [];
-  const answeredFlags = Array.from({length: Math.max(total, 0)}).map((_, i) => !!answers[i + 1]?.length || !!questionsData[i]?.is_answered);
+  const answeredFlags = Array.from({ length: Math.max(total, 0) }).map((_, i) => !!answers[i + 1]?.length || !!questionsData[i]?.is_answered);
 
 
   // Show error state
@@ -393,7 +516,7 @@ const TestPage: FC = () => {
           <div className="w-16 h-16 mx-auto mb-4 bg-red-100 rounded-full flex items-center justify-center">
             <svg className="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"/>
+                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
             </svg>
           </div>
           <h2 className="text-xl font-semibold text-gray-900 mb-2">{t('error.connection')}</h2>
@@ -411,128 +534,167 @@ const TestPage: FC = () => {
     );
   }
 
-  // Show loading state
-  if (isLoading || current === null) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="max-w-md mx-auto bg-white rounded-lg shadow-lg p-6 text-center">
-          <div className="w-16 h-16 mx-auto mb-4 bg-cyan-100 rounded-full flex items-center justify-center">
-            <svg className="w-8 h-8 text-cyan-600 animate-spin" fill="none" viewBox="0 0 24 24">
-              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-              <path className="opacity-75" fill="currentColor"
-                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-            </svg>
-          </div>
-          <h2 className="text-xl font-semibold text-gray-900 mb-2">{t('loading.test')}</h2>
-          <p className="text-gray-600">
-            {t('loading.testDesc')}
-          </p>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <BackgroundWrapper>
-      <div className="space-y-4 relative py-4 md:p-6">
-        {/* Debug panel - remove in production */}
-        {/*{process.env.NODE_ENV === 'development' && (*/}
-        {/*  <div className="bg-gray-100 p-4 rounded-lg text-xs">*/}
-        {/*    <div><strong>Debug Info:</strong></div>*/}
-        {/*    <div>Current Order: {current}</div>*/}
-        {/*    <div>Session ID: {sessionId}</div>*/}
-        {/*    <div>Question ID: {currentQuestionFromNav?.question?.id}</div>*/}
-        {/*    <div>Navigation: {JSON.stringify(navigationData)}</div>*/}
-        {/*    <div>Has Answers: {hasAnswers}</div>*/}
-        {/*    <div>Selected: {JSON.stringify(selected)}</div>*/}
-        {/*    <div>Text Answer: {textAnswer}</div>*/}
-        {/*    <div>Is Last Question: {isLastQuestion}</div>*/}
-        {/*    <div>Expires At: {expiresAtIso}</div>*/}
-        {/*    <div>Expires At Ms: {expiresAtMs}</div>*/}
-        {/*    <div>Time*/}
-        {/*      Remaining: {expiresAtMs ? Math.max(0, Math.floor((expiresAtMs - Date.now()) / 1000 / 60)) : 'N/A'} minutes*/}
-        {/*    </div>*/}
-        {/*  </div>*/}
-        {/*)}*/}
+      <PageTransition>
+        <div className="space-y-4 relative py-4 md:p-6">
 
-        {/* Progress Bar */}
-        <ProgressBar
-          title={getSurveyCategory(sessionData?.survey?.time_limit_minutes)}
-          current={order}
-          total={total}
-          isFinishing={isFinishing}
-          endTime={expiresAtMs}
-          timeLimitMinutes={sessionData?.survey?.time_limit_minutes}
-          onExpire={() => setExpired(true)}
-          onFinish={finishTest}
-        />
+          {/* Progress Bar */}
+          <FadeIn delay={100}>
+            <ProgressBar
+              title={getSurveyCategory(sessionData?.survey?.time_limit_minutes)}
+              current={safeOrder}
+              total={safeTotal}
+              isFinishing={isFinishing}
+              endTime={expiresAtMs}
+              timeLimitMinutes={sessionData?.survey?.time_limit_minutes}
+              onExpire={() => setExpired(true)}
+              onFinish={finishTest}
+            />
+          </FadeIn>
 
-        {built ? (
-          <QuestionCard
-            index={order}
-            title={built.title}
-            options={built.options}
-            selectedKeys={selected}
-            multiple={built.multiple}
-            isOpen={built.isOpen}
-            textAnswer={textAnswer}
-            onToggle={toggleOption}
-            onTextChange={handleTextChange}
-            media={built.mediaUrl ? (
-              <div className="aspect-video mb-4 md:mb-0 w-full h-full rounded-xl overflow-hidden bg-gray-100">
-                <img
-                  src={built.mediaUrl}
-                  onError={e => {
-                    (e.currentTarget as HTMLImageElement).src = '/test-image.png';
+          {built ? (
+            <FadeIn delay={200} direction="top">
+              <QuestionCard
+                index={order}
+                title={built.title}
+                options={built.options}
+                selectedKeys={selected}
+                multiple={built.multiple}
+                isOpen={built.isOpen}
+                textAnswer={textAnswer}
+                onToggle={toggleOption}
+                onTextChange={handleTextChange}
+                media={built.mediaUrl ? (
+                  <div className="aspect-video mb-4 md:mb-0 w-full h-full rounded-xl overflow-hidden bg-gray-100">
+                    <img
+                      src={built.mediaUrl}
+                      onError={e => {
+                        (e.currentTarget as HTMLImageElement).src = '/test-image.png';
+                      }}
+                      className="h-full w-full object-cover"
+                      alt="media"
+                    /></div>
+                ) : null}
+              />
+            </FadeIn>
+          ) : (
+            <section className="rounded-2xl bg-white shadow-sm ring-1 ring-gray-200 p-6">
+              <div className="animate-pulse">
+                {/* Question number skeleton */}
+                <div className="h-6 bg-gray-200 rounded w-20 mb-4"></div>
+
+                {/* Question title skeleton */}
+                <div className="space-y-2 mb-6">
+                  <div className="h-4 bg-gray-200 rounded w-full"></div>
+                  <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+                  <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+                </div>
+
+                {/* Answer options skeleton */}
+                <div className="space-y-3">
+                  {[1, 2, 3, 4].map((i) => (
+                    <div key={i} className="flex items-center space-x-3">
+                      <div className="w-6 h-6 bg-gray-200 rounded-full"></div>
+                      <div className="h-4 bg-gray-200 rounded w-full"></div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Loading text */}
+                <div className="mt-6 text-center">
+                  <div className="inline-flex items-center space-x-2 text-gray-500">
+                    <div className="w-4 h-4 border-2 border-gray-300 border-t-blue-600 rounded-full animate-spin"></div>
+                    <span>{t('test.loadingQuestion')}</span>
+                  </div>
+                </div>
+              </div>
+            </section>
+          )}
+
+          <div className="relative">
+            <div className={`${CARD_STYLES} !flex-row !py-6`}>
+              <button
+                onClick={() => setNavOpen((v) => !v)}
+                className={ACTION_BTN_STYLES}>
+                {t('test.questionOf', { current: safeOrder, total: safeTotal })}
+                <img src="/icon/arrow-t.svg" alt="" />
+              </button>
+              <div className="flex items-center gap-2">
+                <button
+                  disabled={isExpired || !navigationData?.has_previous}
+                  onClick={() => go(-1)}
+                  className={`${ACTION_BTN_STYLES} !bg-[#00A2DE] text-white`}>
+                  <img src={'/icon/arrow-l-w.svg'} alt={'icon left'} />
+                </button>
+                <button
+                  disabled={isExpired || !hasAnswers || isLoading}
+                  onClick={() => go(1)}
+                  onMouseEnter={() => {
+                    // Prefetch next question on hover for even smoother experience
+                    if (!isLastQuestion && sessionId && navigationData?.has_next && navigationData.next_order) {
+                      const nextOrder = navigationData.next_order;
+                      if (!byOrder[nextOrder]) {
+                        queryClient.prefetchQuery({
+                          queryKey: ['sessionsGetQuestionRetrieve', sessionId, { order: nextOrder }],
+                          queryFn: async () => {
+                            const response = await customInstance({
+                              method: 'GET',
+                              url: `/api/sessions/${sessionId}/get_question/`,
+                              params: { order: nextOrder }
+                            });
+                            return response;
+                          },
+                          staleTime: 5 * 60 * 1000,
+                          gcTime: 10 * 60 * 1000,
+                        });
+                      }
+                    }
                   }}
-                  className="h-full w-full object-cover"
-                  alt="media"
-                /></div>
-            ) : null}
-          />
-        ) : (
-          <section
-            className="rounded-2xl bg-white shadow-sm ring-1 ring-gray-200 p-6">{t('test.loadingQuestion')}</section>
-        )}
-
-        <div className="relative">
-          <div className={`${CARD_STYLES} !flex-row !py-6`}>
-            <button
-              onClick={() => setNavOpen((v) => !v)}
-              className={ACTION_BTN_STYLES}>
-              {t('test.questionOf', {current: order, total})}
-              <img src="/icon/arrow-t.svg" alt=""/>
-            </button>
-            <div className="flex items-center gap-2">
-              <button
-                disabled={isExpired || !navigationData?.has_previous}
-                onClick={() => go(-1)}
-                className={`${ACTION_BTN_STYLES} !bg-[#00A2DE] text-white`}>
-                <img src={'/icon/arrow-l-w.svg'} alt={'icon left'}/>
-              </button>
-              <button
-                disabled={isExpired || !hasAnswers}
-                onClick={() => go(1)}
-                className={`${ACTION_BTN_STYLES} !bg-[#00A2DE] text-white !text-base ${isExpired || !hasAnswers ? 'opacity-50 !cursor-not-allowed' : ''}`}>
-                {isLastQuestion ? t('test.finish') : t('test.next')}
-                {!isLastQuestion && <img src={'/icon/arrow-r-w.svg'} alt={'icon left'}/>}
-              </button>
+                  className={`${ACTION_BTN_STYLES} !bg-[#00A2DE] text-white !text-base ${isExpired || !hasAnswers || isLoading ? 'opacity-50 !cursor-not-allowed' : ''}`}>
+                  {isLoading ? (
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  ) : (
+                    <>
+                      <span className={'md:inline hidden'}>{isLastQuestion ? t('test.finish') : t('test.next')}</span>
+                      {!isLastQuestion ? <img src={'/icon/arrow-r-w.svg'} alt={'icon left'} /> :
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <path
+                            d="M7.24967 9.99999L9.08301 11.8333L12.7497 8.16666M19.1663 9.99999C19.1663 15.0626 15.0623 19.1667 9.99967 19.1667C4.93706 19.1667 0.833008 15.0626 0.833008 9.99999C0.833008 4.93738 4.93706 0.833328 9.99967 0.833328C15.0623 0.833328 19.1663 4.93738 19.1663 9.99999Z"
+                            stroke="#ffffff" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                        </svg>
+                      }
+                    </>
+                  )}
+                </button>
+              </div>
             </div>
+
+            <QuestionNavigator
+              total={safeTotal}
+              currentIndex={Math.max(safeOrder - 1, 0)} // Convert order to zero-based index for navigator
+              answered={answeredFlags}
+              open={navOpen}
+              onClose={() => setNavOpen(false)}
+              onSelect={(i) => setCurrent(i + 1)} // Convert zero-based index back to order
+              variant="popup"
+            />
+
+            {/* Docked or second navigator removed */}
           </div>
-
-          <QuestionNavigator
-            total={total}
-            currentIndex={Math.max(order - 1, 0)} // Convert order to zero-based index for navigator
-            answered={answeredFlags}
-            open={navOpen}
-            onClose={() => setNavOpen(false)}
-            onSelect={(i) => setCurrent(i + 1)} // Convert zero-based index back to order
-            variant="popup"
-          />
-
-          {/* Docked or second navigator removed */}
         </div>
-      </div>
+      </PageTransition>
+
+      {/* Face Monitoring Component */}
+      <FaceMonitoring
+        isActive={isFaceMonitoringActive}
+        sessionId={sessionId || ''}
+        userId={user?.id?.toString()}
+        onViolation={handleFaceViolation}
+        onTestTerminated={handleTestTermination}
+        checkInterval={10000} // Check every 10 seconds
+      />
     </BackgroundWrapper>
   );
 };

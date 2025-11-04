@@ -222,7 +222,6 @@ export const DataTable: FC<DataTableProps> = ({
               <img src="/icon/arrow-r.svg" alt=""/>
             </button>
           </div>
-
           <div className="text-base text-gray-700">
             {t('table.results')}: {startIndex + 1}-{Math.min(endIndex, data.length)} of {data.length}
           </div>

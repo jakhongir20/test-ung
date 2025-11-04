@@ -1,12 +1,32 @@
-import { useSurveysStartCreate, useSessionsProgressRetrieve, useSessionsSubmitAnswerCreate, useCurrentSessionRetrieve, useSessionsRetrieve, useSessionsGetQuestionRetrieve, useSessionsFinishCreate } from './generated/respondentWebAPI'
-import { useMutation, useQuery } from '@tanstack/react-query'
-import { customInstance } from './mutator/custom-instance'
+import {
+  useSurveysStartCreate,
+  useSessionsProgressRetrieve,
+  useSessionsSubmitAnswerCreate,
+  useCurrentSessionRetrieve,
+  useSessionsRetrieve,
+  useSessionsGetQuestionRetrieve,
+  useSessionsFinishCreate,
+  useProctorVerifyInitialCreate,
+  useProctorHeartbeatCreate,
+  useProctorRecordViolationCreate,
+  useProctorUploadRecordingCreate,
+  useProctorUploadChunkCreate,
+  useModeratorUsersFlaggedSessionsRetrieve,
+  useModeratorUsersSessionViolationsRetrieve,
+  useModeratorUsersReviewSessionCreate,
+} from './generated/respondentWebAPI';
+import { useMutation, useQuery } from '@tanstack/react-query';
+import { customInstance } from './mutator/custom-instance';
 
 export function useStartSurvey() {
-  const m = useSurveysStartCreate()
+  const m = useSurveysStartCreate();
   return useMutation({
-    mutationFn: (args: { id: number; count?: number }) => m.mutateAsync({ id: args.id, data: { questions_count: args.count ?? 30 } }),
-  })
+    mutationFn: (args: { id: number; count?: number }) =>
+      m.mutateAsync({
+        id: args.id,
+        data: { questions_count: args.count ?? 30 },
+      }),
+  });
 }
 
 export function useSessionProgress(sessionId?: string) {
@@ -14,51 +34,109 @@ export function useSessionProgress(sessionId?: string) {
     query: {
       enabled: !!sessionId,
       retry: 1,
-      retryDelay: 1000
-    }
-  })
+      retryDelay: 1000,
+    },
+  });
 }
 
 export function useSubmitAnswer() {
-  const m = useSessionsSubmitAnswerCreate()
+  const m = useSessionsSubmitAnswerCreate();
   return useMutation({
-    mutationFn: (args: { sessionId: string; payload: any }) => m.mutateAsync({ id: args.sessionId, data: args.payload }),
-  })
+    mutationFn: (args: { sessionId: string; payload: unknown }) =>
+      m.mutateAsync({ id: args.sessionId, data: args.payload }),
+  });
 }
 
 export function useCurrentSession() {
-  return useCurrentSessionRetrieve()
+  return useCurrentSessionRetrieve();
 }
 
 export function useSessionDetails(sessionId?: string) {
-  return useSessionsRetrieve(sessionId ?? '', { 
-    query: { 
+  return useSessionsRetrieve(sessionId ?? '', {
+    query: {
       enabled: !!sessionId,
       retry: 1,
-      retryDelay: 1000
-    } 
-  })
+      retryDelay: 1000,
+    },
+  });
 }
 
 export function useGetQuestion(sessionId?: string, order?: number) {
   return useSessionsGetQuestionRetrieve(
-    sessionId ?? '', 
-    { order: order ?? 1 }, 
-    { 
-      query: { 
+    sessionId ?? '',
+    { order: order ?? 1 },
+    {
+      query: {
         enabled: !!sessionId && !!order && order > 0,
         retry: 1, // Only retry once on failure
-        retryDelay: 1000 // Wait 1 second before retry
-      } 
+        retryDelay: 1000, // Wait 1 second before retry
+      },
     }
-  )
+  );
 }
 
 export function useFinishSession() {
-  const m = useSessionsFinishCreate()
+  const m = useSessionsFinishCreate();
   return useMutation({
-    mutationFn: (sessionId: string) => m.mutateAsync({ id: sessionId, data: { expires_at: new Date().toISOString() } }),
-  })
+    mutationFn: (sessionId: string) =>
+      m.mutateAsync({
+        id: sessionId,
+        data: { expires_at: new Date().toISOString() },
+      }),
+  });
+}
+
+// Proctor API endpoints for face ID monitoring - using generated methods
+export function useProctorVerifyInitial() {
+  return useProctorVerifyInitialCreate();
+}
+
+export function useProctorHeartbeat() {
+  return useProctorHeartbeatCreate();
+}
+
+export function useProctorRecordViolation() {
+  return useProctorRecordViolationCreate();
+}
+
+export function useProctorUploadRecording() {
+  return useProctorUploadRecordingCreate();
+}
+
+export function useProctorUploadChunk() {
+  return useProctorUploadChunkCreate();
+}
+
+// Moderator API endpoints - using generated methods
+export function useModeratorFlaggedSessions() {
+  return useModeratorUsersFlaggedSessionsRetrieve({
+    query: {
+      refetchInterval: 30000, // Check every 30 seconds
+      retry: 1,
+    },
+  });
+}
+
+export function useModeratorSessionViolations(sessionId?: string) {
+  return useModeratorUsersSessionViolationsRetrieve(sessionId || '', {
+    query: {
+      enabled: !!sessionId,
+      retry: 1,
+    },
+  });
+}
+
+export function useModeratorReviewSession() {
+  return useModeratorUsersReviewSessionCreate();
+}
+
+// Legacy methods for backward compatibility (can be removed later)
+export function useReportViolation() {
+  return useProctorRecordViolation();
+}
+
+export function useGetViolationCount(sessionId?: string) {
+  return useModeratorSessionViolations(sessionId);
 }
 
 // Custom sessions API implementation since orval didn't generate it
@@ -76,7 +154,7 @@ interface SessionSurvey {
 interface Session {
   id: string;
   survey: SessionSurvey;
-  status: "started" | "completed" | "cancelled" | "expired";
+  status: 'started' | 'completed' | 'cancelled' | 'expired';
   attempt_number: number;
   started_at: string;
   expires_at: string;
@@ -104,8 +182,6 @@ export function useMyHistory() {
     queryFn: fetchSessions,
     enabled: true,
     retry: 1,
-    retryDelay: 1000
+    retryDelay: 1000,
   });
 }
-
-

@@ -3,7 +3,7 @@ import React, { useRef } from 'react';
 import { Controller, useForm } from "react-hook-form";
 import { useI18n } from "../i18n";
 import { logout, useUpdateUserProfile } from "../api/auth";
-import { useUsersMeRetrieve } from "../api/generated/respondentWebAPI";
+import { useUsersMeRetrieve, usePositionsRetrieve, useGtfRetrieve } from "../api/generated/respondentWebAPI";
 
 interface Props {
   isOpen: boolean;
@@ -18,15 +18,19 @@ type SettingsFormValues = {
   work_domain: 'natural_gas' | 'lpg_gas';
 };
 
-export const SettingsModal: FC<Props> = ({isOpen, onClose}) => {
-  const {t, lang} = useI18n();
-  const {data: user} = useUsersMeRetrieve();
+export const SettingsModal: FC<Props> = ({ isOpen, onClose }) => {
+  const { t, lang } = useI18n();
+  const { data: user } = useUsersMeRetrieve();
   const updateProfile = useUpdateUserProfile();
+
+  // Fetch positions and GTF from API
+  const { data: positionsData, isLoading: positionsLoading, error: positionsError } = usePositionsRetrieve();
+  const { data: gtfData } = useGtfRetrieve();
 
   const {
     control,
     handleSubmit,
-    formState: {errors, isSubmitting},
+    formState: { errors, isSubmitting },
     setError,
     clearErrors,
     reset,
@@ -43,18 +47,45 @@ export const SettingsModal: FC<Props> = ({isOpen, onClose}) => {
 
   const prevLangRef = useRef(lang);
 
+  // Helper function to get localized name
+  const getLocalizedName = (item: any) => {
+    switch (lang) {
+      case 'uz':
+        return item.name_uz || item.name_uz_cyrl || item.name_ru || 'N/A';
+      case 'uz-cyrl':
+        return item.name_uz_cyrl || item.name_uz || item.name_ru || 'N/A';
+      case 'ru':
+        return item.name_ru || item.name_uz || item.name_uz_cyrl || 'N/A';
+      default:
+        return item.name_uz || item.name_uz_cyrl || item.name_ru || 'N/A';
+    }
+  };
+
   // Reset form when user data changes
   React.useEffect(() => {
-    if (user) {
+    if (user && positionsData && gtfData) {
+      // Find the correct position and branch IDs based on user data
+      const userPosition = positionsData.positions?.find((pos: any) =>
+        pos.name_uz === user.position ||
+        pos.name_uz_cyrl === user.position ||
+        pos.name_ru === user.position
+      );
+
+      const userBranch = gtfData.gtf?.find((b: any) =>
+        b.name_uz === user.branch ||
+        b.name_uz_cyrl === user.branch ||
+        b.name_ru === user.branch
+      );
+
       reset({
         name: user.name || '',
-        branch: user.branch || '',
-        position: user.position || '',
+        branch: userBranch?.id?.toString() || user.branch || '',
+        position: userPosition?.id?.toString() || user.position || '',
         employee_level: ((user as any).employee_level as 'junior' | 'engineer') || 'junior',
         work_domain: ((user as any).work_domain as 'natural_gas' | 'lpg_gas') || 'natural_gas'
       });
     }
-  }, [user, reset]);
+  }, [user, reset, positionsData, gtfData]);
 
   // Update validation messages when language changes
   React.useEffect(() => {
@@ -71,21 +102,21 @@ export const SettingsModal: FC<Props> = ({isOpen, onClose}) => {
     try {
       clearErrors();
 
+      // Find the actual names for the selected IDs
+      const selectedPosition = positionsData?.positions?.find((pos: any) => pos.id.toString() === data.position);
+      const selectedBranch = gtfData?.gtf?.find((b: any) => b.id.toString() === data.branch);
+
       await updateProfile.mutateAsync({
         name: data.name.trim(),
-        branch: data.branch.trim(),
-        position: data.position.trim(),
-        employee_level: data.employee_level,
-        work_domain: data.work_domain
+        branch: selectedBranch ? getLocalizedName(selectedBranch) : data.branch.trim(),
+        position: selectedPosition ? getLocalizedName(selectedPosition) : data.position.trim()
       });
 
       // Show success message (you could add a toast notification here)
-      console.log(t('settings.saveSuccess'));
 
       // Close modal on success
       onClose();
     } catch (error: any) {
-      console.error('Error updating profile:', error);
 
       // Handle API errors
       if (error?.response?.data?.name) {
@@ -134,12 +165,48 @@ export const SettingsModal: FC<Props> = ({isOpen, onClose}) => {
     logout();
   };
 
+  // Show error if API calls failed
+  if (positionsError) {
+    return (
+      <div className="fixed inset-0 h-screen w-full top-0 bottom-0 left-0 right-0 z-20">
+        <div className="absolute inset-0 bg-black/30" onClick={onClose} />
+        <div className="absolute right-4 top-4 bottom-4 w-[min(450px,95vw)] overflow-hidden rounded-xl md:rounded-[16px] bg-white ring-1 ring-gray-200 shadow-xl">
+          <div className="flex flex-col h-full">
+            <div className="flex items-start justify-between px-6 py-6">
+              <h4 className="text-xl font-semibold">{t('settings.title')}</h4>
+              <button
+                onClick={onClose}
+                className="inline-flex h-6 w-6 items-center justify-center rounded ring-1 ring-gray-200 hover:bg-gray-50"
+                aria-label={t('close')}
+              >
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div className="flex-1 px-6 pb-6 flex items-center justify-center">
+              <div className="text-center">
+                <div className="text-red-600 text-base mb-4">
+                  {t('error.connectionDesc')}
+                </div>
+                <button
+                  onClick={() => window.location.reload()}
+                  className="bg-cyan-600 text-white px-4 py-2 rounded-lg hover:bg-cyan-700"
+                >
+                  {t('retry')}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 h-screen w-full top-0 bottom-0 left-0 right-0 z-20 ">
       {/* Backdrop */}
-      <div className="absolute inset-0 bg-black/30" onClick={onClose}/>
+      <div className="absolute inset-0 bg-black/30" onClick={onClose} />
 
       {/* Drawer */}
       <div
@@ -166,8 +233,8 @@ export const SettingsModal: FC<Props> = ({isOpen, onClose}) => {
                 <Controller
                   name="name"
                   control={control}
-                  rules={{required: t('settings.fullNameRequired')}}
-                  render={({field}) => (
+                  rules={{ required: t('settings.fullNameRequired') }}
+                  render={({ field }) => (
                     <input
                       {...field}
                       type="text"
@@ -182,28 +249,32 @@ export const SettingsModal: FC<Props> = ({isOpen, onClose}) => {
                 )}
               </div>
 
-              {/* Branch Field */}
-              <div>
+              {/* Branch Field (temporarily hidden) */}
+              {false && (<div>
                 <div className="text-base text-gray-500 mb-2">{t('settings.branch')}</div>
                 <Controller
                   name="branch"
                   control={control}
-                  rules={{required: t('settings.branchRequired')}}
-                  render={({field}) => (
+                  rules={{ required: t('settings.branchRequired') }}
+                  render={({ field }) => (
                     <select
                       {...field}
+                      disabled={false}
                       className={`w-full px-4 py-3 border border-gray-300 rounded-lg text-base focus:outline-none focus:ring-2 focus:ring-[#00A2DE] focus:border-[#00A2DE] bg-white ${errors.branch ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : ''}`}
                     >
-                      <option value="administration1">{t('admin.administration1')}</option>
-                      <option value="administration2">{t('admin.administration2')}</option>
-                      <option value="administration3">{t('admin.administration3')}</option>
+                      <option value="">{t('settings.selectBranch')}</option>
+                      {gtfData?.gtf?.map((b) => (
+                        <option key={b.id} value={b.id}>
+                          {getLocalizedName(b)}
+                        </option>
+                      ))}
                     </select>
                   )}
                 />
-                {errors.branch && (
-                  <p className="text-red-600 text-xs mt-1">{errors.branch.message}</p>
+                {errors?.branch && (
+                  <p className="text-red-600 text-xs mt-1">{errors.branch?.message as string}</p>
                 )}
-              </div>
+              </div>)}
 
               {/* Position Field */}
               <div>
@@ -211,15 +282,19 @@ export const SettingsModal: FC<Props> = ({isOpen, onClose}) => {
                 <Controller
                   name="position"
                   control={control}
-                  rules={{required: t('settings.positionRequired')}}
-                  render={({field}) => (
+                  rules={{ required: t('settings.positionRequired') }}
+                  render={({ field }) => (
                     <select
                       {...field}
+                      disabled={positionsLoading}
                       className={`w-full px-4 py-3 border border-gray-300 rounded-lg text-base focus:outline-none focus:ring-2 focus:ring-[#00A2DE] focus:border-[#00A2DE] bg-white ${errors.position ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : ''}`}
                     >
-                      <option value="position1">{t('position.position1')}</option>
-                      <option value="position2">{t('position.position2')}</option>
-                      <option value="position3">{t('position.position3')}</option>
+                      <option value="">{t('settings.selectPosition')}</option>
+                      {positionsData?.positions?.map((position) => (
+                        <option key={position.id} value={position.id}>
+                          {getLocalizedName(position)}
+                        </option>
+                      ))}
                     </select>
                   )}
                 />
@@ -294,7 +369,7 @@ export const SettingsModal: FC<Props> = ({isOpen, onClose}) => {
               >
                 <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                        d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+                    d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
                 </svg>
                 {t('settings.logout')}
               </button>
@@ -303,14 +378,14 @@ export const SettingsModal: FC<Props> = ({isOpen, onClose}) => {
               <button
                 type="button"
                 onClick={handleSubmit(onSubmit)}
-                disabled={isSubmitting}
+                disabled={isSubmitting || positionsLoading}
                 className="flex items-center md:order-1 -order-1 justify-center flex-1 px-4 py-3 text-base font-medium text-white bg-[#00A2DE] border border-transparent rounded-lg hover:bg-[#0088C7] disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
               >
                 {isSubmitting ? (
                   <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
                 ) : (
                   <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7"/>
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                   </svg>
                 )}
                 {t('settings.save')}

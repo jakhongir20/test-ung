@@ -21,38 +21,39 @@ const languages = [
   },
 ];
 
-export const LanguageSelect = ({authlayout}: { authlayout?: boolean }) => {
-  const {lang, setLang} = useI18n();
-  const [selected, setSelected] = useState(() => {
-    return languages.find(l => l.id === lang) || languages[0];
-  });
+export const LanguageSelect = ({ authlayout }: { authlayout?: boolean; }) => {
+  const { lang, setLang } = useI18n();
+  const [selectedId, setSelectedId] = useState<'uz' | 'uz-cyrl' | 'ru'>(() => (lang as 'uz' | 'uz-cyrl' | 'ru'));
 
-  // Update selected when lang changes externally (but not when we're setting it)
+  // Keep internal selectedId in sync with context lang
   useEffect(() => {
-    const currentLang = languages.find(l => l.id === lang);
-    if (currentLang && currentLang.id !== selected.id) {
-      setSelected(currentLang);
+    if (lang !== selectedId) {
+      setSelectedId(lang as 'uz' | 'uz-cyrl' | 'ru');
     }
-  }, [lang]); // Remove selected.id from dependencies to prevent infinite loop
+  }, [lang, selectedId]);
 
   // Handle language change when user selects a new option
-  const handleLanguageChange = (newLanguage: typeof languages[0]) => {
-    setSelected(newLanguage);
-    setLang(newLanguage.id as 'uz' | 'uz-cyrl' | 'ru');
+  const handleLanguageChange = (newLanguageId: 'uz' | 'uz-cyrl' | 'ru') => {
+    if (newLanguageId !== selectedId) {
+      setSelectedId(newLanguageId);
+      setLang(newLanguageId);
+    }
   };
 
+  const selected = languages.find(l => l.id === selectedId) || languages[0];
+
   return (
-    <Listbox value={selected} onChange={handleLanguageChange}>
-      {({open}) => (
+    <Listbox value={selectedId} onChange={handleLanguageChange}>
+      {({ open }) => (
         <div className="relative">
           <Listbox.Button
             className="flex cursor-pointer text-[#314158] md:gap-2 gap-1 items-center justify-between rounded-lg px-1.5 md:px-3 py-2 text-base font-medium hover:bg-gray-50">
             <div className="flex items-center gap-2 text-sm md:text-base">
-              <img src={selected.flag} alt="" className="h-4 w-6 rounded-sm"/>
+              <img src={selected.flag} alt="" className="h-4 w-6 rounded-sm" />
               <span className={`${authlayout ? '' : 'hidden'}  md:inline`}>{selected.name}</span>
             </div>
             <ChevronDownIcon
-              className={`h-6 w-6 transition-transform duration-200 text-gray-500 ${open ? 'rotate-180' : ''}`}/>
+              className={`h-6 w-6 transition-transform duration-200 text-gray-500 ${open ? 'rotate-180' : ''}`} />
           </Listbox.Button>
 
           <Transition
@@ -66,15 +67,15 @@ export const LanguageSelect = ({authlayout}: { authlayout?: boolean }) => {
               {languages.map((lang) => (
                 <Listbox.Option
                   key={lang.id}
-                  value={lang}
-                  className={({active}) => {
+                  value={lang.id as 'uz' | 'uz-cyrl' | 'ru'}
+                  className={({ active }) => {
                     return `relative cursor-pointer select-none px-3 py-2 ${active ? "bg-blue-100 text-blue-900" : "text-gray-700"
-                    }`;
+                      }`;
                   }
                   }
                 >
                   <div className="flex items-center gap-2">
-                    <img src={lang.flag} alt="" className="h-4 w-6 rounded-sm"/>
+                    <img src={lang.flag} alt="" className="h-4 w-6 rounded-sm" />
                     <span>{lang.name}</span>
                   </div>
                 </Listbox.Option>

@@ -1,11 +1,112 @@
 import type { FC } from 'react';
+import { useEffect, useState } from 'react';
+import { useParams } from 'react-router-dom';
+import { fetchCertificateData, downloadCertificate, type CertificateData } from '../api/certificate';
 
 const CertificatePage: FC = () => {
-  // Static certificate information (will be replaced with API data later)
-  const userName = 'Rajabov Davron Yoʻldoshevich';
-  const userPosition = 'Mahallabay iste\'molchilar bilan ishlash boʻlimi yetakchi muhandisi';
-  const userBranch = 'Hududgaz Sirdaryo';
-  const certificateNumber = '0001';
+  const { id } = useParams<{ id: string; }>();
+  const [certificateData, setCertificateData] = useState<CertificateData | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [isDownloading, setIsDownloading] = useState(false);
+
+  // Fetch certificate data
+  useEffect(() => {
+    const loadCertificateData = async () => {
+      if (!id) {
+        setError('User ID is required');
+        setIsLoading(false);
+        return;
+      }
+
+
+      try {
+        setIsLoading(true);
+        setError(null);
+        const data = await fetchCertificateData(id);
+
+        setCertificateData(data);
+      } catch (err: any) {
+
+
+        setError(err?.response?.data?.message || 'Failed to load certificate data');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadCertificateData();
+  }, [id]);
+
+  // Handle certificate download
+  const handleDownload = async () => {
+    if (!id || !certificateData) return;
+
+
+    try {
+      setIsDownloading(true);
+      const blob = await downloadCertificate(id);
+
+      // Create download link
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `certificate_${certificateData.user_name}_${certificateData.id}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+
+    } catch (err: any) {
+
+
+      setError('Failed to download certificate');
+    } finally {
+      setIsDownloading(false);
+    }
+  };
+
+  // Loading state
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#00A2DE] mx-auto"></div>
+          <p className="text-gray-600 mt-2">Loading certificate...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Error state
+  if (error || !certificateData) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center">
+          <div className="w-16 h-16 mx-auto mb-4 bg-red-100 rounded-full flex items-center justify-center">
+            <svg className="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+            </svg>
+          </div>
+          <h2 className="text-xl font-semibold text-gray-900 mb-2">Certificate not found</h2>
+          <p className="text-gray-600 mb-4">{error || 'The requested certificate could not be loaded.'}</p>
+          <button
+            onClick={() => window.location.reload()}
+            className="bg-cyan-600 text-white px-4 py-2 rounded-lg hover:bg-cyan-700"
+          >
+            Retry
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // Extract data from API response
+  const userName = certificateData.user_name;
+  const userPosition = certificateData.user_position;
+  const userBranch = certificateData.user_branch;
+  const certificateNumber = certificateData.certificate_order;
 
   return (
     <div
@@ -77,6 +178,27 @@ const CertificatePage: FC = () => {
           <div className="w-40 h-40 bg-white border-2 border-gray-300 flex items-center justify-center shadow-lg">
             <div className="text-gray-400 text-sm">QR Code</div>
           </div>
+
+          {/* Download Button */}
+          <button
+            onClick={handleDownload}
+            disabled={isDownloading}
+            className="mt-6 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white px-6 py-3 rounded-lg font-semibold transition-colors duration-200 flex items-center gap-2 mx-auto"
+          >
+            {isDownloading ? (
+              <>
+                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                Downloading...
+              </>
+            ) : (
+              <>
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+                Download Certificate
+              </>
+            )}
+          </button>
         </div>
 
         {/* Date - Bottom Center */}

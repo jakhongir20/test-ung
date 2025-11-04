@@ -10,6 +10,7 @@ import SessionDetailsPage from './pages/SessionDetailsPage.tsx';
 import CertificatePage from './pages/CertificatePage.tsx';
 import { I18nProvider } from './i18n.tsx';
 import LoginPage from './pages/LoginPage.tsx';
+import RegisterPage from './pages/RegisterPage.tsx';
 import OtpPage from './pages/OtpPage.tsx';
 import AdminEmployeesPage from './pages/AdminEmployeesPage.tsx';
 import PageRules from './pages/PageRules.tsx';
@@ -82,6 +83,7 @@ const router = createBrowserRouter([
     element: <AuthLayout />,
     children: [
       { path: 'login', element: <LoginPage /> },
+      { path: 'register', element: <RegisterPage /> },
       { path: 'otp', element: <OtpPage /> },
       { path: 'profile-completion', element: <ProfileCompletionPage /> },
     ],

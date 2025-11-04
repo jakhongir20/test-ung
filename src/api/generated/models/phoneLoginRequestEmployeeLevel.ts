@@ -22,28 +22,18 @@
     
  * OpenAPI spec version: 1.0.0
  */
-import type { SessionsRetrieve200Survey } from './sessionsRetrieve200Survey';
-import type { SessionsRetrieve200Progress } from './sessionsRetrieve200Progress';
-import type { SessionsRetrieve200CurrentQuestion } from './sessionsRetrieve200CurrentQuestion';
 
-export type SessionsRetrieve200 = {
-  id?: string;
-  survey?: SessionsRetrieve200Survey;
-  status?: string;
-  attempt_number?: number;
-  started_at?: string;
-  expires_at?: string;
-  language?: string;
-  progress?: SessionsRetrieve200Progress;
-  time_remaining?: number;
-  /** @nullable */
-  current_question?: SessionsRetrieve200CurrentQuestion;
-  /** @nullable */
-  score?: number | null;
-  /** @nullable */
-  total_points?: number | null;
-  /** @nullable */
-  percentage?: number | null;
-  /** @nullable */
-  is_passed?: boolean | null;
-};
+/**
+ * Уровень сотрудника (для новых пользователей)
+
+* `junior` - Junior
+* `engineer` - Engineer
+ */
+export type PhoneLoginRequestEmployeeLevel = typeof PhoneLoginRequestEmployeeLevel[keyof typeof PhoneLoginRequestEmployeeLevel];
+
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const PhoneLoginRequestEmployeeLevel = {
+  junior: 'junior',
+  engineer: 'engineer',
+} as const;

@@ -24,6 +24,6 @@
  */
 
 /**
- * @nullable
+ * Unspecified request body
  */
-export type SessionsRetrieve200CurrentQuestion = { [key: string]: unknown } | null;
+export type ProctorHeartbeatCreateBodyThree = {[key: string]: unknown};

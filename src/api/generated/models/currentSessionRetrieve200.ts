@@ -25,6 +25,9 @@
 import type { CurrentSessionRetrieve200Session } from './currentSessionRetrieve200Session';
 
 export type CurrentSessionRetrieve200 = {
-  /** Информация о сессии или null */
+  /**
+   * Информация о сессии или null
+   * @nullable
+   */
   session?: CurrentSessionRetrieve200Session;
 };

@@ -63,7 +63,7 @@ export const MyDetailsForm: FC = () => {
       setTimeout(() => setIsSuccess(false), 3000);
 
     } catch (error) {
-      console.error('Profile update error:', error);
+
       if (handleAuthError(error)) {
         return;
       }

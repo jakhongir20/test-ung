@@ -1,4 +1,4 @@
-import { FC, ReactNode } from 'react';
+import type { FC, ReactNode } from 'react';
 import { useRandomBackground } from '../hooks/useRandomBackground';
 
 interface BackgroundWrapperProps {
@@ -10,7 +10,7 @@ export const BackgroundWrapper: FC<BackgroundWrapperProps> = ({
   children,
   className = ''
 }) => {
-  const { backgroundImage } = useRandomBackground();
+  const { backgroundImage, isLoading, hasError } = useRandomBackground();
 
   return (
     <>
@@ -29,6 +29,15 @@ export const BackgroundWrapper: FC<BackgroundWrapperProps> = ({
           background-position: center;
           background-attachment: fixed;
           opacity: 0.4;
+          transition: opacity 0.3s ease-in-out;
+        }
+        
+        .bg-full-screen.loading {
+          opacity: 0.1;
+        }
+        
+        .bg-full-screen.error {
+          opacity: 0.2;
         }
         
         .bg-fade-overlay {
@@ -50,7 +59,7 @@ export const BackgroundWrapper: FC<BackgroundWrapperProps> = ({
       `}</style>
 
       {/* Full-screen background */}
-      <div className="bg-full-screen"></div>
+      <div className={`bg-full-screen ${isLoading ? 'loading' : hasError ? 'error' : ''}`}></div>
 
       {/* Fade overlay */}
       <div className="bg-fade-overlay"></div>

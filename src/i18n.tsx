@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 import { createContext, type FC, type ReactNode, useContext, useEffect, useMemo, useState } from 'react';
 
 export type LanguageCode = 'uz' | 'uz-cyrl' | 'ru';
@@ -19,7 +20,7 @@ const dictionary: Dictionary = {
   },
   'profile.myDetails': { uz: 'Mening maʼlumotlarim', 'uz-cyrl': 'Менинг маълумотларим', ru: 'Мои данные' },
   'profile.fio': { uz: 'FISH', 'uz-cyrl': 'ФИШ', ru: 'ФИО' },
-  'profile.branch': { uz: 'Adminstratsiya', 'uz-cyrl': 'Администрация', ru: 'Администрация' },
+  'profile.branch': { uz: 'GTF', 'uz-cyrl': 'ГТФ', ru: 'ГТФ' },
   'profile.position': { uz: 'Lavozim', 'uz-cyrl': 'Лавозим', ru: 'Должность' },
   'profile.results': {
     uz: 'So\'nggi test natijalari',
@@ -28,6 +29,116 @@ const dictionary: Dictionary = {
   },
   'profile.newTest': { uz: 'Yangi test', 'uz-cyrl': 'Янги тест', ru: 'Новый тест' },
   'profile.scoreDetails': { uz: 'Ball tafsilotlari', 'uz-cyrl': 'Балл тафсилотлари', ru: 'Детали балла' },
+
+  // Face Verification
+  'faceVerification.title': { uz: 'Yuz tekshiruvi', 'uz-cyrl': 'Юз текшириви', ru: 'Проверка лица' },
+  'faceVerification.loading': { uz: 'Yuz aniqlash modellari yuklanmoqda...', 'uz-cyrl': 'Юз аниқлаш моделлари юкланмоқда...', ru: 'Загрузка моделей распознавания лиц...' },
+  'faceVerification.instructions': {
+    uz: 'Iltimos, yuzingizni kameraga qarating. Tizim testni boshlashdan oldin sizning shaxsingizni tekshiradi.',
+    'uz-cyrl': 'Илтимос, юзингизни камерага қаратинг. Тизим тестни бошлашдан олдин сизнинг шахсингизни текширади.',
+    ru: 'Пожалуйста, поверните лицо к камере. Система проверит вашу личность перед началом теста.'
+  },
+  'faceVerification.detecting': { uz: 'Yuz aniqlanmoqda...', 'uz-cyrl': 'Юз аниқланмоқда...', ru: 'Обнаружение лица...' },
+  'faceVerification.faceDetected': { uz: 'Yuz aniqlandi! Iltimos, harakatsiz turing...', 'uz-cyrl': 'Юз аниқланди! Илтимос, ҳаракатсиз туринг...', ru: 'Лицо обнаружено! Пожалуйста, не двигайтесь...' },
+  'faceVerification.lookCenter': {
+    uz: 'Iltimos, yuzingizni markazga qarating.',
+    'uz-cyrl': 'Илтимос, юзингизни марказга қаратинг.',
+    ru: 'Пожалуйста, смотрите прямо.'
+  },
+  'faceVerification.turnLeft': {
+    uz: 'Iltimos, yuzingizni chap tomonga burang.',
+    'uz-cyrl': 'Илтимос, юзингизни чап томонга буранг.',
+    ru: 'Пожалуйста, поверните лицо влево.'
+  },
+  'faceVerification.turnRight': {
+    uz: 'Iltimos, yuzingizni o\'ng tomonga burang.',
+    'uz-cyrl': 'Илтимос, юзингизни ўнг томонга буранг.',
+    ru: 'Пожалуйста, поверните лицо вправо.'
+  },
+  'faceVerification.verificationComplete': {
+    uz: 'Yuz tekshiruvi yakunlandi!',
+    'uz-cyrl': 'Юз текшируви якунланди!',
+    ru: 'Проверка лица завершена!'
+  },
+  'faceVerification.noFaceDetected': {
+    uz: 'Yuz aniqlanmadi. Iltimos, kameraga qarating.',
+    'uz-cyrl': 'Юз аниқланмади. Илтимос, камерага қаратинг.',
+    ru: 'Лицо не обнаружено. Пожалуйста, смотрите в камеру.'
+  },
+  'faceVerification.multipleFacesDetected': {
+    uz: 'Bir nechta yuz aniqlandi. Iltimos, faqat siz kameraga qarating.',
+    'uz-cyrl': 'Бир нечта юз аниқланди. Илтимос, фақат сиз камерага қаратинг.',
+    ru: 'Обнаружено несколько лиц. Пожалуйста, только вы должны быть в кадре.'
+  },
+  'faceVerification.detectionProgress': {
+    uz: 'Aniqlash jarayoni: {count}/{required}',
+    'uz-cyrl': 'Аниқлаш жараёни: {count}/{required}',
+    ru: 'Прогресс обнаружения: {count}/{required}'
+  },
+  'faceVerification.cancel': { uz: 'Bekor qilish', 'uz-cyrl': 'Бекор қилиш', ru: 'Отмена' },
+  'faceVerification.cameraAccessDenied': {
+    uz: 'Kamera ruxsati rad etildi. Davom etish uchun kameraga ruxsat bering.',
+    'uz-cyrl': 'Камера рухсати рад этилди. Давом этиш учун камерага рухсат беринг.',
+    ru: 'Доступ к камере запрещен. Пожалуйста, разрешите доступ к камере для продолжения.'
+  },
+  'dismiss': { uz: 'Yopish', 'uz-cyrl': 'Ёпиш', ru: 'Закрыть' },
+
+  // Face Monitoring
+  'faceMonitoring.noFaceDetected': {
+    uz: 'Yuzingiz aniqlanmadi. Iltimos, kameraga qarating.',
+    'uz-cyrl': 'Юзингиз аниқланмади. Илтимос, камерага қаратинг.',
+    ru: 'Ваше лицо не обнаружено. Пожалуйста, повернитесь к камере.'
+  },
+  'faceMonitoring.multipleFacesDetected': {
+    uz: 'Bir nechta yuz aniqlandi. Iltimos, faqat siz kameraga qarating.',
+    'uz-cyrl': 'Бир нечта юз аниқланди. Илтимос, фақат сиз камерага қаратинг.',
+    ru: 'Обнаружено несколько лиц. Пожалуйста, только вы должны быть в кадре.'
+  },
+  'faceMonitoring.tabSwitched': {
+    uz: 'Boshqa tab yoki oynaga o\'tish aniqlandi. Iltimos, test sahifasida qoling.',
+    'uz-cyrl': 'Бошқа таб ёки ойнага ўтиш аниқланди. Илтимос, тест саҳифасида қолинг.',
+    ru: 'Обнаружено переключение на другую вкладку или окно. Пожалуйста, оставайтесь на странице теста.'
+  },
+  'faceMonitoring.violationDetected': {
+    uz: 'Qoidabuzarlik aniqlandi.',
+    'uz-cyrl': 'Қоидабузарлик аниқланди.',
+    ru: 'Обнаружено нарушение.'
+  },
+  'faceMonitoring.violationWarning': {
+    uz: 'Ogohlantirish',
+    'uz-cyrl': 'Огоҳлантириш',
+    ru: 'Предупреждение'
+  },
+  'faceMonitoring.testTerminated': {
+    uz: 'Test tugatildi',
+    'uz-cyrl': 'Тест тугатилди',
+    ru: 'Тест завершен'
+  },
+  'faceMonitoring.maxAttemptsReached': {
+    uz: 'Maksimal urinishlar soniga yetildi. Test avtomatik ravishda tugatildi.',
+    'uz-cyrl': 'Максимал уринишлар сонига етилди. Тест автоматик равишда тугатилди.',
+    ru: 'Достигнуто максимальное количество попыток. Тест автоматически завершен.'
+  },
+  'faceMonitoring.attemptsRemaining': {
+    uz: 'Qolgan urinishlar',
+    'uz-cyrl': 'Қолган уринишлар',
+    ru: 'Осталось попыток'
+  },
+  'faceMonitoring.continue': {
+    uz: 'Davom etish',
+    'uz-cyrl': 'Давом этиш',
+    ru: 'Продолжить'
+  },
+  'faceMonitoring.close': {
+    uz: 'Yopish',
+    'uz-cyrl': 'Ёпиш',
+    ru: 'Закрыть'
+  },
+  'faceMonitoring.testTerminatedMessage': {
+    uz: 'Test yuz monitoring qoidabuzarliklari tufayli tugatildi.',
+    'uz-cyrl': 'Тест юз мониторинг қоидабузарликлари туфайли тугатилди.',
+    ru: 'Тест был завершен из-за нарушений мониторинга лица.'
+  },
   'card.totalAnswers': { uz: "Umumiy to'liq javoblar", 'uz-cyrl': 'Умумий тўлиқ жавоблар', ru: 'Всего верных ответов' },
   'test.finishTest': { uz: "Testni yakunlash", 'uz-cyrl': 'Тестни якунлаш', ru: 'Завершить тест' },
 
@@ -137,7 +248,7 @@ const dictionary: Dictionary = {
     'uz-cyrl': 'Исм ёки телефон бўйича қидириш...',
     ru: 'Поиск по имени или телефону...'
   },
-  'admin.allBranches': { uz: 'Barcha adminstratsiyalar', 'uz-cyrl': 'Барча администрациялар', ru: 'Все администрации' },
+  'admin.allBranches': { uz: 'Barcha GTFlar', 'uz-cyrl': 'Барча ГТФлар', ru: 'Все ГТФ' },
   'admin.allPositions': { uz: 'Barcha lavozimlar', 'uz-cyrl': 'Барча лавозимлар', ru: 'Все должности' },
   'admin.allStatuses': { uz: 'Barcha holatlar', 'uz-cyrl': 'Барча ҳолатлар', ru: 'Все статусы' },
   'admin.previous': { uz: 'Oldingi', 'uz-cyrl': 'Олдинги', ru: 'Предыдущий' },
@@ -146,6 +257,30 @@ const dictionary: Dictionary = {
     uz: '{start}-{end} natija {total} dan ko\'rsatilmoqda',
     'uz-cyrl': '{start}-{end} натижа {total} дан кўрсатилмоқда',
     ru: 'Показано {start}-{end} из {total} результатов'
+  },
+
+  // Certificate Modal
+  'certificate.downloadTitle': {
+    uz: 'Sertifikatni yuklab olish',
+    'uz-cyrl': 'Сертификатни юклаб олиш',
+    ru: 'Скачать сертификат'
+  },
+  'certificate.downloadMessage': {
+    uz: '{userName} uchun sertifikatni yuklab olishni xohlaysizmi? Bu sertifikat sahifasini yangi tabda ochadi.',
+    'uz-cyrl': '{userName} учун сертификатни юклаб олишни хоҳлайсизми? Бу сертификат саҳифасини янги табда очиди.',
+    ru: 'Хотите скачать сертификат для {userName}? Это откроет страницу сертификата в новой вкладке.'
+  },
+  'certificate.download': { uz: 'Yuklab olish', 'uz-cyrl': 'Юклаб олиш', ru: 'Скачать' },
+  'certificate.cancel': { uz: 'Bekor qilish', 'uz-cyrl': 'Бекор қилиш', ru: 'Отмена' },
+  'certificate.noCompletedSessions': {
+    uz: 'Bu foydalanuvchi uchun tugallangan sessiyalar topilmadi',
+    'uz-cyrl': 'Бу фойдаланувчи учун тугалланган сессиялар топилмади',
+    ru: 'Для этого пользователя не найдено завершенных сессий'
+  },
+  'certificate.noSurveyHistory': {
+    uz: 'Bu foydalanuvchi uchun so\'rov tarixi topilmadi',
+    'uz-cyrl': 'Бу фойдаланувчи учун сўров тарихи топилмади',
+    ru: 'Для этого пользователя не найдена история опросов'
   },
   'admin.aboutEmployee': { uz: 'Xodim haqida', 'uz-cyrl': 'Ходим ҳақида', ru: 'О сотруднике' },
   'admin.noEmployees': { uz: 'Xodimlar topilmadi', 'uz-cyrl': 'Ходимлар топилмади', ru: 'Сотрудники не найдены' },
@@ -175,11 +310,27 @@ const dictionary: Dictionary = {
 
   // Table Headers
   'table.name': { uz: 'F.I.Sh.', 'uz-cyrl': 'Ф.И.Ш.', ru: 'Ф.И.О.' },
-  'table.branch': { uz: 'Adminstratsiya', 'uz-cyrl': 'Администрация', ru: 'Администрация' },
+  'table.branch': { uz: 'GTF', 'uz-cyrl': 'ГТФ', ru: 'ГТФ' },
   'table.position': { uz: 'Lavozim', 'uz-cyrl': 'Лавозим', ru: 'Должность' },
   'table.lastScore': { uz: 'Oxirgi ball', 'uz-cyrl': 'Охирги балл', ru: 'Последний балл' },
   'table.attempts': { uz: 'Urinishlar soni', 'uz-cyrl': 'Уринишлар сони', ru: 'Количество попыток' },
   'table.status': { uz: 'Holat', 'uz-cyrl': 'Ҳолат', ru: 'Статус' },
+  'table.totalQuestions': {
+    uz: 'Jami urinishlar soni',
+    'uz-cyrl': 'Жами уринишлар сони',
+    ru: 'Общее количество попыток'
+  },
+  'table.totalQuestions30': {
+    uz: 'Jami savollar soni',
+    'uz-cyrl': 'Жами саволлар сони',
+    ru: 'Общее количество вопросов'
+  },
+  'table.totalCorrectQuestions': {
+    uz: 'Tog\'ri javoblar soni',
+    'uz-cyrl': 'Тўғри жавоблар сони',
+    ru: 'Количество правильных ответов'
+  },
+  'table.finalScore': { uz: 'Yakuniy ball', 'uz-cyrl': 'Якуний балл', ru: 'Финальный балл' },
   'table.phone': { uz: 'Telefon', 'uz-cyrl': 'Телефон', ru: 'Телефон' },
   'table.dateJoined': { uz: 'Ro\'yxatdan o\'tgan sana', 'uz-cyrl': 'Рўйхатдан ўтган сана', ru: 'Дата регистрации' },
   'table.lastLogin': { uz: 'Oxirgi kirish', 'uz-cyrl': 'Охирги кириш', ru: 'Последний вход' },
@@ -245,6 +396,11 @@ const dictionary: Dictionary = {
     'uz-cyrl': 'Амалий тест натижаларингизни кўриб чиқинг, ишлаш даражаингизни чуқуррок ўрганинг ва тест кунидан олдин кучли томонларингизни билинг.',
     ru: 'Просмотрите результаты практического теста, углубитесь в свою производительность и изучите свои сильные стороны перед днем теста.'
   },
+  'session.personalizedGreeting': {
+    uz: 'Hurmatli {name}, oxirgi topshirgan testdan siz {score} bal topladingiz.',
+    'uz-cyrl': 'Ҳурматли {name}, охирги топширган тестдан сиз {score} балл топладингиз.',
+    ru: 'Уважаемый {name}, за последний сданный тест вы набрали {score} баллов.'
+  },
   'session.testNumber': { uz: 'Test #{number}', 'uz-cyrl': 'Тест #{number}', ru: 'Тест #{number}' },
   'session.testDesc': {
     uz: 'Bu yerda siz test natijalaringizni bilib olishingiz mumkin.',
@@ -254,7 +410,7 @@ const dictionary: Dictionary = {
   'session.totalQuestions': { uz: 'Jami savollar', 'uz-cyrl': 'Жами саволлар', ru: 'Всего вопросов' },
   'session.correctAnswers': { uz: 'To\'g\'ri javoblar', 'uz-cyrl': 'Тўғри жавоблар', ru: 'Правильные ответы' },
   'session.incorrectAnswers': { uz: 'Noto\'g\'ri javoblar', 'uz-cyrl': 'Нотўғри жавоблар', ru: 'Неправильные ответы' },
-  'session.scorePercentage': { uz: 'Ball foizi', 'uz-cyrl': 'Балл фоизи', ru: 'Процент баллов' },
+  'session.scorePoints': { uz: 'Balllar', 'uz-cyrl': 'Балллар', ru: 'Баллы' },
   'session.questions': { uz: 'SAVOLLAR', 'uz-cyrl': 'САВОЛЛАР', ru: 'ВОПРОСЫ' },
   'session.questionTitle': { uz: 'SAVOL MATNI', 'uz-cyrl': 'САВОЛ МАТНИ', ru: 'ТЕКСТ ВОПРОСА' },
   'session.correctAnswer': { uz: 'TO\'G\'RI JAVOB', 'uz-cyrl': 'ТЎҒРИ ЖАВОБ', ru: 'ПРАВИЛЬНЫЙ ОТВЕТ' },
@@ -284,6 +440,62 @@ const dictionary: Dictionary = {
     ru: 'Загружаются данные сессии, пожалуйста подождите...'
   },
   'session.noQuestions': { uz: 'Savollar topilmadi', 'uz-cyrl': 'Саволлар топилмади', ru: 'Вопросы не найдены' },
+  'session.testResults': { uz: 'Test natijalari', 'uz-cyrl': 'Тест натижалари', ru: 'Результаты теста' },
+  'session.violationCases': { uz: 'Qoidabuzarliklar', 'uz-cyrl': 'Қоидабузарликлар', ru: 'Нарушения' },
+  'session.recordingTitle': { uz: 'Video yozuv', 'uz-cyrl': 'Видео ёзув', ru: 'Видеозапись' },
+  'session.recordingProcessing': {
+    uz: 'Video yozuv hali tayyor emas. Iltimos, keyinroq qaytib keling.',
+    'uz-cyrl': 'Видео ёзув ҳали тайёр эмас. Илтимос, кейинроқ қайта келинг.',
+    ru: 'Видеозапись ещё обрабатывается. Пожалуйста, попробуйте позже.'
+  },
+  'session.recordingUnavailable': {
+    uz: 'Video havolasi mavjud emas.',
+    'uz-cyrl': 'Видео ҳаволаси мавжуд эмас.',
+    ru: 'Ссылка на видео отсутствует.'
+  },
+  'session.duration': { uz: 'Davomiylik', 'uz-cyrl': 'Давомийлик', ru: 'Длительность' },
+  'session.fileSize': { uz: 'Fayl hajmi', 'uz-cyrl': 'Файл ҳажми', ru: 'Размер файла' },
+  'session.videoChunks': { uz: 'Video bo\'laklari', 'uz-cyrl': 'Видео бўлаклари', ru: 'Видео-фрагменты' },
+  'session.chunkNumber': { uz: 'Bo\'lak raqami', 'uz-cyrl': 'Бўлак рақами', ru: 'Номер фрагмента' },
+  'session.violationsTitle': { uz: 'Qoidabuzarliklar ro\'yxati', 'uz-cyrl': 'Қоидабузарликлар рўйхати', ru: 'Список нарушений' },
+  'session.faceCount': { uz: 'Yuzlar soni', 'uz-cyrl': 'Юзлар сони', ru: 'Количество лиц' },
+  'session.violationId': { uz: 'Qoidabuzarlik ID', 'uz-cyrl': 'Қоидабузарлик ID', ru: 'ID нарушения' },
+  'session.noViolations': { uz: 'Qoidabuzarliklar topilmadi', 'uz-cyrl': 'Қоидабузарликлар топилмади', ru: 'Нарушения не найдены' },
+  'session.noViolationsDesc': {
+    uz: 'Monitoring davomida hech qanday qoidabuzarlik qayd etilmadi.',
+    'uz-cyrl': 'Мониторинг давомида ҳеч қандай қоидабузарлик қайд этилмади.',
+    ru: 'Во время мониторинга нарушений не обнаружено.'
+  },
+  'session.violationType.no_face': {
+    uz: 'Yuz aniqlanmadi',
+    'uz-cyrl': 'Юз аниқланмади',
+    ru: 'Лицо не обнаружено'
+  },
+  'session.violationType.multiple_faces': {
+    uz: 'Bir nechta yuz',
+    'uz-cyrl': 'Бир нечта юз',
+    ru: 'Несколько лиц'
+  },
+  'session.violationType.multiple_face': {
+    uz: 'Bir nechta yuz',
+    'uz-cyrl': 'Бир нечта юз',
+    ru: 'Несколько лиц'
+  },
+  'session.violationType.face_lost': {
+    uz: 'Yuz yo\'qotildi',
+    'uz-cyrl': 'Юз йўқолди',
+    ru: 'Лицо потеряно'
+  },
+  'session.violationType.tab_switched': {
+    uz: 'Tab almashtirildi',
+    'uz-cyrl': 'Таб алмаштирилди',
+    ru: 'Переключение вкладки'
+  },
+  'session.violationType.switch_tab': {
+    uz: 'Tab almashtirildi',
+    'uz-cyrl': 'Таб алмаштирилди',
+    ru: 'Переключение вкладки'
+  },
 
   // Status translations
   'status.completed': { uz: 'Tugallangan', 'uz-cyrl': 'Тугалланган', ru: 'Завершено' },
@@ -320,13 +532,13 @@ const dictionary: Dictionary = {
   'categories.title': { uz: 'Kategoriyalar', 'uz-cyrl': 'Категориялар', ru: 'Категории' },
   'categories.iqQuestions': { uz: 'Umumiy Kompetensiya', 'uz-cyrl': 'Умумий Компетенция', ru: 'Общая компетенция' },
   'categories.iqQuestionsDesc': {
-    uz: 'Psixologiya, IQ va Xavfsizlik qoidalari bo‘yicha savollarni o‘z ichiga oladi. Fikr yuritish, xulq-atvor va asosiy xavfsizlik bilimlarini baholash uchun mo‘ljallangan. 5 ta savol asosiy ko‘nikmalarni tezkor tekshiradi.',
+    uz: 'Psixologiya, IQ va Xavfsizlik qoidalari bo\'yicha savollarni o\'z ichiga oladi. Fikr yuritish, xulq-atvor va asosiy xavfsizlik bilimlarini baholash uchun mo\'ljallangan. 5 ta savol asosiy ko\'nikmalarni tezkor tekshiradi.',
     'uz-cyrl': 'Психология, IQ ва Хавфсизлик қоидалари бўйича саволларни ўз ичига олади. Фикр юритиш, хулқ-атвор ва асосий хавфсизлик билимларини баҳолаш учун мўлжалланган. 5 та савол асосий кўникмаларни тезкор текширади.',
     ru: 'Включает вопросы по психологии, IQ и правилам безопасности. Предназначена для оценки мышления, поведения и знаний по базовой безопасности. Содержит 5 вопросов для быстрой проверки ключевых навыков.'
   },
-  'categories.mainQuestions': { uz: 'Kasbiy Yo‘nalish', 'uz-cyrl': 'Касбий Йўналиш', ru: 'Профессиональная область' },
+  'categories.mainQuestions': { uz: 'Kasbiy Yo\'nalish', 'uz-cyrl': 'Касбий Йўналиш', ru: 'Профессиональная область' },
   'categories.mainQuestionsDesc': {
-    uz: 'Mazmun tanlangan yo‘nalishga qarab belgilanadi: Suyultirilgan gaz yoki Tabiiy gaz. Maxsus bilimlar, amaliy ko‘nikmalar va soha standartlariga yo‘naltirilgan. 25 ta savol kasbiy kompetensiyani batafsil tekshiradi.',
+    uz: 'Mazmun tanlangan yo\'nalishga qarab belgilanadi: Suyultirilgan gaz yoki Tabiiy gaz. Maxsus bilimlar, amaliy ko\'nikmalar va soha standartlariga yo\'naltirilgan. 25 ta savol kasbiy kompetensiyani batafsil tekshiradi.',
     'uz-cyrl': 'Мазмун танланган йўналишга қараб белгиланади: Суюлтирилган газ ёки Табиий газ. Махсус билимлар, амалий кўникмалар ва соҳа стандартларига йўналтирилган. 25 та савол касбий компетенцияни батафсил текширади.',
     ru: 'Содержание зависит от выбранного направления: Сжиженный газ или Природный газ. Ориентирована на специализированные знания, практические навыки и отраслевые стандарты. Содержит 25 вопросов для детальной проверки профессиональной компетенции.'
   },
@@ -368,16 +580,16 @@ const dictionary: Dictionary = {
     'uz-cyrl': 'Исмингизни киритинг',
     ru: 'Введите ваше имя'
   },
-  'profileCompletion.branch': { uz: 'Adminstratsiya', 'uz-cyrl': 'Администрация', ru: 'Администрация' },
+  'profileCompletion.branch': { uz: 'GTF', 'uz-cyrl': 'ГТФ', ru: 'ГТФ' },
   'profileCompletion.branchPlaceholder': {
-    uz: 'Adminstratsiya nomini kiriting',
-    'uz-cyrl': 'Администрация номини киритинг',
-    ru: 'Введите название администрации'
+    uz: 'GTF nomini kiriting',
+    'uz-cyrl': 'ГТФ номини киритинг',
+    ru: 'Введите название ГТФ'
   },
   'profileCompletion.selectBranch': {
-    uz: 'Adminstratsiyani tanlang',
-    'uz-cyrl': 'Администрацияни танланг',
-    ru: 'Выберите администрацию'
+    uz: 'GTFni tanlang',
+    'uz-cyrl': 'ГТФни танланг',
+    ru: 'Выберите ГТФ'
   },
   'profileCompletion.position': { uz: 'Lavozim', 'uz-cyrl': 'Лавозим', ru: 'Должность' },
   'profileCompletion.positionPlaceholder': {
@@ -397,14 +609,25 @@ const dictionary: Dictionary = {
     ru: 'Имя обязательно'
   },
   'profileCompletion.branchRequired': {
-    uz: 'Adminstratsiya kiritilishi shart',
-    'uz-cyrl': 'Администрация киритилиши шарт',
-    ru: 'Администрация обязателен'
+    uz: 'GTF kiritilishi shart',
+    'uz-cyrl': 'ГТФ киритилиши шарт',
+    ru: 'ГТФ обязателен'
   },
   'profileCompletion.positionRequired': {
     uz: 'Lavozim kiritilishi shart',
     'uz-cyrl': 'Лавозим киритилиши шарт',
     ru: 'Должность обязательна'
+  },
+  'profileCompletion.region': { uz: 'Viloyat', 'uz-cyrl': 'Вилоят', ru: 'Область' },
+  'profileCompletion.selectRegion': {
+    uz: 'Viloyatni tanlang',
+    'uz-cyrl': 'Вилоятни танланг',
+    ru: 'Выберите область'
+  },
+  'profileCompletion.regionRequired': {
+    uz: 'Viloyat tanlanishi shart',
+    'uz-cyrl': 'Вилоят танланиши шарт',
+    ru: 'Область обязательна'
   },
   'profileCompletion.saveSuccess': {
     uz: 'Profil muvaffaqiyatli saqlandi',
@@ -431,13 +654,66 @@ const dictionary: Dictionary = {
   'logout': { uz: 'Chiqish', 'uz-cyrl': 'Чиқиш', ru: 'Выйти' },
 
   // Auth Pages
-  'auth.login': { uz: 'Kirish', 'uz-cyrl': 'Кириш', ru: 'Войти' },
+  'auth.login': { uz: 'Login', 'uz-cyrl': 'Логин', ru: 'Логин' },
   'auth.phoneNumber': { uz: 'Telefon raqami', 'uz-cyrl': 'Телефон рақами', ru: 'Номер телефона' },
   'auth.getCode': { uz: 'Kod olish', 'uz-cyrl': 'Код олиш', ru: 'Получить код' },
   'auth.fieldRequired': { uz: 'Maydon majburiy', 'uz-cyrl': 'Майдон мажбурий', ru: 'Поле обязательно' },
   'auth.invalidPhone': { uz: 'Noto\'g\'ri raqam', 'uz-cyrl': 'Нотўғри рақам', ru: 'Неверный номер' },
   'auth.phonePlaceholder': { uz: '+998', 'uz-cyrl': '+998', ru: '+998' },
   'auth.confirmLogin': { uz: 'Kirishni tasdiqlash', 'uz-cyrl': 'Киришни тасдиқлаш', ru: 'Подтверждение входа' },
+
+  // New password-based auth
+  'auth.loginPlaceholder': { uz: 'Loginni kiriting', 'uz-cyrl': 'Логинни киритинг', ru: 'Введите логин' },
+  'auth.loginMinLength': {
+    uz: 'Login kamida 1 belgidan iborat bo\'lishi kerak',
+    'uz-cyrl': 'Логин камида 1 белгидан иборат бўлиши керак',
+    ru: 'Логин должен содержать минимум 1 символ'
+  },
+  'auth.password': { uz: 'Parol', 'uz-cyrl': 'Парол', ru: 'Пароль' },
+  'auth.passwordPlaceholder': { uz: 'Parolingizni kiriting', 'uz-cyrl': 'Паролингизни киритинг', ru: 'Введите пароль' },
+  'auth.passwordMinLength': {
+    uz: 'Parol kamida 6 belgidan iborat bo\'lishi kerak',
+    'uz-cyrl': 'Парол камида 6 белгидан иборат бўлиши керак',
+    ru: 'Пароль должен содержать минимум 6 символов'
+  },
+  'auth.confirmPassword': { uz: 'Parolni tasdiqlash', 'uz-cyrl': 'Паролни тасдиқлаш', ru: 'Подтверждение пароля' },
+  'auth.confirmPasswordPlaceholder': {
+    uz: 'Parolni qayta kiriting',
+    'uz-cyrl': 'Паролни қайта киритинг',
+    ru: 'Повторите пароль'
+  },
+  'auth.loginError': {
+    uz: 'Kirishda xatolik yuz berdi. Texnik yordamga murojaat qiling yoki keyinroq urinib ko\'ring.',
+    'uz-cyrl': 'Киришда хатолик юз берди. Техник ёрдамга муроожаат қилинг ёки кейинроқ уриниб кўринг.',
+    ru: 'Ошибка при входе. Обратитесь в тех. поддержку или повторите позже.'
+  },
+  'auth.registerError': {
+    uz: 'Ro\'yxatdan o\'tishda xatolik yuz berdi. Texnik yordamga murojaat qiling yoki keyinroq urinib ko\'ring.',
+    'uz-cyrl': 'Рўйхатдан ўтишда хатолик юз берди. Техник ёрдамга муроожаат қилинг ёки кейинроқ уриниб кўринг.',
+    ru: 'Ошибка при регистрации. Обратитесь в тех. поддержку или повторите позже.'
+  },
+  'auth.register': { uz: 'Ro\'yxatdan o\'tish', 'uz-cyrl': 'Рўйхатдан ўтиш', ru: 'Регистрация' },
+  'auth.fullName': { uz: 'To\'liq ism', 'uz-cyrl': 'Тўлиқ исм', ru: 'Полное имя' },
+  'auth.fullNamePlaceholder': {
+    uz: 'To\'liq ismingizni kiriting',
+    'uz-cyrl': 'Тўлиқ исмингизни киритинг',
+    ru: 'Введите полное имя'
+  },
+  'auth.nameMinLength': {
+    uz: 'Ism kamida 2 belgidan iborat bo\'lishi kerak',
+    'uz-cyrl': 'Исм камида 2 белгидан иборат бўлиши керак',
+    ru: 'Имя должно содержать минимум 2 символа'
+  },
+  'auth.position': { uz: 'Lavozim', 'uz-cyrl': 'Лавозим', ru: 'Должность' },
+  'auth.selectPosition': { uz: 'Lavozimni tanlang', 'uz-cyrl': 'Лавозимни танланг', ru: 'Выберите должность' },
+  'auth.branch': { uz: 'GTF', 'uz-cyrl': 'ГТФ', ru: 'ГТФ' },
+  'auth.selectBranch': { uz: 'GTFni tanlang', 'uz-cyrl': 'ГТФни танланг', ru: 'Выберите ГТФ' },
+  'auth.noAccount': { uz: 'Hisobingiz yo\'qmi?', 'uz-cyrl': 'Ҳисобингиз йўқми?', ru: 'Нет аккаунта?' },
+  'auth.haveAccount': { uz: 'Hisobingiz bormi?', 'uz-cyrl': 'Ҳисобингиз борми?', ru: 'Есть аккаунт?' },
+  'auth.optional': { uz: 'ixtiyoriy', 'uz-cyrl': 'ихтиёрий', ru: 'необязательно' },
+  'auth.fetch': { uz: 'Yuklash', 'uz-cyrl': 'Юклаш', ru: 'Загрузить' },
+  'auth.pinflEmpty': { uz: 'PINFL raqamini kiriting', 'uz-cyrl': 'PINFL рақамини киритинг', ru: 'Введите номер PINFL' },
+  'auth.pinflNotFound': { uz: 'PINFL bo\'yicha foydalanuvchi topilmadi', 'uz-cyrl': 'PINFL бўйича фойдаланувчи топилмади', ru: 'Пользователь с таким PINFL не найден' },
 
   // Additional Information Form
   'additionalInfo.title': { uz: 'Qo\'shimcha ma\'lumot', 'uz-cyrl': 'Қўшимча маълумот', ru: 'Дополнительная информация' },
@@ -470,10 +746,10 @@ const dictionary: Dictionary = {
   // Settings Modal
   'settings.title': { uz: 'Sozlamalar', 'uz-cyrl': 'Созламалар', ru: 'Настройки' },
   'settings.fullName': { uz: 'To\'liq ism', 'uz-cyrl': 'Тўлиқ исм', ru: 'ФИО' },
-  'settings.branch': { uz: 'Adminstratsiya', 'uz-cyrl': 'Администрация', ru: 'Администрация' },
+  'settings.branch': { uz: 'GTF', 'uz-cyrl': 'ГТФ', ru: 'ГТФ' },
   'settings.position': { uz: 'Lavozim', 'uz-cyrl': 'Лавозим', ru: 'Должность' },
   'settings.fullNamePlaceholder': { uz: 'To\'liq ism', 'uz-cyrl': 'Тўлиқ исм', ru: 'ФИО' },
-  'settings.branchPlaceholder': { uz: 'Adminstratsiya', 'uz-cyrl': 'Администрация', ru: 'Администрация' },
+  'settings.branchPlaceholder': { uz: 'GTF', 'uz-cyrl': 'ГТФ', ru: 'ГТФ' },
   'settings.positionPlaceholder': { uz: 'Lavozim', 'uz-cyrl': 'Лавозим', ru: 'Должность' },
   'settings.save': { uz: 'Saqlash', 'uz-cyrl': 'Сақлаш', ru: 'Сохранить' },
   'settings.logout': { uz: 'Hisobdan chiqish', 'uz-cyrl': 'Ҳисобдан чиқиш', ru: 'Выйти' },
@@ -483,9 +759,9 @@ const dictionary: Dictionary = {
     ru: 'ФИО обязательно'
   },
   'settings.branchRequired': {
-    uz: 'Adminstratsiya tanlanishi shart',
-    'uz-cyrl': 'Администрация танланиши шарт',
-    ru: 'Администрация обязателен'
+    uz: 'GTF tanlanishi shart',
+    'uz-cyrl': 'ГТФ танланиши шарт',
+    ru: 'ГТФ обязателен'
   },
   'settings.positionRequired': {
     uz: 'Lavozim tanlanishi shart',
@@ -528,26 +804,26 @@ const dictionary: Dictionary = {
     ru: 'Выберите должность'
   },
   'settings.selectAdministration': {
-    uz: 'Adminstratsiyani tanlang',
-    'uz-cyrl': 'Администрацияни танланг',
-    ru: 'Выберите администрацию'
+    uz: 'GTFni tanlang',
+    'uz-cyrl': 'ГТФни танланг',
+    ru: 'Выберите ГТФ'
   },
 
   // Administration Options
   'admin.administration1': {
-    uz: 'Adminstratsiya',
-    'uz-cyrl': 'Администрация',
-    ru: 'Администрация'
+    uz: 'GTF',
+    'uz-cyrl': 'ГТФ',
+    ru: 'ГТФ'
   },
   'admin.administration2': {
-    uz: 'Adminstratsiya 2',
-    'uz-cyrl': 'Администрация 2',
-    ru: 'Администрация 2'
+    uz: 'GTF 2',
+    'uz-cyrl': 'ГТФ 2',
+    ru: 'ГТФ 2'
   },
   'admin.administration3': {
-    uz: 'Adminstratsiya 3',
-    'uz-cyrl': 'Администрация 3',
-    ru: 'Администрация 3'
+    uz: 'GTF 3',
+    'uz-cyrl': 'ГТФ 3',
+    ru: 'ГТФ 3'
   },
 
   // Position Options
@@ -637,7 +913,7 @@ const dictionary: Dictionary = {
 type I18nContextValue = {
   lang: LanguageCode;
   setLang: (l: LanguageCode) => void;
-  t: (key: keyof typeof dictionary, params?: Record<string, string | number>) => string;
+  t: (key: keyof typeof dictionary | string, params?: Record<string, string | number>) => string;
 };
 
 const I18nContext = createContext<I18nContextValue | undefined>(undefined);
@@ -659,7 +935,8 @@ export const I18nProvider: FC<{ children: ReactNode; }> = ({ children }) => {
     lang,
     setLang,
     t: (key, params) => {
-      let text = dictionary?.[key]?.[lang];
+      const dictionaryEntry = dictionary?.[key as keyof typeof dictionary];
+      let text = dictionaryEntry?.[lang] ?? (typeof key === 'string' ? key : '');
       if (params) {
         Object.entries(params).forEach(([paramKey, paramValue]) => {
           text = text.replace(`{${paramKey}}`, String(paramValue));
