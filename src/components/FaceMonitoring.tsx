@@ -57,6 +57,35 @@ const ViolationAlert: FC<ViolationAlertProps> = ({
   // Debug the values being passed to the alert
   console.log(`🔍 Face Monitoring Alert: isOpen=${isOpen}, violationType=${violationType}, attemptCount=${attemptCount}, maxAttempts=${maxAttempts}`);
 
+  const isLastAttempt = attemptCount >= maxAttempts;
+  const autoCloseSeconds = 5;
+  const [remainingSeconds, setRemainingSeconds] = useState<number>(autoCloseSeconds);
+
+  useEffect(() => {
+    if (!isOpen || isLastAttempt) return;
+
+    setRemainingSeconds(autoCloseSeconds);
+
+    const interval = setInterval(() => {
+      setRemainingSeconds((prev) => {
+        if (prev <= 1) {
+          clearInterval(interval);
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    const timer = setTimeout(() => {
+      onClose();
+    }, autoCloseSeconds * 1000);
+
+    return () => {
+      clearInterval(interval);
+      clearTimeout(timer);
+    };
+  }, [isOpen, isLastAttempt, onClose]);
+
   if (!isOpen) return null;
 
   const getViolationMessage = () => {
@@ -83,8 +112,6 @@ const ViolationAlert: FC<ViolationAlertProps> = ({
 
     return message;
   };
-
-  const isLastAttempt = attemptCount >= maxAttempts;
 
   return (
     <div className="fixed inset-0 z-[70] flex items-center justify-center p-4">
@@ -116,23 +143,11 @@ const ViolationAlert: FC<ViolationAlertProps> = ({
             </p>
           </div>
 
-          <div className="text-center">
-            {/* <p className="text-gray-600 text-sm mb-2">
-              {isLastAttempt
-                ? t('faceMonitoring.maxAttemptsReached')
-                : `${t('faceMonitoring.attemptsRemaining')}: ${attemptCount}/${maxAttempts}`
-              }
-            </p> */}
-
-            {/* {!isLastAttempt && (
-              <div className="w-full bg-gray-200 rounded-full h-2">
-                <div
-                  className="bg-red-600 h-2 rounded-full transition-all duration-300"
-                  style={{ width: `${(attemptCount / maxAttempts) * 100}%` }}
-                ></div>
-              </div>
-            )} */}
-          </div>
+          {!isLastAttempt && (
+            <div className="text-center text-sm text-gray-600">
+              {t('faceMonitoring.autoCloseCountdown', { seconds: remainingSeconds })}
+            </div>
+          )}
         </div>
 
         {/* Actions */}
@@ -158,7 +173,7 @@ export const FaceMonitoring: FC<FaceMonitoringProps> = ({
   userId, // Add userId parameter
   onViolation,
   onTestTerminated,
-  checkInterval = 3000, // default to 3 seconds for faster detection cadence
+  checkInterval = 1500, // default to 1.5 seconds for faster detection cadence
   referenceDescriptor
 }) => {
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -182,8 +197,8 @@ export const FaceMonitoring: FC<FaceMonitoringProps> = ({
   const [lastViolationTime, setLastViolationTime] = useState<number>(0);
 
   const maxViolations = 3;
-  const violationCooldown = 2000; // shorter cooldown between violations for faster feedback
-  const hiddenTabCheckInterval = 3000; // how often to re-check hidden tab violations
+  const violationCooldown = 1500; // shorter cooldown between violations for faster feedback
+  const hiddenTabCheckInterval = 1500; // how often to re-check hidden tab violations
   const faceMismatchThreshold = 0.58; // Euclidean distance threshold for face mismatch detection
 
   // Proctor API hooks

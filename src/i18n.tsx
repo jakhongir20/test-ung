@@ -214,6 +214,11 @@ const dictionary: Dictionary = {
     'uz-cyrl': 'Тест юз мониторинг қоидабузарликлари туфайли тугатилди.',
     ru: 'Тест был завершен из-за нарушений мониторинга лица.'
   },
+  'faceMonitoring.autoCloseCountdown': {
+    uz: 'Modal {seconds} soniyadan keyin yopiladi.',
+    'uz-cyrl': 'Модал {seconds} сониядан кейин ёпилади.',
+    ru: 'Окно закроется через {seconds} секунд.'
+  },
   'card.totalAnswers': { uz: "Umumiy to'liq javoblar", 'uz-cyrl': 'Умумий тўлиқ жавоблар', ru: 'Всего верных ответов' },
   'test.finishTest': { uz: "Testni yakunlash", 'uz-cyrl': 'Тестни якунлаш', ru: 'Завершить тест' },
 
