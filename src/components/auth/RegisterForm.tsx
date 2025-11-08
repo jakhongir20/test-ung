@@ -26,24 +26,24 @@ type RegisterFormValues = {
 
 export const authInputStyle = 'block !border-1 w-full !text-[#64748B] focus:!text-black !text-base !h-11 !rounded-xl border-[#E2E8F0] focus:ring-[#00A2DE] focus:border-[#00A2DE] px-3 py-2';
 
-export const RegisterForm: FC<Props> = ({}) => {
+export const RegisterForm: FC<Props> = ({ }) => {
   const navigate = useNavigate();
   const register = useRegister();
-  const {t, lang} = useI18n();
+  const { t, lang } = useI18n();
 
   // PINFL fetch state
   const [isFetchingPinfl, setIsFetchingPinfl] = useState(false);
   const [pinflError, setPinflError] = useState<string | null>(null);
 
   // Fetch positions, branches, and GTF from API
-  const {data: positionsData, isLoading: positionsLoading, error: positionsError} = usePositionsRetrieve();
-  const {data: branchesData, isLoading: branchesLoading, error: branchesError} = useBranchesRetrieve();
-  const {data: gtfData, isLoading: gtfLoading, error: gtfError} = useGtfRetrieve();
+  const { data: positionsData, isLoading: positionsLoading, error: positionsError } = usePositionsRetrieve();
+  const { data: branchesData, isLoading: branchesLoading, error: branchesError } = useBranchesRetrieve();
+  const { data: gtfData, isLoading: gtfLoading, error: gtfError } = useGtfRetrieve();
 
   const {
     control,
     handleSubmit,
-    formState: {errors, isSubmitting},
+    formState: { errors, isSubmitting },
     clearErrors,
     trigger,
     watch,
@@ -78,6 +78,12 @@ export const RegisterForm: FC<Props> = ({}) => {
       default:
         return item.name_uz || item.name_uz_cyrl || item.name_ru || 'N/A';
     }
+  };
+
+  const getLocalizedPositionLabel = (position: any) => {
+    const positionName = getLocalizedName(position);
+    const branchName = position?.branch ? getLocalizedName(position.branch) : '';
+    return branchName ? `${positionName} - ${branchName}` : positionName;
   };
 
   // Filter positions based on selected branch (include global positions with no branch)
@@ -253,7 +259,7 @@ export const RegisterForm: FC<Props> = ({}) => {
         name: values.name,
         position_id: values.position_id
       });
-      navigate('/', {replace: true});
+      navigate('/', { replace: true });
     } catch (error: any) {
       // Handle registration errors
 
@@ -284,7 +290,7 @@ export const RegisterForm: FC<Props> = ({}) => {
           <Controller
             name="pinfl"
             control={control}
-            render={({field}) => (
+            render={({ field }) => (
               <input
                 {...field}
                 type="text"
@@ -304,7 +310,7 @@ export const RegisterForm: FC<Props> = ({}) => {
               <svg className="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24">
                 <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                 <path className="opacity-75" fill="currentColor"
-                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
               </svg>
             ) : (
               t('auth.fetch')
@@ -320,7 +326,7 @@ export const RegisterForm: FC<Props> = ({}) => {
           name="login"
           control={control}
           rules={loginValidationRules}
-          render={({field}) => (
+          render={({ field }) => (
             <input
               {...field}
               type="text"
@@ -338,7 +344,7 @@ export const RegisterForm: FC<Props> = ({}) => {
           name="name"
           control={control}
           rules={nameValidationRules}
-          render={({field}) => (
+          render={({ field }) => (
             <input
               {...field}
               type="text"
@@ -356,7 +362,7 @@ export const RegisterForm: FC<Props> = ({}) => {
           name="password"
           control={control}
           rules={passwordValidationRules}
-          render={({field}) => (
+          render={({ field }) => (
             <input
               {...field}
               type="password"
@@ -374,7 +380,7 @@ export const RegisterForm: FC<Props> = ({}) => {
           name="confirmPassword"
           control={control}
           rules={confirmPasswordValidationRules}
-          render={({field}) => (
+          render={({ field }) => (
             <input
               {...field}
               type="password"
@@ -391,8 +397,8 @@ export const RegisterForm: FC<Props> = ({}) => {
         <Controller
           name="branch_id"
           control={control}
-          rules={{required: t('auth.fieldRequired'), validate: (v: number) => v !== 0 || t('auth.fieldRequired')}}
-          render={({field}) => (
+          rules={{ required: t('auth.fieldRequired'), validate: (v: number) => v !== 0 || t('auth.fieldRequired') }}
+          render={({ field }) => (
             <select {...field} className={authInputStyle} disabled={branchesLoading}>
               <option value={0}>{t('auth.selectBranch')}</option>
               {branchesData?.branches?.map((branch) => (
@@ -411,13 +417,13 @@ export const RegisterForm: FC<Props> = ({}) => {
         <Controller
           name="position_id"
           control={control}
-          rules={{required: t('auth.fieldRequired'), validate: (v: number) => v !== 0 || t('auth.fieldRequired')}}
-          render={({field}) => (
+          rules={{ required: t('auth.fieldRequired'), validate: (v: number) => v !== 0 || t('auth.fieldRequired') }}
+          render={({ field }) => (
             <select {...field} className={authInputStyle} disabled={positionsLoading || !branchId || branchId === 0}>
               <option value={0}>{t('auth.selectPosition')}</option>
               {filteredPositions?.map((position) => (
                 <option key={position.id} value={position.id}>
-                  {getLocalizedName(position)}
+                  {getLocalizedPositionLabel(position)}
                 </option>
               ))}
             </select>
@@ -426,7 +432,7 @@ export const RegisterForm: FC<Props> = ({}) => {
         {errors.position_id && <p className="text-red-600 text-base mt-1">{errors.position_id.message}</p>}
       </div>
 
-      <FormButton isLoading={isSubmitting || positionsLoading || branchesLoading} title={t('auth.register')}/>
+      <FormButton isLoading={isSubmitting || positionsLoading || branchesLoading} title={t('auth.register')} />
 
       <div className="text-center mt-4">
         <p className="text-gray-600 text-base">
