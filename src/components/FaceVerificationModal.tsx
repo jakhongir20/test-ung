@@ -7,7 +7,7 @@ import { useBodyScrollLock } from '../hooks/useBodyScrollLock';
 interface FaceVerificationModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSuccess: (faceImageBlob: Blob) => void;
+  onSuccess: (faceImageBlob: Blob, faceDescriptor: number[] | null) => void;
   onError: (error: string) => void;
   sessionId?: string;
   userId?: string;
@@ -116,7 +116,7 @@ export const FaceVerificationModal: FC<FaceVerificationModalProps> = ({
             new faceapi.TinyFaceDetectorOptions({ inputSize: 320, scoreThreshold: 0.4 })
           )
           .withFaceLandmarks()
-          .withFaceExpressions();
+          .withFaceDescriptors();
 
         const canvas = canvasRef.current;
         const ctx = canvas.getContext('2d');
@@ -148,7 +148,7 @@ export const FaceVerificationModal: FC<FaceVerificationModalProps> = ({
               height: detection.detection.box.height
             },
             landmarks: detection.landmarks?.positions?.length || 0,
-            expressions: detection.expressions ? Object.keys(detection.expressions).length : 0
+            hasDescriptor: !!detection.descriptor
           }))
         };
 
@@ -248,6 +248,8 @@ export const FaceVerificationModal: FC<FaceVerificationModalProps> = ({
             shouldContinueDetection = false;
             setIsDetecting(false);
 
+            const descriptorArray = detections[0]?.descriptor ? Array.from(detections[0].descriptor) : null;
+
             // Capture full video frame image from canvas and pass to parent component
             const video = videoRef.current;
             if (canvas && video) {
@@ -260,7 +262,7 @@ export const FaceVerificationModal: FC<FaceVerificationModalProps> = ({
 
               canvas.toBlob((blob) => {
                 if (blob) {
-                  onSuccess(blob);
+                  onSuccess(blob, descriptorArray);
                 } else {
                   onError(t('faceVerification.captureError'));
                 }

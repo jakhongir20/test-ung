@@ -415,7 +415,7 @@ export const RegisterForm: FC<Props> = ({}) => {
           render={({field}) => (
             <select {...field} className={authInputStyle} disabled={positionsLoading || !branchId || branchId === 0}>
               <option value={0}>{t('auth.selectPosition')}</option>
-              {filteredPositions.map((position) => (
+              {filteredPositions?.map((position) => (
                 <option key={position.id} value={position.id}>
                   {getLocalizedName(position)}
                 </option>

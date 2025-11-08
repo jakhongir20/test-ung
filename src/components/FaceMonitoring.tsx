@@ -9,14 +9,15 @@ interface FaceMonitoringProps {
   isActive: boolean;
   sessionId: string; // Required for server communication
   userId?: string; // Add userId for proctor API
-  onViolation: (violationType: 'no_face' | 'multiple_faces' | 'face_lost' | 'tab_switched') => void;
+  onViolation: (violationType: 'no_face' | 'multiple_faces' | 'face_lost' | 'tab_switched' | 'face_mismatch') => void;
   onTestTerminated: () => void;
   checkInterval?: number; // milliseconds between checks
+  referenceDescriptor?: number[] | null; // Reference descriptor captured during verification
 }
 
 interface ViolationAlertProps {
   isOpen: boolean;
-  violationType: 'no_face' | 'multiple_faces' | 'face_lost' | 'tab_switched';
+  violationType: 'no_face' | 'multiple_faces' | 'face_lost' | 'tab_switched' | 'face_mismatch';
   attemptCount: number;
   maxAttempts: number;
   onClose: () => void;
@@ -25,7 +26,7 @@ interface ViolationAlertProps {
 // Map internal violation types to API violation types
 type APIViolationType = 'no_face' | 'multiple_face' | 'one_face' | 'another_tab' | 'switch_tab' | 'error_netwrok';
 
-const mapViolationTypeToAPI = (violationType: 'no_face' | 'multiple_faces' | 'face_lost' | 'tab_switched'): APIViolationType => {
+const mapViolationTypeToAPI = (violationType: 'no_face' | 'multiple_faces' | 'face_lost' | 'tab_switched' | 'face_mismatch'): APIViolationType => {
   switch (violationType) {
     case 'no_face':
       return 'no_face';
@@ -35,6 +36,8 @@ const mapViolationTypeToAPI = (violationType: 'no_face' | 'multiple_faces' | 'fa
       return 'no_face'; // Face lost is treated as no face
     case 'tab_switched':
       return 'switch_tab';
+    case 'face_mismatch':
+      return 'one_face';
     default:
       return 'no_face';
   }
@@ -70,6 +73,9 @@ const ViolationAlert: FC<ViolationAlertProps> = ({
         break;
       case 'tab_switched':
         message = t('faceMonitoring.tabSwitched');
+        break;
+      case 'face_mismatch':
+        message = t('faceMonitoring.faceMismatch');
         break;
       default:
         message = t('faceMonitoring.violationDetected');
@@ -152,7 +158,8 @@ export const FaceMonitoring: FC<FaceMonitoringProps> = ({
   userId, // Add userId parameter
   onViolation,
   onTestTerminated,
-  checkInterval = 10000 // 10 seconds default
+  checkInterval = 3000, // default to 3 seconds for faster detection cadence
+  referenceDescriptor
 }) => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -161,19 +168,23 @@ export const FaceMonitoring: FC<FaceMonitoringProps> = ({
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const chunkNumberRef = useRef<number>(0);
   const currentChunkStartTimeRef = useRef<number>(0);
+  const hiddenMonitorIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const consecutiveNoFaceCountRef = useRef<number>(0);
   const consecutiveMultipleFacesCountRef = useRef<number>(0);
   const consecutiveGoodDetectionsRef = useRef<number>(0);
+  const consecutiveMismatchCountRef = useRef<number>(0);
+  const referenceDescriptorRef = useRef<Float32Array | null>(null);
 
   const [isModelsLoaded, setIsModelsLoaded] = useState(false);
   const [isMonitoring, setIsMonitoring] = useState(false);
   const [showViolationAlert, setShowViolationAlert] = useState(false);
-  const [currentViolationType, setCurrentViolationType] = useState<'no_face' | 'multiple_faces' | 'face_lost' | 'tab_switched'>('no_face');
+  const [currentViolationType, setCurrentViolationType] = useState<'no_face' | 'multiple_faces' | 'face_lost' | 'tab_switched' | 'face_mismatch'>('no_face');
   const [lastViolationTime, setLastViolationTime] = useState<number>(0);
-  const [isPageVisible, setIsPageVisible] = useState(true);
 
   const maxViolations = 3;
-  const violationCooldown = 5000; // 5 seconds cooldown between violations
+  const violationCooldown = 2000; // shorter cooldown between violations for faster feedback
+  const hiddenTabCheckInterval = 3000; // how often to re-check hidden tab violations
+  const faceMismatchThreshold = 0.58; // Euclidean distance threshold for face mismatch detection
 
   // Proctor API hooks
   const proctorHeartbeat = useProctorHeartbeat();
@@ -182,6 +193,14 @@ export const FaceMonitoring: FC<FaceMonitoringProps> = ({
   const violationCountQuery = useModeratorSessionViolations(sessionId);
   const serverViolationCount = (violationCountQuery.data as { violation_count?: number; })?.violation_count || 0;
   const shouldTerminate = (violationCountQuery.data as { should_terminate?: boolean; })?.should_terminate || false;
+
+  // Apply reference descriptor from verification (if available)
+  useEffect(() => {
+    if (referenceDescriptor && referenceDescriptor.length > 0) {
+      referenceDescriptorRef.current = new Float32Array(referenceDescriptor);
+      console.log('🆔 Face Monitoring: Loaded reference face descriptor from verification flow');
+    }
+  }, [referenceDescriptor]);
 
   // Handle server-side termination
   useEffect(() => {
@@ -201,47 +220,6 @@ export const FaceMonitoring: FC<FaceMonitoringProps> = ({
   }, [serverViolationCount, showViolationAlert]);
 
   // Page Visibility API detection
-  useEffect(() => {
-    const handleVisibilityChange = () => {
-      const isVisible = !document.hidden;
-
-      if (!isVisible && isPageVisible && isActive) {
-        // Page became hidden while monitoring is active
-
-        handleTabSwitch();
-      }
-
-      setIsPageVisible(isVisible);
-    };
-
-    // Add event listener
-    document.addEventListener('visibilitychange', handleVisibilityChange);
-
-    // Also listen for window focus/blur events for additional detection
-    const handleWindowBlur = () => {
-      if (isActive && isPageVisible) {
-
-        handleTabSwitch();
-      }
-    };
-
-    const handleWindowFocus = () => {
-
-      setIsPageVisible(true);
-    };
-
-    window.addEventListener('blur', handleWindowBlur);
-    window.addEventListener('focus', handleWindowFocus);
-
-    // Cleanup
-    return () => {
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
-      window.removeEventListener('blur', handleWindowBlur);
-      window.removeEventListener('focus', handleWindowFocus);
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isPageVisible, isActive]);
-
   // Load face-api.js models
   useEffect(() => {
     const loadModels = async () => {
@@ -462,30 +440,40 @@ export const FaceMonitoring: FC<FaceMonitoringProps> = ({
     // chunkNumberRef.current will be reset only when component unmounts
   }, []);
 
-  const detectFace = useCallback(async () => {
+  type FaceDetectionResult = {
+    faceCount: number;
+    confidence: number;
+    descriptor?: Float32Array | null;
+  };
+
+  const detectFace = useCallback(async (): Promise<FaceDetectionResult | null> => {
     if (!videoRef.current || !isModelsLoaded) return null;
 
     try {
-      const detections = await faceapi.detectAllFaces(
-        videoRef.current,
-        new faceapi.TinyFaceDetectorOptions({
-          inputSize: 320,        // Larger input size for better detection
-          scoreThreshold: 0.4    // Lower threshold to detect faces at angles
-        })
-      );
+      const detections = await faceapi
+        .detectAllFaces(
+          videoRef.current,
+          new faceapi.TinyFaceDetectorOptions({
+            inputSize: 320, // Larger input size for better detection
+            scoreThreshold: 0.4 // Lower threshold to detect faces at angles
+          })
+        )
+        .withFaceLandmarks()
+        .withFaceDescriptors();
 
       // Log detailed face detection data for server communication
       console.log('📊 Face Detection Data:', {
         timestamp: new Date().toISOString(),
         faceCount: detections.length,
         detections: detections.map(detection => ({
-          confidence: detection.score,
+          confidence: detection.detection.score,
           box: {
-            x: detection.box.x,
-            y: detection.box.y,
-            width: detection.box.width,
-            height: detection.box.height
-          }
+            x: detection.detection.box.x,
+            y: detection.detection.box.y,
+            width: detection.detection.box.width,
+            height: detection.detection.box.height
+          },
+          hasDescriptor: !!detection.descriptor
         })),
         videoDimensions: {
           width: videoRef.current.videoWidth,
@@ -500,7 +488,7 @@ export const FaceMonitoring: FC<FaceMonitoringProps> = ({
             data: {
               session_id: sessionId,
               face_count: detections.length,
-              confidence_score: detections.length > 0 ? detections[0].score : 0,
+              confidence_score: detections.length > 0 ? detections[0].detection.score : 0,
               timestamp: new Date().toISOString(),
             },
           });
@@ -511,7 +499,8 @@ export const FaceMonitoring: FC<FaceMonitoringProps> = ({
 
       return {
         faceCount: detections.length,
-        confidence: detections.length > 0 ? detections[0].score : 0
+        confidence: detections.length > 0 ? detections[0].detection.score : 0,
+        descriptor: detections.length === 1 ? detections[0].descriptor : null
       };
     } catch {
       console.log('❌ Face Monitoring: Face detection error occurred');
@@ -527,11 +516,6 @@ export const FaceMonitoring: FC<FaceMonitoringProps> = ({
       return;
     }
 
-    // Only handle violation if alert is not already showing
-    if (showViolationAlert) {
-      return;
-    }
-
     // Only record violation if on test page
     const isOnTestPage = window.location.pathname.includes('test');
     if (!isOnTestPage) {
@@ -539,8 +523,12 @@ export const FaceMonitoring: FC<FaceMonitoringProps> = ({
       return;
     }
 
-    setCurrentViolationType('tab_switched');
-    setShowViolationAlert(true);
+    if (!showViolationAlert) {
+      setCurrentViolationType('tab_switched');
+      setShowViolationAlert(true);
+    } else {
+      setCurrentViolationType('tab_switched');
+    }
     setLastViolationTime(now);
 
     try {
@@ -566,16 +554,25 @@ export const FaceMonitoring: FC<FaceMonitoringProps> = ({
     onViolation('tab_switched');
   }, [sessionId, lastViolationTime, violationCooldown, showViolationAlert, proctorRecordViolation, onViolation, captureSnapshot]);
 
-  const handleViolation = useCallback(async (violationType: 'no_face' | 'multiple_faces' | 'face_lost', detectionData?: { faceCount?: number; confidence?: number; }) => {
+  const startHiddenMonitor = useCallback(() => {
+    if (hiddenMonitorIntervalRef.current) return;
+    hiddenMonitorIntervalRef.current = setInterval(() => {
+      handleTabSwitch();
+    }, hiddenTabCheckInterval);
+  }, [handleTabSwitch, hiddenTabCheckInterval]);
+
+  const stopHiddenMonitor = useCallback(() => {
+    if (hiddenMonitorIntervalRef.current) {
+      clearInterval(hiddenMonitorIntervalRef.current);
+      hiddenMonitorIntervalRef.current = null;
+    }
+  }, []);
+
+  const handleViolation = useCallback(async (violationType: 'no_face' | 'multiple_faces' | 'face_lost' | 'face_mismatch', detectionData?: { faceCount?: number; confidence?: number; descriptorDistance?: number; }) => {
     const now = Date.now();
 
     // Check cooldown period
     if (now - lastViolationTime < violationCooldown) {
-      return;
-    }
-
-    // Only handle violation if alert is not already showing
-    if (showViolationAlert) {
       return;
     }
 
@@ -586,8 +583,12 @@ export const FaceMonitoring: FC<FaceMonitoringProps> = ({
       return;
     }
 
-    setCurrentViolationType(violationType);
-    setShowViolationAlert(true);
+    if (!showViolationAlert || currentViolationType !== violationType) {
+      setCurrentViolationType(violationType);
+      if (!showViolationAlert) {
+        setShowViolationAlert(true);
+      }
+    }
     setLastViolationTime(now);
 
     try {
@@ -611,7 +612,7 @@ export const FaceMonitoring: FC<FaceMonitoringProps> = ({
     }
 
     onViolation(violationType);
-  }, [sessionId, lastViolationTime, violationCooldown, showViolationAlert, proctorRecordViolation, onViolation, captureSnapshot]);
+  }, [sessionId, lastViolationTime, violationCooldown, showViolationAlert, currentViolationType, proctorRecordViolation, onViolation, captureSnapshot]);
 
   const startMonitoring = useCallback(() => {
     if (!isActive || !isModelsLoaded) return;
@@ -622,12 +623,12 @@ export const FaceMonitoring: FC<FaceMonitoringProps> = ({
     consecutiveNoFaceCountRef.current = 0;
     consecutiveMultipleFacesCountRef.current = 0;
     consecutiveGoodDetectionsRef.current = 0;
+    consecutiveMismatchCountRef.current = 0;
 
     // Start video recording
     startVideoRecording();
 
-    // Start periodic face detection
-    intervalRef.current = setInterval(async () => {
+    const processDetection = async () => {
       const detectionResult = await detectFace();
 
       if (detectionResult === null) {
@@ -641,7 +642,10 @@ export const FaceMonitoring: FC<FaceMonitoringProps> = ({
           handleViolation('face_lost', { faceCount: 0, confidence: 0 });
           consecutiveNoFaceCountRef.current = 0; // Reset after violation
         }
-      } else if (detectionResult.faceCount === 0) {
+        return;
+      }
+
+      if (detectionResult.faceCount === 0) {
         // No face detected - increment counter
         consecutiveNoFaceCountRef.current++;
         consecutiveMultipleFacesCountRef.current = 0; // Reset multiple faces counter
@@ -652,7 +656,10 @@ export const FaceMonitoring: FC<FaceMonitoringProps> = ({
           handleViolation('no_face', { faceCount: 0, confidence: 0 });
           consecutiveNoFaceCountRef.current = 0; // Reset after violation
         }
-      } else if (detectionResult.faceCount > 1) {
+        return;
+      }
+
+      if (detectionResult.faceCount > 1) {
         // Multiple faces detected - increment counter
         consecutiveMultipleFacesCountRef.current++;
         consecutiveNoFaceCountRef.current = 0; // Reset no face counter
@@ -666,15 +673,88 @@ export const FaceMonitoring: FC<FaceMonitoringProps> = ({
           });
           consecutiveMultipleFacesCountRef.current = 0; // Reset after violation
         }
-      } else if (detectionResult.faceCount === 1) {
-        // Good detection - reset all violation counters and increment good counter
-        consecutiveNoFaceCountRef.current = 0;
-        consecutiveMultipleFacesCountRef.current = 0;
-        consecutiveGoodDetectionsRef.current++;
+        return;
       }
-    }, checkInterval);
+
+      // Exactly one face detected - evaluate identity
+      consecutiveNoFaceCountRef.current = 0;
+      consecutiveMultipleFacesCountRef.current = 0;
+      const descriptor = detectionResult.descriptor;
+
+      if (descriptor) {
+        if (!referenceDescriptorRef.current) {
+          referenceDescriptorRef.current = descriptor;
+          console.log('🎯 Face Monitoring: Reference face descriptor captured for identity validation');
+        } else {
+          const reference = referenceDescriptorRef.current;
+          const distance = faceapi.euclideanDistance(Array.from(reference), Array.from(descriptor));
+          console.log(`🆔 Face Monitoring: Descriptor distance ${distance.toFixed(4)} (threshold ${faceMismatchThreshold})`);
+
+          if (distance > faceMismatchThreshold) {
+            consecutiveMismatchCountRef.current++;
+            consecutiveGoodDetectionsRef.current = 0;
+
+            if (consecutiveMismatchCountRef.current >= 2) {
+              handleViolation('face_mismatch', {
+                faceCount: detectionResult.faceCount,
+                confidence: detectionResult.confidence,
+                descriptorDistance: distance
+              });
+              consecutiveMismatchCountRef.current = 0;
+            }
+            return;
+          }
+        }
+      }
+
+      // Good detection of the verified user - reset violation counters
+      consecutiveMismatchCountRef.current = 0;
+      consecutiveGoodDetectionsRef.current++;
+    };
+
+    // Start periodic face detection
+    intervalRef.current = setInterval(processDetection, checkInterval);
+    // Run immediately for quicker feedback
+    processDetection();
 
   }, [isActive, isModelsLoaded, detectFace, checkInterval, handleViolation, startVideoRecording]);
+
+  useEffect(() => {
+    if (!isActive) {
+      stopHiddenMonitor();
+      return;
+    }
+
+    const handleVisibilityChange = () => {
+      if (document.hidden) {
+        handleTabSwitch();
+        startHiddenMonitor();
+      } else {
+        stopHiddenMonitor();
+      }
+    };
+
+    const handleWindowBlur = () => {
+      if (isActive) {
+        handleTabSwitch();
+        startHiddenMonitor();
+      }
+    };
+
+    const handleWindowFocus = () => {
+      stopHiddenMonitor();
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    window.addEventListener('blur', handleWindowBlur);
+    window.addEventListener('focus', handleWindowFocus);
+
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.removeEventListener('blur', handleWindowBlur);
+      window.removeEventListener('focus', handleWindowFocus);
+    };
+  }, [isActive, handleTabSwitch, startHiddenMonitor, stopHiddenMonitor]);
 
   const stopMonitoring = useCallback(() => {
     if (intervalRef.current) {
@@ -684,10 +764,11 @@ export const FaceMonitoring: FC<FaceMonitoringProps> = ({
 
     // Stop video recording
     stopVideoRecording();
+    stopHiddenMonitor();
 
     setIsMonitoring(false);
 
-  }, [stopVideoRecording]);
+  }, [stopVideoRecording, stopHiddenMonitor]);
 
   const handleViolationAlertClose = useCallback(() => {
     setShowViolationAlert(false);
@@ -702,6 +783,7 @@ export const FaceMonitoring: FC<FaceMonitoringProps> = ({
     return () => {
       stopMonitoring();
       stopVideoRecording();
+      stopHiddenMonitor();
       if (streamRef.current) {
         streamRef.current.getTracks().forEach(track => track.stop());
       }
@@ -709,7 +791,7 @@ export const FaceMonitoring: FC<FaceMonitoringProps> = ({
       chunkNumberRef.current = 0;
       currentChunkStartTimeRef.current = 0;
     };
-  }, [stopMonitoring, stopVideoRecording]);
+  }, [stopMonitoring, stopVideoRecording, stopHiddenMonitor]);
 
   // Start/stop monitoring based on isActive
   useEffect(() => {

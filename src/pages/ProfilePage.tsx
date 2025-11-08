@@ -94,6 +94,7 @@ const ProfilePage: FC = () => {
       }
       setPendingSessionId(sessionId);
       localStorage.setItem('currentSurveySession', JSON.stringify(res));
+      sessionStorage.removeItem('faceReferenceDescriptor');
 
       // Open face verification modal with sessionId
       // The actual face_image will be sent after successful verification in the modal
@@ -108,8 +109,18 @@ const ProfilePage: FC = () => {
     }
   };
 
-  const handleFaceVerificationSuccess = async (faceImageBlob: Blob) => {
+  const handleFaceVerificationSuccess = async (faceImageBlob: Blob, faceDescriptor: number[] | null) => {
     setIsFaceVerificationOpen(false);
+
+    try {
+      if (faceDescriptor && faceDescriptor.length > 0) {
+        sessionStorage.setItem('faceReferenceDescriptor', JSON.stringify(faceDescriptor));
+      } else {
+        sessionStorage.removeItem('faceReferenceDescriptor');
+      }
+    } catch (error) {
+      console.log('Failed to cache face reference descriptor', error);
+    }
 
     // Send sessionId and face_image to /api/proctor/verify-initial/ after successful verification
     if (pendingSessionId && faceImageBlob) {
