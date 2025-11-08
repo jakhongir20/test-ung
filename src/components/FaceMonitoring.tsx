@@ -183,6 +183,7 @@ export const FaceMonitoring: FC<FaceMonitoringProps> = ({
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const chunkNumberRef = useRef<number>(0);
   const currentChunkStartTimeRef = useRef<number>(0);
+  const uploadQueueRef = useRef<Promise<void>>(Promise.resolve());
   const hiddenMonitorIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const consecutiveNoFaceCountRef = useRef<number>(0);
   const consecutiveMultipleFacesCountRef = useRef<number>(0);
@@ -325,10 +326,13 @@ export const FaceMonitoring: FC<FaceMonitoringProps> = ({
   }, []);
 
   // Upload video chunk to server
-  const uploadVideoChunk = useCallback(async (videoBlob: Blob, chunkStartTime: number, chunkEndTime: number) => {
+  const uploadVideoChunk = useCallback((videoBlob: Blob, chunkStartTime: number, chunkEndTime: number, mimeType?: string) => {
     if (!sessionId || videoBlob.size === 0) return;
 
     const chunkNumber = chunkNumberRef.current;
+    // Reserve the next chunk number immediately to prevent duplicate numbers
+    // if the recorder emits data faster than the upload completes.
+    chunkNumberRef.current += 1;
     const chunkDuration = (chunkEndTime - chunkStartTime) / 1000; // Convert to seconds
     const video = videoRef.current;
 
@@ -336,35 +340,40 @@ export const FaceMonitoring: FC<FaceMonitoringProps> = ({
     const resolution = video ? `${video.videoWidth}x${video.videoHeight}` : '640x480';
     const hasAudio = (streamRef.current?.getAudioTracks().length ?? 0) > 0;
 
-    try {
-      await proctorUploadChunk.mutateAsync({
-        data: {
-          session_id: sessionId,
-          chunk_number: chunkNumber,
-          video_chunk: videoBlob,
-          duration_seconds: chunkDuration,
-          start_time: chunkStartTime,
-          end_time: chunkEndTime,
-          has_audio: hasAudio,
-          resolution: resolution,
-          fps: 15, // Standard FPS for webcam
-        },
-      });
+    uploadQueueRef.current = uploadQueueRef.current.then(async () => {
+      const normalizedMimeType = (mimeType || videoBlob.type || 'video/webm').includes('webm')
+        ? 'video/webm'
+        : mimeType || videoBlob.type || 'video/webm';
+      const chunkFile = new File([videoBlob], `chunk-${chunkNumber}.webm`, { type: normalizedMimeType });
 
-      console.log('✅ Face Monitoring: Chunk uploaded successfully', {
-        chunkNumber,
-        size: videoBlob.size,
-        duration: chunkDuration.toFixed(2) + 's',
-        resolution,
-        startTime: new Date(chunkStartTime).toISOString(),
-        endTime: new Date(chunkEndTime).toISOString(),
-      });
+      try {
+        await proctorUploadChunk.mutateAsync({
+          data: {
+            session_id: sessionId,
+            chunk_number: chunkNumber,
+            video_chunk: chunkFile,
+            duration_seconds: chunkDuration,
+            start_time: chunkStartTime,
+            end_time: chunkEndTime,
+            has_audio: hasAudio,
+            resolution: resolution,
+            fps: 15, // Standard FPS for webcam
+          },
+        });
 
-      // Increment chunk number for next upload (never reset)
-      chunkNumberRef.current += 1;
-    } catch (error) {
-      console.log('❌ Face Monitoring: Failed to upload chunk:', error);
-    }
+        console.log('✅ Face Monitoring: Chunk uploaded successfully', {
+          chunkNumber,
+          size: videoBlob.size,
+          duration: `${chunkDuration.toFixed(2)}s`,
+          resolution,
+          startTime: new Date(chunkStartTime).toISOString(),
+          endTime: new Date(chunkEndTime).toISOString(),
+          mimeType: normalizedMimeType,
+        });
+      } catch (error) {
+        console.log('❌ Face Monitoring: Failed to upload chunk:', error);
+      }
+    });
   }, [sessionId, proctorUploadChunk]);
 
   // Start video recording
@@ -387,8 +396,9 @@ export const FaceMonitoring: FC<FaceMonitoringProps> = ({
         console.log('✅ Face Monitoring: Starting new recording session, chunk number: 0');
       }
 
-      // Try different codecs in order of preference
-      const codecs = ['video/webm;codecs=vp9', 'video/webm;codecs=vp8', 'video/webm', 'video/mp4'];
+      // Try different WebM codecs in order of preference.
+      // We avoid MP4 containers because the backend expects WebM chunks and FFmpeg will fail otherwise.
+      const codecs = ['video/webm;codecs=vp9', 'video/webm;codecs=vp8', 'video/webm'];
       let selectedMimeType = '';
 
       for (const codec of codecs) {
@@ -399,7 +409,7 @@ export const FaceMonitoring: FC<FaceMonitoringProps> = ({
       }
 
       if (!selectedMimeType) {
-        console.log('⚠️ Face Monitoring: No supported video codec found');
+        console.log('⚠️ Face Monitoring: No supported WebM codec found. Video recording will not start.');
         return;
       }
 
@@ -418,7 +428,7 @@ export const FaceMonitoring: FC<FaceMonitoringProps> = ({
 
           console.log('📹 Face Monitoring: Video chunk ready, size:', event.data.size);
 
-          uploadVideoChunk(event.data, chunkStartTime, chunkEndTime);
+          uploadVideoChunk(event.data, chunkStartTime, chunkEndTime, selectedMimeType);
 
           // Update start time for next chunk
           currentChunkStartTimeRef.current = chunkEndTime;

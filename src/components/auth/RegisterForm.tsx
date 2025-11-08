@@ -23,6 +23,17 @@ type RegisterFormValues = {
   branch_id: number;
 };
 
+const defaultFormValues: RegisterFormValues = {
+  pinfl: '',
+  login: '',
+  password: '',
+  confirmPassword: '',
+  name: '',
+  position_id: 0,
+  gtf_id: 0,
+  branch_id: 0
+};
+
 
 export const authInputStyle = 'block !border-1 w-full !text-[#64748B] focus:!text-black !text-base !h-11 !rounded-xl border-[#E2E8F0] focus:ring-[#00A2DE] focus:border-[#00A2DE] px-3 py-2';
 
@@ -49,22 +60,14 @@ export const RegisterForm: FC<Props> = ({ }) => {
     watch,
     setValue
   } = useForm<RegisterFormValues>({
-    defaultValues: {
-      pinfl: '',
-      login: '',
-      password: '',
-      confirmPassword: '',
-      name: '',
-      position_id: 0,
-      gtf_id: 0,
-      branch_id: 0
-    },
+    defaultValues: defaultFormValues,
   });
 
   const prevLangRef = useRef(lang);
   const password = watch('password');
   const branchId = watch('branch_id');
   const pinfl = watch('pinfl');
+  const skipPositionResetRef = useRef(false);
 
   // Helper function to get localized name
   const getLocalizedName = (item: any) => {
@@ -79,6 +82,13 @@ export const RegisterForm: FC<Props> = ({ }) => {
         return item.name_uz || item.name_uz_cyrl || item.name_ru || 'N/A';
     }
   };
+
+  const normalizeText = (value?: string | null) =>
+    (value || '')
+      .replace(/["«»]/g, '')
+      .toLowerCase()
+      .replace(/\s+/g, ' ')
+      .trim();
 
   const getLocalizedPositionLabel = (position: any) => {
     const positionName = getLocalizedName(position);
@@ -126,6 +136,10 @@ export const RegisterForm: FC<Props> = ({ }) => {
 
   // Reset position when branch changes
   useEffect(() => {
+    if (skipPositionResetRef.current) {
+      skipPositionResetRef.current = false;
+      return;
+    }
     setValue('position_id', 0);
   }, [branchId, setValue]);
 
@@ -215,31 +229,62 @@ export const RegisterForm: FC<Props> = ({ }) => {
         return;
       }
 
-      // Auto-populate form fields from 1C response
-      if (employeeData.full_name) {
-        setValue('name', employeeData.full_name);
+      const branches = branchesData?.branches || [];
+      const normalizedBranchFromApi = normalizeText(employeeData.branch);
+
+      const matchingBranch = branches.find((branch: any) => branch?.uuid === employeeData.branch_id) ||
+        branches.find((branch: any) => {
+          const potentialNames = [
+            branch?.name_uz,
+            branch?.name_uz_cyrl,
+            branch?.name_ru,
+            branch?.name
+          ];
+          return potentialNames.some((name) => normalizeText(name) === normalizedBranchFromApi);
+        });
+
+      const positions = positionsData?.positions || [];
+      const normalizedPositionFromApi = normalizeText(employeeData.position);
+
+      const matchingPosition = positions.find((position: any) => position?.uuid === employeeData.position_id) ||
+        positions.find((position: any) => {
+          const potentialNames = [
+            position?.name_uz,
+            position?.name_uz_cyrl,
+            position?.name_ru,
+            position?.name
+          ];
+          const matchesName = potentialNames.some((name) => normalizeText(name) === normalizedPositionFromApi);
+          const branchMatches = matchingBranch
+            ? (position?.branch?.id === matchingBranch.id || normalizeText(position?.branch?.name_ru) === normalizedBranchFromApi)
+            : true;
+          return matchesName && branchMatches;
+        });
+
+      const resolvedPinfl = ((employeeData.pinfl ?? pinfl) || '').toString().trim();
+      if (resolvedPinfl) {
+        setValue('pinfl', resolvedPinfl, { shouldDirty: true });
       }
 
-      if (employeeData.phone) {
-        setValue('login', employeeData.phone);
+      const loginValue = (employeeData.phone && employeeData.phone.trim()) ||
+        (employeeData.tin && employeeData.tin.toString().trim()) ||
+        '';
+      if (loginValue) {
+        setValue('login', loginValue, { shouldDirty: true });
       }
 
-      // Find matching position by position_id (UUID)
-      if (employeeData.position_id && positionsData?.positions) {
-        const matchingPosition = (positionsData.positions as Array<{ id: number; uuid?: string; }>)
-          .find((pos: { id: number; uuid?: string; }) => pos.uuid === employeeData.position_id);
-        if (matchingPosition) {
-          setValue('position_id', matchingPosition.id);
-        }
+      const fullName = (employeeData.full_name || '').trim();
+      if (fullName) {
+        setValue('name', fullName, { shouldDirty: true });
       }
 
-      // Find matching branch by branch_id (UUID)
-      if (employeeData.branch_id && branchesData?.branches) {
-        const matchingBranch = (branchesData.branches as Array<{ id: number; uuid?: string; }>)
-          .find((branch: { id: number; uuid?: string; }) => branch.uuid === employeeData.branch_id);
-        if (matchingBranch) {
-          setValue('branch_id', matchingBranch.id);
-        }
+      if (matchingBranch) {
+        skipPositionResetRef.current = true;
+        setValue('branch_id', matchingBranch.id, { shouldDirty: true });
+      }
+
+      if (matchingPosition) {
+        setValue('position_id', matchingPosition.id, { shouldDirty: true });
       }
 
       console.log('✅ Employee data fetched from 1C by PINFL:', employeeData);
@@ -419,7 +464,7 @@ export const RegisterForm: FC<Props> = ({ }) => {
           control={control}
           rules={{ required: t('auth.fieldRequired'), validate: (v: number) => v !== 0 || t('auth.fieldRequired') }}
           render={({ field }) => (
-            <select {...field} className={authInputStyle} disabled={positionsLoading || !branchId || branchId === 0}>
+            <select {...field} className={authInputStyle} disabled={positionsLoading}>
               <option value={0}>{t('auth.selectPosition')}</option>
               {filteredPositions?.map((position) => (
                 <option key={position.id} value={position.id}>
