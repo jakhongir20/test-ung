@@ -4,7 +4,7 @@ import { useParams } from 'react-router-dom';
 import { useI18n } from '../i18n';
 import { handleAuthError } from '../api/auth';
 import { useModeratorUserSessionDetails } from '../api/moderator';
-import { useUsersMeRetrieve, useModeratorUsersSessionViolationsRetrieve } from '../api/generated/respondentWebAPI';
+import { useModeratorUsersSessionViolationsRetrieve, useUsersMeRetrieve } from '../api/generated/respondentWebAPI';
 import { MyProfileBanner } from "../components/MyProfileBanner.tsx";
 import type { Column } from "../components/DataTable.tsx";
 import { DataTable } from "../components/DataTable.tsx";
@@ -44,8 +44,8 @@ interface RecordingData {
 }
 
 const SessionDetailsPage: FC = () => {
-  const { t, lang } = useI18n();
-  const { id } = useParams<{ id: string; }>();
+  const {t, lang} = useI18n();
+  const {id} = useParams<{ id: string; }>();
   const userQuery = useUsersMeRetrieve();
   const [activeTab, setActiveTab] = useState<TabType>('results');
 
@@ -71,6 +71,8 @@ const SessionDetailsPage: FC = () => {
     enabled: !!id && activeTab === 'violations',
   });
 
+  console.log('recordingQuery data', recordingQuery.data)
+
   useEffect(() => {
     if (sessionQuery.error && handleAuthError(sessionQuery.error)) {
       return; // Already redirected to login
@@ -79,7 +81,7 @@ const SessionDetailsPage: FC = () => {
 
   // If user is not a moderator (based on users/me), redirect to user session details page
   if (userQuery.data && !userQuery.data.is_moderator) {
-    return <UserSessionDetailsPage />;
+    return <UserSessionDetailsPage/>;
   }
 
   // Fetch session details with moderator API
@@ -95,7 +97,7 @@ const SessionDetailsPage: FC = () => {
             <svg className="w-8 h-8 text-cyan-600 animate-spin" fill="none" viewBox="0 0 24 24">
               <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
               <path className="opacity-75" fill="currentColor"
-                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
             </svg>
           </div>
           <h2 className="text-xl font-semibold text-gray-900 mb-2">{t('loading.sessionDetails')}</h2>
@@ -115,7 +117,7 @@ const SessionDetailsPage: FC = () => {
           <div className="w-16 h-16 mx-auto mb-4 bg-red-100 rounded-full flex items-center justify-center">
             <svg className="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"/>
             </svg>
           </div>
           <h2 className="text-xl font-semibold text-gray-900 mb-2">{t('error.connection')}</h2>
@@ -145,7 +147,7 @@ const SessionDetailsPage: FC = () => {
   const incorrectAnswers = totalQuestions - correctAnswers;
 
   const getAnswerStatus = (question: any) => {
-    if (!question.answer) return { status: 'incorrect', text: t('session.incorrect') };
+    if (!question.answer) return {status: 'incorrect', text: t('session.incorrect')};
     const isCorrect = question.answer.is_correct;
     return {
       status: isCorrect ? 'correct' : 'incorrect',
@@ -263,7 +265,7 @@ const SessionDetailsPage: FC = () => {
       className: 'whitespace-nowrap',
       render: (_, question) => {
         const answerStatus = getAnswerStatus(question);
-        return <StatusBadge status={answerStatus.status} />;
+        return <StatusBadge status={answerStatus.status}/>;
       }
     },
     {
@@ -299,8 +301,8 @@ const SessionDetailsPage: FC = () => {
   return (
     <BackgroundWrapper>
       <div className="min-h-screen md:p-6">
-        <MyProfileBanner title={t('session.scoreDetails')} description={t('session.scoreDetailsDesc')} />
-        <br />
+        <MyProfileBanner title={t('session.scoreDetails')} description={t('session.scoreDetailsDesc')}/>
+        <br/>
         <div className={CARD_STYLES}>
           <div className="">
             <h2 className="text-2xl font-bold text-gray-900 mb-6">
@@ -354,7 +356,7 @@ const SessionDetailsPage: FC = () => {
                 className={`px-4 py-2 font-medium transition-colors ${activeTab === 'results'
                   ? 'text-cyan-600 border-b-2 border-cyan-600'
                   : 'text-gray-600 hover:text-gray-900'
-                  }`}
+                }`}
               >
                 {t('session.testResults')}
               </button>
@@ -363,7 +365,7 @@ const SessionDetailsPage: FC = () => {
                 className={`px-4 py-2 font-medium transition-colors ${activeTab === 'violations'
                   ? 'text-cyan-600 border-b-2 border-cyan-600'
                   : 'text-gray-600 hover:text-gray-900'
-                  }`}
+                }`}
               >
                 {t('session.violationCases')}
               </button>
@@ -434,7 +436,8 @@ const SessionDetailsPage: FC = () => {
                     <h3 className="text-xl font-semibold text-gray-900 mb-4">{t('session.violationsTitle')}</h3>
                     <div className="space-y-4">
                       {(violationsQuery.data as ViolationData[]).map((violation) => (
-                        <div key={violation.id} className="border border-gray-200 rounded-lg p-4 hover:border-gray-300 transition-colors">
+                        <div key={violation.id}
+                             className="border border-gray-200 rounded-lg p-4 hover:border-gray-300 transition-colors">
                           <div className="flex items-start gap-4">
                             {/* Snapshot */}
                             {violation.snapshot_url && (
@@ -450,7 +453,8 @@ const SessionDetailsPage: FC = () => {
                             {/* Violation Details */}
                             <div className="flex-1">
                               <div className="flex items-center gap-2 mb-2">
-                                <span className="px-3 py-1 bg-red-100 text-red-800 rounded-full text-sm font-medium uppercase tracking-wide">
+                                <span
+                                  className="px-3 py-1 bg-red-100 text-red-800 rounded-full text-sm font-medium uppercase tracking-wide">
                                   {getViolationTypeLabel(violation.violation_type)}
                                 </span>
                                 <span className="text-sm text-gray-500">
@@ -479,7 +483,7 @@ const SessionDetailsPage: FC = () => {
                     <div className="w-16 h-16 mx-auto mb-4 bg-gray-100 rounded-full flex items-center justify-center">
                       <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                          d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                              d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
                       </svg>
                     </div>
                     <h3 className="text-lg font-medium text-gray-900 mb-2">{t('session.noViolations')}</h3>

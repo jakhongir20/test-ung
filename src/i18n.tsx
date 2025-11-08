@@ -3,7 +3,11 @@ import { createContext, type FC, type ReactNode, useContext, useEffect, useMemo,
 
 export type LanguageCode = 'uz' | 'uz-cyrl' | 'ru';
 
-type Dictionary = Record<string, Record<LanguageCode, string>>;
+type DictionaryEntry = Record<LanguageCode, string> & {
+  [extra: string]: string;
+};
+
+type Dictionary = Record<string, DictionaryEntry>;
 
 const dictionary: Dictionary = {
   'language.uz': { uz: "O'zbek", 'uz-cyrl': "Ўзбек", ru: "Узбекский" },
@@ -163,6 +167,12 @@ const dictionary: Dictionary = {
     uz: 'Boshqa tab yoki oynaga o\'tish aniqlandi. Iltimos, test sahifasida qoling.',
     'uz-cyrl': 'Бошқа таб ёки ойнага ўтиш аниқланди. Илтимос, тест саҳифасида қолинг.',
     ru: 'Обнаружено переключение на другую вкладку или окно. Пожалуйста, оставайтесь на странице теста.'
+  },
+  'faceMonitoring.faceMismatch': {
+    uz: 'Yuz mos kelmadi. Iltimos, tasdiqlangan foydalanuvchi testni davom ettirsin.',
+    'uz-cyrl': 'Юз мос келмади. Илтимос, тасдиқланган фойдаланувчи тестни давом эттирсин.',
+    ru: 'Обнаружено другое лицо. Пожалуйста, верните подтверждённого пользователя.',
+    en: 'Face mismatch detected. Please continue the test with the verified user.'
   },
   'faceMonitoring.violationDetected': {
     uz: 'Qoidabuzarlik aniqlandi.',
@@ -545,6 +555,12 @@ const dictionary: Dictionary = {
     uz: 'Bir nechta yuz',
     'uz-cyrl': 'Бир нечта юз',
     ru: 'Несколько лиц'
+  },
+  'session.violationType.one_face': {
+    uz: 'Tasdiqlanmagan yuz',
+    'uz-cyrl': 'Тасдиқланмаган юз',
+    ru: 'Стороннее лицо',
+    en: 'Face mismatch'
   },
   'session.violationType.face_lost': {
     uz: 'Yuz yo\'qotildi',
