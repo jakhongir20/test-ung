@@ -4,6 +4,7 @@ import { Controller, useForm } from "react-hook-form";
 import { useI18n } from "../i18n";
 import { logout, useUpdateUserProfile } from "../api/auth";
 import { useUsersMeRetrieve, usePositionsRetrieve, useGtfRetrieve } from "../api/generated/respondentWebAPI";
+import { useBodyScrollLock } from '../hooks/useBodyScrollLock';
 
 interface Props {
   isOpen: boolean;
@@ -22,6 +23,8 @@ export const SettingsModal: FC<Props> = ({ isOpen, onClose }) => {
   const { t, lang } = useI18n();
   const { data: user } = useUsersMeRetrieve();
   const updateProfile = useUpdateUserProfile();
+  
+  useBodyScrollLock(isOpen);
 
   // Fetch positions and GTF from API
   const { data: positionsData, isLoading: positionsLoading, error: positionsError } = usePositionsRetrieve();

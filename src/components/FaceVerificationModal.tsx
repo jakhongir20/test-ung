@@ -2,6 +2,7 @@ import type { FC } from 'react';
 import { useEffect, useRef, useState, useCallback, useMemo } from 'react';
 import * as faceapi from 'face-api.js';
 import { useI18n } from '../i18n';
+import { useBodyScrollLock } from '../hooks/useBodyScrollLock';
 
 interface FaceVerificationModalProps {
   isOpen: boolean;
@@ -22,6 +23,8 @@ export const FaceVerificationModal: FC<FaceVerificationModalProps> = ({
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
+
+  useBodyScrollLock(isOpen);
 
   const [isLoading, setIsLoading] = useState(true);
   const [isDetecting, setIsDetecting] = useState(false);

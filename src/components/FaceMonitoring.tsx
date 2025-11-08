@@ -3,6 +3,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import * as faceapi from 'face-api.js';
 import { useI18n } from '../i18n';
 import { useProctorHeartbeat, useProctorRecordViolation, useModeratorSessionViolations, useProctorUploadChunk } from '../api/surveys';
+import { useBodyScrollLock } from '../hooks/useBodyScrollLock';
 
 interface FaceMonitoringProps {
   isActive: boolean;
@@ -47,6 +48,8 @@ const ViolationAlert: FC<ViolationAlertProps> = ({
   onClose
 }) => {
   const { t } = useI18n();
+
+  useBodyScrollLock(isOpen);
 
   // Debug the values being passed to the alert
   console.log(`🔍 Face Monitoring Alert: isOpen=${isOpen}, violationType=${violationType}, attemptCount=${attemptCount}, maxAttempts=${maxAttempts}`);

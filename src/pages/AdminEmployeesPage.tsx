@@ -11,6 +11,7 @@ import { ProfileCardItem } from "../components/ProfileCardItem.tsx";
 import { BackgroundWrapper } from "../components/BackgroundWrapper.tsx";
 import { ConfirmationModal } from "../components/ConfirmationModal.tsx";
 import { PageTransition } from "../components/animations";
+import { useBodyScrollLock } from '../hooks/useBodyScrollLock';
 
 
 const AdminEmployeesPage: FC = () => {
@@ -29,6 +30,9 @@ const AdminEmployeesPage: FC = () => {
     userId: null,
     userName: ''
   });
+
+  // Prevent body scrolling when drawer or modal is open
+  useBodyScrollLock(!!selectedUserId || certificateModal.isOpen);
 
   // API query parameters
   const queryParams = useMemo(() => ({

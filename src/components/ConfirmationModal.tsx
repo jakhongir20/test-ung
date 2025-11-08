@@ -1,4 +1,5 @@
 import type { FC } from 'react';
+import { useBodyScrollLock } from '../hooks/useBodyScrollLock';
 
 interface ConfirmationModalProps {
   isOpen: boolean;
@@ -21,6 +22,8 @@ export const ConfirmationModal: FC<ConfirmationModalProps> = ({
   cancelText = 'Cancel',
   isLoading = false
 }) => {
+  useBodyScrollLock(isOpen);
+
   if (!isOpen) return null;
 
   return (
