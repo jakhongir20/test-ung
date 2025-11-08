@@ -196,7 +196,6 @@ export const FaceMonitoring: FC<FaceMonitoringProps> = ({
   const [showViolationAlert, setShowViolationAlert] = useState(false);
   const [currentViolationType, setCurrentViolationType] = useState<'no_face' | 'multiple_faces' | 'face_lost' | 'tab_switched' | 'face_mismatch'>('no_face');
   const [lastViolationTime, setLastViolationTime] = useState<number>(0);
-
   const maxViolations = 3;
   const violationCooldown = 1500; // shorter cooldown between violations for faster feedback
   const hiddenTabCheckInterval = 1500; // how often to re-check hidden tab violations
@@ -852,6 +851,7 @@ export const FaceMonitoring: FC<FaceMonitoringProps> = ({
         maxAttempts={maxViolations}
         onClose={handleViolationAlertClose}
       />
+
     </>
   );
 };
