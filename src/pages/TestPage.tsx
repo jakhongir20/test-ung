@@ -148,6 +148,10 @@ const TestPage: FC = () => {
   const expiresAtIso = (sessionData?.expires_at ?? progressData?.session?.expires_at) as string | undefined;
   const expiresAtMs = useMemo(() => expiresAtIso ? new Date(expiresAtIso).getTime() : undefined, [expiresAtIso]);
 
+  // Get real start time from API response
+  const startedAtIso = (sessionData?.started_at ?? progressData?.session?.started_at) as string | undefined;
+  const startedAtMs = useMemo(() => startedAtIso ? new Date(startedAtIso).getTime() : undefined, [startedAtIso]);
+
   useEffect(() => {
     if (!expiresAtMs) return;
     const now = Date.now();
@@ -570,6 +574,7 @@ const TestPage: FC = () => {
               total={safeTotal}
               isFinishing={isFinishing}
               endTime={expiresAtMs}
+              startTime={startedAtMs}
               timeLimitMinutes={sessionData?.survey?.time_limit_minutes}
               onExpire={() => setExpired(true)}
               onFinish={finishTest}

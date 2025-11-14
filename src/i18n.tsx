@@ -18,21 +18,21 @@ const dictionary: Dictionary = {
   'header.test': { uz: 'Test', 'uz-cyrl': 'Тест', ru: 'Тест' },
   'profile.title': { uz: 'Mening profilim', 'uz-cyrl': 'Менинг профилим', ru: 'Мой профиль' },
   'profile.subtitle': {
-    uz: "Mashq test natijalaringizni ko'rib chiqing, sinov kunidan oldin kuchli tomonlaringizni bilib oling.",
-    'uz-cyrl': "Машқ тест натижаларингизни кўриб чиқинг, синов кунидан олдин кучли томонларингизни билиб олинг.",
-    ru: 'Просмотрите результаты своего теста с упражнениями, чтобы узнать свои сильные стороны перед днем теста.'
+    uz: "Keyingi testlarga yaxshiroq tayyorgarlik ko'rish uchun oxirgi natijalaringizni ko'ring.",
+    'uz-cyrl': "Кейинги тестларга яхшироқ тайёргарлик кўриш учун охирги натижаларинингизни кўринг.",
+    ru: 'Посмотрите свои последние результаты, чтобы лучше подготовиться к следующим тестам.'
   },
   'profile.myDetails': { uz: 'Mening maʼlumotlarim', 'uz-cyrl': 'Менинг маълумотларим', ru: 'Мои данные' },
   'profile.fio': { uz: 'FISH', 'uz-cyrl': 'ФИШ', ru: 'ФИО' },
   'profile.branch': { uz: 'GTF', 'uz-cyrl': 'ГТФ', ru: 'ГТФ' },
   'profile.position': { uz: 'Lavozim', 'uz-cyrl': 'Лавозим', ru: 'Должность' },
   'profile.results': {
-    uz: 'So\'nggi test natijalari',
-    'uz-cyrl': 'Сўнгги тест натижалари',
-    ru: 'Мои последние результаты'
+    uz: 'Mening natijalarim',
+    'uz-cyrl': 'Менинг натижаларим',
+    ru: 'Мои результаты'
   },
   'profile.newTest': { uz: 'Yangi test', 'uz-cyrl': 'Янги тест', ru: 'Новый тест' },
-  'profile.scoreDetails': { uz: 'Ball tafsilotlari', 'uz-cyrl': 'Балл тафсилотлари', ru: 'Детали балла' },
+  'profile.scoreDetails': { uz: 'Test tafsilotlari', 'uz-cyrl': 'Тест тафсилотлари', ru: 'Детали теста' },
 
   // Face Verification
   'faceVerification.title': { uz: 'Yuz tekshiruvi', 'uz-cyrl': 'Юз текшириви', ru: 'Проверка лица' },
@@ -262,9 +262,9 @@ const dictionary: Dictionary = {
 
   // Empty States
   'empty.noTestHistory': {
-    uz: 'Hali test tarixi yo\'q',
-    'uz-cyrl': 'Ҳали тест тарихи йўқ',
-    ru: 'Истории тестов пока нет'
+    uz: 'Hali natijalar yo\'q',
+    'uz-cyrl': 'Ҳали натижалар йўқ',
+    ru: 'История пуста'
   },
   'empty.noTestHistoryDesc': {
     uz: 'Natijalaringizni ko\'rish uchun birinchi testni boshlang.',
@@ -272,9 +272,9 @@ const dictionary: Dictionary = {
     ru: 'Начните свой первый тест, чтобы увидеть результаты здесь.'
   },
   'empty.startFirstTest': {
-    uz: 'Birinchi testni boshlash',
-    'uz-cyrl': 'Биринчи тестни бошлаш',
-    ru: 'Начать первый тест'
+    uz: 'Testni boshlash',
+    'uz-cyrl': 'Тестни бошлаш',
+    ru: 'Начать тест'
   },
 
   // OTP Form
@@ -477,8 +477,8 @@ const dictionary: Dictionary = {
     ru: 'Просмотрите результаты практического теста, углубитесь в свою производительность и изучите свои сильные стороны перед днем теста.'
   },
   'session.personalizedGreeting': {
-    uz: 'Hurmatli {name}, oxirgi topshirgan testdan siz {score} bal topladingiz.',
-    'uz-cyrl': 'Ҳурматли {name}, охирги топширган тестдан сиз {score} балл топладингиз.',
+    uz: 'Hurmatli {name}, oxirgi topshirgan testdan siz {score} bal to\'pladingiz.',
+    'uz-cyrl': 'Ҳурматли {name}, охирги топширган тестдан сиз {score} балл тўпладингиз.',
     ru: 'Уважаемый {name}, за последний сданный тест вы набрали {score} баллов.'
   },
   'session.testNumber': { uz: 'Test #{number}', 'uz-cyrl': 'Тест #{number}', ru: 'Тест #{number}' },
@@ -490,7 +490,7 @@ const dictionary: Dictionary = {
   'session.totalQuestions': { uz: 'Jami savollar', 'uz-cyrl': 'Жами саволлар', ru: 'Всего вопросов' },
   'session.correctAnswers': { uz: 'To\'g\'ri javoblar', 'uz-cyrl': 'Тўғри жавоблар', ru: 'Правильные ответы' },
   'session.incorrectAnswers': { uz: 'Noto\'g\'ri javoblar', 'uz-cyrl': 'Нотўғри жавоблар', ru: 'Неправильные ответы' },
-  'session.scorePoints': { uz: 'Balllar', 'uz-cyrl': 'Балллар', ru: 'Баллы' },
+  'session.scorePoints': { uz: 'Ballar', 'uz-cyrl': 'Баллар', ru: 'Баллы' },
   'session.questions': { uz: 'SAVOLLAR', 'uz-cyrl': 'САВОЛЛАР', ru: 'ВОПРОСЫ' },
   'session.questionTitle': { uz: 'SAVOL MATNI', 'uz-cyrl': 'САВОЛ МАТНИ', ru: 'ТЕКСТ ВОПРОСА' },
   'session.correctAnswer': { uz: 'TO\'G\'RI JAVOB', 'uz-cyrl': 'ТЎҒРИ ЖАВОБ', ru: 'ПРАВИЛЬНЫЙ ОТВЕТ' },

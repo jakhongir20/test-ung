@@ -52,22 +52,34 @@ const AdminEmployeesPage: FC = () => {
 
   const selectedUser = userDetailsQuery.data;
 
-  // Extract unique branches and positions from the data
+  // Extract unique branches and positions from the data with localization
   const branches = useMemo(() => {
     const branchSet = new Set<string>();
     users.forEach((user: any) => {
-      if (user.branch) branchSet.add(user.branch);
+      const localized =
+        lang === 'uz'
+          ? (user.gtf_uz || user.gtf_uz_cyrl || user.gtf_ru || user.gtf)
+          : lang === 'uz-cyrl'
+            ? (user.gtf_uz_cyrl || user.gtf_uz || user.gtf_ru || user.gtf)
+            : (user.gtf_ru || user.gtf_uz || user.gtf_uz_cyrl || user.gtf);
+      if (localized) branchSet.add(localized);
     });
     return Array.from(branchSet).sort();
-  }, [users]);
+  }, [users, lang]);
 
   const positions = useMemo(() => {
     const positionSet = new Set<string>();
     users.forEach((user: any) => {
-      if (user.position) positionSet.add(user.position);
+      const localized =
+        lang === 'uz'
+          ? (user.position_name_uz || user.position_name_uz_cyrl || user.position_name_ru || user.position_name)
+          : lang === 'uz-cyrl'
+            ? (user.position_name_uz_cyrl || user.position_name_uz || user.position_name_ru || user.position_name)
+            : (user.position_name_ru || user.position_name_uz || user.position_name_uz_cyrl || user.position_name);
+      if (localized) positionSet.add(localized);
     });
     return Array.from(positionSet).sort();
-  }, [users]);
+  }, [users, lang]);
 
   // Handle certificate download
   const handleCertificateDownload = (userId: number, userName: string) => {
@@ -138,6 +150,17 @@ const AdminEmployeesPage: FC = () => {
       key: 'total_questions',
       title: t('table.totalQuestions'),
       sortable: true,
+      sortValue: (user: any) => {
+        // Calculate total questions from survey history or use total_attempts as proxy
+        if (user.survey_history && user.survey_history.length > 0) {
+          const totalQuestions = user.survey_history.reduce((total: number, session: any) => {
+            return total + (session.answers?.length || 0);
+          }, 0);
+          return totalQuestions || 0;
+        }
+        // Fallback to total_attempts if no survey history
+        return user.total_attempts || 0;
+      },
       render: (_, user) => {
         // Calculate total questions from survey history or use total_attempts as proxy
         if (user.survey_history && user.survey_history.length > 0) {
@@ -164,6 +187,10 @@ const AdminEmployeesPage: FC = () => {
       key: 'final_score',
       title: t('table.finalScore'),
       sortable: true,
+      sortValue: (user: any) => {
+        // Use best_score as final test score for sorting (as number)
+        return user.best_score ? Number(user.best_score) : 0;
+      },
       render: (_, user) => {
         // Use best_score as final test score
         return user.best_score ? Number(user.best_score).toFixed(2) : '0.00';
@@ -357,8 +384,8 @@ const AdminEmployeesPage: FC = () => {
       <BackgroundWrapper>
         <PageTransition>
           <div className="md:p-6">
-            <MyProfileBanner />
-            <br />
+            {/* <MyProfileBanner  /> */}
+            {/* <br /> */}
 
             <section className={CARD_STYLES}>
               <div className="">

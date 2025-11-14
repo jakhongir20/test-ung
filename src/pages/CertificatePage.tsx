@@ -1,7 +1,34 @@
-import type { FC } from 'react';
-import { useEffect, useState } from 'react';
+import type { FC, ReactNode } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { fetchCertificateData, downloadCertificate, type CertificateData } from '../api/certificate';
+
+const BORDER_DECORATION = (
+  <svg
+    aria-hidden
+    viewBox="0 0 400 400"
+    preserveAspectRatio="none"
+    className="absolute inset-0 w-full h-full pointer-events-none"
+  >
+    <rect x="14" y="14" width="372" height="372" fill="none" stroke="#b2b9c9" strokeWidth="4" rx="18" />
+    <rect x="6" y="6" width="388" height="388" fill="none" stroke="#d8dbe2" strokeWidth="2" rx="24" />
+  </svg>
+);
+
+const DecorativeLabel: FC<{ children: ReactNode; position: 'left' | 'right'; value: string | number; }> = ({
+  children,
+  position,
+  value
+}) => (
+  <div
+    className={`absolute top-16 text-[#51617a] font-semibold tracking-wide flex items-center gap-3 ${position === 'left' ? 'left-16' : 'right-16 flex-row-reverse'
+      }`}
+  >
+    <span className="text-xl">№</span>
+    <span className="text-xl font-bold">{value}</span>
+    <span className="text-base uppercase tracking-[0.35em]">{children}</span>
+  </div>
+);
 
 const CertificatePage: FC = () => {
   const { id } = useParams<{ id: string; }>();
@@ -10,7 +37,6 @@ const CertificatePage: FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [isDownloading, setIsDownloading] = useState(false);
 
-  // Fetch certificate data
   useEffect(() => {
     const loadCertificateData = async () => {
       if (!id) {
@@ -19,17 +45,14 @@ const CertificatePage: FC = () => {
         return;
       }
 
-
       try {
         setIsLoading(true);
         setError(null);
         const data = await fetchCertificateData(id);
-
         setCertificateData(data);
-      } catch (err: any) {
-
-
-        setError(err?.response?.data?.message || 'Failed to load certificate data');
+      } catch (err) {
+        const message = (err as { response?: { data?: { message?: string; }; }; })?.response?.data?.message;
+        setError(message || 'Failed to load certificate data');
       } finally {
         setIsLoading(false);
       }
@@ -38,16 +61,13 @@ const CertificatePage: FC = () => {
     loadCertificateData();
   }, [id]);
 
-  // Handle certificate download
   const handleDownload = async () => {
     if (!id || !certificateData) return;
-
 
     try {
       setIsDownloading(true);
       const blob = await downloadCertificate(id);
 
-      // Create download link
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
@@ -56,156 +76,165 @@ const CertificatePage: FC = () => {
       link.click();
       document.body.removeChild(link);
       window.URL.revokeObjectURL(url);
-
-    } catch (err: any) {
-
-
-      setError('Failed to download certificate');
+    } catch (err) {
+      const message = (err as { response?: { data?: { message?: string; }; }; })?.response?.data?.message;
+      setError(message || 'Failed to download certificate');
     } finally {
       setIsDownloading(false);
     }
   };
 
-  // Loading state
+  const completedAt = certificateData?.completed_at ?? null;
+
+  const formattedCompletionDate = useMemo(() => {
+    if (!completedAt) {
+      return 'Toshkent 2025';
+    }
+    try {
+      return new Intl.DateTimeFormat('uz-UZ', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      }).format(new Date(completedAt));
+    } catch {
+      return completedAt;
+    }
+  }, [completedAt]);
+
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#00A2DE] mx-auto"></div>
-          <p className="text-gray-600 mt-2">Loading certificate...</p>
+      <div className="min-h-screen flex items-center justify-center bg-[#f1f4f8]">
+        <div className="text-center text-[#51617a]">
+          <div className="animate-spin rounded-full h-10 w-10 border-4 border-[#00A2DE]/60 border-t-[#00A2DE] mx-auto mb-3" />
+          <p className="text-lg font-medium">Yuklanmoqda...</p>
         </div>
       </div>
     );
   }
 
-  // Error state
   if (error || !certificateData) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="text-center">
-          <div className="w-16 h-16 mx-auto mb-4 bg-red-100 rounded-full flex items-center justify-center">
-            <svg className="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+      <div className="min-h-screen flex items-center justify-center bg-[#f1f4f8]">
+        <div className="bg-white shadow-xl rounded-2xl px-12 py-10 text-center max-w-md">
+          <div className="w-16 h-16 mx-auto mb-5 bg-red-100 rounded-full flex items-center justify-center text-red-500">
+            <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v4m0 4h.01M4.93 4.93l14.14 14.14" />
             </svg>
           </div>
-          <h2 className="text-xl font-semibold text-gray-900 mb-2">Certificate not found</h2>
-          <p className="text-gray-600 mb-4">{error || 'The requested certificate could not be loaded.'}</p>
+          <h2 className="text-2xl font-semibold text-gray-900 mb-2">Sertifikat topilmadi</h2>
+          <p className="text-gray-600 mb-6">
+            {error || 'Ushbu foydalanuvchi uchun sertifikat maʼlumotlari mavjud emas.'}
+          </p>
           <button
             onClick={() => window.location.reload()}
-            className="bg-cyan-600 text-white px-4 py-2 rounded-lg hover:bg-cyan-700"
+            className="bg-[#00A2DE] text-white px-5 py-2 rounded-lg font-medium hover:bg-[#0093c8]"
           >
-            Retry
+            Qayta urinish
           </button>
         </div>
       </div>
     );
   }
 
-  // Extract data from API response
-  const userName = certificateData.user_name;
-  const userPosition = certificateData.user_position;
-  const userBranch = certificateData.user_branch;
-  const certificateNumber = certificateData.certificate_order;
+  const {
+    user_name: userName,
+    user_position: userPosition,
+    user_branch: userBranch,
+    certificate_order: certificateNumber
+  } = certificateData;
 
   return (
-    <div
-      className="min-h-screen w-full bg-cover bg-center bg-no-repeat"
-      style={{
-        backgroundImage: 'url(/certificate_bg.png)',
-        backgroundSize: '100% 100%'
-      }}
-    >
-      <div className="relative w-full h-screen flex flex-col justify-center items-center p-12">
-        {/* Certificate Number - Top Left */}
-        <div className="absolute top-12 left-12 text-gray-600 font-semibold text-xl">
-          № {certificateNumber}
+    <div className="min-h-screen bg-[#e5ebf4] py-10 flex flex-col items-center gap-10">
+      <div className="relative w-[1120px] max-w-[95vw] aspect-[16/10] bg-white shadow-[0_25px_65px_rgba(25,42,87,0.18)] border border-[#d7dbe4] overflow-hidden rounded-[28px]">
+        <div className="absolute inset-0">
+          <img src="/certificate_bg.png" alt="" className="w-full h-full object-cover opacity-90" />
+          {BORDER_DECORATION}
         </div>
 
-        {/* Logo and Company Name - Top Center */}
-        <div className="absolute top-12 left-1/2 transform -translate-x-1/2 text-center">
-          <div className="flex items-center justify-center mb-3">
-            {/* Logo - Blue house with orange flame */}
-            <div className="relative mr-4">
-              <div className="w-16 h-12 bg-blue-600 rounded-t-lg"></div>
-              <div className="absolute top-2 left-1/2 transform -translate-x-1/2 w-6 h-6 bg-orange-500 rounded-full"></div>
+        <div className="relative h-full w-full px-24 py-20">
+          <DecorativeLabel position="left" value={certificateNumber}>
+            tartib
+          </DecorativeLabel>
+          <DecorativeLabel position="right" value={certificateNumber}>
+            raqam
+          </DecorativeLabel>
+
+          <div className="absolute top-16 left-1/2 -translate-x-1/2 text-center">
+            <div className="flex items-center gap-4 justify-center text-[#0b5ca8]">
+              <div className="flex items-center justify-center w-16 h-16 bg-gradient-to-r from-[#0b5ca8] to-[#1d7fd1] rounded-lg shadow-lg relative">
+                <span className="text-white font-bold text-lg">HGT</span>
+                <span className="absolute -bottom-3 inset-x-0 mx-auto w-10 h-[6px] bg-[#ff7f32] rounded-full" />
+              </div>
+              <div className="text-left leading-tight">
+                <div className="text-[#ff7f32] font-extrabold text-2xl tracking-[0.18em]">HUDUDGAZTA’MINOT</div>
+                <div className="text-[#8291a6] font-semibold text-base tracking-[0.35em] uppercase">AKSIYADORLIK JAMIYATI</div>
+              </div>
             </div>
-            <div>
-              <div className="text-orange-500 font-bold text-2xl">HUDUDGAZTA'MINOT</div>
-              <div className="text-gray-600 text-base">HGT AKSIYADORLIK JAMIYATI</div>
+          </div>
+
+          <div className="flex flex-col items-center justify-center h-full pt-16 pb-24">
+            <div className="text-[#485a75] text-2xl text-center max-w-3xl leading-relaxed tracking-wide mb-10">
+              <p className="mb-3">
+                “Hududgazta’minot” AJ ning <span className="font-semibold text-[#ff7f32]">“HGT-Malaka”</span> tizimida test-sinovini
+                muvaffaqiyatli topshirganligi uchun
+              </p>
+              <p>
+                “{userBranch}” gaz ta’minoti filiali <span className="font-medium">{userPosition}</span>
+              </p>
+            </div>
+
+            <div className="text-[#244a74] font-extrabold text-[44px] tracking-[0.08em] uppercase mb-10">
+              {userName}
+            </div>
+
+            <div className="text-[#c2271d] font-black text-[112px] tracking-[0.2em] uppercase leading-none mb-8">
+              SERTIFIKAT
+            </div>
+
+            <div className="text-[#1f2f45] text-[26px] tracking-[0.3em] uppercase">
+              bilan taqdirlanadi
             </div>
           </div>
-        </div>
 
-        {/* Certificate Number - Top Right */}
-        <div className="absolute top-12 right-12 text-gray-600 font-semibold text-xl">
-          № {certificateNumber}-
-        </div>
-
-        {/* Main Certificate Content */}
-        <div className="text-center max-w-5xl mx-auto mt-16">
-          {/* Main Text */}
-          <div className="text-gray-700 text-xl leading-relaxed mb-8">
-            <p className="mb-4">
-              "Hududgazta'minot" AJ ning <strong>"HGT-Malaka"</strong> tizimida test-
-              sinovini muvaffaqiyatli topshirganligi uchun
-            </p>
-            <p>
-              "{userBranch}" gaz ta'minoti filiali {userPosition}
-            </p>
+          <div className="absolute inset-x-0 bottom-16 flex items-center justify-center gap-20">
+            <div className="text-center">
+              <div className="text-[#244a74] font-semibold text-3xl tracking-[0.4em] uppercase mb-4">
+                QR-kod
+              </div>
+              <div className="w-40 h-40 bg-white border-4 border-[#ced7e4] rounded-xl shadow-[0_10px_25px_rgba(36,74,116,0.18)] flex items-center justify-center">
+                <span className="text-sm text-[#a3b0c2] tracking-widest">QR</span>
+              </div>
+            </div>
           </div>
 
-          {/* User Name */}
-          <div className="text-blue-800 font-bold text-4xl mb-12">
-            {userName}
+          <div className="absolute bottom-16 left-16 text-[#4d607f] font-semibold tracking-[0.4em] uppercase">
+            Toshkent {formattedCompletionDate}
           </div>
-
-          {/* Certificate Title */}
-          <div className="text-red-600 font-bold text-8xl mb-6">
-            SERTIFIKAT
+          <div className="absolute bottom-16 right-16 text-[#4d607f] font-semibold tracking-[0.4em] uppercase">
+            № {certificateNumber}
           </div>
-
-          {/* Award Text */}
-          <div className="text-black text-2xl">
-            bilan taqdirlanadi
-          </div>
-        </div>
-
-        {/* QR Code Section - Bottom */}
-        <div className="absolute bottom-20 left-1/2 transform -translate-x-1/2 text-center">
-          <div className="text-blue-800 font-bold text-3xl mb-6">QR-kod</div>
-          {/* QR Code placeholder - you can replace with actual QR code */}
-          <div className="w-40 h-40 bg-white border-2 border-gray-300 flex items-center justify-center shadow-lg">
-            <div className="text-gray-400 text-sm">QR Code</div>
-          </div>
-
-          {/* Download Button */}
-          <button
-            onClick={handleDownload}
-            disabled={isDownloading}
-            className="mt-6 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white px-6 py-3 rounded-lg font-semibold transition-colors duration-200 flex items-center gap-2 mx-auto"
-          >
-            {isDownloading ? (
-              <>
-                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                Downloading...
-              </>
-            ) : (
-              <>
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                </svg>
-                Download Certificate
-              </>
-            )}
-          </button>
-        </div>
-
-        {/* Date - Bottom Center */}
-        <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 text-gray-600 text-base">
-          Toshkent 2025
         </div>
       </div>
+
+      <button
+        onClick={handleDownload}
+        disabled={isDownloading}
+        className="flex items-center gap-3 bg-gradient-to-r from-[#0b5ca8] to-[#1d7fd1] text-white px-6 py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transition disabled:opacity-70 disabled:cursor-wait"
+      >
+        {isDownloading ? (
+          <>
+            <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+            Yuklab olinmoqda...
+          </>
+        ) : (
+          <>
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+            Sertifikatni yuklab olish
+          </>
+        )}
+      </button>
     </div>
   );
 };
