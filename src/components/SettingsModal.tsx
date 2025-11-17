@@ -23,7 +23,7 @@ export const SettingsModal: FC<Props> = ({ isOpen, onClose }) => {
   const { t, lang } = useI18n();
   const { data: user } = useUsersMeRetrieve();
   const updateProfile = useUpdateUserProfile();
-  
+
   useBodyScrollLock(isOpen);
 
   // Fetch positions and GTF from API
@@ -62,6 +62,13 @@ export const SettingsModal: FC<Props> = ({ isOpen, onClose }) => {
       default:
         return item.name_uz || item.name_uz_cyrl || item.name_ru || 'N/A';
     }
+  };
+
+  // Helper function to get localized position label with branch
+  const getLocalizedPositionLabel = (position: any) => {
+    const positionName = getLocalizedName(position);
+    const branchName = position?.branch ? getLocalizedName(position.branch) : '';
+    return branchName ? `${positionName} - ${branchName}` : positionName;
   };
 
   // Reset form when user data changes
@@ -295,7 +302,7 @@ export const SettingsModal: FC<Props> = ({ isOpen, onClose }) => {
                       <option value="">{t('settings.selectPosition')}</option>
                       {positionsData?.positions?.map((position) => (
                         <option key={position.id} value={position.id}>
-                          {getLocalizedName(position)}
+                          {getLocalizedPositionLabel(position)}
                         </option>
                       ))}
                     </select>

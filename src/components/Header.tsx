@@ -20,7 +20,7 @@ export default function Header() {
 
   // Get the position name from user data according to current language
   const getPositionName = (): string => {
-    if (!userData) return 'Unknown';
+    if (!userData) return '';
 
     const user: User = userData;
 
@@ -41,7 +41,24 @@ export default function Header() {
       return String(userData.position);
     }
 
-    return 'Unknown';
+    // Fallback to user's name if position is not available
+    if (user.name) {
+      return user.name;
+    }
+
+    // Fallback to branch name if available
+    const branchName =
+      lang === 'uz'
+        ? (user.branch_name_uz || user.branch_name_uz_cyrl || user.branch_name_ru || user.branch_name)
+        : lang === 'uz-cyrl'
+          ? (user.branch_name_uz_cyrl || user.branch_name_uz || user.branch_name_ru || user.branch_name)
+          : (user.branch_name_ru || user.branch_name_uz || user.branch_name_uz_cyrl || user.branch_name);
+
+    if (branchName) {
+      return branchName;
+    }
+
+    return '';
   };
 
   // Close dropdown when clicking outside
