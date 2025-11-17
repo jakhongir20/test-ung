@@ -219,6 +219,16 @@ const dictionary: Dictionary = {
     'uz-cyrl': 'Модал {seconds} сониядан кейин ёпилади.',
     ru: 'Окно закроется через {seconds} секунд.'
   },
+  'faceMonitoring.maxWarningsReached': {
+    uz: 'Siz 8 ogohlantirishga erishdingiz va shuning uchun testni davom ettira olmaysiz.',
+    'uz-cyrl': 'Сиз 8 огоҳлантиришга еришдинг ва шунинг учун тестни давом этира олмайсиз.',
+    ru: 'Вы достигли 8 предупреждений, поэтому вы не можете продолжить тест.'
+  },
+  'faceMonitoring.maxWarningsTitle': {
+    uz: 'Maksimal ogohlantirishlar soniga yetildi',
+    'uz-cyrl': 'Максимал огоҳлантиришлар сонига етилди',
+    ru: 'Достигнуто максимальное количество предупреждений'
+  },
   'card.totalAnswers': { uz: "Umumiy to'liq javoblar", 'uz-cyrl': 'Умумий тўлиқ жавоблар', ru: 'Всего верных ответов' },
   'test.finishTest': { uz: "Testni yakunlash", 'uz-cyrl': 'Тестни якунлаш', ru: 'Завершить тест' },
 
