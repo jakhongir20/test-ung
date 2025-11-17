@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { Link, useNavigate } from "react-router-dom";
 import { useRegister } from "../../api/auth.ts";
-import { usePositionsRetrieve, useBranchesRetrieve, useGtfRetrieve } from "../../api/generated/respondentWebAPI";
+import { useBranchesRetrieve, useGtfRetrieve, usePositionsRetrieve } from "../../api/generated/respondentWebAPI";
 import { FormButton } from "./FormButton.tsx";
 import { useI18n } from "../../i18n";
 import { customInstance } from "../../api/mutator/custom-instance";
@@ -21,6 +21,17 @@ type RegisterFormValues = {
   position_id: number;
   gtf_id: number;
   branch_id: number;
+};
+
+const defaultFormValues: RegisterFormValues = {
+  pinfl: '',
+  login: '',
+  password: '',
+  confirmPassword: '',
+  name: '',
+  position_id: 0,
+  gtf_id: 0,
+  branch_id: 0
 };
 
 
@@ -49,22 +60,14 @@ export const RegisterForm: FC<Props> = ({ }) => {
     watch,
     setValue
   } = useForm<RegisterFormValues>({
-    defaultValues: {
-      pinfl: '',
-      login: '',
-      password: '',
-      confirmPassword: '',
-      name: '',
-      position_id: 0,
-      gtf_id: 0,
-      branch_id: 0
-    },
+    defaultValues: defaultFormValues,
   });
 
   const prevLangRef = useRef(lang);
   const password = watch('password');
   const branchId = watch('branch_id');
   const pinfl = watch('pinfl');
+  const skipPositionResetRef = useRef(false);
 
   // Helper function to get localized name
   const getLocalizedName = (item: any) => {
@@ -80,12 +83,29 @@ export const RegisterForm: FC<Props> = ({ }) => {
     }
   };
 
+  const normalizeText = (value?: string | null) =>
+    (value || '')
+      .replace(/["«»]/g, '')
+      .toLowerCase()
+      .replace(/\s+/g, ' ')
+      .trim();
+
+  const getLocalizedPositionLabel = (position: any) => {
+    const positionName = getLocalizedName(position);
+    const branchName = position?.branch ? getLocalizedName(position.branch) : '';
+    return branchName ? `${positionName} - ${branchName}` : positionName;
+  };
+
   // Filter positions based on selected branch (include global positions with no branch)
-  const filteredPositions = positionsData?.positions?.filter((position: any) => {
-    if (!branchId || branchId === 0) return true;
-    const posBranchId = position?.branch?.id;
-    return posBranchId === branchId || posBranchId == null;
-  }) || [];
+  const filteredPositions = positionsData?.positions;
+  // const filteredPositions = positionsData?.positions?.filter((position: any) => {
+  //   // debugger
+  //   if (!branchId || branchId === 0) return true;
+  //   // debugger
+  //   const posBranchId = position?.branch?.id;
+  //   // debugger
+  //   return posBranchId === branchId || posBranchId == null;
+  // }) || [];
 
   // Show error if API calls failed
   if (positionsError || branchesError || gtfError) {
@@ -116,6 +136,10 @@ export const RegisterForm: FC<Props> = ({ }) => {
 
   // Reset position when branch changes
   useEffect(() => {
+    if (skipPositionResetRef.current) {
+      skipPositionResetRef.current = false;
+      return;
+    }
     setValue('position_id', 0);
   }, [branchId, setValue]);
 
@@ -205,31 +229,62 @@ export const RegisterForm: FC<Props> = ({ }) => {
         return;
       }
 
-      // Auto-populate form fields from 1C response
-      if (employeeData.full_name) {
-        setValue('name', employeeData.full_name);
+      const branches = branchesData?.branches || [];
+      const normalizedBranchFromApi = normalizeText(employeeData.branch);
+
+      const matchingBranch = branches.find((branch: any) => branch?.uuid === employeeData.branch_id) ||
+        branches.find((branch: any) => {
+          const potentialNames = [
+            branch?.name_uz,
+            branch?.name_uz_cyrl,
+            branch?.name_ru,
+            branch?.name
+          ];
+          return potentialNames.some((name) => normalizeText(name) === normalizedBranchFromApi);
+        });
+
+      const positions = positionsData?.positions || [];
+      const normalizedPositionFromApi = normalizeText(employeeData.position);
+
+      const matchingPosition = positions.find((position: any) => position?.uuid === employeeData.position_id) ||
+        positions.find((position: any) => {
+          const potentialNames = [
+            position?.name_uz,
+            position?.name_uz_cyrl,
+            position?.name_ru,
+            position?.name
+          ];
+          const matchesName = potentialNames.some((name) => normalizeText(name) === normalizedPositionFromApi);
+          const branchMatches = matchingBranch
+            ? (position?.branch?.id === matchingBranch.id || normalizeText(position?.branch?.name_ru) === normalizedBranchFromApi)
+            : true;
+          return matchesName && branchMatches;
+        });
+
+      const resolvedPinfl = ((employeeData.pinfl ?? pinfl) || '').toString().trim();
+      if (resolvedPinfl) {
+        setValue('pinfl', resolvedPinfl, { shouldDirty: true });
       }
 
-      if (employeeData.phone) {
-        setValue('login', employeeData.phone);
+      const loginValue = (employeeData.phone && employeeData.phone.trim()) ||
+        (employeeData.tin && employeeData.tin.toString().trim()) ||
+        '';
+      if (loginValue) {
+        setValue('login', loginValue, { shouldDirty: true });
       }
 
-      // Find matching position by position_id (UUID)
-      if (employeeData.position_id && positionsData?.positions) {
-        const matchingPosition = (positionsData.positions as Array<{ id: number; uuid?: string; }>)
-          .find((pos: { id: number; uuid?: string; }) => pos.uuid === employeeData.position_id);
-        if (matchingPosition) {
-          setValue('position_id', matchingPosition.id);
-        }
+      const fullName = (employeeData.full_name || '').trim();
+      if (fullName) {
+        setValue('name', fullName, { shouldDirty: true });
       }
 
-      // Find matching branch by branch_id (UUID)
-      if (employeeData.branch_id && branchesData?.branches) {
-        const matchingBranch = (branchesData.branches as Array<{ id: number; uuid?: string; }>)
-          .find((branch: { id: number; uuid?: string; }) => branch.uuid === employeeData.branch_id);
-        if (matchingBranch) {
-          setValue('branch_id', matchingBranch.id);
-        }
+      if (matchingBranch) {
+        skipPositionResetRef.current = true;
+        setValue('branch_id', matchingBranch.id, { shouldDirty: true });
+      }
+
+      if (matchingPosition) {
+        setValue('position_id', matchingPosition.id, { shouldDirty: true });
       }
 
       console.log('✅ Employee data fetched from 1C by PINFL:', employeeData);
@@ -299,7 +354,8 @@ export const RegisterForm: FC<Props> = ({ }) => {
             {isFetchingPinfl ? (
               <svg className="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24">
                 <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                <path className="opacity-75" fill="currentColor"
+                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
               </svg>
             ) : (
               t('auth.fetch')
@@ -408,11 +464,11 @@ export const RegisterForm: FC<Props> = ({ }) => {
           control={control}
           rules={{ required: t('auth.fieldRequired'), validate: (v: number) => v !== 0 || t('auth.fieldRequired') }}
           render={({ field }) => (
-            <select {...field} className={authInputStyle} disabled={positionsLoading || !branchId || branchId === 0}>
+            <select {...field} className={authInputStyle} disabled={positionsLoading}>
               <option value={0}>{t('auth.selectPosition')}</option>
-              {filteredPositions.map((position) => (
+              {filteredPositions?.map((position) => (
                 <option key={position.id} value={position.id}>
-                  {getLocalizedName(position)}
+                  {getLocalizedPositionLabel(position)}
                 </option>
               ))}
             </select>

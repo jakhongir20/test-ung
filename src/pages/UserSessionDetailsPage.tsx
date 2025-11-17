@@ -16,7 +16,7 @@ import { StatusBadge } from "../components/StatusBadge.tsx";
 import { BackgroundWrapper } from "../components/BackgroundWrapper.tsx";
 
 const UserSessionDetailsPage: FC = () => {
-  const { t } = useI18n();
+  const { t, lang } = useI18n();
   const { id } = useParams<{ id: string; }>();
 
   // Fetch session details for regular users
@@ -184,6 +184,22 @@ const UserSessionDetailsPage: FC = () => {
     return 'A';
   };
 
+  const getLocalizedText = (entity: any): string => {
+    if (!entity) return '';
+    const byLang: Record<string, string | undefined> = {
+      uz: entity?.question?.text_uz,
+      'uz-cyrl': entity?.question?.text_uz_cyrl,
+      ru: entity?.question?.text_ru,
+    };
+
+    const candidate = byLang[lang];
+    return (
+      (typeof candidate === 'string' && candidate.trim().length > 0 ? candidate : undefined) ||
+      (typeof entity.text === 'string' && entity.text.trim().length > 0 ? entity.text : undefined) ||
+      entity.text_ru || entity.text_uz || entity.text_uz_cyrl || ''
+    );
+  };
+
   // Define table columns
   const columns: Column[] = [
     {
@@ -197,10 +213,11 @@ const UserSessionDetailsPage: FC = () => {
       title: t('session.questionTitle'),
       className: 'max-w-md',
       render: (_, question) => {
-        // debugger
+        const q = question?.question;
+        const text = q ? getLocalizedText(q) : `Question ${question.order}`;
         return (
           <div className="truncate">
-            {question?.questionText || `Question ${question.order}`}
+            {text}
           </div>
         );
       }

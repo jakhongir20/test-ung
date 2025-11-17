@@ -40,6 +40,27 @@ const TestPage: FC = () => {
   const { t, lang } = useI18n();
   const queryClient = useQueryClient();
   const { user } = useAuthStore();
+  const [referenceDescriptor, setReferenceDescriptor] = useState<number[] | null>(null);
+
+  useEffect(() => {
+    try {
+      const storedDescriptor = sessionStorage.getItem('faceReferenceDescriptor');
+      if (storedDescriptor) {
+        const parsed = JSON.parse(storedDescriptor);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          setReferenceDescriptor(parsed);
+        }
+      }
+    } catch (error) {
+      console.log('Failed to load cached face descriptor', error);
+    }
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      sessionStorage.removeItem('faceReferenceDescriptor');
+    };
+  }, []);
 
   // Function to determine survey category based on survey data
   const getSurveyCategory = (surveyData: any): string => {
@@ -127,6 +148,10 @@ const TestPage: FC = () => {
   const expiresAtIso = (sessionData?.expires_at ?? progressData?.session?.expires_at) as string | undefined;
   const expiresAtMs = useMemo(() => expiresAtIso ? new Date(expiresAtIso).getTime() : undefined, [expiresAtIso]);
 
+  // Get real start time from API response
+  const startedAtIso = (sessionData?.started_at ?? progressData?.session?.started_at) as string | undefined;
+  const startedAtMs = useMemo(() => startedAtIso ? new Date(startedAtIso).getTime() : undefined, [startedAtIso]);
+
   useEffect(() => {
     if (!expiresAtMs) return;
     const now = Date.now();
@@ -159,7 +184,7 @@ const TestPage: FC = () => {
   }, [current, isExpired]);
 
   // Face monitoring handlers
-  const handleFaceViolation = (violationType: 'no_face' | 'multiple_faces' | 'face_lost' | 'tab_switched') => {
+  const handleFaceViolation = (violationType: 'no_face' | 'multiple_faces' | 'face_lost' | 'tab_switched' | 'face_mismatch') => {
 
     setFaceViolationCount(prev => prev + 1);
   };
@@ -167,6 +192,7 @@ const TestPage: FC = () => {
   const handleTestTermination = async () => {
 
     setIsFaceMonitoringActive(false);
+    sessionStorage.removeItem('faceReferenceDescriptor');
 
     try {
       // Cancel the session
@@ -548,6 +574,7 @@ const TestPage: FC = () => {
               total={safeTotal}
               isFinishing={isFinishing}
               endTime={expiresAtMs}
+              startTime={startedAtMs}
               timeLimitMinutes={sessionData?.survey?.time_limit_minutes}
               onExpire={() => setExpired(true)}
               onFinish={finishTest}
@@ -693,7 +720,8 @@ const TestPage: FC = () => {
         userId={user?.id?.toString()}
         onViolation={handleFaceViolation}
         onTestTerminated={handleTestTermination}
-        checkInterval={10000} // Check every 10 seconds
+        checkInterval={3000}
+        referenceDescriptor={referenceDescriptor}
       />
     </BackgroundWrapper>
   );

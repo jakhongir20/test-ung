@@ -12,6 +12,7 @@ interface Props {
   total: number;
   isFinishing: boolean;
   endTime?: number;
+  startTime?: number; // Real start time from API (Unix timestamp in milliseconds)
   timeLimitMinutes?: number; // Total test duration in minutes
   onExpire?: () => void;
   onFinish?: () => void;
@@ -22,6 +23,7 @@ export const ProgressBar: FC<Props> = ({
   current,
   total,
   endTime,
+  startTime,
   timeLimitMinutes,
   isFinishing,
   onExpire,
@@ -31,7 +33,7 @@ export const ProgressBar: FC<Props> = ({
   const [timeProgress, setTimeProgress] = useState(0);
 
   // Always call useTimer hook, but only use it when conditions are met
-  const { seconds, minutes, hours } = useTimer({
+  useTimer({
     expiryTimestamp: endTime && endTime > 0 && timeLimitMinutes ? new Date(endTime) : new Date(Date.now() + 1000),
     onExpire: onExpire || (() => { }),
     autoStart: !!(endTime && endTime > 0 && timeLimitMinutes), // Only start timer when conditions are met
@@ -46,7 +48,10 @@ export const ProgressBar: FC<Props> = ({
     const updateProgress = () => {
       // Calculate progress based on actual time elapsed from start
       const now = Date.now();
-      const testStartTime = endTime - (timeLimitMinutes * 60 * 1000); // Calculate start time
+      // Use real start time from API if available, otherwise calculate from endTime
+      const testStartTime = startTime && startTime > 0
+        ? startTime
+        : (endTime ? endTime - (timeLimitMinutes * 60 * 1000) : now);
       const totalTestMs = timeLimitMinutes * 60 * 1000; // Total test duration in milliseconds
       const elapsedMs = now - testStartTime; // Time elapsed since test started
 
@@ -63,7 +68,7 @@ export const ProgressBar: FC<Props> = ({
     const interval = setInterval(updateProgress, 10000);
 
     return () => clearInterval(interval);
-  }, [endTime, timeLimitMinutes]);
+  }, [endTime, startTime, timeLimitMinutes]);
 
   // Use time-based progress if available and valid, otherwise fall back to question-based progress
   const isValidTimeProgress = endTime && endTime > 0 && timeLimitMinutes && timeProgress >= 0 && timeProgress <= 100;

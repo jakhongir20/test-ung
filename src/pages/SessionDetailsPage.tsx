@@ -1,10 +1,10 @@
 import type { FC } from 'react';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { useI18n } from '../i18n';
 import { handleAuthError } from '../api/auth';
 import { useModeratorUserSessionDetails } from '../api/moderator';
-import { useUsersMeRetrieve, useModeratorUsersSessionViolationsRetrieve } from '../api/generated/respondentWebAPI';
+import { useModeratorUsersSessionViolationsRetrieve, useUsersMeRetrieve } from '../api/generated/respondentWebAPI';
 import { MyProfileBanner } from "../components/MyProfileBanner.tsx";
 import type { Column } from "../components/DataTable.tsx";
 import { DataTable } from "../components/DataTable.tsx";
@@ -14,6 +14,7 @@ import { BackgroundWrapper } from "../components/BackgroundWrapper.tsx";
 import UserSessionDetailsPage from './UserSessionDetailsPage';
 import { useQuery } from '@tanstack/react-query';
 import { customInstance } from '../api/mutator/custom-instance';
+import Hls from 'hls.js';
 
 type TabType = 'results' | 'violations';
 
@@ -43,6 +44,53 @@ interface RecordingData {
   }>;
 }
 
+const HlsVideoPlayer: FC<{ playlistUrl: string; fallbackMessage: string; className?: string; }> = ({
+  playlistUrl,
+  fallbackMessage,
+  className
+}) => {
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const [isSupported, setIsSupported] = useState(true);
+
+  useEffect(() => {
+    const videoElement = videoRef.current;
+    if (!videoElement) return;
+
+    let hls: Hls | null = null;
+
+    if (videoElement.canPlayType('application/vnd.apple.mpegurl')) {
+      videoElement.src = playlistUrl;
+      setIsSupported(true);
+    } else if (Hls.isSupported()) {
+      hls = new Hls();
+      hls.loadSource(playlistUrl);
+      hls.attachMedia(videoElement);
+      setIsSupported(true);
+    } else {
+      setIsSupported(false);
+    }
+
+    return () => {
+      if (hls) {
+        hls.destroy();
+      }
+    };
+  }, [playlistUrl]);
+
+  if (!isSupported) {
+    return <div className="text-center text-gray-600 text-sm">{fallbackMessage}</div>;
+  }
+
+  return (
+    <video
+      ref={videoRef}
+      controls
+      playsInline
+      className={className}
+    />
+  );
+};
+
 const SessionDetailsPage: FC = () => {
   const { t, lang } = useI18n();
   const { id } = useParams<{ id: string; }>();
@@ -70,6 +118,8 @@ const SessionDetailsPage: FC = () => {
     },
     enabled: !!id && activeTab === 'violations',
   });
+
+  console.log('recordingQuery data', recordingQuery.data);
 
   useEffect(() => {
     if (sessionQuery.error && handleAuthError(sessionQuery.error)) {
@@ -414,6 +464,12 @@ const SessionDetailsPage: FC = () => {
                           >
                             Your browser does not support video playback.
                           </video>
+                        ) : recordingQuery.data.recording.playlist_url ? (
+                          <HlsVideoPlayer
+                            playlistUrl={recordingQuery.data.recording.playlist_url}
+                            fallbackMessage={t('session.recordingUnavailable')}
+                            className="w-full rounded-lg bg-black"
+                          />
                         ) : (
                           <div className="text-center text-gray-600 text-sm">
                             {t('session.recordingUnavailable')}
@@ -434,7 +490,8 @@ const SessionDetailsPage: FC = () => {
                     <h3 className="text-xl font-semibold text-gray-900 mb-4">{t('session.violationsTitle')}</h3>
                     <div className="space-y-4">
                       {(violationsQuery.data as ViolationData[]).map((violation) => (
-                        <div key={violation.id} className="border border-gray-200 rounded-lg p-4 hover:border-gray-300 transition-colors">
+                        <div key={violation.id}
+                          className="border border-gray-200 rounded-lg p-4 hover:border-gray-300 transition-colors">
                           <div className="flex items-start gap-4">
                             {/* Snapshot */}
                             {violation.snapshot_url && (
@@ -450,7 +507,8 @@ const SessionDetailsPage: FC = () => {
                             {/* Violation Details */}
                             <div className="flex-1">
                               <div className="flex items-center gap-2 mb-2">
-                                <span className="px-3 py-1 bg-red-100 text-red-800 rounded-full text-sm font-medium uppercase tracking-wide">
+                                <span
+                                  className="px-3 py-1 bg-red-100 text-red-800 rounded-full text-sm font-medium uppercase tracking-wide">
                                   {getViolationTypeLabel(violation.violation_type)}
                                 </span>
                                 <span className="text-sm text-gray-500">
