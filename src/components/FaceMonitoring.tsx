@@ -1,9 +1,11 @@
 import type { FC } from 'react';
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import * as faceapi from 'face-api.js';
 import { useI18n } from '../i18n';
 import { useProctorHeartbeat, useProctorRecordViolation, useModeratorSessionViolations, useProctorUploadChunk } from '../api/surveys';
 import { useBodyScrollLock } from '../hooks/useBodyScrollLock';
+import { logout } from '../api/auth';
 
 interface FaceMonitoringProps {
   isActive: boolean;
@@ -41,6 +43,74 @@ const mapViolationTypeToAPI = (violationType: 'no_face' | 'multiple_faces' | 'fa
     default:
       return 'no_face';
   }
+};
+
+interface MaxWarningsModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+}
+
+const MaxWarningsModal: FC<MaxWarningsModalProps> = ({
+  isOpen,
+  onClose
+}) => {
+  const { t } = useI18n();
+  const navigate = useNavigate();
+
+  useBodyScrollLock(isOpen);
+
+  const handleClose = () => {
+    onClose();
+    // Terminate test and redirect to login
+    logout();
+    navigate('/login', { replace: true });
+  };
+
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 z-[80] flex items-center justify-center p-4">
+      {/* Backdrop */}
+      <div className="absolute w-full h-full inset-0 bg-red-600 bg-opacity-90 transition-opacity" />
+
+      {/* Modal */}
+      <div className="relative bg-white rounded-lg shadow-xl max-w-md w-full p-6 z-10">
+        {/* Header */}
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center">
+              <svg className="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                  d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+              </svg>
+            </div>
+            <h3 className="text-lg font-semibold text-gray-900">
+              {t('faceMonitoring.maxWarningsTitle')}
+            </h3>
+          </div>
+        </div>
+
+        {/* Content */}
+        <div className="mb-6">
+          <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
+            <p className="text-red-800 text-sm font-medium">
+              {t('faceMonitoring.maxWarningsReached')}
+            </p>
+          </div>
+        </div>
+
+        {/* Actions */}
+        <div className="flex justify-end gap-3">
+          <button
+            onClick={handleClose}
+            className="px-4 py-2 rounded-lg transition-colors bg-red-600 hover:bg-red-700 text-white"
+          >
+            {t('faceMonitoring.close')}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
 };
 
 const ViolationAlert: FC<ViolationAlertProps> = ({
@@ -194,9 +264,11 @@ export const FaceMonitoring: FC<FaceMonitoringProps> = ({
   const [isModelsLoaded, setIsModelsLoaded] = useState(false);
   const [isMonitoring, setIsMonitoring] = useState(false);
   const [showViolationAlert, setShowViolationAlert] = useState(false);
+  const [showMaxWarningsModal, setShowMaxWarningsModal] = useState(false);
   const [currentViolationType, setCurrentViolationType] = useState<'no_face' | 'multiple_faces' | 'face_lost' | 'tab_switched' | 'face_mismatch'>('no_face');
   const [lastViolationTime, setLastViolationTime] = useState<number>(0);
   const maxViolations = 3;
+  const maxWarnings = 8; // Maximum warnings before termination
   const violationCooldown = 1500; // shorter cooldown between violations for faster feedback
   const hiddenTabCheckInterval = 1500; // how often to re-check hidden tab violations
   const faceMismatchThreshold = 0.58; // Euclidean distance threshold for face mismatch detection
@@ -233,6 +305,16 @@ export const FaceMonitoring: FC<FaceMonitoringProps> = ({
       setShowViolationAlert(true);
     }
   }, [serverViolationCount, showViolationAlert]);
+
+  // Check for max warnings (8) and show modal
+  useEffect(() => {
+    if (serverViolationCount >= maxWarnings && !showMaxWarningsModal) {
+      console.log(`⚠️ Face Monitoring: Maximum warnings (${maxWarnings}) reached. Terminating test.`);
+      setShowMaxWarningsModal(true);
+      setIsMonitoring(false);
+      onTestTerminated();
+    }
+  }, [serverViolationCount, maxWarnings, showMaxWarningsModal, onTestTerminated]);
 
   // Page Visibility API detection
   // Load face-api.js models
@@ -850,6 +932,14 @@ export const FaceMonitoring: FC<FaceMonitoringProps> = ({
         attemptCount={serverViolationCount}
         maxAttempts={maxViolations}
         onClose={handleViolationAlertClose}
+      />
+
+      {/* Max Warnings Modal */}
+      <MaxWarningsModal
+        isOpen={showMaxWarningsModal}
+        onClose={() => {
+          setShowMaxWarningsModal(false);
+        }}
       />
 
     </>
