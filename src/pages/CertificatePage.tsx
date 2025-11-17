@@ -21,7 +21,7 @@ const DecorativeLabel: FC<{ children: ReactNode; position: 'left' | 'right'; val
   value
 }) => (
   <div
-    className={`absolute top-16 text-[#51617a] font-semibold tracking-wide flex items-center gap-3 ${position === 'left' ? 'left-16' : 'right-16 flex-row-reverse'
+    className={`absolute top-16 text-[#51617a] font-bold tracking-wide flex items-center gap-3 ${position === 'left' ? 'left-16' : 'right-16 flex-row-reverse'
       }`}
   >
     <span className="text-xl">№</span>
@@ -145,7 +145,7 @@ const CertificatePage: FC = () => {
 
   return (
     <div className="min-h-screen bg-[#e5ebf4] py-10 flex flex-col items-center gap-10">
-      <div className="relative w-[1120px] max-w-[95vw] aspect-[16/10] bg-white shadow-[0_25px_65px_rgba(25,42,87,0.18)] border border-[#d7dbe4] overflow-hidden rounded-[28px]">
+      <div className="relative w-[1120px] max-w-[95vw] aspect-[16/10] bg-white shadow-[0_25px_65px_rgba(25,42,87,0.18)] border border-[#d7dbe4] rounded-[28px]">
         <div className="absolute inset-0">
           <img src="/certificate_bg.png" alt="" className="w-full h-full object-cover opacity-90" />
           {BORDER_DECORATION}
@@ -161,20 +161,13 @@ const CertificatePage: FC = () => {
 
           <div className="absolute top-16 left-1/2 -translate-x-1/2 text-center">
             <div className="flex items-center gap-4 justify-center text-[#0b5ca8]">
-              <div className="flex items-center justify-center w-16 h-16 bg-gradient-to-r from-[#0b5ca8] to-[#1d7fd1] rounded-lg shadow-lg relative">
-                <span className="text-white font-bold text-lg">HGT</span>
-                <span className="absolute -bottom-3 inset-x-0 mx-auto w-10 h-[6px] bg-[#ff7f32] rounded-full" />
-              </div>
-              <div className="text-left leading-tight">
-                <div className="text-[#ff7f32] font-extrabold text-2xl tracking-[0.18em]">HUDUDGAZTA’MINOT</div>
-                <div className="text-[#8291a6] font-semibold text-base tracking-[0.35em] uppercase">AKSIYADORLIK JAMIYATI</div>
-              </div>
+              <img src="/logo.svg" alt="" className=" h-16" />
             </div>
           </div>
 
           <div className="flex flex-col items-center justify-center h-full pt-16 pb-24">
-            <div className="text-[#485a75] text-2xl text-center max-w-3xl leading-relaxed tracking-wide mb-10">
-              <p className="mb-3">
+            <div className="text-[#485a75] text-2xl text-center max-w-3xl leading-relaxed tracking-wide">
+              <p className="">
                 “Hududgazta’minot” AJ ning <span className="font-semibold text-[#ff7f32]">“HGT-Malaka”</span> tizimida test-sinovini
                 muvaffaqiyatli topshirganligi uchun
               </p>
@@ -183,34 +176,34 @@ const CertificatePage: FC = () => {
               </p>
             </div>
 
-            <div className="text-[#244a74] font-extrabold text-[44px] tracking-[0.08em] uppercase mb-10">
+            <div className="text-[#244a74] font-extrabold text-[44px] tracking-[0.08em] uppercase mb-4">
               {userName}
             </div>
 
-            <div className="text-[#c2271d] font-black text-[112px] tracking-[0.2em] uppercase leading-none mb-8">
+            <div className="text-[#c2271d] font-black text-[62px] tracking-[0.2em] uppercase leading-none mb-4">
               SERTIFIKAT
             </div>
 
-            <div className="text-[#1f2f45] text-[26px] tracking-[0.3em] uppercase">
+            <div className="text-[#1f2f45] text-[18px] tracking-[0.3em] uppercase">
               bilan taqdirlanadi
             </div>
           </div>
 
           <div className="absolute inset-x-0 bottom-16 flex items-center justify-center gap-20">
             <div className="text-center">
-              <div className="text-[#244a74] font-semibold text-3xl tracking-[0.4em] uppercase mb-4">
+              <div className="text-[#244a74] font-semibold text-xl tracking-[0.4em] uppercase mb-3">
                 QR-kod
               </div>
-              <div className="w-40 h-40 bg-white border-4 border-[#ced7e4] rounded-xl shadow-[0_10px_25px_rgba(36,74,116,0.18)] flex items-center justify-center">
+              <div className="w-24 h-24 mx-auto bg-white border-2 border-[#ced7e4] rounded-xl shadow-[0_10px_25px_rgba(36,74,116,0.18)] flex items-center justify-center">
                 <span className="text-sm text-[#a3b0c2] tracking-widest">QR</span>
               </div>
             </div>
           </div>
 
-          <div className="absolute bottom-16 left-16 text-[#4d607f] font-semibold tracking-[0.4em] uppercase">
+          <div className="absolute bottom-16 left-16 text-[#4d607f] font-bold tracking-[0.4em] uppercase">
             Toshkent {formattedCompletionDate}
           </div>
-          <div className="absolute bottom-16 right-16 text-[#4d607f] font-semibold tracking-[0.4em] uppercase">
+          <div className="absolute bottom-16 right-16 text-[#4d607f] font-bold tracking-[0.4em] uppercase">
             № {certificateNumber}
           </div>
         </div>
