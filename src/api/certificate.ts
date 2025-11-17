@@ -23,10 +23,12 @@ export interface CertificateData {
 }
 
 // Fetch certificate data by user ID
-export const fetchCertificateData = async (userId: string): Promise<CertificateData> => {
+export const fetchCertificateData = async (
+  userId: string
+): Promise<CertificateData> => {
   const response = await customInstance<CertificateData>({
     method: 'GET',
-    url: `/api/certificate/user/${userId}/certificate/data/`
+    url: `/api/certificate/user/${userId}/certificate/data/`,
   });
   return response;
 };
@@ -36,7 +38,7 @@ export const downloadCertificate = async (userId: string): Promise<Blob> => {
   const response = await customInstance<Blob>({
     method: 'GET',
     url: `/api/certificate/user/${userId}/certificate/download/`,
-    responseType: 'blob'
+    responseType: 'blob',
   });
   return response;
 };
@@ -45,6 +47,6 @@ export const downloadCertificate = async (userId: string): Promise<Blob> => {
 export const useCertificateData = (userId: string) => {
   return {
     fetchData: () => fetchCertificateData(userId),
-    download: () => downloadCertificate(userId)
+    download: () => downloadCertificate(userId),
   };
 };
