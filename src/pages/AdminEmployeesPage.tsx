@@ -1,6 +1,7 @@
 import type { FC } from 'react';
 import { useMemo, useState } from 'react';
 import { useModeratorUserDetails, useModeratorUsers } from '../api/moderator';
+import { useGtfRetrieve, usePositionsRetrieve } from '../api/generated/respondentWebAPI';
 import { useI18n } from '../i18n';
 import { MyProfileBanner } from "../components/MyProfileBanner.tsx";
 import type { Column } from "../components/DataTable.tsx";
@@ -47,14 +48,35 @@ const AdminEmployeesPage: FC = () => {
   const usersData = usersQuery.data as any;
   const users = usersData?.results || usersData || [];
 
+  // Fetch GTF and Positions lists to get IDs
+  const { data: gtfData } = useGtfRetrieve();
+  const { data: positionsData } = usePositionsRetrieve();
+
   // Fetch selected user details
   const userDetailsQuery = useModeratorUserDetails(selectedUserId ?? undefined);
 
   const selectedUser = userDetailsQuery.data;
 
-  // Extract unique branches and positions from the data with localization
+  // Helper function to get localized name
+  const getLocalizedName = useMemo(() => (item: any) => {
+    switch (lang) {
+      case 'uz':
+        return item.name_uz || item.name_uz_cyrl || item.name_ru || 'N/A';
+      case 'uz-cyrl':
+        return item.name_uz_cyrl || item.name_uz || item.name_ru || 'N/A';
+      case 'ru':
+        return item.name_ru || item.name_uz || item.name_uz_cyrl || 'N/A';
+      default:
+        return item.name_uz || item.name_uz_cyrl || item.name_ru || 'N/A';
+    }
+  }, [lang]);
+
+  // Extract unique branches and positions from users, then map to IDs from API lists
   const branches = useMemo(() => {
-    const branchSet = new Set<string>();
+    if (!gtfData?.gtf) return [];
+
+    // Get unique branch names from users
+    const branchNameSet = new Set<string>();
     users.forEach((user: any) => {
       const localized =
         lang === 'uz'
@@ -62,13 +84,31 @@ const AdminEmployeesPage: FC = () => {
           : lang === 'uz-cyrl'
             ? (user.gtf_uz_cyrl || user.gtf_uz || user.gtf_ru || user.gtf)
             : (user.gtf_ru || user.gtf_uz || user.gtf_uz_cyrl || user.gtf);
-      if (localized) branchSet.add(localized);
+      if (localized) branchNameSet.add(localized);
     });
-    return Array.from(branchSet).sort();
-  }, [users, lang]);
+
+    // Map branch names to IDs from GTF list
+    const branchMap = new Map<number, string>();
+    if (Array.isArray(gtfData.gtf)) {
+      gtfData.gtf.forEach((gtf: any) => {
+        const localizedName = getLocalizedName(gtf);
+        if (branchNameSet.has(localizedName)) {
+          branchMap.set(gtf.id, localizedName);
+        }
+      });
+    }
+
+    // Return array of {id, name} objects sorted by name
+    return Array.from(branchMap.entries())
+      .map(([id, name]) => ({ id, name }))
+      .sort((a, b) => a.name.localeCompare(b.name));
+  }, [users, lang, gtfData, getLocalizedName]);
 
   const positions = useMemo(() => {
-    const positionSet = new Set<string>();
+    if (!positionsData?.positions) return [];
+
+    // Get unique position names from users
+    const positionNameSet = new Set<string>();
     users.forEach((user: any) => {
       const localized =
         lang === 'uz'
@@ -76,10 +116,25 @@ const AdminEmployeesPage: FC = () => {
           : lang === 'uz-cyrl'
             ? (user.position_name_uz_cyrl || user.position_name_uz || user.position_name_ru || user.position_name)
             : (user.position_name_ru || user.position_name_uz || user.position_name_uz_cyrl || user.position_name);
-      if (localized) positionSet.add(localized);
+      if (localized) positionNameSet.add(localized);
     });
-    return Array.from(positionSet).sort();
-  }, [users, lang]);
+
+    // Map position names to IDs from Positions list
+    const positionMap = new Map<number, string>();
+    if (Array.isArray(positionsData.positions)) {
+      positionsData.positions.forEach((position: any) => {
+        const localizedName = getLocalizedName(position);
+        if (positionNameSet.has(localizedName)) {
+          positionMap.set(position.id, localizedName);
+        }
+      });
+    }
+
+    // Return array of {id, name} objects sorted by name
+    return Array.from(positionMap.entries())
+      .map(([id, name]) => ({ id, name }))
+      .sort((a, b) => a.name.localeCompare(b.name));
+  }, [users, lang, positionsData, getLocalizedName]);
 
   // Handle certificate download
   const handleCertificateDownload = (userId: number, userName: string) => {
@@ -395,12 +450,12 @@ const AdminEmployeesPage: FC = () => {
                   <select value={branch} onChange={(e) => setBranch(e.target.value)}
                     className="rounded-lg border-gray-300 focus:ring-cyan-500 focus:border-cyan-500">
                     <option value="">{t('admin.allBranches')}</option>
-                    {branches.map((b) => <option key={b} value={b}>{b}</option>)}
+                    {branches.map((b) => <option key={b.id} value={b.id.toString()}>{b.name}</option>)}
                   </select>
                   <select value={position} onChange={(e) => setPosition(e.target.value)}
                     className="rounded-lg border-gray-300 focus:ring-cyan-500 focus:border-cyan-500">
                     <option value="">{t('admin.allPositions')}</option>
-                    {positions.map((p) => <option key={p} value={p}>{p}</option>)}
+                    {positions.map((p) => <option key={p.id} value={p.id.toString()}>{p.name}</option>)}
                   </select>
                   <select value={testStatus} onChange={(e) => setTestStatus(e.target.value)}
                     className="rounded-lg border-gray-300 focus:ring-cyan-500 focus:border-cyan-500">
