@@ -50,6 +50,7 @@ interface MaxWarningsModalProps {
   onClose: () => void;
 }
 
+
 const MaxWarningsModal: FC<MaxWarningsModalProps> = ({
   isOpen,
   onClose
@@ -61,9 +62,9 @@ const MaxWarningsModal: FC<MaxWarningsModalProps> = ({
 
   const handleClose = () => {
     onClose();
-    // Terminate test and redirect to login
+    // Terminate test and redirect to main page
     logout();
-    navigate('/login', { replace: true });
+    navigate('/', { replace: true });
   };
 
   if (!isOpen) return null;
@@ -246,6 +247,7 @@ export const FaceMonitoring: FC<FaceMonitoringProps> = ({
   checkInterval = 1500, // default to 1.5 seconds for faster detection cadence
   referenceDescriptor
 }) => {
+  const navigate = useNavigate();
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
@@ -268,7 +270,7 @@ export const FaceMonitoring: FC<FaceMonitoringProps> = ({
   const [currentViolationType, setCurrentViolationType] = useState<'no_face' | 'multiple_faces' | 'face_lost' | 'tab_switched' | 'face_mismatch'>('no_face');
   const [lastViolationTime, setLastViolationTime] = useState<number>(0);
   const maxViolations = 3;
-  const maxWarnings = 8; // Maximum warnings before termination
+  const maxWarnings = 3; // Maximum warnings before termination
   const violationCooldown = 1500; // shorter cooldown between violations for faster feedback
   const hiddenTabCheckInterval = 1500; // how often to re-check hidden tab violations
   const faceMismatchThreshold = 0.58; // Euclidean distance threshold for face mismatch detection
@@ -306,15 +308,17 @@ export const FaceMonitoring: FC<FaceMonitoringProps> = ({
     }
   }, [serverViolationCount, showViolationAlert]);
 
-  // Check for max warnings (8) and show modal
+  // Check for max warnings (3) and show modal, and navigate to main page
   useEffect(() => {
     if (serverViolationCount >= maxWarnings && !showMaxWarningsModal) {
       console.log(`⚠️ Face Monitoring: Maximum warnings (${maxWarnings}) reached. Terminating test.`);
       setShowMaxWarningsModal(true);
       setIsMonitoring(false);
       onTestTerminated();
+      // Navigate to main page immediately
+      navigate('/', { replace: true });
     }
-  }, [serverViolationCount, maxWarnings, showMaxWarningsModal, onTestTerminated]);
+  }, [serverViolationCount, maxWarnings, showMaxWarningsModal, onTestTerminated, navigate]);
 
   // Page Visibility API detection
   // Load face-api.js models
@@ -674,8 +678,11 @@ export const FaceMonitoring: FC<FaceMonitoringProps> = ({
     }
   }, []);
 
+
   const handleViolation = useCallback(async (violationType: 'no_face' | 'multiple_faces' | 'face_lost' | 'face_mismatch', detectionData?: { faceCount?: number; confidence?: number; descriptorDistance?: number; }) => {
     const now = Date.now();
+
+    setWarningCount(prev => prev + 1);
 
     // Check cooldown period
     if (now - lastViolationTime < violationCooldown) {
