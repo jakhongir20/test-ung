@@ -1,6 +1,7 @@
 import type { FC, ReactNode } from 'react';
 import { useEffect, useMemo, useState } from 'react';
 import { useParams } from 'react-router-dom';
+import { QRCodeSVG } from 'qrcode.react';
 import { fetchCertificateData, downloadCertificate, type CertificateData } from '../api/certificate';
 
 const BORDER_DECORATION = (
@@ -36,6 +37,14 @@ const CertificatePage: FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isDownloading, setIsDownloading] = useState(false);
+
+  // Generate certificate URL for QR code using base domain from env or fallback
+  const certificateUrl = useMemo(() => {
+    if (!id) return '';
+    // Use environment variable for base URL, fallback to window.location.origin for development
+    const baseUrl = window.location.origin;
+    return `${baseUrl}/certificate/${id}`;
+  }, [id]);
 
   useEffect(() => {
     const loadCertificateData = async () => {
@@ -194,8 +203,15 @@ const CertificatePage: FC = () => {
               <div className="text-[#244a74] font-semibold text-xl tracking-[0.4em] uppercase mb-3">
                 QR-kod
               </div>
-              <div className="w-24 h-24 mx-auto bg-white border-2 border-[#ced7e4] rounded-xl shadow-[0_10px_25px_rgba(36,74,116,0.18)] flex items-center justify-center">
-                <span className="text-sm text-[#a3b0c2] tracking-widest">QR</span>
+              <div className="w-24 h-24 mx-auto bg-white border-2 border-[#ced7e4] rounded-xl shadow-[0_10px_25px_rgba(36,74,116,0.18)] flex items-center justify-center p-2">
+                {certificateUrl && (
+                  <QRCodeSVG
+                    value={certificateUrl}
+                    size={80}
+                    level="H"
+                    includeMargin={false}
+                  />
+                )}
               </div>
             </div>
           </div>
