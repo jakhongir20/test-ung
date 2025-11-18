@@ -1,8 +1,9 @@
 import type { FC, ReactNode } from 'react';
 import { useEffect, useMemo, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useSearchParams } from 'react-router-dom';
 import { QRCodeSVG } from 'qrcode.react';
 import { fetchCertificateData, downloadCertificate, type CertificateData } from '../api/certificate';
+import { useI18n, type LanguageCode } from '../i18n';
 
 const BORDER_DECORATION = (
   <svg
@@ -33,18 +34,28 @@ const DecorativeLabel: FC<{ children: ReactNode; position: 'left' | 'right'; val
 
 const CertificatePage: FC = () => {
   const { id } = useParams<{ id: string; }>();
+  const [searchParams] = useSearchParams();
+  const { t, lang, setLang } = useI18n();
   const [certificateData, setCertificateData] = useState<CertificateData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isDownloading, setIsDownloading] = useState(false);
+
+  // Set language from URL parameter if provided
+  useEffect(() => {
+    const langParam = searchParams.get('lang');
+    if (langParam && (langParam === 'uz' || langParam === 'uz-cyrl' || langParam === 'ru')) {
+      setLang(langParam as LanguageCode);
+    }
+  }, [searchParams, setLang]);
 
   // Generate certificate URL for QR code using base domain from env or fallback
   const certificateUrl = useMemo(() => {
     if (!id) return '';
     // Use environment variable for base URL, fallback to window.location.origin for development
     const baseUrl = window.location.origin;
-    return `${baseUrl}/certificate/${id}`;
-  }, [id]);
+    return `${baseUrl}/certificate/${id}?lang=${lang}`;
+  }, [id, lang]);
 
   useEffect(() => {
     const loadCertificateData = async () => {
@@ -97,10 +108,11 @@ const CertificatePage: FC = () => {
 
   const formattedCompletionDate = useMemo(() => {
     if (!completedAt) {
-      return 'Toshkent 2025';
+      return lang === 'ru' ? 'Ташкент 2025' : 'Toshkent 2025';
     }
     try {
-      return new Intl.DateTimeFormat('uz-UZ', {
+      const locale = lang === 'ru' ? 'ru-RU' : lang === 'uz-cyrl' ? 'uz-Cyrl-UZ' : 'uz-Latn-UZ';
+      return new Intl.DateTimeFormat(locale, {
         year: 'numeric',
         month: 'long',
         day: 'numeric'
@@ -108,14 +120,50 @@ const CertificatePage: FC = () => {
     } catch {
       return completedAt;
     }
-  }, [completedAt]);
+  }, [completedAt, lang]);
+
+  // Get localized branch name with fallback logic (before early returns)
+  const localizedBranchName = useMemo(() => {
+    if (!certificateData) return '';
+
+    const userBranch = certificateData.user_branch || '';
+    const user_branch_uz = certificateData.user_branch_uz;
+    const user_branch_uz_cyrl = certificateData.user_branch_uz_cyrl;
+    const user_branch_ru = certificateData.user_branch_ru;
+
+    // Check if user_branch is empty or just quotes
+    const isBranchEmpty = !userBranch || userBranch.trim() === '' || userBranch === '""';
+
+    // If localized fields exist, use them with fallback based on current language
+    if (user_branch_uz || user_branch_uz_cyrl || user_branch_ru) {
+      switch (lang) {
+        case 'uz':
+          return user_branch_uz || user_branch_uz_cyrl || user_branch_ru || (isBranchEmpty ? '' : userBranch);
+        case 'uz-cyrl':
+          return user_branch_uz_cyrl || user_branch_uz || user_branch_ru || (isBranchEmpty ? '' : userBranch);
+        case 'ru':
+          return user_branch_ru || user_branch_uz || user_branch_uz_cyrl || (isBranchEmpty ? '' : userBranch);
+        default:
+          return user_branch_uz || user_branch_uz_cyrl || user_branch_ru || (isBranchEmpty ? '' : userBranch);
+      }
+    }
+
+    // If user_branch is empty and no localized fields, try to get from other language fields
+    if (isBranchEmpty) {
+      // Return first available localized field
+      return user_branch_uz || user_branch_uz_cyrl || user_branch_ru || '';
+    }
+
+    // Use user_branch if it's not empty
+    return userBranch;
+  }, [certificateData, lang]);
 
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#f1f4f8]">
         <div className="text-center text-[#51617a]">
           <div className="animate-spin rounded-full h-10 w-10 border-4 border-[#00A2DE]/60 border-t-[#00A2DE] mx-auto mb-3" />
-          <p className="text-lg font-medium">Yuklanmoqda...</p>
+          <p className="text-lg font-medium">{t('certificate.loading')}</p>
         </div>
       </div>
     );
@@ -130,15 +178,15 @@ const CertificatePage: FC = () => {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v4m0 4h.01M4.93 4.93l14.14 14.14" />
             </svg>
           </div>
-          <h2 className="text-2xl font-semibold text-gray-900 mb-2">Sertifikat topilmadi</h2>
+          <h2 className="text-2xl font-semibold text-gray-900 mb-2">{t('certificate.notFound')}</h2>
           <p className="text-gray-600 mb-6">
-            {error || 'Ushbu foydalanuvchi uchun sertifikat maʼlumotlari mavjud emas.'}
+            {error || t('certificate.notFoundMessage')}
           </p>
           <button
             onClick={() => window.location.reload()}
             className="bg-[#00A2DE] text-white px-5 py-2 rounded-lg font-medium hover:bg-[#0093c8]"
           >
-            Qayta urinish
+            {t('certificate.retry')}
           </button>
         </div>
       </div>
@@ -148,7 +196,6 @@ const CertificatePage: FC = () => {
   const {
     user_name: userName,
     user_position: userPosition,
-    user_branch: userBranch,
     certificate_order: certificateNumber
   } = certificateData;
 
@@ -162,10 +209,10 @@ const CertificatePage: FC = () => {
 
         <div className="relative h-full w-full px-24 py-20">
           <DecorativeLabel position="left" value={certificateNumber}>
-            tartib
+            {t('certificate.order')}
           </DecorativeLabel>
           <DecorativeLabel position="right" value={certificateNumber}>
-            raqam
+            {t('certificate.number')}
           </DecorativeLabel>
 
           <div className="absolute top-16 left-1/2 -translate-x-1/2 text-center">
@@ -177,11 +224,10 @@ const CertificatePage: FC = () => {
           <div className="flex flex-col items-center justify-center h-full pt-16 pb-24">
             <div className="text-[#485a75] text-2xl text-center max-w-3xl leading-relaxed tracking-wide">
               <p className="">
-                “Hududgazta’minot” AJ ning <span className="font-semibold text-[#ff7f32]">“HGT-Malaka”</span> tizimida test-sinovini
-                muvaffaqiyatli topshirganligi uchun
+                {t('certificate.successMessage')}
               </p>
               <p>
-                “{userBranch}” gaz ta’minoti filiali <span className="font-medium">{userPosition}</span>
+                "{localizedBranchName}" {t('certificate.branchLabel')} <span className="font-medium">{userPosition}</span>
               </p>
             </div>
 
@@ -190,18 +236,18 @@ const CertificatePage: FC = () => {
             </div>
 
             <div className="text-[#c2271d] font-black text-[62px] tracking-[0.2em] uppercase leading-none mb-4">
-              SERTIFIKAT
+              {t('certificate.title')}
             </div>
 
             <div className="text-[#1f2f45] text-[18px] tracking-[0.3em] uppercase">
-              bilan taqdirlanadi
+              {t('certificate.awarded')}
             </div>
           </div>
 
           <div className="absolute inset-x-0 bottom-16 flex items-center justify-center gap-20">
             <div className="text-center">
               <div className="text-[#244a74] font-semibold text-xl tracking-[0.4em] uppercase mb-3">
-                QR-kod
+                {t('certificate.qrCode')}
               </div>
               <div className="w-24 h-24 mx-auto bg-white border-2 border-[#ced7e4] rounded-xl shadow-[0_10px_25px_rgba(36,74,116,0.18)] flex items-center justify-center p-2">
                 {certificateUrl && (
@@ -217,7 +263,7 @@ const CertificatePage: FC = () => {
           </div>
 
           <div className="absolute bottom-16 left-16 text-[#4d607f] font-bold tracking-[0.4em] uppercase">
-            Toshkent {formattedCompletionDate}
+            {lang === 'ru' ? 'Ташкент' : 'Toshkent'} {formattedCompletionDate}
           </div>
           <div className="absolute bottom-16 right-16 text-[#4d607f] font-bold tracking-[0.4em] uppercase">
             № {certificateNumber}
@@ -233,14 +279,14 @@ const CertificatePage: FC = () => {
         {isDownloading ? (
           <>
             <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-            Yuklab olinmoqda...
+            {t('certificate.downloading')}
           </>
         ) : (
           <>
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
             </svg>
-            Sertifikatni yuklab olish
+            {t('certificate.downloadButton')}
           </>
         )}
       </button>

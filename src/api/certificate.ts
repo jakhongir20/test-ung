@@ -7,6 +7,9 @@ export interface CertificateData {
   attempt_number: number;
   user_name: string;
   user_branch: string;
+  user_branch_uz?: string;
+  user_branch_uz_cyrl?: string;
+  user_branch_ru?: string;
   user_position: string;
   user_work_domain: string;
   user_employee_level: string;

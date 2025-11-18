@@ -107,8 +107,9 @@ const AdminEmployeesPage: FC = () => {
 
   const confirmCertificateDownload = () => {
     if (certificateModal.userId) {
-      // Open certificate page with user ID (new API structure)
-      window.open(`/certificate/${certificateModal.userId}`, '_blank');
+      // Open certificate page with user ID and language parameter
+      const langParam = lang === 'uz-cyrl' ? 'uz-cyrl' : lang;
+      window.open(`/certificate/${certificateModal.userId}?lang=${langParam}`, '_blank');
     }
     setCertificateModal({
       isOpen: false,
