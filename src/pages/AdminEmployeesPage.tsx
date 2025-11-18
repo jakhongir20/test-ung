@@ -71,70 +71,30 @@ const AdminEmployeesPage: FC = () => {
     }
   }, [lang]);
 
-  // Extract unique branches and positions from users, then map to IDs from API lists
+  // Get all available branches and positions from API (not filtered by current users)
   const branches = useMemo(() => {
-    if (!gtfData?.gtf) return [];
+    if (!gtfData?.gtf || !Array.isArray(gtfData.gtf)) return [];
 
-    // Get unique branch names from users
-    const branchNameSet = new Set<string>();
-    users.forEach((user: any) => {
-      const localized =
-        lang === 'uz'
-          ? (user.gtf_uz || user.gtf_uz_cyrl || user.gtf_ru || user.gtf)
-          : lang === 'uz-cyrl'
-            ? (user.gtf_uz_cyrl || user.gtf_uz || user.gtf_ru || user.gtf)
-            : (user.gtf_ru || user.gtf_uz || user.gtf_uz_cyrl || user.gtf);
-      if (localized) branchNameSet.add(localized);
-    });
-
-    // Map branch names to IDs from GTF list
-    const branchMap = new Map<number, string>();
-    if (Array.isArray(gtfData.gtf)) {
-      gtfData.gtf.forEach((gtf: any) => {
-        const localizedName = getLocalizedName(gtf);
-        if (branchNameSet.has(localizedName)) {
-          branchMap.set(gtf.id, localizedName);
-        }
-      });
-    }
-
-    // Return array of {id, name} objects sorted by name
-    return Array.from(branchMap.entries())
-      .map(([id, name]) => ({ id, name }))
+    // Return all branches from API with localized names
+    return gtfData.gtf
+      .map((gtf: any) => ({
+        id: gtf.id,
+        name: getLocalizedName(gtf)
+      }))
       .sort((a, b) => a.name.localeCompare(b.name));
-  }, [users, lang, gtfData, getLocalizedName]);
+  }, [gtfData, getLocalizedName]);
 
   const positions = useMemo(() => {
-    if (!positionsData?.positions) return [];
+    if (!positionsData?.positions || !Array.isArray(positionsData.positions)) return [];
 
-    // Get unique position names from users
-    const positionNameSet = new Set<string>();
-    users.forEach((user: any) => {
-      const localized =
-        lang === 'uz'
-          ? (user.position_name_uz || user.position_name_uz_cyrl || user.position_name_ru || user.position_name)
-          : lang === 'uz-cyrl'
-            ? (user.position_name_uz_cyrl || user.position_name_uz || user.position_name_ru || user.position_name)
-            : (user.position_name_ru || user.position_name_uz || user.position_name_uz_cyrl || user.position_name);
-      if (localized) positionNameSet.add(localized);
-    });
-
-    // Map position names to IDs from Positions list
-    const positionMap = new Map<number, string>();
-    if (Array.isArray(positionsData.positions)) {
-      positionsData.positions.forEach((position: any) => {
-        const localizedName = getLocalizedName(position);
-        if (positionNameSet.has(localizedName)) {
-          positionMap.set(position.id, localizedName);
-        }
-      });
-    }
-
-    // Return array of {id, name} objects sorted by name
-    return Array.from(positionMap.entries())
-      .map(([id, name]) => ({ id, name }))
+    // Return all positions from API with localized names
+    return positionsData.positions
+      .map((position: any) => ({
+        id: position.id,
+        name: getLocalizedName(position)
+      }))
       .sort((a, b) => a.name.localeCompare(b.name));
-  }, [users, lang, positionsData, getLocalizedName]);
+  }, [positionsData, getLocalizedName]);
 
   // Handle certificate download
   const handleCertificateDownload = (userId: number, userName: string) => {
@@ -147,8 +107,9 @@ const AdminEmployeesPage: FC = () => {
 
   const confirmCertificateDownload = () => {
     if (certificateModal.userId) {
-      // Open certificate page with user ID (new API structure)
-      window.open(`/certificate/${certificateModal.userId}`, '_blank');
+      // Open certificate page with user ID and language parameter
+      const langParam = lang === 'uz-cyrl' ? 'uz-cyrl' : lang;
+      window.open(`/certificate/${certificateModal.userId}?lang=${langParam}`, '_blank');
     }
     setCertificateModal({
       isOpen: false,
@@ -447,21 +408,34 @@ const AdminEmployeesPage: FC = () => {
                 <h3 className="text-xl md:text-2xl font-semibold mb-6">{t('admin.employees')}</h3>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
-                  <select value={branch} onChange={(e) => setBranch(e.target.value)}
-                    className="rounded-lg border-gray-300 focus:ring-cyan-500 focus:border-cyan-500">
+                  <select
+                    value={branch}
+                    onChange={(e) => setBranch(e.target.value)}
+                    className="w-full px-4 py-2 rounded-lg border border-gray-300 bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 cursor-pointer"
+                  >
                     <option value="">{t('admin.allBranches')}</option>
-                    {branches.map((b) => <option key={b.id} value={b.id.toString()}>{b.name}</option>)}
+                    {branches.map((b) => (
+                      <option key={b.id} value={b.id.toString()}>{b.name}</option>
+                    ))}
                   </select>
-                  <select value={position} onChange={(e) => setPosition(e.target.value)}
-                    className="rounded-lg border-gray-300 focus:ring-cyan-500 focus:border-cyan-500">
+                  <select
+                    value={position}
+                    onChange={(e) => setPosition(e.target.value)}
+                    className="w-full px-4 py-2 rounded-lg border border-gray-300 bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 cursor-pointer"
+                  >
                     <option value="">{t('admin.allPositions')}</option>
-                    {positions.map((p) => <option key={p.id} value={p.id.toString()}>{p.name}</option>)}
+                    {positions.map((p) => (
+                      <option key={p.id} value={p.id.toString()}>{p.name}</option>
+                    ))}
                   </select>
-                  <select value={testStatus} onChange={(e) => setTestStatus(e.target.value)}
-                    className="rounded-lg border-gray-300 focus:ring-cyan-500 focus:border-cyan-500">
+                  <select
+                    value={testStatus}
+                    onChange={(e) => setTestStatus(e.target.value)}
+                    className="w-full px-4 py-2 rounded-lg border border-gray-300 bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 cursor-pointer"
+                  >
                     <option value="">{t('admin.allStatuses')}</option>
-                    {(['Refunded', 'Passed', 'Failed'] as const).map((s) => (
-                      <option key={s} value={s}>{t(`status.${s.toLowerCase()}` as any)}</option>
+                    {(['refunded', 'passed', 'failed'] as const).map((s) => (
+                      <option key={s} value={s}>{t(`status.${s}` as any)}</option>
                     ))}
                   </select>
                 </div>

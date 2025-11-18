@@ -362,6 +362,27 @@ const dictionary: Dictionary = {
   },
   'certificate.download': { uz: 'Yuklab olish', 'uz-cyrl': 'Юклаб олиш', ru: 'Скачать' },
   'certificate.cancel': { uz: 'Bekor qilish', 'uz-cyrl': 'Бекор қилиш', ru: 'Отмена' },
+  'certificate.loading': { uz: 'Yuklanmoqda...', 'uz-cyrl': 'Юкланмоқда...', ru: 'Загрузка...' },
+  'certificate.notFound': { uz: 'Sertifikat topilmadi', 'uz-cyrl': 'Сертификат топилмади', ru: 'Сертификат не найден' },
+  'certificate.notFoundMessage': {
+    uz: 'Ushbu foydalanuvchi uchun sertifikat maʼlumotlari mavjud emas.',
+    'uz-cyrl': 'Ушбу фойдаланувчи учун сертификат маълумотлари мавжуд эмас.',
+    ru: 'Данные сертификата для этого пользователя недоступны.'
+  },
+  'certificate.retry': { uz: 'Qayta urinish', 'uz-cyrl': 'Қайта уриниш', ru: 'Повторить попытку' },
+  'certificate.downloading': { uz: 'Yuklab olinmoqda...', 'uz-cyrl': 'Юклаб олинмоқда...', ru: 'Загрузка...' },
+  'certificate.downloadButton': { uz: 'Sertifikatni yuklab olish', 'uz-cyrl': 'Сертификатни юклаб олиш', ru: 'Скачать сертификат' },
+  'certificate.order': { uz: 'tartib', 'uz-cyrl': 'тартиб', ru: 'порядок' },
+  'certificate.number': { uz: 'raqam', 'uz-cyrl': 'рақам', ru: 'номер' },
+  'certificate.title': { uz: 'SERTIFIKAT', 'uz-cyrl': 'СЕРТИФИКАТ', ru: 'СЕРТИФИКАТ' },
+  'certificate.awarded': { uz: 'bilan taqdirlanadi', 'uz-cyrl': 'билан тақдирланади', ru: 'награждается' },
+  'certificate.qrCode': { uz: 'QR-kod', 'uz-cyrl': 'QR-код', ru: 'QR-код' },
+  'certificate.successMessage': {
+    uz: '"Hududgazta\'minot" AJ ning "HGT-Malaka" tizimida test-sinovini muvaffaqiyatli topshirganligi uchun',
+    'uz-cyrl': '"Ҳудудгазтаъминот" АЖ нинг "ҲГТ-Малака" тизимида тест-синовини муваффақиятли топширганлиги учун',
+    ru: 'За успешное прохождение теста в системе "HGT-Malaka" АО "Худудгазтаъминот"'
+  },
+  'certificate.branchLabel': { uz: 'gaz ta\'minoti filiali', 'uz-cyrl': 'газ таъминоти филиали', ru: 'филиал газоснабжения' },
   'certificate.noCompletedSessions': {
     uz: 'Bu foydalanuvchi uchun tugallangan sessiyalar topilmadi',
     'uz-cyrl': 'Бу фойдаланувчи учун тугалланган сессиялар топилмади',
