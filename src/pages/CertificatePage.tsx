@@ -5,6 +5,53 @@ import { QRCodeSVG } from 'qrcode.react';
 import { fetchCertificateData, downloadCertificate, type CertificateData } from '../api/certificate';
 import { useI18n, type LanguageCode } from '../i18n';
 
+type AxiosErrorLike = {
+  response?: {
+    data?: unknown;
+    status?: number;
+  };
+  message?: string;
+};
+
+const stringifyBackendResponse = (data: unknown): string | null => {
+  if (!data) return null;
+  if (typeof data === 'string') return data;
+  if (typeof data === 'object') {
+    const message = (data as { message?: unknown; detail?: unknown; error?: unknown; }).message
+      ?? (data as { detail?: unknown; }).detail
+      ?? (data as { error?: unknown; }).error;
+    if (typeof message === 'string') {
+      return message;
+    }
+    try {
+      return JSON.stringify(data);
+    } catch {
+      return null;
+    }
+  }
+  return String(data);
+};
+
+const formatCertificateError = (err: unknown, fallbackMessage: string): string => {
+  const axiosError = err as AxiosErrorLike;
+  const backendResponse = stringifyBackendResponse(axiosError?.response?.data);
+  const statusCode = axiosError?.response?.status;
+  const errorMessage = axiosError?.message;
+  const parts: string[] = ['Failed to certificate'];
+
+  if (backendResponse) {
+    parts.push(`Backend response: ${backendResponse}`);
+  }
+  parts.push(`Status code: ${statusCode ?? 'unknown'}`);
+
+  if (errorMessage?.includes('ERR_CONNECTION_REFUSED')) {
+    parts.push('(ошибка) net::ERR_CONNECTION_REFUSED');
+  }
+
+  const message = parts.join('. ');
+  return message || fallbackMessage;
+};
+
 const BORDER_DECORATION = (
   <svg
     aria-hidden
@@ -71,8 +118,7 @@ const CertificatePage: FC = () => {
         const data = await fetchCertificateData(id);
         setCertificateData(data);
       } catch (err) {
-        const message = (err as { response?: { data?: { message?: string; }; }; })?.response?.data?.message;
-        setError(message || 'Failed to load certificate data');
+        setError(formatCertificateError(err, 'Failed to load certificate data'));
       } finally {
         setIsLoading(false);
       }
@@ -97,8 +143,7 @@ const CertificatePage: FC = () => {
       document.body.removeChild(link);
       window.URL.revokeObjectURL(url);
     } catch (err) {
-      const message = (err as { response?: { data?: { message?: string; }; }; })?.response?.data?.message;
-      setError(message || 'Failed to download certificate');
+      setError(formatCertificateError(err, 'Failed to download certificate'));
     } finally {
       setIsDownloading(false);
     }
