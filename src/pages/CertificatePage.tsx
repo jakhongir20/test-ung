@@ -203,6 +203,9 @@ const CertificatePage: FC = () => {
     return userBranch;
   }, [certificateData, lang]);
 
+  const isButtonHidden = searchParams.has('hiddenButton');
+  const containerSpacingClass = isButtonHidden ? 'py-6 gap-4 justify-center' : 'py-10 gap-10';
+
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#f1f4f8]">
@@ -245,7 +248,7 @@ const CertificatePage: FC = () => {
   } = certificateData;
 
   return (
-    <div className="min-h-screen bg-[#e5ebf4] py-10 flex flex-col items-center gap-10">
+    <div className={`min-h-screen bg-[#e5ebf4] flex flex-col items-center ${containerSpacingClass}`}>
       <div className="relative w-[1120px] max-w-[95vw] aspect-[16/10] bg-white shadow-[0_25px_65px_rgba(25,42,87,0.18)] border border-[#d7dbe4] rounded-[28px]">
         <div className="absolute inset-0">
           <img src="/certificate_bg.png" alt="" className="w-full h-full object-cover opacity-90" />
@@ -316,7 +319,7 @@ const CertificatePage: FC = () => {
         </div>
       </div>
 
-      {!searchParams.has('hiddenButton') && (
+      {!isButtonHidden && (
         <button
           onClick={handleDownload}
           disabled={isDownloading}
