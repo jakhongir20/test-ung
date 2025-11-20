@@ -1,5 +1,6 @@
 import type { FC } from 'react';
 import { useEffect, useRef, useState, useCallback, useMemo } from 'react';
+import { createPortal } from 'react-dom';
 import * as faceapi from 'face-api.js';
 import { useI18n } from '../i18n';
 import { useBodyScrollLock } from '../hooks/useBodyScrollLock';
@@ -17,7 +18,8 @@ export const FaceVerificationModal: FC<FaceVerificationModalProps> = ({
   isOpen,
   onClose,
   onSuccess,
-  onError
+  onError,
+  sessionId
 }) => {
   const { t } = useI18n();
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -250,6 +252,12 @@ export const FaceVerificationModal: FC<FaceVerificationModalProps> = ({
 
             const descriptorArray = detections[0]?.descriptor ? Array.from(detections[0].descriptor) : null;
 
+            // Mark face verification as completed in sessionStorage
+            const currentSessionId = sessionId;
+            if (currentSessionId) {
+              sessionStorage.setItem(`faceVerificationCompleted_${currentSessionId}`, 'true');
+            }
+
             // Capture full video frame image from canvas and pass to parent component
             const video = videoRef.current;
             if (canvas && video) {
@@ -309,7 +317,7 @@ export const FaceVerificationModal: FC<FaceVerificationModalProps> = ({
     };
 
     detectFaces();
-  }, [isModelsLoaded, onSuccess, onError, t, error]);
+  }, [isModelsLoaded, onSuccess, onError, t, error, sessionId]);
 
   // Initialize camera and start detection
   useEffect(() => {
@@ -418,145 +426,154 @@ export const FaceVerificationModal: FC<FaceVerificationModalProps> = ({
 
   if (!isOpen) return null;
 
-  return (
-    <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
-      {/* Backdrop */}
-      <div
-        className="absolute w-full h-full inset-0 bg-black bg-opacity-75 transition-opacity"
-        onClick={handleClose}
-      />
+  // Render modal content to body using portal
+  const modalContent = (
+    <>
+      {/* Overlay to block header area */}
+      <div className="fixed top-0 left-0 right-0 h-20 z-[55] pointer-events-auto bg-transparent" />
 
-      {/* Modal */}
-      <div className="relative bg-white rounded-lg shadow-xl max-w-2xl w-full px-6 py-8  z-[99999]">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-semibold text-gray-900">
-            {t('faceVerification.title')}
-          </h3>
-          <button
-            onClick={handleClose}
-            className="text-gray-400 hover:text-gray-600 transition-colors"
-            disabled={isLoading}
-          >
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
-        </div>
+      <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
+        {/* Backdrop - do not close modal on click */}
+        <div
+          className="absolute w-full h-full inset-0 bg-black bg-opacity-75 transition-opacity"
+        />
 
-        {/* Content */}
-        <div className="mb-6">
-          {isLoading ? (
-            <div className="text-center py-8">
-              <div className="w-16 h-16 mx-auto mb-4 bg-blue-100 rounded-full flex items-center justify-center">
-                <svg className="w-8 h-8 text-blue-600 animate-spin" fill="none" viewBox="0 0 24 24">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                  <path className="opacity-75" fill="currentColor"
-                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
-              </div>
-              <p className="text-gray-600">
-                {t('faceVerification.loading')}
-              </p>
-            </div>
-          ) : (
-            <div className="space-y-4">
-              <div className="text-center">
+        {/* Modal */}
+        <div className="relative bg-white rounded-lg shadow-xl max-w-2xl w-full px-6 py-8  z-[99999]">
+          {/* Header */}
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-lg font-semibold text-gray-900">
+              {t('faceVerification.title')}
+            </h3>
+            <button
+              onClick={handleClose}
+              className="text-gray-400 hover:text-gray-600 transition-colors"
+              disabled={isLoading}
+            >
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+
+          {/* Content */}
+          <div className="mb-6">
+            {isLoading ? (
+              <div className="text-center py-8">
+                <div className="w-16 h-16 mx-auto mb-4 bg-blue-100 rounded-full flex items-center justify-center">
+                  <svg className="w-8 h-8 text-blue-600 animate-spin" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                </div>
                 <p className="text-gray-600">
-                  {t('faceVerification.multiStepIntro')}
+                  {t('faceVerification.loading')}
                 </p>
               </div>
-              <div className="bg-blue-50 border border-blue-100 rounded-lg p-4 text-center">
-                <p className="text-sm font-semibold text-blue-800">
-                  {t('faceVerification.stepProgress', { current: currentStepIndex + 1, total: totalSteps })}
-                </p>
-                <p className="text-sm text-blue-700 mt-1">
-                  {stepInstruction}
-                </p>
-              </div>
-              <div className="flex justify-center gap-4">
-                {verificationSteps.map((step, index) => {
-                  const status = index < currentStepIndex ? 'completed' : index === currentStepIndex ? 'current' : 'upcoming';
-                  const circleClass =
-                    status === 'completed'
-                      ? 'bg-green-500 text-white'
-                      : status === 'current'
-                        ? 'bg-blue-500 text-white'
-                        : 'bg-gray-200 text-gray-500';
-                  return (
-                    <div key={step.key} className="flex flex-col items-center gap-2">
-                      <div className={`w-8 h-8 flex items-center justify-center rounded-full text-sm font-medium ${circleClass}`}>
-                        {index + 1}
+            ) : (
+              <div className="space-y-4">
+                <div className="text-center">
+                  <p className="text-gray-600">
+                    {t('faceVerification.multiStepIntro')}
+                  </p>
+                </div>
+                <div className="bg-blue-50 border border-blue-100 rounded-lg p-4 text-center">
+                  <p className="text-sm font-semibold text-blue-800">
+                    {t('faceVerification.stepProgress', { current: currentStepIndex + 1, total: totalSteps })}
+                  </p>
+                  <p className="text-sm text-blue-700 mt-1">
+                    {stepInstruction}
+                  </p>
+                </div>
+                <div className="flex justify-center gap-4">
+                  {verificationSteps.map((step, index) => {
+                    const status = index < currentStepIndex ? 'completed' : index === currentStepIndex ? 'current' : 'upcoming';
+                    const circleClass =
+                      status === 'completed'
+                        ? 'bg-green-500 text-white'
+                        : status === 'current'
+                          ? 'bg-blue-500 text-white'
+                          : 'bg-gray-200 text-gray-500';
+                    return (
+                      <div key={step.key} className="flex flex-col items-center gap-2">
+                        <div className={`w-8 h-8 flex items-center justify-center rounded-full text-sm font-medium ${circleClass}`}>
+                          {index + 1}
+                        </div>
+                        <span className="text-xs text-gray-600 text-center w-20 leading-tight">
+                          {step.label}
+                        </span>
                       </div>
-                      <span className="text-xs text-gray-600 text-center w-20 leading-tight">
-                        {step.label}
-                      </span>
+                    );
+                  })}
+                </div>
+
+                {/* Camera View */}
+                <div className="relative bg-gray-100 rounded-lg overflow-hidden">
+                  <video
+                    ref={videoRef}
+                    className="w-full h-auto"
+                    autoPlay
+                    muted
+                    playsInline
+                  />
+                  <canvas
+                    ref={canvasRef}
+                    className="absolute top-0 left-0 w-full h-full pointer-events-none"
+                  />
+                </div>
+
+                {/* Detection Status */}
+                <div className="text-center">
+                  {isDetecting && (
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-center gap-2">
+                        <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
+                        <span className="text-sm text-gray-600">
+                          {t('faceVerification.detecting')}
+                        </span>
+                      </div>
+                      <div className="text-xs text-gray-500">
+                        {t('faceVerification.detectionProgress', {
+                          count: detectionCount,
+                          required: requiredDetectionsForCurrentStep
+                        })}
+                      </div>
                     </div>
-                  );
-                })}
-              </div>
+                  )}
 
-              {/* Camera View */}
-              <div className="relative bg-gray-100 rounded-lg overflow-hidden">
-                <video
-                  ref={videoRef}
-                  className="w-full h-auto"
-                  autoPlay
-                  muted
-                  playsInline
-                />
-                <canvas
-                  ref={canvasRef}
-                  className="absolute top-0 left-0 w-full h-full pointer-events-none"
-                />
-              </div>
-
-              {/* Detection Status */}
-              <div className="text-center">
-                {isDetecting && (
-                  <div className="space-y-2">
-                    <div className="flex items-center justify-center gap-2">
-                      <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
-                      <span className="text-sm text-gray-600">
-                        {t('faceVerification.detecting')}
-                      </span>
+                  {error && (
+                    <div className="text-red-600 text-sm bg-red-50 p-3 rounded-lg">
+                      {error}
                     </div>
-                    <div className="text-xs text-gray-500">
-                      {t('faceVerification.detectionProgress', {
-                        count: detectionCount,
-                        required: requiredDetectionsForCurrentStep
-                      })}
+                  )}
+
+                  {detectionCount > 0 && detectionCount < requiredDetectionsForCurrentStep && !error && (
+                    <div className="text-green-600 text-sm bg-green-50 p-3 rounded-lg">
+                      {t('faceVerification.faceDetected')}
                     </div>
-                  </div>
-                )}
-
-                {error && (
-                  <div className="text-red-600 text-sm bg-red-50 p-3 rounded-lg">
-                    {error}
-                  </div>
-                )}
-
-                {detectionCount > 0 && detectionCount < requiredDetectionsForCurrentStep && !error && (
-                  <div className="text-green-600 text-sm bg-green-50 p-3 rounded-lg">
-                    {t('faceVerification.faceDetected')}
-                  </div>
-                )}
+                  )}
+                </div>
               </div>
-            </div>
-          )}
-        </div>
+            )}
+          </div>
 
-        {/* Actions */}
-        <div className="flex justify-end gap-3">
-          <button
-            onClick={handleClose}
-            disabled={isLoading}
-            className="px-4 py-2 text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors disabled:opacity-50"
-          >
-            {t('faceVerification.cancel')}
-          </button>
+          {/* Actions */}
+          <div className="flex justify-end gap-3">
+            <button
+              onClick={handleClose}
+              disabled={isLoading}
+              className="px-4 py-2 text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors disabled:opacity-50"
+            >
+              {t('faceVerification.cancel')}
+            </button>
+          </div>
         </div>
       </div>
-    </div>
+    </>
   );
+
+  return typeof document !== 'undefined'
+    ? createPortal(modalContent, document.body)
+    : null;
 };

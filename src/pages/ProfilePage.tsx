@@ -67,9 +67,18 @@ const ProfilePage: FC = () => {
   // Check for active session on component mount
   useEffect(() => {
     if (currentSession.data?.session) {
-      // Store the session data and navigate to test page with sessionId param
-      localStorage.setItem('currentSurveySession', JSON.stringify(currentSession.data.session));
-      navigate(`/test?sessionId=${currentSession.data.session.id}`);
+      const sessionId = currentSession.data.session.id;
+      // Check if face verification is completed before auto-navigating
+      const isFaceVerificationCompleted = sessionStorage.getItem(`faceVerificationCompleted_${sessionId}`) === 'true';
+
+      if (isFaceVerificationCompleted) {
+        // Store the session data and navigate to test page with sessionId param
+        localStorage.setItem('currentSurveySession', JSON.stringify(currentSession.data.session));
+        navigate(`/test?sessionId=${sessionId}`);
+      } else {
+        // Face verification not completed - clear session to prevent auto-navigation
+        localStorage.removeItem('currentSurveySession');
+      }
     }
   }, [currentSession.data, navigate]);
 
@@ -141,17 +150,24 @@ const ProfilePage: FC = () => {
           });
         }
 
+        // Mark face verification as completed
+        sessionStorage.setItem(`faceVerificationCompleted_${pendingSessionId}`, 'true');
+
         // Navigate to test page after successful API call
         navigate(`/test?sessionId=${pendingSessionId}`);
       } catch (error) {
         console.log('Failed to send face verification:', error);
         setFaceVerificationError('Failed to verify face. Please try again.');
-        // Still navigate to test page even if API call fails
-        navigate(`/test?sessionId=${pendingSessionId}`);
+        // Do not navigate if API call fails - user needs to complete verification
       }
     } else if (pendingSessionId) {
-      // Navigate even if blob is missing
-      navigate(`/test?sessionId=${pendingSessionId}`);
+      // Check if face verification was completed before navigating
+      const isFaceVerificationCompleted = sessionStorage.getItem(`faceVerificationCompleted_${pendingSessionId}`) === 'true';
+      if (isFaceVerificationCompleted) {
+        navigate(`/test?sessionId=${pendingSessionId}`);
+      } else {
+        setFaceVerificationError('Face verification must be completed before starting the test.');
+      }
     }
   };
 
