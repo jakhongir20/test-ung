@@ -116,6 +116,8 @@ const TestPage: FC = () => {
   const finishSession = useFinishSession();
   const [navOpen, setNavOpen] = useState(false);
   const hasInitialized = useRef(false); // Track if we've already initialized the current order
+  const hasCheckedVerificationRef = useRef(false); // Track if we've checked face verification
+  const hasCheckedStatusRef = useRef(false); // Track if we've checked session status
 
   // Face monitoring state
   const [isFaceMonitoringActive, setIsFaceMonitoringActive] = useState(false);
@@ -162,6 +164,46 @@ const TestPage: FC = () => {
 
   // No periodic refresh needed - only fetch when navigating or submitting answers
 
+  // Check face verification completion before initializing test (only once)
+  useEffect(() => {
+    if (!sessionId || hasCheckedVerificationRef.current) return;
+
+    const isFaceVerificationCompleted = sessionStorage.getItem(`faceVerificationCompleted_${sessionId}`) === 'true';
+
+    if (!isFaceVerificationCompleted) {
+      // Face verification not completed - redirect to profile
+      console.log('Face verification not completed, redirecting to profile');
+      hasCheckedVerificationRef.current = true;
+      // Clear session data to prevent auto-redirect loop
+      localStorage.removeItem('currentSurveySession');
+      sessionStorage.removeItem(`faceVerificationCompleted_${sessionId}`);
+      // Use window.location to break the React Router navigation cycle
+      window.location.href = '/';
+      return;
+    }
+  }, [sessionId, navigate]);
+
+  // Check if session is already finished/completed/expired/cancelled (only once)
+  useEffect(() => {
+    if (!sessionId || hasCheckedStatusRef.current) return;
+    // Wait for data to load
+    if (sessionQuery.isLoading || progressQuery.isLoading) return;
+    if (!sessionData && !progressData) return;
+
+    const sessionStatus = sessionData?.status ?? progressData?.session?.status;
+    const finishedStatuses = ['completed', 'expired', 'cancelled'];
+
+    if (sessionStatus && finishedStatuses.includes(sessionStatus)) {
+      console.log(`Session ${sessionId} is already ${sessionStatus}, redirecting to profile`);
+      hasCheckedStatusRef.current = true;
+      // Clear session data to prevent auto-redirect loop
+      localStorage.removeItem('currentSurveySession');
+      sessionStorage.removeItem(`faceVerificationCompleted_${sessionId}`);
+      // Use window.location to break the React Router navigation cycle
+      window.location.href = '/';
+      return;
+    }
+  }, [sessionData, progressData, sessionId, navigate, sessionQuery.isLoading, progressQuery.isLoading]);
 
   // Initialize current order when session data becomes available (only once)
   useEffect(() => {
@@ -175,13 +217,15 @@ const TestPage: FC = () => {
     }
   }, [sessionData, progressData, current]);
 
-  // Start face monitoring when test begins
+  // Start face monitoring when test begins (only if face verification was completed)
   useEffect(() => {
-    if (current !== null && !isExpired) {
-      setIsFaceMonitoringActive(true);
-
+    if (current !== null && !isExpired && sessionId) {
+      const isFaceVerificationCompleted = sessionStorage.getItem(`faceVerificationCompleted_${sessionId}`) === 'true';
+      if (isFaceVerificationCompleted) {
+        setIsFaceMonitoringActive(true);
+      }
     }
-  }, [current, isExpired]);
+  }, [current, isExpired, sessionId]);
 
   // Face monitoring handlers
   const handleFaceViolation = (violationType: 'no_face' | 'multiple_faces' | 'face_lost' | 'tab_switched' | 'face_mismatch') => {
