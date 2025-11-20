@@ -270,7 +270,7 @@ export const FaceMonitoring: FC<FaceMonitoringProps> = ({
   const [currentViolationType, setCurrentViolationType] = useState<'no_face' | 'multiple_faces' | 'face_lost' | 'tab_switched' | 'face_mismatch'>('no_face');
   const [lastViolationTime, setLastViolationTime] = useState<number>(0);
   const maxViolations = 3;
-  const maxWarnings = 3; // Maximum warnings before termination
+  const maxWarnings = 8; // Maximum warnings before termination
   const violationCooldown = 1500; // shorter cooldown between violations for faster feedback
   const hiddenTabCheckInterval = 1500; // how often to re-check hidden tab violations
   const faceMismatchThreshold = 0.58; // Euclidean distance threshold for face mismatch detection
@@ -365,9 +365,14 @@ export const FaceMonitoring: FC<FaceMonitoringProps> = ({
             videoRef.current?.play();
             startMonitoring();
           };
+
+          // Monitor video element errors
+          videoRef.current.onerror = () => {
+            console.log('❌ Face Monitoring: Video element error');
+          };
         }
-      } catch {
-        // Don't show error to user, just log it
+      } catch (error) {
+        console.log('❌ Face Monitoring: Failed to initialize camera', error);
       }
     };
 
@@ -559,10 +564,40 @@ export const FaceMonitoring: FC<FaceMonitoringProps> = ({
   const detectFace = useCallback(async (): Promise<FaceDetectionResult | null> => {
     if (!videoRef.current || !isModelsLoaded) return null;
 
+    const video = videoRef.current;
+
+    // Check if video stream is active and receiving frames
+    if (!video.srcObject) {
+      console.log('⚠️ Face Monitoring: Video stream not available');
+      return { faceCount: 0, confidence: 0, descriptor: null };
+    }
+
+    // Check if video is playing and has valid dimensions
+    if (video.readyState < 2 || video.videoWidth === 0 || video.videoHeight === 0) {
+      console.log('⚠️ Face Monitoring: Video not ready or has invalid dimensions', {
+        readyState: video.readyState,
+        width: video.videoWidth,
+        height: video.videoHeight
+      });
+      return { faceCount: 0, confidence: 0, descriptor: null };
+    }
+
+    // Check if stream tracks are active
+    const stream = video.srcObject as MediaStream;
+    const videoTrack = stream.getVideoTracks()[0];
+    if (!videoTrack || videoTrack.readyState !== 'live' || !videoTrack.enabled) {
+      console.log('⚠️ Face Monitoring: Video track not active', {
+        hasTrack: !!videoTrack,
+        readyState: videoTrack?.readyState,
+        enabled: videoTrack?.enabled
+      });
+      return { faceCount: 0, confidence: 0, descriptor: null };
+    }
+
     try {
       const detections = await faceapi
         .detectAllFaces(
-          videoRef.current,
+          video,
           new faceapi.TinyFaceDetectorOptions({
             inputSize: 320, // Larger input size for better detection
             scoreThreshold: 0.4 // Lower threshold to detect faces at angles
@@ -586,8 +621,8 @@ export const FaceMonitoring: FC<FaceMonitoringProps> = ({
           hasDescriptor: !!detection.descriptor
         })),
         videoDimensions: {
-          width: videoRef.current.videoWidth,
-          height: videoRef.current.videoHeight
+          width: video.videoWidth,
+          height: video.videoHeight
         }
       });
 
@@ -612,8 +647,8 @@ export const FaceMonitoring: FC<FaceMonitoringProps> = ({
         confidence: detections.length > 0 ? detections[0].detection.score : 0,
         descriptor: detections.length === 1 ? detections[0].descriptor : null
       };
-    } catch {
-      console.log('❌ Face Monitoring: Face detection error occurred');
+    } catch (error) {
+      console.log('❌ Face Monitoring: Face detection error occurred', error);
       return null;
     }
   }, [sessionId, userId, isModelsLoaded, proctorHeartbeat]);
@@ -682,8 +717,6 @@ export const FaceMonitoring: FC<FaceMonitoringProps> = ({
   const handleViolation = useCallback(async (violationType: 'no_face' | 'multiple_faces' | 'face_lost' | 'face_mismatch', detectionData?: { faceCount?: number; confidence?: number; descriptorDistance?: number; }) => {
     const now = Date.now();
 
-    setWarningCount(prev => prev + 1);
-
     // Check cooldown period
     if (now - lastViolationTime < violationCooldown) {
       return;
@@ -742,6 +775,29 @@ export const FaceMonitoring: FC<FaceMonitoringProps> = ({
     startVideoRecording();
 
     const processDetection = async () => {
+      // Check stream status before detection
+      const video = videoRef.current;
+      if (video && streamRef.current) {
+        const videoTrack = streamRef.current.getVideoTracks()[0];
+        if (!videoTrack || videoTrack.readyState !== 'live' || !videoTrack.enabled || videoTrack.muted) {
+          console.log('⚠️ Face Monitoring: Stream track is inactive', {
+            hasTrack: !!videoTrack,
+            readyState: videoTrack?.readyState,
+            enabled: videoTrack?.enabled,
+            muted: videoTrack?.muted
+          });
+          consecutiveNoFaceCountRef.current++;
+          consecutiveMultipleFacesCountRef.current = 0;
+          consecutiveGoodDetectionsRef.current = 0;
+
+          if (consecutiveNoFaceCountRef.current >= 2) {
+            handleViolation('face_lost', { faceCount: 0, confidence: 0 });
+            consecutiveNoFaceCountRef.current = 0;
+          }
+          return;
+        }
+      }
+
       const detectionResult = await detectFace();
 
       if (detectionResult === null) {
@@ -778,8 +834,8 @@ export const FaceMonitoring: FC<FaceMonitoringProps> = ({
         consecutiveNoFaceCountRef.current = 0; // Reset no face counter
         consecutiveGoodDetectionsRef.current = 0; // Reset good detection counter
 
-        // Only trigger violation after 3 consecutive failures
-        if (consecutiveMultipleFacesCountRef.current >= 3) {
+        // Trigger violation after 2 consecutive detections (more sensitive for multiple faces)
+        if (consecutiveMultipleFacesCountRef.current >= 2) {
           handleViolation('multiple_faces', {
             faceCount: detectionResult.faceCount,
             confidence: detectionResult.confidence
