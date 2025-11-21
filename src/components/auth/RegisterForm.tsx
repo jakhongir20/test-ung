@@ -47,9 +47,10 @@ export const RegisterForm: FC<Props> = ({ }) => {
   const [pinflError, setPinflError] = useState<string | null>(null);
 
   // Fetch positions, branches, and GTF from API
+  // Note: APIs are exchanged - GTF uses branches API, branch uses GTF API
   const { data: positionsData, isLoading: positionsLoading, error: positionsError } = usePositionsRetrieve();
-  const { data: branchesData, isLoading: branchesLoading, error: branchesError } = useBranchesRetrieve();
-  const { data: gtfData, isLoading: gtfLoading, error: gtfError } = useGtfRetrieve();
+  const { data: branchesData, isLoading: branchesLoading, error: branchesError } = useBranchesRetrieve(); // This will be used for GTF
+  const { data: gtfData, isLoading: gtfLoading, error: gtfError } = useGtfRetrieve(); // This will be used for branch
 
   const {
     control,
@@ -109,6 +110,7 @@ export const RegisterForm: FC<Props> = ({ }) => {
 
   // Show error if API calls failed
   if (positionsError || branchesError || gtfError) {
+    // Note: branchesError is for GTF, gtfError is for branch
     return (
       <div className="text-center py-8">
         <div className="text-red-600 text-base mb-4">
@@ -302,7 +304,8 @@ export const RegisterForm: FC<Props> = ({ }) => {
         phone: values.login,
         password: values.password,
         name: values.name,
-        position_id: values.position_id
+        position_id: values.position_id,
+        gtf_id: values.gtf_id
       });
       navigate('/', { replace: true });
     } catch (error: any) {
@@ -437,6 +440,28 @@ export const RegisterForm: FC<Props> = ({ }) => {
         {errors.confirmPassword && <p className="text-red-600 text-base mt-1">{errors.confirmPassword.message}</p>}
       </div>
 
+      {/* 1. GTF Field - uses branches API */}
+      <div className={'mb-6'}>
+        <label className="block text-base text-black font-medium mb-1.5">{t('auth.gtf')}</label>
+        <Controller
+          name="gtf_id"
+          control={control}
+          rules={{ required: t('auth.fieldRequired'), validate: (v: number) => v !== 0 || t('auth.fieldRequired') }}
+          render={({ field }) => (
+            <select {...field} className={authInputStyle} disabled={branchesLoading}>
+              <option value={0}>{t('auth.selectGtf')}</option>
+              {branchesData?.branches?.map((branch) => (
+                <option key={branch.id} value={branch.id}>
+                  {getLocalizedName(branch)}
+                </option>
+              ))}
+            </select>
+          )}
+        />
+        {errors.gtf_id && <p className="text-red-600 text-base mt-1">{errors.gtf_id.message}</p>}
+      </div>
+
+      {/* 2. Department (Branch) Field - uses GTF API */}
       <div className={'mb-6'}>
         <label className="block text-base text-black font-medium mb-1.5">{t('auth.branch')}</label>
         <Controller
@@ -444,11 +469,11 @@ export const RegisterForm: FC<Props> = ({ }) => {
           control={control}
           rules={{ required: t('auth.fieldRequired'), validate: (v: number) => v !== 0 || t('auth.fieldRequired') }}
           render={({ field }) => (
-            <select {...field} className={authInputStyle} disabled={branchesLoading}>
+            <select {...field} className={authInputStyle} disabled={gtfLoading}>
               <option value={0}>{t('auth.selectBranch')}</option>
-              {branchesData?.branches?.map((branch) => (
-                <option key={branch.id} value={branch.id}>
-                  {getLocalizedName(branch)}
+              {gtfData?.gtf?.map((gtf) => (
+                <option key={gtf.id} value={gtf.id}>
+                  {getLocalizedName(gtf)}
                 </option>
               ))}
             </select>
@@ -477,7 +502,7 @@ export const RegisterForm: FC<Props> = ({ }) => {
         {errors.position_id && <p className="text-red-600 text-base mt-1">{errors.position_id.message}</p>}
       </div>
 
-      <FormButton isLoading={isSubmitting || positionsLoading || branchesLoading} title={t('auth.register')} />
+      <FormButton isLoading={isSubmitting || positionsLoading || branchesLoading || gtfLoading} title={t('auth.register')} />
 
       <div className="text-center mt-4">
         <p className="text-gray-600 text-base">
