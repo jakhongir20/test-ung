@@ -3,6 +3,7 @@ import { useMemo, useState } from 'react';
 import { useModeratorUserDetails, useModeratorUsers } from '../api/moderator';
 import { useGtfRetrieve, usePositionsRetrieve } from '../api/generated/respondentWebAPI';
 import { useI18n } from '../i18n';
+import { customInstance } from '../api/mutator/custom-instance';
 import { MyProfileBanner } from "../components/MyProfileBanner.tsx";
 import type { Column } from "../components/DataTable.tsx";
 import { DataTable } from "../components/DataTable.tsx";
@@ -20,6 +21,7 @@ const AdminEmployeesPage: FC = () => {
   const [branch, setBranch] = useState<string>('');
   const [position, setPosition] = useState<string>('');
   const [testStatus, setTestStatus] = useState<string>('');
+  const [isExporting, setIsExporting] = useState(false);
   const [search] = useState<string>('');
   const [selectedUserId, setSelectedUserId] = useState<number | null>(null);
   const [certificateModal, setCertificateModal] = useState<{
@@ -95,6 +97,38 @@ const AdminEmployeesPage: FC = () => {
       }))
       .sort((a, b) => a.name.localeCompare(b.name));
   }, [positionsData, getLocalizedName]);
+
+  // Handle Excel export
+  const handleExportToExcel = async () => {
+    try {
+      setIsExporting(true);
+
+      // Map lang to API format (uz, ru, uz-cyrl)
+      const apiLang = lang === 'uz-cyrl' ? 'uz-cyrl' : lang === 'ru' ? 'ru' : 'uz';
+
+      const response = await customInstance<Blob>({
+        method: 'GET',
+        url: '/api/moderator/users/export/',
+        params: { lang: apiLang },
+        responseType: 'blob',
+      });
+
+      // Create a blob URL and trigger download
+      const url = window.URL.createObjectURL(response);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `employees_export_${new Date().toISOString().split('T')[0]}.xlsx`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Failed to export to Excel:', error);
+      alert(t('admin.exportError'));
+    } finally {
+      setIsExporting(false);
+    }
+  };
 
   // Handle certificate download
   const handleCertificateDownload = (userId: number, userName: string) => {
@@ -405,8 +439,28 @@ const AdminEmployeesPage: FC = () => {
 
             <section className={CARD_STYLES}>
               <div className="">
-                <h3 className="text-xl md:text-2xl font-semibold mb-6">{t('admin.employees')}</h3>
-
+                <div className="flex items-center justify-between mb-6">
+                  <h3 className="text-xl md:text-2xl font-semibold ">{t('admin.employees')}</h3>
+                  <button
+                    onClick={handleExportToExcel}
+                    disabled={isExporting}
+                    className="bg-cyan-600 text-white px-4 py-2 rounded-lg hover:bg-cyan-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 transition-colors"
+                  >
+                    {isExporting ? (
+                      <>
+                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                        {t('admin.exporting')}
+                      </>
+                    ) : (
+                      <>
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                        {t('admin.exportToExcel')}
+                      </>
+                    )}
+                  </button>
+                </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
                   <select
                     value={branch}

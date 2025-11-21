@@ -333,6 +333,9 @@ const dictionary: Dictionary = {
 
   // Admin Employees Page
   'admin.employees': { uz: 'Barcha xodimlar', 'uz-cyrl': 'Барча ходимлар', ru: 'Все сотрудники' },
+  'admin.exportToExcel': { uz: 'Excelga eksport qilish', 'uz-cyrl': 'Excelга экспорт қилиш', ru: 'Экспорт в Excel' },
+  'admin.exporting': { uz: 'Eksport qilinmoqda...', 'uz-cyrl': 'Экспорт қилинмоқда...', ru: 'Экспортируется...' },
+  'admin.exportError': { uz: 'Eksport qilishda xatolik yuz berdi', 'uz-cyrl': 'Экспорт қилишда хатолик юз берди', ru: 'Ошибка при экспорте' },
   'admin.searchPlaceholder': {
     uz: 'Ism yoki telefon bo\'yicha qidirish...',
     'uz-cyrl': 'Исм ёки телефон бўйича қидириш...',
@@ -793,6 +796,11 @@ const dictionary: Dictionary = {
     'uz-cyrl': 'Парол камида 6 белгидан иборат бўлиши керак',
     ru: 'Пароль должен содержать минимум 6 символов'
   },
+  'auth.passwordsDoNotMatch': {
+    uz: 'Parollar mos kelmaydi',
+    'uz-cyrl': 'Пароллар мос келмайди',
+    ru: 'Пароли не совпадают'
+  },
   'auth.confirmPassword': { uz: 'Parolni tasdiqlash', 'uz-cyrl': 'Паролни тасдиқлаш', ru: 'Подтверждение пароля' },
   'auth.confirmPasswordPlaceholder': {
     uz: 'Parolni qayta kiriting',
@@ -823,8 +831,10 @@ const dictionary: Dictionary = {
   },
   'auth.position': { uz: 'Lavozim', 'uz-cyrl': 'Лавозим', ru: 'Должность' },
   'auth.selectPosition': { uz: 'Lavozimni tanlang', 'uz-cyrl': 'Лавозимни танланг', ru: 'Выберите должность' },
-  'auth.branch': { uz: 'GTF', 'uz-cyrl': 'ГТФ', ru: 'ГТФ' },
-  'auth.selectBranch': { uz: 'GTFni tanlang', 'uz-cyrl': 'ГТФни танланг', ru: 'Выберите ГТФ' },
+  'auth.branch': { uz: 'Filial', 'uz-cyrl': 'Филиал', ru: 'Филиал' },
+  'auth.selectBranch': { uz: 'Filialni tanlang', 'uz-cyrl': 'Филиални танланг', ru: 'Выберите филиал' },
+  'auth.gtf': { uz: 'GTF', 'uz-cyrl': 'ГТФ', ru: 'ГТФ' },
+  'auth.selectGtf': { uz: 'GTFni tanlang', 'uz-cyrl': 'ГТФни танланг', ru: 'Выберите ГТФ' },
   'auth.noAccount': { uz: 'Hisobingiz yo\'qmi?', 'uz-cyrl': 'Ҳисобингиз йўқми?', ru: 'Нет аккаунта?' },
   'auth.haveAccount': { uz: 'Hisobingiz bormi?', 'uz-cyrl': 'Ҳисобингиз борми?', ru: 'Есть аккаунт?' },
   'auth.optional': { uz: 'ixtiyoriy', 'uz-cyrl': 'ихтиёрий', ru: 'необязательно' },
