@@ -440,30 +440,9 @@ export const RegisterForm: FC<Props> = ({ }) => {
         {errors.confirmPassword && <p className="text-red-600 text-base mt-1">{errors.confirmPassword.message}</p>}
       </div>
 
-      {/* 1. GTF Field - uses branches API */}
+      {/* 1. GTF Field - uses GTF API */}
       <div className={'mb-6'}>
         <label className="block text-base text-black font-medium mb-1.5">{t('auth.gtf')}</label>
-        <Controller
-          name="gtf_id"
-          control={control}
-          rules={{ required: t('auth.fieldRequired'), validate: (v: number) => v !== 0 || t('auth.fieldRequired') }}
-          render={({ field }) => (
-            <select {...field} className={authInputStyle} disabled={branchesLoading}>
-              <option value={0}>{t('auth.selectGtf')}</option>
-              {branchesData?.branches?.map((branch) => (
-                <option key={branch.id} value={branch.id}>
-                  {getLocalizedName(branch)}
-                </option>
-              ))}
-            </select>
-          )}
-        />
-        {errors.gtf_id && <p className="text-red-600 text-base mt-1">{errors.gtf_id.message}</p>}
-      </div>
-
-      {/* 2. Department (Branch) Field - uses GTF API */}
-      <div className={'mb-6'}>
-        <label className="block text-base text-black font-medium mb-1.5">{t('auth.branch')}</label>
         <Controller
           name="branch_id"
           control={control}
@@ -480,6 +459,28 @@ export const RegisterForm: FC<Props> = ({ }) => {
           )}
         />
         {errors.branch_id && <p className="text-red-600 text-base mt-1">{errors.branch_id.message}</p>}
+
+      </div>
+
+      {/* 2. Department (Branch) Field - uses branches API  */}
+      <div className={'mb-6'}>
+        <label className="block text-base text-black font-medium mb-1.5">{t('auth.branch')}</label>
+        <Controller
+          name="gtf_id"
+          control={control}
+          rules={{ required: t('auth.fieldRequired'), validate: (v: number) => v !== 0 || t('auth.fieldRequired') }}
+          render={({ field }) => (
+            <select {...field} className={authInputStyle} disabled={branchesLoading}>
+              <option value={0}>{t('auth.selectGtf')}</option>
+              {branchesData?.branches?.map((branch) => (
+                <option key={branch.id} value={branch.id}>
+                  {getLocalizedName(branch)}
+                </option>
+              ))}
+            </select>
+          )}
+        />
+        {errors.gtf_id && <p className="text-red-600 text-base mt-1">{errors.gtf_id.message}</p>}
       </div>
 
       <div className={'mb-6'}>
