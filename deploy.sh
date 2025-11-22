@@ -1,5 +1,3 @@
-VITE_PUBLIC_API_URL=https://api.savollar.leetcode.uz:8443
-
 #!/bin/bash
 
 # SSH settings
@@ -25,4 +23,3 @@ ssh -p $PORT $USER@$HOST "
 "
 
 echo "Done!"
-
