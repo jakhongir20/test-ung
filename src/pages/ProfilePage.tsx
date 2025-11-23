@@ -54,12 +54,10 @@ const ProfilePage: FC = () => {
   const [faceVerificationError, setFaceVerificationError] = useState<string | null>(null);
   const [pendingSessionId, setPendingSessionId] = useState<string | null>(null);
 
-  // Check for test termination error
   useEffect(() => {
     const error = searchParams.get('error');
     if (error === 'test_terminated') {
       setFaceVerificationError(t('faceMonitoring.testTerminatedMessage'));
-      // Clear the URL parameter
       navigate('/profile', { replace: true });
     }
   }, [searchParams, navigate, t]);
