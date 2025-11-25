@@ -86,17 +86,24 @@ const AdminEmployeesPage: FC = () => {
       .sort((a, b) => a.name.localeCompare(b.name));
   }, [gtfData, getLocalizedName]);
 
+  // Helper function to get localized position label with branch
+  const getLocalizedPositionLabel = useMemo(() => (position: any) => {
+    const positionName = getLocalizedName(position);
+    const branchName = position?.branch ? getLocalizedName(position.branch) : '';
+    return branchName ? `${positionName} - ${branchName}` : positionName;
+  }, [getLocalizedName]);
+
   const positions = useMemo(() => {
     if (!positionsData?.positions || !Array.isArray(positionsData.positions)) return [];
 
-    // Return all positions from API with localized names
+    // Return all positions from API with localized names and branch names
     return positionsData.positions
       .map((position: any) => ({
         id: position.id,
-        name: getLocalizedName(position)
+        name: getLocalizedPositionLabel(position)
       }))
       .sort((a, b) => a.name.localeCompare(b.name));
-  }, [positionsData, getLocalizedName]);
+  }, [positionsData, getLocalizedPositionLabel]);
 
   // Handle Excel export
   const handleExportToExcel = async () => {

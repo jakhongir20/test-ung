@@ -449,7 +449,7 @@ export const RegisterForm: FC<Props> = ({ }) => {
           rules={{ required: t('auth.fieldRequired'), validate: (v: number) => v !== 0 || t('auth.fieldRequired') }}
           render={({ field }) => (
             <select {...field} className={authInputStyle} disabled={gtfLoading}>
-              <option value={0}>{t('auth.selectBranch')}</option>
+              <option value={0}>{t('auth.selectGtf')}</option>
               {gtfData?.gtf?.map((gtf) => (
                 <option key={gtf.id} value={gtf.id}>
                   {getLocalizedName(gtf)}
@@ -471,7 +471,7 @@ export const RegisterForm: FC<Props> = ({ }) => {
           rules={{ required: t('auth.fieldRequired'), validate: (v: number) => v !== 0 || t('auth.fieldRequired') }}
           render={({ field }) => (
             <select {...field} className={authInputStyle} disabled={branchesLoading}>
-              <option value={0}>{t('auth.selectGtf')}</option>
+              <option value={0}>{t('auth.selectBranch')}</option>
               {branchesData?.branches?.map((branch) => (
                 <option key={branch.id} value={branch.id}>
                   {getLocalizedName(branch)}
