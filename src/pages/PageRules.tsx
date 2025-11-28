@@ -88,24 +88,9 @@ const PageRules: FC = () => {
                 <img src={'/icon/arrow-l-w.svg'} alt={'icon left'}/>
               </button>
               <button
-                disabled={startSurvey.isPending}
-                onClick={async () => {
-                  try {
-                    const res = await startSurvey.mutateAsync({id: 1, count: 30});
-                    localStorage.setItem('currentSurveySession', JSON.stringify(res));
-                    navigate(`/test?sessionId=${res.id}`);
-                  } catch (error) {
-                    // Check if it's an authentication error and handle it
-                    if (handleAuthError(error)) {
-                      return; // Already redirected to login
-                    }
-                  }
-                }}
-                className={`${ACTION_BTN_STYLES} !bg-[#00A2DE] text-white !text-base ${startSurvey.isPending ? 'opacity-50 cursor-not-allowed' : ''}`}>
+                onClick={() => navigate('/surveys/select')}
+                className={`${ACTION_BTN_STYLES} !bg-[#00A2DE] text-white !text-base`}>
                 {t('test.start')}
-                {startSurvey.isPending &&
-                  <LoadingSvg/>
-                }
               </button>
             </div>
           </div>

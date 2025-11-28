@@ -1035,6 +1035,80 @@ const dictionary: Dictionary = {
     'uz-cyrl': 'Ҳудудий Газ Таъминотига алоқадар',
     ru: 'Связано с региональным газоснабжением'
   },
+
+  // Survey Selection Page
+  'surveySelection.title': {
+    uz: 'So\'rovlarni tanlash',
+    'uz-cyrl': 'Сўровларни танлаш',
+    ru: 'Выбор опросов'
+  },
+  'surveySelection.description': {
+    uz: 'Boshlash uchun so\'rovni tanlang.',
+    'uz-cyrl': 'Бошлаш учун сўровни танланг.',
+    ru: 'Выберите опрос для начала.'
+  },
+  'surveySelection.noSurveySelected': {
+    uz: 'Iltimos, kamida bitta so\'rovni tanlang',
+    'uz-cyrl': 'Илтимос, камида битта сўровни танланг',
+    ru: 'Пожалуйста, выберите хотя бы один опрос'
+  },
+  'surveySelection.selectedCount': {
+    uz: '{count} ta so\'rov tanlandi',
+    'uz-cyrl': '{count} та сўров танланди',
+    ru: 'Выбрано опросов: {count}'
+  },
+  'surveySelection.noSurveys': {
+    uz: 'Mavjud so\'rovlar yo\'q',
+    'uz-cyrl': 'Мавжуд сўровлар йўқ',
+    ru: 'Нет доступных опросов'
+  },
+  'surveySelection.timeLimit': {
+    uz: 'Vaqt cheklovi',
+    'uz-cyrl': 'Вақт чеклови',
+    ru: 'Ограничение времени'
+  },
+  'surveySelection.questions': {
+    uz: 'Savollar',
+    'uz-cyrl': 'Саволлар',
+    ru: 'Вопросы'
+  },
+  'surveySelection.totalQuestions': {
+    uz: 'Jami',
+    'uz-cyrl': 'Жами',
+    ru: 'Всего'
+  },
+  'surveySelection.startTest': {
+    uz: 'Testni boshlash',
+    'uz-cyrl': 'Тестни бошлаш',
+    ru: 'Начать тест'
+  },
+  'surveySelection.startError': {
+    uz: 'So\'rovni boshlashda xatolik yuz berdi. Iltimos, qayta urinib ko\'ring.',
+    'uz-cyrl': 'Сўровни бошлашда хатолик юз берди. Илтимос, қайта уриниб кўринг.',
+    ru: 'Не удалось начать опрос. Пожалуйста, попробуйте снова.'
+  },
+  'loading.surveys': {
+    uz: 'So\'rovlar yuklanmoqda',
+    'uz-cyrl': 'Сўровлар юкланмоқда',
+    ru: 'Загрузка опросов'
+  },
+
+  // Common UI elements
+  'common.back': {
+    uz: 'Orqaga',
+    'uz-cyrl': 'Орқага',
+    ru: 'Назад'
+  },
+  'common.cancel': {
+    uz: 'Bekor qilish',
+    'uz-cyrl': 'Бекор қилиш',
+    ru: 'Отмена'
+  },
+  'common.minutes': {
+    uz: 'daqiqa',
+    'uz-cyrl': 'дақиқа',
+    ru: 'мин'
+  },
 };
 
 type I18nContextValue = {

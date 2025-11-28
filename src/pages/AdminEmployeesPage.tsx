@@ -73,6 +73,20 @@ const AdminEmployeesPage: FC = () => {
     }
   }, [lang]);
 
+  // Helper function to get localized position
+  const getLocalizedPosition = useMemo(() => (user: any) => {
+    switch (lang) {
+      case 'uz':
+        return user.position_uz || user.position_name_uz || user.position || '';
+      case 'uz-cyrl':
+        return user.position_uz_cyrl || user.position_name_uz_cyrl || user.position || '';
+      case 'ru':
+        return user.position_ru || user.position_name_ru || user.position || '';
+      default:
+        return user.position_ru || user.position_name_ru || user.position || '';
+    }
+  }, [lang]);
+
   // Get all available branches and positions from API (not filtered by current users)
   const branches = useMemo(() => {
     if (!gtfData?.gtf || !Array.isArray(gtfData.gtf)) return [];
@@ -359,7 +373,7 @@ const AdminEmployeesPage: FC = () => {
                       </div>
                       <div className="rounded-xl ring-1 ring-gray-200 p-3">
                         <div className="text-xs text-gray-500">{t('table.position')}</div>
-                        <div className="font-medium">{selectedUser.position || t('admin.na')}</div>
+                        <div className="font-medium">{getLocalizedPosition(selectedUser) || t('admin.na')}</div>
                       </div>
                       <div className="rounded-xl ring-1 ring-gray-200 p-3">
                         <div className="text-xs text-gray-500">{t('table.phone')}</div>

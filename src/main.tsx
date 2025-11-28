@@ -18,6 +18,7 @@ import ProtectedRoute from './components/ProtectedRoute.tsx';
 import AuthLayout from './layouts/AuthLayout.tsx';
 import CertificateLayout from './layouts/CertificateLayout.tsx';
 import ProfileCompletionPage from "./pages/ProfileCompletionPage.tsx";
+import SurveySelectionPage from "./pages/SurveySelectionPage.tsx";
 
 const router = createBrowserRouter([
   {
@@ -28,6 +29,13 @@ const router = createBrowserRouter([
         index: true, element: (
           <ProtectedRoute>
             <ProfilePage />
+          </ProtectedRoute>
+        )
+      },
+      {
+        path: 'surveys/select', element: (
+          <ProtectedRoute>
+            <SurveySelectionPage />
           </ProtectedRoute>
         )
       },

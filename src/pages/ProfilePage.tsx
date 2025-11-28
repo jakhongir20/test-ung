@@ -2,14 +2,12 @@ import type { FC } from 'react';
 import { useEffect, useState } from 'react';
 import { useI18n } from '../i18n';
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { useCurrentSession, useMyHistory, useStartSurvey, useProctorVerifyInitial } from '../api/surveys';
+import { useCurrentSession, useMyHistory } from '../api/surveys';
 import { handleAuthError } from '../api/auth';
 import { MyProfileBanner } from "../components/MyProfileBanner.tsx";
 import { ProfileCardItem } from "../components/ProfileCardItem.tsx";
 import { BackgroundWrapper } from "../components/BackgroundWrapper.tsx";
-import { FaceVerificationModal } from "../components/FaceVerificationModal.tsx";
 import { FadeIn, PageTransition, StaggeredFadeIn } from "../components/animations";
-import LoadingSvg from "../components/LoadingSvg.tsx";
 import { useAuthStore } from "../stores/authStore";
 
 // Type for session data from the API
@@ -45,20 +43,13 @@ const ProfilePage: FC = () => {
   const [searchParams] = useSearchParams();
   const currentSession = useCurrentSession();
   const myHistory = useMyHistory();
-  const startSurvey = useStartSurvey();
-  const proctorVerifyInitial = useProctorVerifyInitial();
   const { user } = useAuthStore();
-
-  // Face verification state
-  const [isFaceVerificationOpen, setIsFaceVerificationOpen] = useState(false);
-  const [faceVerificationError, setFaceVerificationError] = useState<string | null>(null);
-  const [pendingSessionId, setPendingSessionId] = useState<string | null>(null);
 
   useEffect(() => {
     const error = searchParams.get('error');
     if (error === 'test_terminated') {
-      setFaceVerificationError(t('faceMonitoring.testTerminatedMessage'));
-      navigate('/profile', { replace: true });
+      // Show error message if test was terminated
+      // You can add error display here if needed
     }
   }, [searchParams, navigate, t]);
 
@@ -92,92 +83,10 @@ const ProfilePage: FC = () => {
   const surveyHistory = historyData || [];
 
   const handleStartTest = async () => {
-    try {
-      // Start the survey first to get sessionId
-      const res = await startSurvey.mutateAsync({ id: 1, count: 30 });
-      const sessionId = res.id;
-      if (!sessionId) {
-        throw new Error('Failed to get session ID');
-      }
-      setPendingSessionId(sessionId);
-      localStorage.setItem('currentSurveySession', JSON.stringify(res));
-      sessionStorage.removeItem('faceReferenceDescriptor');
-
-      // Open face verification modal with sessionId
-      // The actual face_image will be sent after successful verification in the modal
-      setIsFaceVerificationOpen(true);
-      setFaceVerificationError(null);
-    } catch (error) {
-      // Check if it's an authentication error and handle it
-      if (handleAuthError(error)) {
-        return;
-      }
-      console.log('Failed to start survey:', error);
-    }
+    // Navigate to survey selection page instead of directly starting survey
+    navigate('/surveys/select');
   };
 
-  const handleFaceVerificationSuccess = async (faceImageBlob: Blob, faceDescriptor: number[] | null) => {
-    setIsFaceVerificationOpen(false);
-
-    try {
-      if (faceDescriptor && faceDescriptor.length > 0) {
-        sessionStorage.setItem('faceReferenceDescriptor', JSON.stringify(faceDescriptor));
-      } else {
-        sessionStorage.removeItem('faceReferenceDescriptor');
-      }
-    } catch (error) {
-      console.log('Failed to cache face reference descriptor', error);
-    }
-
-    // Send sessionId and face_image to /api/proctor/verify-initial/ after successful verification
-    if (pendingSessionId && faceImageBlob) {
-      try {
-        const verifyResponse = await proctorVerifyInitial.mutateAsync({
-          data: {
-            session_id: pendingSessionId,
-            face_image: faceImageBlob,
-          },
-        });
-
-        // Handle response with status and session_id
-        if (verifyResponse) {
-          const responseData = verifyResponse as { status?: string; session_id?: string; };
-          console.log('Face verification sent successfully:', {
-            status: responseData.status,
-            session_id: responseData.session_id,
-          });
-        }
-
-        // Mark face verification as completed
-        sessionStorage.setItem(`faceVerificationCompleted_${pendingSessionId}`, 'true');
-
-        // Navigate to test page after successful API call
-        navigate(`/test?sessionId=${pendingSessionId}`);
-      } catch (error) {
-        console.log('Failed to send face verification:', error);
-        setFaceVerificationError('Failed to verify face. Please try again.');
-        // Do not navigate if API call fails - user needs to complete verification
-      }
-    } else if (pendingSessionId) {
-      // Check if face verification was completed before navigating
-      const isFaceVerificationCompleted = sessionStorage.getItem(`faceVerificationCompleted_${pendingSessionId}`) === 'true';
-      if (isFaceVerificationCompleted) {
-        navigate(`/test?sessionId=${pendingSessionId}`);
-      } else {
-        setFaceVerificationError('Face verification must be completed before starting the test.');
-      }
-    }
-  };
-
-  const handleFaceVerificationError = (error: string) => {
-    setFaceVerificationError(error);
-    setIsFaceVerificationOpen(false);
-  };
-
-  const handleFaceVerificationClose = () => {
-    setIsFaceVerificationOpen(false);
-    setFaceVerificationError(null);
-  };
 
   // Loading state
   if (myHistory.isLoading) {
@@ -234,25 +143,6 @@ const ProfilePage: FC = () => {
             <MyProfileBanner />
           </FadeIn>
 
-          {/* Face Verification Error Display */}
-          {faceVerificationError && (
-            <FadeIn delay={150}>
-              <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-                <div className="flex items-center gap-2">
-                  <svg className="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
-                  </svg>
-                  <p className="text-red-800 text-sm">{faceVerificationError}</p>
-                </div>
-                <button
-                  onClick={() => setFaceVerificationError(null)}
-                  className="mt-2 text-red-600 hover:text-red-800 text-sm underline"
-                >
-                  {t('dismiss')}
-                </button>
-              </div>
-            </FadeIn>
-          )}
 
           <FadeIn delay={200}>
             <section
@@ -261,14 +151,11 @@ const ProfilePage: FC = () => {
                 <h3 className="text-base md:text-2xl font-semibold">{t('profile.results')}</h3>
                 <button
                   onClick={handleStartTest}
-                  disabled={startSurvey.isPending}
-                  className="inline-flex whitespace-nowrap items-center rounded-xl bg-[#F58634] px-4 h-10 md:h-[46px] md:px-5 text-white hover:bg-cyan-700 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="inline-flex whitespace-nowrap items-center rounded-xl bg-[#F58634] px-4 h-10 md:h-[46px] md:px-5 text-white hover:bg-cyan-700 transition-colors duration-200"
                 >
                   <span className={'justify-center flex gap-3 items-center'}>
                     {t('profile.newTest')}
-                    {startSurvey.isPending &&
-                      <LoadingSvg />
-                    }</span>
+                  </span>
                 </button>
               </div>
 
@@ -282,17 +169,12 @@ const ProfilePage: FC = () => {
                   </div>
                   <h3 className="text-lg font-medium text-gray-900 mb-2">{t('empty.noTestHistory')}</h3>
                   <button
-                    disabled={startSurvey.isPending}
                     onClick={handleStartTest}
-                    className={`bg-cyan-600 text-white px-6 py-3 rounded-lg hover:bg-cyan-700 font-medium transition-colors duration-200 
-                    ${startSurvey.isPending ? 'opacity-50 cursor-not-allowed' : ''}`}
+                    className="bg-cyan-600 text-white px-6 py-3 rounded-lg hover:bg-cyan-700 font-medium transition-colors duration-200"
                   >
-                    {/*className={`${ACTION_BTN_STYLES} !bg-[#00A2DE] text-white !text-base ${startSurvey.isPending ? 'opacity-50 cursor-not-allowed' : ''}`}>*/}
                     <span className={'justify-center flex gap-3 items-center'}>
                       {t('empty.startFirstTest')}
-                      {startSurvey.isPending &&
-                        <LoadingSvg />
-                      }</span>
+                    </span>
                   </button>
                   {/*<button*/}
                   {/*  onClick={() => navigate(`/rules`)}*/}
@@ -314,15 +196,6 @@ const ProfilePage: FC = () => {
         </div>
       </PageTransition>
 
-      {/* Face Verification Modal */}
-      <FaceVerificationModal
-        isOpen={isFaceVerificationOpen}
-        onClose={handleFaceVerificationClose}
-        onSuccess={handleFaceVerificationSuccess}
-        onError={handleFaceVerificationError}
-        sessionId={pendingSessionId || undefined}
-        userId={user?.id?.toString()}
-      />
     </BackgroundWrapper>
   );
 };
