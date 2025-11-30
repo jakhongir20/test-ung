@@ -952,6 +952,11 @@ const dictionary: Dictionary = {
     'uz-cyrl': 'ГТФни танланг',
     ru: 'Выберите ГТФ'
   },
+  'settings.usefulGuides': {
+    uz: 'Foydali qollanmalar royxati',
+    'uz-cyrl': 'Фойдали қолланмалар рўйхати',
+    ru: 'Список полезных руководств'
+  },
 
   // Administration Options
   'admin.administration1': {
