@@ -149,8 +149,8 @@ export const OtpForm: FC<Props> = () => {
         const userResponse = await refetchUser();
         const user = userResponse.data;
 
-        // Check if user has complete profile (name, branch, position)
-        if (user && user.name && user.branch && user.position) {
+        // Check if user has complete profile (name)
+        if (user && user.name) {
           // User has complete profile, redirect to main page
           navigate('/');
         } else {

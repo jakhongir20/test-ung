@@ -8,8 +8,6 @@ import { handleAuthError } from '../api/auth';
 
 interface ProfileFormData {
   name: string;
-  branch: string;
-  position: string;
 }
 
 export const MyDetailsForm: FC = () => {
@@ -27,9 +25,7 @@ export const MyDetailsForm: FC = () => {
     formState: {errors, isSubmitting}
   } = useForm<ProfileFormData>({
     defaultValues: {
-      name: '',
-      branch: '',
-      position: ''
+      name: ''
     }
   });
 
@@ -37,8 +33,6 @@ export const MyDetailsForm: FC = () => {
   useEffect(() => {
     if (user) {
       setValue('name', user.name || '');
-      setValue('branch', user.branch || '');
-      setValue('position', user.position || '');
     }
   }, [user, setValue]);
 
@@ -49,9 +43,7 @@ export const MyDetailsForm: FC = () => {
       const response = await updateUserMutation.mutateAsync({
         id: user.id,
         data: {
-          name: data.name,
-          branch: data.branch,
-          position: data.position
+          name: data.name
         }
       });
 
@@ -93,42 +85,6 @@ export const MyDetailsForm: FC = () => {
             {errors.name && (
               <p className="mt-1 text-base text-red-600">This field is required</p>
             )}
-          </div>
-
-          {/* Branch Field */}
-          <div>
-            <label className="block text-base font-medium text-[#374151] mb-2">
-              {t('profile.branch')}
-            </label>
-            <div className="relative">
-              <input
-                {...register('branch')}
-                type="text"
-                placeholder={t('profile.branch')}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00A2DE] focus:border-transparent transition-colors duration-200"
-              />
-              <svg
-                className="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7"/>
-              </svg>
-            </div>
-          </div>
-
-          {/* Position Field */}
-          <div>
-            <label className="block text-base font-medium text-[#374151] mb-2">
-              {t('profile.position')}
-            </label>
-            <input
-              {...register('position')}
-              type="text"
-              placeholder={t('profile.position')}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00A2DE] focus:border-transparent transition-colors duration-200"
-            />
           </div>
         </div>
 

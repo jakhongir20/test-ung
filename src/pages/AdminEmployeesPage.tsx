@@ -1,7 +1,6 @@
 import type { FC } from 'react';
 import { useMemo, useState } from 'react';
 import { useModeratorUserDetails, useModeratorUsers } from '../api/moderator';
-import { useGtfRetrieve, usePositionsRetrieve } from '../api/generated/respondentWebAPI';
 import { useI18n } from '../i18n';
 import { customInstance } from '../api/mutator/custom-instance';
 import { MyProfileBanner } from "../components/MyProfileBanner.tsx";
@@ -14,15 +13,15 @@ import { BackgroundWrapper } from "../components/BackgroundWrapper.tsx";
 import { ConfirmationModal } from "../components/ConfirmationModal.tsx";
 import { PageTransition } from "../components/animations";
 import { useBodyScrollLock } from '../hooks/useBodyScrollLock';
+import { useDebounce } from '../hooks/useDebounce';
 
 
 const AdminEmployeesPage: FC = () => {
   const { t, lang } = useI18n();
-  const [branch, setBranch] = useState<string>('');
-  const [position, setPosition] = useState<string>('');
   const [testStatus, setTestStatus] = useState<string>('');
   const [isExporting, setIsExporting] = useState(false);
-  const [search] = useState<string>('');
+  const [isExportingOrganizations, setIsExportingOrganizations] = useState(false);
+  const [search, setSearch] = useState<string>('');
   const [selectedUserId, setSelectedUserId] = useState<number | null>(null);
   const [certificateModal, setCertificateModal] = useState<{
     isOpen: boolean;
@@ -37,22 +36,22 @@ const AdminEmployeesPage: FC = () => {
   // Prevent body scrolling when drawer or modal is open
   useBodyScrollLock(!!selectedUserId || certificateModal.isOpen);
 
+  // Debounce search input to avoid too many API calls
+  const debouncedSearch = useDebounce(search, 500);
+
   // API query parameters
   const queryParams = useMemo(() => ({
-    branch: branch || undefined,
-    position: position || undefined,
-    search: search || undefined,
+    search: debouncedSearch || undefined,
     status: testStatus || undefined,
-  }), [branch, position, search, testStatus]);
+  }), [debouncedSearch, testStatus]);
 
   // Fetch users list
   const usersQuery = useModeratorUsers(queryParams);
   const usersData = usersQuery.data as any;
   const users = usersData?.results || usersData || [];
-
-  // Fetch GTF and Positions lists to get IDs
-  const { data: gtfData } = useGtfRetrieve();
-  const { data: positionsData } = usePositionsRetrieve();
+  
+  // Check if there are any users to export
+  const hasUsers = Array.isArray(users) && users.length > 0;
 
   // Fetch selected user details
   const userDetailsQuery = useModeratorUserDetails(selectedUserId ?? undefined);
@@ -73,8 +72,13 @@ const AdminEmployeesPage: FC = () => {
     }
   }, [lang]);
 
-  // Helper function to get localized position
+  // Helper function to get localized position from employee_data
   const getLocalizedPosition = useMemo(() => (user: any) => {
+    // Get position from employee_data if available
+    if (user.employee_data?.position) {
+      return user.employee_data.position;
+    }
+    // Fallback to old fields for backward compatibility
     switch (lang) {
       case 'uz':
         return user.position_uz || user.position_name_uz || user.position || '';
@@ -87,38 +91,6 @@ const AdminEmployeesPage: FC = () => {
     }
   }, [lang]);
 
-  // Get all available branches and positions from API (not filtered by current users)
-  const branches = useMemo(() => {
-    if (!gtfData?.gtf || !Array.isArray(gtfData.gtf)) return [];
-
-    // Return all branches from API with localized names
-    return gtfData.gtf
-      .map((gtf: any) => ({
-        id: gtf.id,
-        name: getLocalizedName(gtf)
-      }))
-      .sort((a, b) => a.name.localeCompare(b.name));
-  }, [gtfData, getLocalizedName]);
-
-  // Helper function to get localized position label with branch
-  const getLocalizedPositionLabel = useMemo(() => (position: any) => {
-    const positionName = getLocalizedName(position);
-    const branchName = position?.branch ? getLocalizedName(position.branch) : '';
-    return branchName ? `${positionName} - ${branchName}` : positionName;
-  }, [getLocalizedName]);
-
-  const positions = useMemo(() => {
-    if (!positionsData?.positions || !Array.isArray(positionsData.positions)) return [];
-
-    // Return all positions from API with localized names and branch names
-    return positionsData.positions
-      .map((position: any) => ({
-        id: position.id,
-        name: getLocalizedPositionLabel(position)
-      }))
-      .sort((a, b) => a.name.localeCompare(b.name));
-  }, [positionsData, getLocalizedPositionLabel]);
-
   // Handle Excel export
   const handleExportToExcel = async () => {
     try {
@@ -127,10 +99,23 @@ const AdminEmployeesPage: FC = () => {
       // Map lang to API format (uz, ru, uz-cyrl)
       const apiLang = lang === 'uz-cyrl' ? 'uz-cyrl' : lang === 'ru' ? 'ru' : 'uz';
 
+      // Include current filters and search in export
+      const exportParams: Record<string, string | undefined> = {
+        lang: apiLang,
+      };
+      
+      if (debouncedSearch) {
+        exportParams.search = debouncedSearch;
+      }
+      
+      if (testStatus) {
+        exportParams.status = testStatus;
+      }
+
       const response = await customInstance<Blob>({
         method: 'GET',
         url: '/api/moderator/users/export/',
-        params: { lang: apiLang },
+        params: exportParams,
         responseType: 'blob',
       });
 
@@ -148,6 +133,51 @@ const AdminEmployeesPage: FC = () => {
       alert(t('admin.exportError'));
     } finally {
       setIsExporting(false);
+    }
+  };
+
+  // Handle organizations report export
+  const handleExportOrganizations = async () => {
+    try {
+      setIsExportingOrganizations(true);
+
+      // Map lang to API format (uz, ru, uz-cyrl)
+      const apiLang = lang === 'uz-cyrl' ? 'uz-cyrl' : lang === 'ru' ? 'ru' : 'uz';
+
+      // Include current filters and search in export
+      const exportParams: Record<string, string | undefined> = {
+        lang: apiLang,
+      };
+      
+      if (debouncedSearch) {
+        exportParams.search = debouncedSearch;
+      }
+      
+      if (testStatus) {
+        exportParams.status = testStatus;
+      }
+
+      const response = await customInstance<Blob>({
+        method: 'GET',
+        url: '/api/moderator/users/export-organizations/',
+        params: exportParams,
+        responseType: 'blob',
+      });
+
+      // Create a blob URL and trigger download
+      const url = window.URL.createObjectURL(response);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `organizations_report_${new Date().toISOString().split('T')[0]}.xlsx`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Failed to export organizations report:', error);
+      alert(t('admin.exportError'));
+    } finally {
+      setIsExportingOrganizations(false);
     }
   };
 
@@ -188,34 +218,6 @@ const AdminEmployeesPage: FC = () => {
       title: t('table.name'),
       sortable: true,
       render: (value) => value || t('admin.na')
-    },
-    {
-      key: 'branch',
-      title: t('table.branch'),
-      sortable: true,
-      render: (_, user) => {
-        const localized =
-          lang === 'uz'
-            ? (user.gtf_uz || user.gtf_uz_cyrl || user.gtf_ru || user.gtf)
-            : lang === 'uz-cyrl'
-              ? (user.gtf_uz_cyrl || user.gtf_uz || user.gtf_ru || user.gtf)
-              : (user.gtf_ru || user.gtf_uz || user.gtf_uz_cyrl || user.gtf);
-        return localized || t('admin.na');
-      }
-    },
-    {
-      key: 'position_name',
-      title: t('table.position'),
-      sortable: true,
-      render: (_, user) => {
-        const localized =
-          lang === 'uz'
-            ? (user.position_name_uz || user.position_name_uz_cyrl || user.position_name_ru || user.position_name)
-            : lang === 'uz-cyrl'
-              ? (user.position_name_uz_cyrl || user.position_name_uz || user.position_name_ru || user.position_name)
-              : (user.position_name_ru || user.position_name_uz || user.position_name_uz_cyrl || user.position_name);
-        return localized || t('admin.na');
-      }
     },
     {
       key: 'total_questions',
@@ -367,14 +369,18 @@ const AdminEmployeesPage: FC = () => {
                         <div className="text-xs text-gray-500">{t('table.name')}</div>
                         <div className="font-medium">{selectedUser.name || t('admin.na')}</div>
                       </div>
-                      <div className="rounded-xl ring-1 ring-gray-200 p-3">
-                        <div className="text-xs text-gray-500">{t('table.branch')}</div>
-                        <div className="font-medium">{selectedUser.branch || t('admin.na')}</div>
-                      </div>
-                      <div className="rounded-xl ring-1 ring-gray-200 p-3">
-                        <div className="text-xs text-gray-500">{t('table.position')}</div>
-                        <div className="font-medium">{getLocalizedPosition(selectedUser) || t('admin.na')}</div>
-                      </div>
+                      {selectedUser.employee_data?.branch && (
+                        <div className="rounded-xl ring-1 ring-gray-200 p-3">
+                          <div className="text-xs text-gray-500">{t('table.branch')}</div>
+                          <div className="font-medium">{selectedUser.employee_data.branch}</div>
+                        </div>
+                      )}
+                      {selectedUser.employee_data?.position && (
+                        <div className="rounded-xl ring-1 ring-gray-200 p-3">
+                          <div className="text-xs text-gray-500">{t('table.position')}</div>
+                          <div className="font-medium">{selectedUser.employee_data.position}</div>
+                        </div>
+                      )}
                       <div className="rounded-xl ring-1 ring-gray-200 p-3">
                         <div className="text-xs text-gray-500">{t('table.phone')}</div>
                         <div className="font-medium">{selectedUser.phone_number || t('admin.na')}</div>
@@ -462,47 +468,57 @@ const AdminEmployeesPage: FC = () => {
               <div className="">
                 <div className="flex items-center justify-between mb-6">
                   <h3 className="text-xl md:text-2xl font-semibold ">{t('admin.employees')}</h3>
-                  <button
-                    onClick={handleExportToExcel}
-                    disabled={isExporting}
-                    className="bg-cyan-600 text-white px-4 py-2 rounded-lg hover:bg-cyan-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 transition-colors"
-                  >
-                    {isExporting ? (
-                      <>
-                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                        {t('admin.exporting')}
-                      </>
-                    ) : (
-                      <>
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                        </svg>
-                        {t('admin.exportToExcel')}
-                      </>
-                    )}
-                  </button>
+                  {hasUsers && !usersQuery.isLoading && (
+                    <div className="flex items-center gap-3">
+                      <button
+                        onClick={handleExportOrganizations}
+                        disabled={isExportingOrganizations || isExporting}
+                        className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 transition-colors"
+                      >
+                        {isExportingOrganizations ? (
+                          <>
+                            <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                            {t('admin.exporting')}
+                          </>
+                        ) : (
+                          <>
+                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                            </svg>
+                            {t('admin.exportOrganizations')}
+                          </>
+                        )}
+                      </button>
+                      <button
+                        onClick={handleExportToExcel}
+                        disabled={isExporting || isExportingOrganizations}
+                        className="bg-cyan-600 text-white px-4 py-2 rounded-lg hover:bg-cyan-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 transition-colors"
+                      >
+                        {isExporting ? (
+                          <>
+                            <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                            {t('admin.exporting')}
+                          </>
+                        ) : (
+                          <>
+                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                            </svg>
+                            {t('admin.exportToExcel')}
+                          </>
+                        )}
+                      </button>
+                    </div>
+                  )}
                 </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
-                  <select
-                    value={branch}
-                    onChange={(e) => setBranch(e.target.value)}
-                    className="w-full px-4 py-2 rounded-lg border border-gray-300 bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 cursor-pointer"
-                  >
-                    <option value="">{t('admin.allBranches')}</option>
-                    {branches.map((b) => (
-                      <option key={b.id} value={b.id.toString()}>{b.name}</option>
-                    ))}
-                  </select>
-                  <select
-                    value={position}
-                    onChange={(e) => setPosition(e.target.value)}
-                    className="w-full px-4 py-2 rounded-lg border border-gray-300 bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 cursor-pointer"
-                  >
-                    <option value="">{t('admin.allPositions')}</option>
-                    {positions.map((p) => (
-                      <option key={p.id} value={p.id.toString()}>{p.name}</option>
-                    ))}
-                  </select>
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+                  <input
+                    type="text"
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                    placeholder={t('admin.searchPlaceholder')}
+                    className="w-full px-4 py-2 rounded-lg border border-gray-300 bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500"
+                  />
                   <select
                     value={testStatus}
                     onChange={(e) => setTestStatus(e.target.value)}

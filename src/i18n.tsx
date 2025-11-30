@@ -334,12 +334,13 @@ const dictionary: Dictionary = {
   // Admin Employees Page
   'admin.employees': { uz: 'Barcha xodimlar', 'uz-cyrl': 'Барча ходимлар', ru: 'Все сотрудники' },
   'admin.exportToExcel': { uz: 'Excelga eksport qilish', 'uz-cyrl': 'Excelга экспорт қилиш', ru: 'Экспорт в Excel' },
+  'admin.exportOrganizations': { uz: 'Tashkilotlar hisoboti', 'uz-cyrl': 'Ташкилотлар ҳисоботи', ru: 'Отчет по организациям' },
   'admin.exporting': { uz: 'Eksport qilinmoqda...', 'uz-cyrl': 'Экспорт қилинмоқда...', ru: 'Экспортируется...' },
   'admin.exportError': { uz: 'Eksport qilishda xatolik yuz berdi', 'uz-cyrl': 'Экспорт қилишда хатолик юз берди', ru: 'Ошибка при экспорте' },
   'admin.searchPlaceholder': {
-    uz: 'Ism yoki telefon bo\'yicha qidirish...',
-    'uz-cyrl': 'Исм ёки телефон бўйича қидириш...',
-    ru: 'Поиск по имени или телефону...'
+    uz: 'Login, PINFL yoki ism bo\'yicha qidirish...',
+    'uz-cyrl': 'Логин, ПИНФЛ ёки исм бўйича қидириш...',
+    ru: 'Поиск по логину, ПИНФЛ или имени...'
   },
   'admin.allBranches': { uz: 'Barcha GTFlar', 'uz-cyrl': 'Барча ГТФлар', ru: 'Все ГТФ' },
   'admin.allPositions': { uz: 'Barcha lavozimlar', 'uz-cyrl': 'Барча лавозимлар', ru: 'Все должности' },
@@ -839,8 +840,11 @@ const dictionary: Dictionary = {
   'auth.haveAccount': { uz: 'Hisobingiz bormi?', 'uz-cyrl': 'Ҳисобингиз борми?', ru: 'Есть аккаунт?' },
   'auth.optional': { uz: 'ixtiyoriy', 'uz-cyrl': 'ихтиёрий', ru: 'необязательно' },
   'auth.fetch': { uz: 'Yuklash', 'uz-cyrl': 'Юклаш', ru: 'Загрузить' },
+  'auth.generatePassword': { uz: 'Yaratish', 'uz-cyrl': 'Яратиш', ru: 'Сгенерировать' },
   'auth.pinflEmpty': { uz: 'PINFL raqamini kiriting', 'uz-cyrl': 'PINFL рақамини киритинг', ru: 'Введите номер PINFL' },
   'auth.pinflNotFound': { uz: 'PINFL bo\'yicha foydalanuvchi topilmadi', 'uz-cyrl': 'PINFL бўйича фойдаланувчи топилмади', ru: 'Пользователь с таким PINFL не найден' },
+  'auth.orgName': { uz: 'Tashkilot nomi', 'uz-cyrl': 'Ташкилот номи', ru: 'Название организации' },
+  'auth.department': { uz: 'Bo\'lim', 'uz-cyrl': 'Бўлим', ru: 'Отдел' },
 
   // Additional Information Form
   'additionalInfo.title': { uz: 'Qo\'shimcha ma\'lumot', 'uz-cyrl': 'Қўшимча маълумот', ru: 'Дополнительная информация' },

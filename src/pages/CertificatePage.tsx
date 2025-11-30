@@ -167,41 +167,6 @@ const CertificatePage: FC = () => {
     }
   }, [completedAt, lang]);
 
-  // Get localized branch name with fallback logic (before early returns)
-  const localizedBranchName = useMemo(() => {
-    if (!certificateData) return '';
-
-    const userBranch = certificateData.user_branch || '';
-    const user_branch_uz = certificateData.user_branch_uz;
-    const user_branch_uz_cyrl = certificateData.user_branch_uz_cyrl;
-    const user_branch_ru = certificateData.user_branch_ru;
-
-    // Check if user_branch is empty or just quotes
-    const isBranchEmpty = !userBranch || userBranch.trim() === '' || userBranch === '""';
-
-    // If localized fields exist, use them with fallback based on current language
-    if (user_branch_uz || user_branch_uz_cyrl || user_branch_ru) {
-      switch (lang) {
-        case 'uz':
-          return user_branch_uz || user_branch_uz_cyrl || user_branch_ru || (isBranchEmpty ? '' : userBranch);
-        case 'uz-cyrl':
-          return user_branch_uz_cyrl || user_branch_uz || user_branch_ru || (isBranchEmpty ? '' : userBranch);
-        case 'ru':
-          return user_branch_ru || user_branch_uz || user_branch_uz_cyrl || (isBranchEmpty ? '' : userBranch);
-        default:
-          return user_branch_uz || user_branch_uz_cyrl || user_branch_ru || (isBranchEmpty ? '' : userBranch);
-      }
-    }
-
-    // If user_branch is empty and no localized fields, try to get from other language fields
-    if (isBranchEmpty) {
-      // Return first available localized field
-      return user_branch_uz || user_branch_uz_cyrl || user_branch_ru || '';
-    }
-
-    // Use user_branch if it's not empty
-    return userBranch;
-  }, [certificateData, lang]);
 
   const isButtonHidden = searchParams.has('hiddenButton');
   const containerSpacingClass = isButtonHidden ? 'py-6 gap-4 justify-center' : 'py-10 gap-10';
@@ -274,9 +239,11 @@ const CertificatePage: FC = () => {
               <p className="">
                 {t('certificate.successMessage')}
               </p>
-              <p>
-                "{localizedBranchName}" {t('certificate.branchLabel')} <span className="font-medium">{userPosition}</span>
-              </p>
+              {userPosition && (
+                <p>
+                  <span className="font-medium">{userPosition}</span>
+                </p>
+              )}
             </div>
 
             <div className="text-[#244a74] font-extrabold text-[44px] tracking-[0.08em] uppercase mb-4">

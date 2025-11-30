@@ -3,7 +3,6 @@ import { useEffect, useRef, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { Link, useNavigate } from "react-router-dom";
 import { useRegister } from "../../api/auth.ts";
-import { useBranchesRetrieve, useGtfRetrieve, usePositionsRetrieve } from "../../api/generated/respondentWebAPI";
 import { FormButton } from "./FormButton.tsx";
 import { useI18n } from "../../i18n";
 import { customInstance } from "../../api/mutator/custom-instance";
@@ -18,9 +17,6 @@ type RegisterFormValues = {
   password: string;
   confirmPassword: string;
   name: string;
-  position_id: number;
-  gtf_id: number;
-  branch_id: number;
 };
 
 const defaultFormValues: RegisterFormValues = {
@@ -29,9 +25,6 @@ const defaultFormValues: RegisterFormValues = {
   password: '',
   confirmPassword: '',
   name: '',
-  position_id: 0,
-  gtf_id: 0,
-  branch_id: 0
 };
 
 
@@ -45,12 +38,18 @@ export const RegisterForm: FC<Props> = ({ }) => {
   // PINFL fetch state
   const [isFetchingPinfl, setIsFetchingPinfl] = useState(false);
   const [pinflError, setPinflError] = useState<string | null>(null);
-
-  // Fetch positions, branches, and GTF from API
-  // Note: APIs are exchanged - GTF uses branches API, branch uses GTF API
-  const { data: positionsData, isLoading: positionsLoading, error: positionsError } = usePositionsRetrieve();
-  const { data: branchesData, isLoading: branchesLoading, error: branchesError } = useBranchesRetrieve(); // This will be used for GTF
-  const { data: gtfData, isLoading: gtfLoading, error: gtfError } = useGtfRetrieve(); // This will be used for branch
+  
+  // Employee data from 1C
+  const [employeeData, setEmployeeData] = useState<{
+    org_name?: string;
+    position?: string;
+    branch?: string;
+    department?: string;
+  } | null>(null);
+  
+  // Password visibility state
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const {
     control,
@@ -59,30 +58,16 @@ export const RegisterForm: FC<Props> = ({ }) => {
     clearErrors,
     trigger,
     watch,
-    setValue
+    setValue,
+    getValues,
+    setError
   } = useForm<RegisterFormValues>({
     defaultValues: defaultFormValues,
   });
 
   const prevLangRef = useRef(lang);
   const password = watch('password');
-  const branchId = watch('branch_id');
   const pinfl = watch('pinfl');
-  const skipPositionResetRef = useRef(false);
-
-  // Helper function to get localized name
-  const getLocalizedName = (item: any) => {
-    switch (lang) {
-      case 'uz':
-        return item.name_uz || item.name_uz_cyrl || item.name_ru || 'N/A';
-      case 'uz-cyrl':
-        return item.name_uz_cyrl || item.name_uz || item.name_ru || 'N/A';
-      case 'ru':
-        return item.name_ru || item.name_uz || item.name_uz_cyrl || 'N/A';
-      default:
-        return item.name_uz || item.name_uz_cyrl || item.name_ru || 'N/A';
-    }
-  };
 
   const normalizeText = (value?: string | null) =>
     (value || '')
@@ -90,41 +75,6 @@ export const RegisterForm: FC<Props> = ({ }) => {
       .toLowerCase()
       .replace(/\s+/g, ' ')
       .trim();
-
-  const getLocalizedPositionLabel = (position: any) => {
-    const positionName = getLocalizedName(position);
-    const branchName = position?.branch ? getLocalizedName(position.branch) : '';
-    return branchName ? `${positionName} - ${branchName}` : positionName;
-  };
-
-  // Filter positions based on selected branch (include global positions with no branch)
-  const filteredPositions = positionsData?.positions;
-  // const filteredPositions = positionsData?.positions?.filter((position: any) => {
-  //   // debugger
-  //   if (!branchId || branchId === 0) return true;
-  //   // debugger
-  //   const posBranchId = position?.branch?.id;
-  //   // debugger
-  //   return posBranchId === branchId || posBranchId == null;
-  // }) || [];
-
-  // Show error if API calls failed
-  if (positionsError || branchesError || gtfError) {
-    // Note: branchesError is for GTF, gtfError is for branch
-    return (
-      <div className="text-center py-8">
-        <div className="text-red-600 text-base mb-4">
-          {t('error.connectionDesc')}
-        </div>
-        <button
-          onClick={() => window.location.reload()}
-          className="bg-cyan-600 text-white px-4 py-2 rounded-lg hover:bg-cyan-700"
-        >
-          {t('retry')}
-        </button>
-      </div>
-    );
-  }
 
   // Update validation messages when language changes
   useEffect(() => {
@@ -136,14 +86,45 @@ export const RegisterForm: FC<Props> = ({ }) => {
     }
   }, [lang, clearErrors, trigger, errors]);
 
-  // Reset position when branch changes
-  useEffect(() => {
-    if (skipPositionResetRef.current) {
-      skipPositionResetRef.current = false;
-      return;
+  // Generate secure password
+  const generatePassword = () => {
+    const length = 12;
+    const charset = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*';
+    let password = '';
+    
+    // Ensure at least one of each type
+    password += 'abcdefghijklmnopqrstuvwxyz'[Math.floor(Math.random() * 26)]; // lowercase
+    password += 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'[Math.floor(Math.random() * 26)]; // uppercase
+    password += '0123456789'[Math.floor(Math.random() * 10)]; // number
+    password += '!@#$%^&*'[Math.floor(Math.random() * 8)]; // special
+    
+    // Fill the rest randomly
+    for (let i = password.length; i < length; i++) {
+      password += charset[Math.floor(Math.random() * charset.length)];
     }
-    setValue('position_id', 0);
-  }, [branchId, setValue]);
+    
+    // Shuffle the password
+    password = password.split('').sort(() => Math.random() - 0.5).join('');
+    
+    // Set both password fields
+    setValue('password', password, { shouldDirty: true, shouldValidate: false });
+    setValue('confirmPassword', password, { shouldDirty: true, shouldValidate: false });
+    
+    // Clear any existing errors first
+    clearErrors(['password', 'confirmPassword']);
+    
+    // Trigger validation after both fields are set
+    // Use Promise to ensure both setValue calls complete
+    Promise.resolve().then(() => {
+      // Verify both fields have the same value before validating
+      const currentPassword = getValues('password');
+      const currentConfirmPassword = getValues('confirmPassword');
+      if (currentPassword === currentConfirmPassword && currentPassword === password) {
+        trigger(['password', 'confirmPassword']);
+      }
+    });
+  };
+
 
   // Create reactive validation rules
   const loginValidationRules = {
@@ -164,7 +145,10 @@ export const RegisterForm: FC<Props> = ({ }) => {
 
   const confirmPasswordValidationRules = {
     required: t('auth.fieldRequired'),
-    validate: (val: string) => val === password || t('auth.passwordsDoNotMatch')
+    validate: (val: string) => {
+      const currentPassword = getValues('password');
+      return val === currentPassword || t('auth.passwordsDoNotMatch');
+    }
   };
 
   const nameValidationRules = {
@@ -184,6 +168,7 @@ export const RegisterForm: FC<Props> = ({ }) => {
 
     setIsFetchingPinfl(true);
     setPinflError(null);
+    setEmployeeData(null); // Clear previous data
 
     try {
       // Call API to fetch employee data from 1C by PINFL
@@ -228,51 +213,23 @@ export const RegisterForm: FC<Props> = ({ }) => {
       // Check if employee was found
       if (employeeData.status !== 'OK') {
         setPinflError(t('auth.pinflNotFound'));
+        setEmployeeData(null); // Clear data on error
         return;
       }
-
-      const branches = branchesData?.branches || [];
-      const normalizedBranchFromApi = normalizeText(employeeData.branch);
-
-      const matchingBranch = branches.find((branch: any) => branch?.uuid === employeeData.branch_id) ||
-        branches.find((branch: any) => {
-          const potentialNames = [
-            branch?.name_uz,
-            branch?.name_uz_cyrl,
-            branch?.name_ru,
-            branch?.name
-          ];
-          return potentialNames.some((name) => normalizeText(name) === normalizedBranchFromApi);
-        });
-
-      const positions = positionsData?.positions || [];
-      const normalizedPositionFromApi = normalizeText(employeeData.position);
-
-      const matchingPosition = positions.find((position: any) => position?.uuid === employeeData.position_id) ||
-        positions.find((position: any) => {
-          const potentialNames = [
-            position?.name_uz,
-            position?.name_uz_cyrl,
-            position?.name_ru,
-            position?.name
-          ];
-          const matchesName = potentialNames.some((name) => normalizeText(name) === normalizedPositionFromApi);
-          const branchMatches = matchingBranch
-            ? (position?.branch?.id === matchingBranch.id || normalizeText(position?.branch?.name_ru) === normalizedBranchFromApi)
-            : true;
-          return matchesName && branchMatches;
-        });
 
       const resolvedPinfl = ((employeeData.pinfl ?? pinfl) || '').toString().trim();
       if (resolvedPinfl) {
         setValue('pinfl', resolvedPinfl, { shouldDirty: true });
-      }
-
-      const loginValue = (employeeData.phone && employeeData.phone.trim()) ||
-        (employeeData.tin && employeeData.tin.toString().trim()) ||
-        '';
-      if (loginValue) {
-        setValue('login', loginValue, { shouldDirty: true });
+        // Set login to PINFL
+        setValue('login', resolvedPinfl, { shouldDirty: true });
+      } else {
+        // Fallback to phone or TIN if PINFL is not available
+        const loginValue = (employeeData.phone && employeeData.phone.trim()) ||
+          (employeeData.tin && employeeData.tin.toString().trim()) ||
+          '';
+        if (loginValue) {
+          setValue('login', loginValue, { shouldDirty: true });
+        }
       }
 
       const fullName = (employeeData.full_name || '').trim();
@@ -280,54 +237,102 @@ export const RegisterForm: FC<Props> = ({ }) => {
         setValue('name', fullName, { shouldDirty: true });
       }
 
-      if (matchingBranch) {
-        skipPositionResetRef.current = true;
-        setValue('branch_id', matchingBranch.id, { shouldDirty: true });
-      }
-
-      if (matchingPosition) {
-        setValue('position_id', matchingPosition.id, { shouldDirty: true });
-      }
+      // Save employee data for display
+      setEmployeeData({
+        org_name: employeeData.org_name || '',
+        position: employeeData.position || '',
+        branch: employeeData.branch || '',
+        department: employeeData.department || '',
+      });
 
       console.log('✅ Employee data fetched from 1C by PINFL:', employeeData);
     } catch (error) {
       console.log('❌ Failed to fetch employee by PINFL:', error);
       setPinflError(t('auth.pinflNotFound'));
+      setEmployeeData(null); // Clear data on error
     } finally {
       setIsFetchingPinfl(false);
     }
   };
 
   const onSubmit = async (values: RegisterFormValues) => {
+    // Clear previous errors
+    clearErrors();
+    
     try {
       await register.mutateAsync({
         phone: values.login,
         password: values.password,
-        name: values.name,
-        position_id: values.position_id,
-        gtf_id: values.gtf_id
+        name: values.name
       });
+      
+      // Wait a bit to ensure tokens and user data are stored
+      await new Promise(resolve => setTimeout(resolve, 300));
+      
+      // Navigate to home page - user is now authenticated
       navigate('/', { replace: true });
     } catch (error: any) {
-      // Handle registration errors
-
-      // Show server error message
-      if (error?.response?.data?.non_field_errors) {
-        alert(error.response.data.non_field_errors[0]);
-      } else if (error?.response?.data?.detail) {
-        alert(error.response.data.detail);
-      } else if (error?.response?.data?.message) {
-        alert(error.response.data.message);
-      } else if (error?.response?.data?.phone_number) {
-        alert(error.response.data.phone_number[0]);
+      // Handle registration errors from backend
+      const errorData = error?.response?.data;
+      
+      if (errorData) {
+        // Handle non-field errors (general errors)
+        if (errorData.non_field_errors && Array.isArray(errorData.non_field_errors)) {
+          setError('root', {
+            type: 'server',
+            message: errorData.non_field_errors[0]
+          });
+        } else if (errorData.error) {
+          // Handle single error field
+          setError('root', {
+            type: 'server',
+            message: errorData.error
+          });
+        } else if (errorData.detail) {
+          setError('root', {
+            type: 'server',
+            message: errorData.detail
+          });
+        } else {
+          // Handle field-specific errors
+          if (errorData.phone_number && Array.isArray(errorData.phone_number)) {
+            setError('login', {
+              type: 'server',
+              message: errorData.phone_number[0]
+            });
+          }
+          if (errorData.password && Array.isArray(errorData.password)) {
+            setError('password', {
+              type: 'server',
+              message: errorData.password[0]
+            });
+          }
+          if (errorData.name && Array.isArray(errorData.name)) {
+            setError('name', {
+              type: 'server',
+              message: errorData.name[0]
+            });
+          }
+        }
       } else {
-        alert(t('auth.registerError'));
+        // Fallback error
+        setError('root', {
+          type: 'server',
+          message: t('auth.registerError')
+        });
       }
     }
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="">
+    <form onSubmit={handleSubmit(onSubmit)} className="" autoComplete="off">
+      {/* General error message */}
+      {errors.root && (
+        <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl">
+          <p className="text-red-600 text-base">{errors.root.message}</p>
+        </div>
+      )}
+      
       {/* PINFL Field - Optional */}
       <div className={'mb-6'}>
         <label className="block text-base text-black font-medium mb-1.5">
@@ -345,6 +350,7 @@ export const RegisterForm: FC<Props> = ({ }) => {
                 placeholder="PINFL"
                 className={authInputStyle + ' flex-1'}
                 maxLength={14}
+                autoComplete="off"
               />
             )}
           />
@@ -370,140 +376,189 @@ export const RegisterForm: FC<Props> = ({ }) => {
 
       <div className={'mb-6'}>
         <label className="block text-base text-black font-medium mb-1.5">{t('auth.login')}</label>
-        <Controller
-          name="login"
-          control={control}
-          rules={loginValidationRules}
-          render={({ field }) => (
-            <input
-              {...field}
-              type="text"
-              placeholder={t('auth.loginPlaceholder')}
-              className={authInputStyle}
-            />
-          )}
-        />
+          <Controller
+            name="login"
+            control={control}
+            rules={loginValidationRules}
+            render={({ field }) => (
+              <input
+                {...field}
+                type="text"
+                placeholder={t('auth.loginPlaceholder')}
+                className={authInputStyle}
+                autoComplete="username"
+              />
+            )}
+          />
         {errors.login && <p className="text-red-600 text-base mt-1">{errors.login.message}</p>}
       </div>
 
       <div className={'mb-6'}>
         <label className="block text-base text-black font-medium mb-1.5">{t('auth.fullName')}</label>
-        <Controller
-          name="name"
-          control={control}
-          rules={nameValidationRules}
-          render={({ field }) => (
-            <input
-              {...field}
-              type="text"
-              placeholder={t('auth.fullNamePlaceholder')}
-              className={authInputStyle}
-            />
-          )}
-        />
+          <Controller
+            name="name"
+            control={control}
+            rules={nameValidationRules}
+            render={({ field }) => (
+              <input
+                {...field}
+                type="text"
+                placeholder={t('auth.fullNamePlaceholder')}
+                className={authInputStyle}
+                autoComplete="name"
+              />
+            )}
+          />
         {errors.name && <p className="text-red-600 text-base mt-1">{errors.name.message}</p>}
       </div>
 
+      {/* Employee data from 1C - Display only if available */}
+      {employeeData && (
+        <>
+          {employeeData.org_name && (
+            <div className={'mb-6'}>
+              <label className="block text-base text-black font-medium mb-1.5">{t('auth.orgName')}</label>
+              <input
+                type="text"
+                value={employeeData.org_name}
+                disabled
+                className={authInputStyle + ' bg-gray-50 cursor-not-allowed'}
+                readOnly
+              />
+            </div>
+          )}
+          
+          {employeeData.position && (
+            <div className={'mb-6'}>
+              <label className="block text-base text-black font-medium mb-1.5">{t('auth.position')}</label>
+              <input
+                type="text"
+                value={employeeData.position}
+                disabled
+                className={authInputStyle + ' bg-gray-50 cursor-not-allowed'}
+                readOnly
+              />
+            </div>
+          )}
+          
+          {employeeData.branch && (
+            <div className={'mb-6'}>
+              <label className="block text-base text-black font-medium mb-1.5">{t('auth.branch')}</label>
+              <input
+                type="text"
+                value={employeeData.branch}
+                disabled
+                className={authInputStyle + ' bg-gray-50 cursor-not-allowed'}
+                readOnly
+              />
+            </div>
+          )}
+          
+          {employeeData.department && (
+            <div className={'mb-6'}>
+              <label className="block text-base text-black font-medium mb-1.5">{t('auth.department')}</label>
+              <input
+                type="text"
+                value={employeeData.department}
+                disabled
+                className={authInputStyle + ' bg-gray-50 cursor-not-allowed'}
+                readOnly
+              />
+            </div>
+          )}
+        </>
+      )}
+
       <div className={'mb-6'}>
         <label className="block text-base text-black font-medium mb-1.5">{t('auth.password')}</label>
-        <Controller
-          name="password"
-          control={control}
-          rules={passwordValidationRules}
-          render={({ field }) => (
-            <input
-              {...field}
-              type="password"
-              placeholder={t('auth.passwordPlaceholder')}
-              className={authInputStyle}
+        <div className="flex gap-2">
+          <div className="relative flex-1">
+            <Controller
+              name="password"
+              control={control}
+              rules={passwordValidationRules}
+              render={({ field }) => (
+                <input
+                  {...field}
+                  type={showPassword ? "text" : "password"}
+                  placeholder={t('auth.passwordPlaceholder')}
+                  className={authInputStyle + ' pr-10'}
+                  autoComplete="new-password"
+                />
+              )}
             />
-          )}
-        />
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 focus:outline-none"
+              tabIndex={-1}
+            >
+              {showPassword ? (
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
+                </svg>
+              ) : (
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                </svg>
+              )}
+            </button>
+          </div>
+          <button
+            type="button"
+            onClick={generatePassword}
+            className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl border border-gray-300 transition-colors whitespace-nowrap flex items-center gap-2"
+            title={t('auth.generatePassword')}
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
+            <span className="hidden sm:inline">{t('auth.generatePassword')}</span>
+          </button>
+        </div>
         {errors.password && <p className="text-red-600 text-base mt-1">{errors.password.message}</p>}
       </div>
 
       <div className={'mb-6'}>
         <label className="block text-base text-black font-medium mb-1.5">{t('auth.confirmPassword')}</label>
-        <Controller
-          name="confirmPassword"
-          control={control}
-          rules={confirmPasswordValidationRules}
-          render={({ field }) => (
-            <input
-              {...field}
-              type="password"
-              placeholder={t('auth.confirmPasswordPlaceholder')}
-              className={authInputStyle}
-            />
-          )}
-        />
+        <div className="relative">
+          <Controller
+            name="confirmPassword"
+            control={control}
+            rules={confirmPasswordValidationRules}
+            render={({ field }) => (
+              <input
+                {...field}
+                type={showConfirmPassword ? "text" : "password"}
+                placeholder={t('auth.confirmPasswordPlaceholder')}
+                className={authInputStyle + ' pr-10'}
+                autoComplete="new-password"
+              />
+            )}
+          />
+          <button
+            type="button"
+            onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 focus:outline-none"
+            tabIndex={-1}
+          >
+            {showConfirmPassword ? (
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
+              </svg>
+            ) : (
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+              </svg>
+            )}
+          </button>
+        </div>
         {errors.confirmPassword && <p className="text-red-600 text-base mt-1">{errors.confirmPassword.message}</p>}
       </div>
 
-      {/* 1. GTF Field - uses GTF API */}
-      <div className={'mb-6'}>
-        <label className="block text-base text-black font-medium mb-1.5">{t('auth.gtf')}</label>
-        <Controller
-          name="branch_id"
-          control={control}
-          rules={{ required: t('auth.fieldRequired'), validate: (v: number) => v !== 0 || t('auth.fieldRequired') }}
-          render={({ field }) => (
-            <select {...field} className={authInputStyle} disabled={gtfLoading}>
-              <option value={0}>{t('auth.selectGtf')}</option>
-              {gtfData?.gtf?.map((gtf) => (
-                <option key={gtf.id} value={gtf.id}>
-                  {getLocalizedName(gtf)}
-                </option>
-              ))}
-            </select>
-          )}
-        />
-        {errors.branch_id && <p className="text-red-600 text-base mt-1">{errors.branch_id.message}</p>}
-
-      </div>
-
-      {/* 2. Department (Branch) Field - uses branches API  */}
-      <div className={'mb-6'}>
-        <label className="block text-base text-black font-medium mb-1.5">{t('auth.branch')}</label>
-        <Controller
-          name="gtf_id"
-          control={control}
-          rules={{ required: t('auth.fieldRequired'), validate: (v: number) => v !== 0 || t('auth.fieldRequired') }}
-          render={({ field }) => (
-            <select {...field} className={authInputStyle} disabled={branchesLoading}>
-              <option value={0}>{t('auth.selectBranch')}</option>
-              {branchesData?.branches?.map((branch) => (
-                <option key={branch.id} value={branch.id}>
-                  {getLocalizedName(branch)}
-                </option>
-              ))}
-            </select>
-          )}
-        />
-        {errors.gtf_id && <p className="text-red-600 text-base mt-1">{errors.gtf_id.message}</p>}
-      </div>
-
-      <div className={'mb-6'}>
-        <label className="block text-base text-black font-medium mb-1.5">{t('auth.position')}</label>
-        <Controller
-          name="position_id"
-          control={control}
-          rules={{ required: t('auth.fieldRequired'), validate: (v: number) => v !== 0 || t('auth.fieldRequired') }}
-          render={({ field }) => (
-            <select {...field} className={authInputStyle} disabled={positionsLoading}>
-              <option value={0}>{t('auth.selectPosition')}</option>
-              {filteredPositions?.map((position) => (
-                <option key={position.id} value={position.id}>
-                  {getLocalizedPositionLabel(position)}
-                </option>
-              ))}
-            </select>
-          )}
-        />
-        {errors.position_id && <p className="text-red-600 text-base mt-1">{errors.position_id.message}</p>}
-      </div>
-
-      <FormButton isLoading={isSubmitting || positionsLoading || branchesLoading || gtfLoading} title={t('auth.register')} />
+      <FormButton isLoading={isSubmitting} title={t('auth.register')} />
 
       <div className="text-center mt-4">
         <p className="text-gray-600 text-base">

@@ -21,7 +21,7 @@ export const LoginForm: FC<Props> = ({ }) => {
   const navigate = useNavigate();
   const passwordLogin = usePasswordLogin();
   const { t, lang } = useI18n();
-  const { control, handleSubmit, formState: { errors, isSubmitting }, clearErrors, trigger } = useForm<LoginFormValues>({
+  const { control, handleSubmit, formState: { errors, isSubmitting }, clearErrors, trigger, setError } = useForm<LoginFormValues>({
     defaultValues: { login: '', password: '' },
   });
 
@@ -55,6 +55,9 @@ export const LoginForm: FC<Props> = ({ }) => {
   };
 
   const onSubmit = async ({ login, password }: LoginFormValues) => {
+    // Clear previous errors
+    clearErrors();
+    
     try {
       await passwordLogin.mutateAsync({
         phone: login,
@@ -62,23 +65,61 @@ export const LoginForm: FC<Props> = ({ }) => {
       });
       navigate('/', { replace: true });
     } catch (error: any) {
-      // Handle login errors
-
-      // Show server error message
-      if (error?.response?.data?.non_field_errors) {
-        alert(error.response.data.non_field_errors[0]);
-      } else if (error?.response?.data?.detail) {
-        alert(error.response.data.detail);
-      } else if (error?.response?.data?.message) {
-        alert(error.response.data.message);
+      // Handle login errors from backend
+      const errorData = error?.response?.data;
+      
+      if (errorData) {
+        // Handle non-field errors (general errors)
+        if (errorData.non_field_errors && Array.isArray(errorData.non_field_errors)) {
+          setError('root', {
+            type: 'server',
+            message: errorData.non_field_errors[0]
+          });
+        } else if (errorData.error) {
+          // Handle single error field
+          setError('root', {
+            type: 'server',
+            message: errorData.error
+          });
+        } else if (errorData.detail) {
+          setError('root', {
+            type: 'server',
+            message: errorData.detail
+          });
+        } else {
+          // Handle field-specific errors
+          if (errorData.phone_number && Array.isArray(errorData.phone_number)) {
+            setError('login', {
+              type: 'server',
+              message: errorData.phone_number[0]
+            });
+          }
+          if (errorData.password && Array.isArray(errorData.password)) {
+            setError('password', {
+              type: 'server',
+              message: errorData.password[0]
+            });
+          }
+        }
       } else {
-        alert(t('auth.loginError'));
+        // Fallback error
+        setError('root', {
+          type: 'server',
+          message: t('auth.loginError')
+        });
       }
     }
   };
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="">
+      {/* General error message */}
+      {errors.root && (
+        <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl">
+          <p className="text-red-600 text-base">{errors.root.message}</p>
+        </div>
+      )}
+      
       <div className={'mb-6'}>
         <label className="block text-base text-black font-medium mb-1.5">{t('auth.login')}</label>
         <Controller

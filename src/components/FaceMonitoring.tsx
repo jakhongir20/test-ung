@@ -6,6 +6,7 @@ import { useI18n } from '../i18n';
 import { useProctorHeartbeat, useProctorRecordViolation, useModeratorSessionViolations, useProctorUploadChunk } from '../api/surveys';
 import { useBodyScrollLock } from '../hooks/useBodyScrollLock';
 import { logout } from '../api/auth';
+import { useAuthStore } from '../stores/authStore';
 
 interface FaceMonitoringProps {
   isActive: boolean;
@@ -275,11 +276,17 @@ export const FaceMonitoring: FC<FaceMonitoringProps> = ({
   const hiddenTabCheckInterval = 1500; // how often to re-check hidden tab violations
   const faceMismatchThreshold = 0.58; // Euclidean distance threshold for face mismatch detection
 
+  // Get user from auth store to check if moderator
+  const { user } = useAuthStore();
+  const isModerator = user?.is_moderator || false;
+
   // Proctor API hooks
   const proctorHeartbeat = useProctorHeartbeat();
   const proctorRecordViolation = useProctorRecordViolation();
   const proctorUploadChunk = useProctorUploadChunk();
-  const violationCountQuery = useModeratorSessionViolations(sessionId);
+  
+  // Only fetch violations for moderators
+  const violationCountQuery = useModeratorSessionViolations(isModerator ? sessionId : undefined);
   const serverViolationCount = (violationCountQuery.data as { violation_count?: number; })?.violation_count || 0;
   const shouldTerminate = (violationCountQuery.data as { should_terminate?: boolean; })?.should_terminate || false;
 

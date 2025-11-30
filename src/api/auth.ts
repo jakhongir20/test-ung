@@ -251,24 +251,31 @@ export function useRegister() {
       phone: string;
       password: string;
       name: string;
-      position_id: number;
-      gtf_id: number
     }) => m.mutateAsync({
       data: {
         phone_number: args.phone,
         password: args.password,
-        name: args.name,
-        position_id: args.position_id,
-        gtf_id: args.gtf_id
+        name: args.name
       }
     }),
     onSuccess: async (data) => {
       const res = (data as any)
 
-      if (res?.access && res?.refresh) {
-        // Store tokens immediately
-        localStorage.setItem('accessToken', res.access);
-        localStorage.setItem('refreshToken', res.refresh);
+      // Extract tokens from response (they might be in res.tokens or directly in res)
+      const tokens = res?.tokens || {
+        access: res?.access,
+        refresh: res?.refresh
+      };
+
+      if (tokens?.access && tokens?.refresh) {
+        // Store tokens using tokenStorage
+        tokenStorage.setTokens({
+          access: tokens.access,
+          refresh: tokens.refresh
+        });
+
+        // Wait a bit to ensure tokens are stored
+        await new Promise(resolve => setTimeout(resolve, 100));
 
         // Refresh the Axios instance to pick up new tokens
         refreshInstance();
@@ -284,17 +291,8 @@ export function useRegister() {
       // Invalidate queries to trigger refetches
       qc.invalidateQueries()
 
-      // Small delay to ensure tokens are properly stored
-      await new Promise(resolve => setTimeout(resolve, 100))
-
-      // Wait for critical queries to be set up
-      try {
-
-        // Temporarily disable prefetch to test token storage
-
-      } catch (error) {
-        // Don't fail the registration if prefetch fails
-      }
+      // Small delay to ensure everything is properly set up
+      await new Promise(resolve => setTimeout(resolve, 200))
     },
   })
 }

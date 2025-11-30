@@ -24,7 +24,12 @@ export default function Header() {
 
     const user: User = userData;
 
-    // Get localized position name based on current language
+    // Try to get position from employee_data first
+    if ((user as any).employee_data?.position) {
+      return (user as any).employee_data.position;
+    }
+
+    // Fallback to old position fields for backward compatibility
     const localized =
       lang === 'uz'
         ? (user.position_name_uz || user.position_name_uz_cyrl || user.position_name_ru || user.position_name)
@@ -37,25 +42,8 @@ export default function Header() {
     }
 
     // Fallback to position field if position_name is not available
-    if (userData.position) {
-      return String(userData.position);
-    }
-
-    // Fallback to user's name if position is not available
-    if (user.name) {
-      return user.name;
-    }
-
-    // Fallback to branch name if available
-    const branchName =
-      lang === 'uz'
-        ? (user.branch_name_uz || user.branch_name_uz_cyrl || user.branch_name_ru || user.branch_name)
-        : lang === 'uz-cyrl'
-          ? (user.branch_name_uz_cyrl || user.branch_name_uz || user.branch_name_ru || user.branch_name)
-          : (user.branch_name_ru || user.branch_name_uz || user.branch_name_uz_cyrl || user.branch_name);
-
-    if (branchName) {
-      return branchName;
+    if ((user as any).position) {
+      return String((user as any).position);
     }
 
     return '';
