@@ -337,6 +337,12 @@ const dictionary: Dictionary = {
   'admin.exportOrganizations': { uz: 'Tashkilotlar hisoboti', 'uz-cyrl': 'Ташкилотлар ҳисоботи', ru: 'Отчет по организациям' },
   'admin.exporting': { uz: 'Eksport qilinmoqda...', 'uz-cyrl': 'Экспорт қилинмоқда...', ru: 'Экспортируется...' },
   'admin.exportError': { uz: 'Eksport qilishda xatolik yuz berdi', 'uz-cyrl': 'Экспорт қилишда хатолик юз берди', ru: 'Ошибка при экспорте' },
+  'admin.createCandidate': { uz: 'Kandidat yaratish', 'uz-cyrl': 'Кандидат яратиш', ru: 'Создать кандидата' },
+  'admin.create': { uz: 'Yaratish', 'uz-cyrl': 'Яратиш', ru: 'Создать' },
+  'admin.creating': { uz: 'Yaratilmoqda...', 'uz-cyrl': 'Яратилмоқда...', ru: 'Создается...' },
+  'admin.candidateCreatedSuccess': { uz: 'Kandidat muvaffaqiyatli yaratildi', 'uz-cyrl': 'Кандидат муваффақиятли яратилди', ru: 'Кандидат успешно создан' },
+  'admin.candidateCreateError': { uz: 'Kandidat yaratishda xatolik yuz berdi', 'uz-cyrl': 'Кандидат яратишда хатолик юз берди', ru: 'Ошибка при создании кандидата' },
+  'admin.candidateExpirationWarning': { uz: 'Eslatma: Yaratilgan kandidat 1 soatdan keyin avtomatik ravishda deaktivatsiya qilinadi va tizimga kirish imkoniyati yo\'qoladi.', 'uz-cyrl': 'Эслатма: Яратилган кандидат 1 соатдан кейин автомат равишда деактиватсия қилинади ва тизимга кириш имконияти йўқолади.', ru: 'Примечание: Созданный кандидат будет автоматически деактивирован через 1 час и потеряет возможность входа в систему.' },
   'admin.searchPlaceholder': {
     uz: 'Login, PINFL yoki ism bo\'yicha qidirish...',
     'uz-cyrl': 'Логин, ПИНФЛ ёки исм бўйича қидириш...',
@@ -490,6 +496,7 @@ const dictionary: Dictionary = {
   // Header Dropdown
   'header.myProfile': { uz: 'Mening profilim', 'uz-cyrl': 'Менинг профилим', ru: 'Мой профиль' },
   'header.adminEmployees': { uz: 'Xodimlar boshqaruvi', 'uz-cyrl': 'Ходимлар бошқаруви', ru: 'Управление сотрудниками' },
+  'header.createCandidate': { uz: 'Kandidat yaratish', 'uz-cyrl': 'Кандидат яратиш', ru: 'Создать кандидата' },
 
   // Profile Form
   'profile.save': { uz: 'Saqlash', 'uz-cyrl': 'Сақлаш', ru: 'Сохранить' },
@@ -776,7 +783,11 @@ const dictionary: Dictionary = {
 
   // Auth Pages
   'auth.login': { uz: 'Login', 'uz-cyrl': 'Логин', ru: 'Логин' },
+  'auth.phone': { uz: 'Telefon raqami', 'uz-cyrl': 'Телефон рақами', ru: 'Номер телефона' },
   'auth.phoneNumber': { uz: 'Telefon raqami', 'uz-cyrl': 'Телефон рақами', ru: 'Номер телефона' },
+  'auth.phoneRequired': { uz: 'Telefon raqami kiritilishi shart', 'uz-cyrl': 'Телефон рақами киритилиши шарт', ru: 'Номер телефона обязателен' },
+  'auth.name': { uz: 'Ism', 'uz-cyrl': 'Исм', ru: 'Имя' },
+  'auth.nameRequired': { uz: 'Ism kiritilishi shart', 'uz-cyrl': 'Исм киритилиши шарт', ru: 'Имя обязательно' },
   'auth.getCode': { uz: 'Kod olish', 'uz-cyrl': 'Код олиш', ru: 'Получить код' },
   'auth.fieldRequired': { uz: 'Maydon majburiy', 'uz-cyrl': 'Майдон мажбурий', ru: 'Поле обязательно' },
   'auth.invalidPhone': { uz: 'Noto\'g\'ri raqam', 'uz-cyrl': 'Нотўғри рақам', ru: 'Неверный номер' },
@@ -791,6 +802,7 @@ const dictionary: Dictionary = {
     ru: 'Логин должен содержать минимум 1 символ'
   },
   'auth.password': { uz: 'Parol', 'uz-cyrl': 'Парол', ru: 'Пароль' },
+  'auth.passwordRequired': { uz: 'Parol kiritilishi shart', 'uz-cyrl': 'Парол киритилиши шарт', ru: 'Пароль обязателен' },
   'auth.passwordPlaceholder': { uz: 'Parolingizni kiriting', 'uz-cyrl': 'Паролингизни киритинг', ru: 'Введите пароль' },
   'auth.passwordMinLength': {
     uz: 'Parol kamida 6 belgidan iborat bo\'lishi kerak',
@@ -803,6 +815,7 @@ const dictionary: Dictionary = {
     ru: 'Пароли не совпадают'
   },
   'auth.confirmPassword': { uz: 'Parolni tasdiqlash', 'uz-cyrl': 'Паролни тасдиқлаш', ru: 'Подтверждение пароля' },
+  'auth.confirmPasswordRequired': { uz: 'Parolni tasdiqlash majburiy', 'uz-cyrl': 'Паролни тасдиқлаш мажбурий', ru: 'Подтверждение пароля обязательно' },
   'auth.confirmPasswordPlaceholder': {
     uz: 'Parolni qayta kiriting',
     'uz-cyrl': 'Паролни қайта киритинг',

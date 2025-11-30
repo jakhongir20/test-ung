@@ -13,6 +13,7 @@ import LoginPage from './pages/LoginPage.tsx';
 import RegisterPage from './pages/RegisterPage.tsx';
 import OtpPage from './pages/OtpPage.tsx';
 import AdminEmployeesPage from './pages/AdminEmployeesPage.tsx';
+import CreateCandidatePage from './pages/CreateCandidatePage.tsx';
 import PageRules from './pages/PageRules.tsx';
 import ProtectedRoute from './components/ProtectedRoute.tsx';
 import AuthLayout from './layouts/AuthLayout.tsx';
@@ -50,6 +51,13 @@ const router = createBrowserRouter([
         path: 'admin/employees', element: (
           <ProtectedRoute>
             <AdminEmployeesPage />
+          </ProtectedRoute>
+        )
+      },
+      {
+        path: 'admin/create-candidate', element: (
+          <ProtectedRoute>
+            <CreateCandidatePage />
           </ProtectedRoute>
         )
       },

@@ -124,6 +124,17 @@ export default function Header() {
                     </svg>
                     {t('header.adminEmployees')}
                   </Link>}
+                  {userData?.is_moderator && <Link
+                    to="/admin/create-candidate"
+                    onClick={() => setIsDropdownOpen(false)}
+                    className="flex items-center md:px-4 px-2 py-1.5 md:py-3 text-sm md:text-base text-gray-700 hover:bg-gray-50 transition-colors duration-200"
+                  >
+                    <svg className="w-4 h-4 mr-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                        d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+                    </svg>
+                    {t('header.createCandidate')}
+                  </Link>}
 
                   {/* Divider */}
                   <div className="border-t border-gray-100 my-1"></div>
