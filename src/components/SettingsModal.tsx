@@ -17,9 +17,9 @@ type SettingsFormValues = {
   work_domain: 'natural_gas' | 'lpg_gas';
 };
 
-export const SettingsModal: FC<Props> = ({ isOpen, onClose }) => {
-  const { t, lang } = useI18n();
-  const { data: user } = useUsersMeRetrieve();
+export const SettingsModal: FC<Props> = ({isOpen, onClose}) => {
+  const {t, lang} = useI18n();
+  const {data: user} = useUsersMeRetrieve();
   const updateProfile = useUpdateUserProfile();
 
   useBodyScrollLock(isOpen);
@@ -27,7 +27,7 @@ export const SettingsModal: FC<Props> = ({ isOpen, onClose }) => {
   const {
     control,
     handleSubmit,
-    formState: { errors, isSubmitting },
+    formState: {errors, isSubmitting},
     setError,
     clearErrors,
     reset,
@@ -118,7 +118,7 @@ export const SettingsModal: FC<Props> = ({ isOpen, onClose }) => {
   return (
     <div className="fixed inset-0 h-screen w-full top-0 bottom-0 left-0 right-0 z-20 ">
       {/* Backdrop */}
-      <div className="absolute inset-0 bg-black/30" onClick={onClose} />
+      <div className="absolute inset-0 bg-black/30" onClick={onClose}/>
 
       {/* Drawer */}
       <div
@@ -145,8 +145,8 @@ export const SettingsModal: FC<Props> = ({ isOpen, onClose }) => {
                 <Controller
                   name="name"
                   control={control}
-                  rules={{ required: t('settings.fullNameRequired') }}
-                  render={({ field }) => (
+                  rules={{required: t('settings.fullNameRequired')}}
+                  render={({field}) => (
                     <input
                       {...field}
                       type="text"
@@ -215,6 +215,25 @@ export const SettingsModal: FC<Props> = ({ isOpen, onClose }) => {
                 </div>
               )}
             </form>
+
+            {/* Useful Guides Link */}
+            <div className="mt-4 pt-4 border-t border-gray-200">
+              <a
+                href="/"
+                className="flex items-center justify-between w-full px-4 py-3 text-base font-medium text-gray-700 bg-gray-50 border border-gray-200 rounded-lg hover:bg-gray-100 hover:border-gray-300 transition-all duration-200"
+              >
+                <span className="flex items-center">
+                  <svg className="w-5 h-5 mr-3 text-[#00A2DE]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                          d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+                  </svg>
+                  {t('settings.usefulGuides')}
+                </span>
+                <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7"/>
+                </svg>
+              </a>
+            </div>
           </div>
 
           {/* Footer */}
@@ -228,7 +247,7 @@ export const SettingsModal: FC<Props> = ({ isOpen, onClose }) => {
               >
                 <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                    d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                        d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
                 </svg>
                 {t('settings.logout')}
               </button>
@@ -244,7 +263,7 @@ export const SettingsModal: FC<Props> = ({ isOpen, onClose }) => {
                   <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
                 ) : (
                   <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7"/>
                   </svg>
                 )}
                 {t('settings.save')}

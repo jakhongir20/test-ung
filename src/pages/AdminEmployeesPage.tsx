@@ -3,7 +3,6 @@ import { useMemo, useState } from 'react';
 import { useModeratorUserDetails, useModeratorUsers } from '../api/moderator';
 import { useI18n } from '../i18n';
 import { customInstance } from '../api/mutator/custom-instance';
-import { MyProfileBanner } from "../components/MyProfileBanner.tsx";
 import type { Column } from "../components/DataTable.tsx";
 import { DataTable } from "../components/DataTable.tsx";
 import { CARD_STYLES } from "../components/test/test.data.ts";
@@ -17,7 +16,7 @@ import { useDebounce } from '../hooks/useDebounce';
 
 
 const AdminEmployeesPage: FC = () => {
-  const { t, lang } = useI18n();
+  const {t, lang} = useI18n();
   const [testStatus, setTestStatus] = useState<string>('');
   const [isExporting, setIsExporting] = useState(false);
   const [isExportingOrganizations, setIsExportingOrganizations] = useState(false);
@@ -49,7 +48,7 @@ const AdminEmployeesPage: FC = () => {
   const usersQuery = useModeratorUsers(queryParams);
   const usersData = usersQuery.data as any;
   const users = usersData?.results || usersData || [];
-  
+
   // Check if there are any users to export
   const hasUsers = Array.isArray(users) && users.length > 0;
 
@@ -103,11 +102,11 @@ const AdminEmployeesPage: FC = () => {
       const exportParams: Record<string, string | undefined> = {
         lang: apiLang,
       };
-      
+
       if (debouncedSearch) {
         exportParams.search = debouncedSearch;
       }
-      
+
       if (testStatus) {
         exportParams.status = testStatus;
       }
@@ -148,11 +147,11 @@ const AdminEmployeesPage: FC = () => {
       const exportParams: Record<string, string | undefined> = {
         lang: apiLang,
       };
-      
+
       if (debouncedSearch) {
         exportParams.search = debouncedSearch;
       }
-      
+
       if (testStatus) {
         exportParams.status = testStatus;
       }
@@ -192,9 +191,9 @@ const AdminEmployeesPage: FC = () => {
 
   const confirmCertificateDownload = () => {
     if (certificateModal.userId) {
-      // Open certificate page with user ID and language parameter
-      const langParam = lang === 'uz-cyrl' ? 'uz-cyrl' : lang;
-      window.open(`/certificate/${certificateModal.userId}?lang=${langParam}`, '_blank');
+      // Open certificate page with user ID and only 'uz-cyrl' language parameter
+      // const langParam = lang === 'uz-cyrl' ? 'uz-cyrl' : lang;
+      window.open(`/certificate/${certificateModal.userId}?lang=${'uz-cyrl'}`, '_blank');
     }
     setCertificateModal({
       isOpen: false,
@@ -279,7 +278,7 @@ const AdminEmployeesPage: FC = () => {
             className="inline-flex h-8 w-8 items-center justify-center rounded-lg ring-1 ring-gray-200 hover:bg-gray-50"
             aria-label={t('admin.aboutEmployee')}
           >
-            <img src="/icon/eye.svg" alt="" />
+            <img src="/icon/eye.svg" alt=""/>
           </button>
           <button
             onClick={() => handleCertificateDownload(user.id, user.name)}
@@ -289,7 +288,7 @@ const AdminEmployeesPage: FC = () => {
           >
             <svg className="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
             </svg>
           </button>
         </div>
@@ -306,7 +305,7 @@ const AdminEmployeesPage: FC = () => {
           <div className="w-16 h-16 mx-auto mb-4 bg-red-100 rounded-full flex items-center justify-center">
             <svg className="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"/>
             </svg>
           </div>
           <h2 className="text-xl font-semibold text-gray-900 mb-2">{t('error.connection')}</h2>
@@ -329,10 +328,10 @@ const AdminEmployeesPage: FC = () => {
 
       {selectedUserId && (
         <div
-          style={{ display: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 9999, width: '100%', height: '100%' }}
+          style={{display: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 9999, width: '100%', height: '100%'}}
           className="!fixed inset-0 h-screen w-full top-0 bottom-0 left-0 right-0 z-[9999]">
           {/* Backdrop */}
-          <div className="absolute inset-0 bg-black/30" onClick={() => setSelectedUserId(null)} />
+          <div className="absolute inset-0 bg-black/30" onClick={() => setSelectedUserId(null)}/>
 
           {/* Drawer */}
           <div
@@ -353,7 +352,7 @@ const AdminEmployeesPage: FC = () => {
                     <div className="flex items-start justify-between">
                       <div className={'flex items-center gap-4'}>
                         <h4 className="text-lg font-semibold">{t('admin.aboutEmployee')}</h4>
-                        <StatusBadge status={(selectedUser as any).status || 'unknown'} />
+                        <StatusBadge status={(selectedUser as any).status || 'unknown'}/>
                       </div>
                       <button
                         onClick={() => setSelectedUserId(null)}
@@ -477,13 +476,15 @@ const AdminEmployeesPage: FC = () => {
                       >
                         {isExportingOrganizations ? (
                           <>
-                            <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                            <div
+                              className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"/>
                             {t('admin.exporting')}
                           </>
                         ) : (
                           <>
                             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                                    d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
                             </svg>
                             {t('admin.exportOrganizations')}
                           </>
@@ -496,13 +497,15 @@ const AdminEmployeesPage: FC = () => {
                       >
                         {isExporting ? (
                           <>
-                            <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                            <div
+                              className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"/>
                             {t('admin.exporting')}
                           </>
                         ) : (
                           <>
                             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                                    d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
                             </svg>
                             {t('admin.exportToExcel')}
                           </>
@@ -562,7 +565,7 @@ const AdminEmployeesPage: FC = () => {
         onClose={cancelCertificateDownload}
         onConfirm={confirmCertificateDownload}
         title={t('certificate.downloadTitle')}
-        message={t('certificate.downloadMessage', { userName: certificateModal.userName })}
+        message={t('certificate.downloadMessage', {userName: certificateModal.userName})}
         confirmText={t('certificate.download')}
         cancelText={t('certificate.cancel')}
       />

@@ -847,8 +847,8 @@ const dictionary: Dictionary = {
   'auth.selectPosition': { uz: 'Lavozimni tanlang', 'uz-cyrl': 'Лавозимни танланг', ru: 'Выберите должность' },
   'auth.branch': { uz: 'Boshqaruv / Bo\'lim', 'uz-cyrl': 'Бошқарув / Бо\'лим', ru: 'Управление / Отдел' },
   'auth.selectBranch': { uz: 'Boshqaruv / Bo\'limni  tanlang', 'uz-cyrl': 'Бошқарув / Бо\'лимни танланг', ru: 'Выберите управление / отдел' },
-  'auth.gtf': { uz: 'GTF', 'uz-cyrl': 'ГТФ', ru: 'ГТФ' },
-  'auth.selectGtf': { uz: 'GTFni tanlang', 'uz-cyrl': 'ГТФни танланг', ru: 'Выберите ГТФ' },
+  'auth.gtf': { uz: 'Tashkilot', 'uz-cyrl': 'Ташкилот', ru: 'Организация' },
+  'auth.selectGtf': { uz: 'Tashkilotni tanlang', 'uz-cyrl': 'Ташкилотни танланг', ru: 'Выберите организацию' },
   'auth.noAccount': { uz: 'Hisobingiz yo\'qmi?', 'uz-cyrl': 'Ҳисобингиз йўқми?', ru: 'Нет аккаунта?' },
   'auth.haveAccount': { uz: 'Hisobingiz bormi?', 'uz-cyrl': 'Ҳисобингиз борми?', ru: 'Есть аккаунт?' },
   'auth.optional': { uz: 'ixtiyoriy', 'uz-cyrl': 'ихтиёрий', ru: 'необязательно' },
@@ -951,6 +951,11 @@ const dictionary: Dictionary = {
     uz: 'GTFni tanlang',
     'uz-cyrl': 'ГТФни танланг',
     ru: 'Выберите ГТФ'
+  },
+  'settings.usefulGuides': {
+    uz: 'Foydali qollanmalar royxati',
+    'uz-cyrl': 'Фойдали қолланмалар рўйхати',
+    ru: 'Список полезных руководств'
   },
 
   // Administration Options
