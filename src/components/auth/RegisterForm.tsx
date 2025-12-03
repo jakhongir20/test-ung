@@ -38,7 +38,7 @@ export const RegisterForm: FC<Props> = ({ }) => {
   // PINFL fetch state
   const [isFetchingPinfl, setIsFetchingPinfl] = useState(false);
   const [pinflError, setPinflError] = useState<string | null>(null);
-  
+
   // Employee data from 1C
   const [employeeData, setEmployeeData] = useState<{
     org_name?: string;
@@ -224,11 +224,11 @@ export const RegisterForm: FC<Props> = ({ }) => {
         setValue('login', resolvedPinfl, { shouldDirty: true });
       } else {
         // Fallback to phone or TIN if PINFL is not available
-        const loginValue = (employeeData.phone && employeeData.phone.trim()) ||
-          (employeeData.tin && employeeData.tin.toString().trim()) ||
-          '';
-        if (loginValue) {
-          setValue('login', loginValue, { shouldDirty: true });
+      const loginValue = (employeeData.phone && employeeData.phone.trim()) ||
+        (employeeData.tin && employeeData.tin.toString().trim()) ||
+        '';
+      if (loginValue) {
+        setValue('login', loginValue, { shouldDirty: true });
         }
       }
 
@@ -376,39 +376,39 @@ export const RegisterForm: FC<Props> = ({ }) => {
 
       <div className={'mb-6'}>
         <label className="block text-base text-black font-medium mb-1.5">{t('auth.login')}</label>
-          <Controller
-            name="login"
-            control={control}
-            rules={loginValidationRules}
-            render={({ field }) => (
-              <input
-                {...field}
-                type="text"
-                placeholder={t('auth.loginPlaceholder')}
-                className={authInputStyle}
+        <Controller
+          name="login"
+          control={control}
+          rules={loginValidationRules}
+          render={({ field }) => (
+            <input
+              {...field}
+              type="text"
+              placeholder={t('auth.loginPlaceholder')}
+              className={authInputStyle}
                 autoComplete="username"
-              />
-            )}
-          />
+            />
+          )}
+        />
         {errors.login && <p className="text-red-600 text-base mt-1">{errors.login.message}</p>}
       </div>
 
       <div className={'mb-6'}>
         <label className="block text-base text-black font-medium mb-1.5">{t('auth.fullName')}</label>
-          <Controller
-            name="name"
-            control={control}
-            rules={nameValidationRules}
-            render={({ field }) => (
-              <input
-                {...field}
-                type="text"
-                placeholder={t('auth.fullNamePlaceholder')}
-                className={authInputStyle}
+        <Controller
+          name="name"
+          control={control}
+          rules={nameValidationRules}
+          render={({ field }) => (
+            <input
+              {...field}
+              type="text"
+              placeholder={t('auth.fullNamePlaceholder')}
+              className={authInputStyle}
                 autoComplete="name"
-              />
-            )}
-          />
+            />
+          )}
+        />
         {errors.name && <p className="text-red-600 text-base mt-1">{errors.name.message}</p>}
       </div>
 
@@ -473,20 +473,20 @@ export const RegisterForm: FC<Props> = ({ }) => {
         <label className="block text-base text-black font-medium mb-1.5">{t('auth.password')}</label>
         <div className="flex gap-2">
           <div className="relative flex-1">
-            <Controller
-              name="password"
-              control={control}
-              rules={passwordValidationRules}
-              render={({ field }) => (
-                <input
-                  {...field}
+        <Controller
+          name="password"
+          control={control}
+          rules={passwordValidationRules}
+          render={({ field }) => (
+            <input
+              {...field}
                   type={showPassword ? "text" : "password"}
-                  placeholder={t('auth.passwordPlaceholder')}
+              placeholder={t('auth.passwordPlaceholder')}
                   className={authInputStyle + ' pr-10'}
                   autoComplete="new-password"
-                />
-              )}
             />
+          )}
+        />
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
@@ -523,20 +523,20 @@ export const RegisterForm: FC<Props> = ({ }) => {
       <div className={'mb-6'}>
         <label className="block text-base text-black font-medium mb-1.5">{t('auth.confirmPassword')}</label>
         <div className="relative">
-          <Controller
-            name="confirmPassword"
-            control={control}
-            rules={confirmPasswordValidationRules}
-            render={({ field }) => (
-              <input
-                {...field}
+        <Controller
+          name="confirmPassword"
+          control={control}
+          rules={confirmPasswordValidationRules}
+          render={({ field }) => (
+            <input
+              {...field}
                 type={showConfirmPassword ? "text" : "password"}
-                placeholder={t('auth.confirmPasswordPlaceholder')}
+              placeholder={t('auth.confirmPasswordPlaceholder')}
                 className={authInputStyle + ' pr-10'}
                 autoComplete="new-password"
-              />
-            )}
-          />
+            />
+          )}
+        />
           <button
             type="button"
             onClick={() => setShowConfirmPassword(!showConfirmPassword)}
