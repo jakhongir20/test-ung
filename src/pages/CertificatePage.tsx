@@ -2,8 +2,8 @@ import type { FC, ReactNode } from 'react';
 import { useEffect, useMemo, useState } from 'react';
 import { useParams, useSearchParams } from 'react-router-dom';
 import { QRCodeSVG } from 'qrcode.react';
-import { fetchCertificateData, downloadCertificate, type CertificateData } from '../api/certificate';
-import { useI18n, type LanguageCode } from '../i18n';
+import { type CertificateData, downloadCertificate, fetchCertificateData } from '../api/certificate';
+import { type LanguageCode, useI18n } from '../i18n';
 
 type AxiosErrorLike = {
   response?: {
@@ -59,19 +59,19 @@ const BORDER_DECORATION = (
     preserveAspectRatio="none"
     className="absolute inset-0 w-full h-full pointer-events-none"
   >
-    <rect x="14" y="14" width="372" height="372" fill="none" stroke="#b2b9c9" strokeWidth="4" rx="18" />
-    <rect x="6" y="6" width="388" height="388" fill="none" stroke="#d8dbe2" strokeWidth="2" rx="24" />
+    <rect x="14" y="14" width="372" height="372" fill="none" stroke="#b2b9c9" strokeWidth="4" rx="18"/>
+    <rect x="6" y="6" width="388" height="388" fill="none" stroke="#d8dbe2" strokeWidth="2" rx="24"/>
   </svg>
 );
 
 const DecorativeLabel: FC<{ children: ReactNode; position: 'left' | 'right'; value: string | number; }> = ({
-  children,
-  position,
-  value
-}) => (
+                                                                                                             children,
+                                                                                                             position,
+                                                                                                             value
+                                                                                                           }) => (
   <div
     className={`absolute top-16 text-[#51617a] font-bold tracking-wide flex items-center gap-3 ${position === 'left' ? 'left-16' : 'right-16 flex-row-reverse'
-      }`}
+    }`}
   >
     <span className="text-xl">№</span>
     <span className="text-xl font-bold">{value}</span>
@@ -80,9 +80,9 @@ const DecorativeLabel: FC<{ children: ReactNode; position: 'left' | 'right'; val
 );
 
 const CertificatePage: FC = () => {
-  const { id } = useParams<{ id: string; }>();
+  const {id} = useParams<{ id: string; }>();
   const [searchParams] = useSearchParams();
-  const { t, lang, setLang } = useI18n();
+  const {t, lang, setLang} = useI18n();
   const [certificateData, setCertificateData] = useState<CertificateData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -175,7 +175,8 @@ const CertificatePage: FC = () => {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#f1f4f8]">
         <div className="text-center text-[#51617a]">
-          <div className="animate-spin rounded-full h-10 w-10 border-4 border-[#00A2DE]/60 border-t-[#00A2DE] mx-auto mb-3" />
+          <div
+            className="animate-spin rounded-full h-10 w-10 border-4 border-[#00A2DE]/60 border-t-[#00A2DE] mx-auto mb-3"/>
           <p className="text-lg font-medium">{t('certificate.loading')}</p>
         </div>
       </div>
@@ -188,7 +189,8 @@ const CertificatePage: FC = () => {
         <div className="bg-white shadow-xl rounded-2xl px-12 py-10 text-center max-w-md">
           <div className="w-16 h-16 mx-auto mb-5 bg-red-100 rounded-full flex items-center justify-center text-red-500">
             <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v4m0 4h.01M4.93 4.93l14.14 14.14" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                    d="M12 9v4m0 4h.01M4.93 4.93l14.14 14.14"/>
             </svg>
           </div>
           <h2 className="text-2xl font-semibold text-gray-900 mb-2">{t('certificate.notFound')}</h2>
@@ -214,9 +216,10 @@ const CertificatePage: FC = () => {
 
   return (
     <div className={`min-h-screen bg-[#e5ebf4] flex flex-col items-center ${containerSpacingClass}`}>
-      <div className="relative w-[1120px] max-w-[95vw] aspect-[16/10] bg-white shadow-[0_25px_65px_rgba(25,42,87,0.18)] border border-[#d7dbe4] rounded-[28px]">
+      <div
+        className="relative w-[1120px] max-w-[95vw] aspect-[16/10] bg-white shadow-[0_25px_65px_rgba(25,42,87,0.18)] border border-[#d7dbe4] rounded-[28px]">
         <div className="absolute inset-0">
-          <img src="/certificate_bg.png" alt="" className="w-full h-full object-cover opacity-90" />
+          <img src="/certificate_bg.png" alt="" className="w-full h-full object-cover opacity-90"/>
           {BORDER_DECORATION}
         </div>
 
@@ -230,7 +233,7 @@ const CertificatePage: FC = () => {
 
           <div className="absolute top-16 left-1/2 -translate-x-1/2 text-center">
             <div className="flex items-center gap-4 justify-center text-[#0b5ca8]">
-              <img src="/logo.svg" alt="" className=" h-16" />
+              <img src="/logo.svg" alt="" className=" h-16"/>
             </div>
           </div>
 
@@ -246,11 +249,11 @@ const CertificatePage: FC = () => {
               )}
             </div>
 
-            <div className="text-[#244a74] font-extrabold text-[44px] tracking-[0.08em] uppercase mb-4">
+            <div className="text-[#244a74] text-center font-extrabold text-[24px] tracking-[0.08em] uppercase mb-4">
               {userName}
             </div>
 
-            <div className="text-[#c2271d] font-black text-[62px] tracking-[0.2em] uppercase leading-none mb-4">
+            <div className="text-[#c2271d] font-black text-[56px] tracking-[0.2em] uppercase leading-none mb-4">
               {t('certificate.title')}
             </div>
 
@@ -264,7 +267,8 @@ const CertificatePage: FC = () => {
               <div className="text-[#244a74] font-semibold text-xl tracking-[0.4em] uppercase mb-3">
                 {t('certificate.qrCode')}
               </div>
-              <div className="w-24 h-24 mx-auto bg-white border-2 border-[#ced7e4] rounded-xl shadow-[0_10px_25px_rgba(36,74,116,0.18)] flex items-center justify-center p-2">
+              <div
+                className="w-24 h-24 mx-auto bg-white border-2 border-[#ced7e4] rounded-xl shadow-[0_10px_25px_rgba(36,74,116,0.18)] flex items-center justify-center p-2">
                 {certificateUrl && (
                   <QRCodeSVG
                     value={certificateUrl}
@@ -294,13 +298,14 @@ const CertificatePage: FC = () => {
         >
           {isDownloading ? (
             <>
-              <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+              <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"/>
               {t('certificate.downloading')}
             </>
           ) : (
             <>
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                      d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
               </svg>
               {t('certificate.downloadButton')}
             </>
