@@ -50,44 +50,145 @@ const HlsVideoPlayer: FC<{ playlistUrl: string; fallbackMessage: string; classNa
   className
 }) => {
   const videoRef = useRef<HTMLVideoElement>(null);
-  const [isSupported, setIsSupported] = useState(true);
+  const hlsRef = useRef<Hls | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [hlsReady, setHlsReady] = useState(false);
 
   useEffect(() => {
     const videoElement = videoRef.current;
     if (!videoElement) return;
 
-    let hls: Hls | null = null;
+    // Cleanup previous instance
+    if (hlsRef.current) {
+      hlsRef.current.destroy();
+      hlsRef.current = null;
+    }
 
-    if (videoElement.canPlayType('application/vnd.apple.mpegurl')) {
+    setError(null);
+    setIsLoading(true);
+    setHlsReady(false);
+
+    // Check if browser has native HLS support
+    // Only Safari truly supports native HLS - Chrome returns 'maybe' but can't actually play it
+    const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+    const hasNativeHls = isSafari && videoElement.canPlayType('application/vnd.apple.mpegurl') !== '';
+
+    console.log('Browser info:', {
+      isSafari,
+      hasNativeHls,
+      hlsJsSupported: Hls.isSupported(),
+      userAgent: navigator.userAgent
+    });
+
+    if (hasNativeHls) {
+      // Safari native HLS support
+      console.log('Using native HLS support (Safari)');
       videoElement.src = playlistUrl;
-      setIsSupported(true);
+      setIsLoading(false);
+      setHlsReady(true);
     } else if (Hls.isSupported()) {
-      hls = new Hls();
-      hls.loadSource(playlistUrl);
+      console.log('Using HLS.js');
+      const hls = new Hls({
+        enableWorker: true,
+        lowLatencyMode: false,
+        debug: false,
+        xhrSetup: (xhr) => {
+          xhr.withCredentials = false;
+        },
+      });
+      hlsRef.current = hls;
+
+      hls.on(Hls.Events.MEDIA_ATTACHED, () => {
+        console.log('HLS media attached, loading source...');
+        hls.loadSource(playlistUrl);
+      });
+
+      hls.on(Hls.Events.ERROR, (_event, data) => {
+        console.error('HLS error:', data.type, data.details, data);
+        if (data.fatal) {
+          switch (data.type) {
+            case Hls.ErrorTypes.NETWORK_ERROR:
+              console.error('Fatal network error');
+              setError(`Network error: ${data.details}`);
+              setIsLoading(false);
+              break;
+            case Hls.ErrorTypes.MEDIA_ERROR:
+              console.error('Fatal media error, trying to recover...');
+              hls.recoverMediaError();
+              break;
+            default:
+              setError(`Video error: ${data.details}`);
+              setIsLoading(false);
+              break;
+          }
+        }
+      });
+
+      hls.on(Hls.Events.MANIFEST_PARSED, () => {
+        console.log('HLS manifest parsed successfully');
+        setIsLoading(false);
+        setHlsReady(true);
+      });
+
+      // Attach media first, then load source (via MEDIA_ATTACHED event)
       hls.attachMedia(videoElement);
-      setIsSupported(true);
     } else {
-      setIsSupported(false);
+      console.error('HLS not supported in this browser');
+      setError('HLS video playback is not supported in this browser');
+      setIsLoading(false);
     }
 
     return () => {
-      if (hls) {
-        hls.destroy();
+      if (hlsRef.current) {
+        hlsRef.current.destroy();
+        hlsRef.current = null;
       }
     };
   }, [playlistUrl]);
 
-  if (!isSupported) {
-    return <div className="text-center text-gray-600 text-sm">{fallbackMessage}</div>;
+  if (error) {
+    return (
+      <div className="text-center text-red-600 text-sm p-4 bg-red-50 rounded-lg">
+        {error}
+        <br />
+        <span className="text-xs text-gray-500 break-all">URL: {playlistUrl}</span>
+      </div>
+    );
   }
 
   return (
-    <video
-      ref={videoRef}
-      controls
-      playsInline
-      className={className}
-    />
+    <div className="relative">
+      {isLoading && (
+        <div className="absolute inset-0 flex items-center justify-center bg-gray-900 rounded-lg z-10">
+          <div className="text-white flex items-center gap-2">
+            <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
+              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+            </svg>
+            Loading video...
+          </div>
+        </div>
+      )}
+      <video
+        ref={videoRef}
+        controls
+        playsInline
+        className={className}
+        style={{ minHeight: '200px', backgroundColor: '#000' }}
+        onCanPlay={() => {
+          console.log('Video can play');
+          setIsLoading(false);
+        }}
+        onError={(e) => {
+          // Only show error if HLS.js hasn't taken control
+          if (!hlsReady && !hlsRef.current) {
+            console.error('Video element error:', e.nativeEvent);
+            setError('Failed to load video');
+          }
+        }}
+      />
+    </div>
   );
 };
 
