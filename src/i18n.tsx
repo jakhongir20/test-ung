@@ -394,9 +394,9 @@ const dictionary: Dictionary = {
     ru: 'Скачать сертификат'
   },
   'certificate.downloadMessage': {
-    uz: '{userName} uchun sertifikatni yuklab olishni xohlaysizmi? Bu sertifikat sahifasini yangi tabda ochadi.',
-    'uz-cyrl': '{userName} учун сертификатни юклаб олишни хоҳлайсизми? Бу сертификат саҳифасини янги табда очади.',
-    ru: 'Хотите скачать сертификат для {userName}? Это откроет страницу сертификата в новой вкладке.'
+    uz: '{userName} uchun sertifikatni yuklab olishni xohlaysizmi?',
+    'uz-cyrl': '{userName} учун сертификатни юклаб олишни хоҳлайсизми?',
+    ru: 'Хотите скачать сертификат для {userName}?'
   },
   'certificate.download': {uz: 'Yuklab olish', 'uz-cyrl': 'Юклаб олиш', ru: 'Скачать'},
   'certificate.cancel': {uz: 'Bekor qilish', 'uz-cyrl': 'Бекор қилиш', ru: 'Отмена'},
@@ -897,10 +897,10 @@ const dictionary: Dictionary = {
   },
   'auth.position': {uz: 'Lavozim', 'uz-cyrl': 'Лавозим', ru: 'Должность'},
   'auth.selectPosition': {uz: 'Lavozimni tanlang', 'uz-cyrl': 'Лавозимни танланг', ru: 'Выберите должность'},
-  'auth.branch': {uz: 'Boshqaruv / Bo\'lim', 'uz-cyrl': 'Бошқарув / Бўлим', ru: 'Управление / Отдел'},
+  'auth.branch': {uz: 'Boshqarma / Bo\'lim', 'uz-cyrl': 'Бошқарма / Бўлим', ru: 'Управление / Отдел'},
   'auth.selectBranch': {
-    uz: 'Boshqaruv / Bo\'limni  tanlang',
-    'uz-cyrl': 'Бошқарув / Бўлимни танланг',
+    uz: 'Boshqarma / Bo\'limni  tanlang',
+    'uz-cyrl': 'Бошқарма / Бўлимни танланг',
     ru: 'Выберите управление / отдел'
   },
   'auth.gtf': {uz: 'Tashkilot', 'uz-cyrl': 'Ташкилот', ru: 'Организация'},
@@ -1055,7 +1055,7 @@ const dictionary: Dictionary = {
   // Auth Layout
   'auth.contactSpecialist': {
     uz: 'Mutaxassis bilan bog\'lanish',
-    'uz-cyrl': 'Мутахассис билан богланиш',
+    'uz-cyrl': 'Мутахассис билан боғланиш',
     ru: 'Связь со специалистом'
   },
   'auth.offer': {
