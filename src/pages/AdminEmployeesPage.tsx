@@ -192,8 +192,8 @@ const AdminEmployeesPage: FC = () => {
   const confirmCertificateDownload = () => {
     if (certificateModal.userId) {
       // Open certificate page with user ID and only 'uz-cyrl' language parameter
-      // const langParam = lang === 'uz-cyrl' ? 'uz-cyrl' : lang;
-      window.open(`/certificate/${certificateModal.userId}?lang=${'uz-cyrl'}`, '_blank');
+      const langParam = lang === 'uz-cyrl' ? 'uz-cyrl' : lang;
+      window.open(`/certificate/${certificateModal.userId}?lang=${langParam}`, '_blank');
     }
     setCertificateModal({
       isOpen: false,
@@ -271,28 +271,30 @@ const AdminEmployeesPage: FC = () => {
     {
       key: 'actions',
       title: '',
-      render: (_, user) => (
-        <div className="flex gap-2">
-          <button
-            onClick={() => setSelectedUserId(user.id)}
-            className="inline-flex h-8 w-8 items-center justify-center rounded-lg ring-1 ring-gray-200 hover:bg-gray-50"
-            aria-label={t('admin.aboutEmployee')}
-          >
-            <img src="/icon/eye.svg" alt=""/>
-          </button>
-          <button
-            onClick={() => handleCertificateDownload(user.id, user.name)}
-            className="inline-flex h-8 w-8 items-center justify-center rounded-lg ring-1 ring-gray-200 hover:bg-gray-50"
-            aria-label={t('certificate.downloadTitle')}
-            title={t('certificate.downloadTitle')}
-          >
-            <svg className="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                    d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-            </svg>
-          </button>
-        </div>
-      )
+      render: (_, user) => {
+        return (
+          <div className="flex gap-2">
+            <button
+              onClick={() => setSelectedUserId(user.id)}
+              className="inline-flex h-8 w-8 items-center justify-center rounded-lg ring-1 ring-gray-200 hover:bg-gray-50"
+              aria-label={t('admin.aboutEmployee')}
+            >
+              <img src="/icon/eye.svg" alt=""/>
+            </button>
+            {user?.total_correct_answers > 0 && <button
+              onClick={() => handleCertificateDownload(user.id, user.name)}
+              className="inline-flex h-8 w-8 items-center justify-center rounded-lg ring-1 ring-gray-200 hover:bg-gray-50"
+              aria-label={t('certificate.downloadTitle')}
+              title={t('certificate.downloadTitle')}
+            >
+              <svg className="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                      d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+              </svg>
+            </button>}
+          </div>
+        )
+      }
     }
   ];
 
