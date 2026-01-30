@@ -404,8 +404,10 @@ export const RegisterForm: FC<Props> = ({ }) => {
                 {...field}
                 type="text"
                 placeholder={t('auth.fullNamePlaceholder')}
-                className={authInputStyle}
+                className={authInputStyle + ' bg-gray-50 cursor-not-allowed'}
                 autoComplete="name"
+                disabled
+                readOnly
               />
             )}
           />
