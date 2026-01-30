@@ -243,9 +243,9 @@ const CertificatePage: FC = () => {
                 {t('certificate.successMessage')}
               </p>
               {userPosition && (
-                <p>
+              <p>
                   <span className="font-medium">{userPosition}</span>
-                </p>
+              </p>
               )}
             </div>
 

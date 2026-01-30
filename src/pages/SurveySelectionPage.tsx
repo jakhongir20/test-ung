@@ -332,7 +332,7 @@ const SurveySelectionPage: FC = () => {
               <div className="flex justify-end gap-4">
                 <button
                   onClick={() => navigate('/')}
-                  className="px-6 py-3 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 transition-colors"
+                  className="px-6 py-3 rounded-lg border border-gray-300 text-gray-700 bg-white hover:bg-gray-100 transition-colors"
                 >
                   {t('common.cancel') || 'Cancel'}
                 </button>
