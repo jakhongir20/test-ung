@@ -395,20 +395,22 @@ export const RegisterForm: FC<Props> = ({ }) => {
 
       <div className={'mb-6'}>
         <label className="block text-base text-black font-medium mb-1.5">{t('auth.fullName')}</label>
-        <Controller
-          name="name"
-          control={control}
-          rules={nameValidationRules}
-          render={({ field }) => (
-            <input
-              {...field}
-              type="text"
-              placeholder={t('auth.fullNamePlaceholder')}
-              className={authInputStyle}
+          <Controller
+            name="name"
+            control={control}
+            rules={nameValidationRules}
+            render={({ field }) => (
+              <input
+                {...field}
+                type="text"
+                placeholder={t('auth.fullNamePlaceholder')}
+                className={authInputStyle + ' bg-gray-50 cursor-not-allowed'}
                 autoComplete="name"
-            />
-          )}
-        />
+                disabled
+                readOnly
+              />
+            )}
+          />
         {errors.name && <p className="text-red-600 text-base mt-1">{errors.name.message}</p>}
       </div>
 

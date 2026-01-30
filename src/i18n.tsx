@@ -500,7 +500,7 @@ const dictionary: Dictionary = {
     'uz-cyrl': 'Машқ тестлари вақт билан чекланган, лекин сиз уларни пауза қилишингиз мумкин. Бошқа қурилмада давом этириш учун қайтадан бошлашингиз керак. Биз тўлиқ бўлмаган машқ тестларини 90 кундан кейин ўчирамиз.',
     ru: 'Практические тесты ограничены по времени, но вы можете их приостанавливать. Чтобы продолжить на другом устройстве, вам нужно начать заново. Мы удаляем незавершенные практические тесты через 90 дней.'
   },
-  'rules.scores': {uz: 'Balllar', 'uz-cyrl': 'Балллар', ru: 'Баллы'},
+  'rules.scores': {uz: 'Ballar', 'uz-cyrl': 'Баллар', ru: 'Баллы'},
   'rules.scoresDesc': {
     uz: 'Mashq testini tugatganda, ballaringizni ko\'rish va shaxsiylashtirilgan o\'quv maslahatlarini olish uchun "Mening mashqlarim"ga o\'ting. Biz to\'liq bo\'lmagan mashq testlarini 90 kundan keyin o\'chiramiz.',
     'uz-cyrl': 'Машқ тестини тугатганда, балларингизни кўриш ва шахсийлаштирилган ўқув маслаҳатларини олиш учун "Менинг машқларим"га ўтинг. Биз тўлиқ бўлмаган машқ тестларини 90 кундан кейин ўчирамиз.',
@@ -555,7 +555,7 @@ const dictionary: Dictionary = {
     ru: 'Просмотрите результаты практического теста, углубитесь в свою производительность и изучите свои сильные стороны перед днем теста.'
   },
   'session.personalizedGreeting': {
-    uz: 'Hurmatli {name}, oxirgi topshirgan testdan siz {score} bal to\'pladingiz.',
+    uz: 'Hurmatli {name}, oxirgi topshirgan testdan siz {score} ball to\'pladingiz.',
     'uz-cyrl': 'Ҳурматли {name}, охирги топширган тестдан сиз {score} балл тўпладингиз.',
     ru: 'Уважаемый {name}, за последний сданный тест вы набрали {score} баллов.'
   },
@@ -568,7 +568,7 @@ const dictionary: Dictionary = {
   'session.totalQuestions': {uz: 'Jami savollar', 'uz-cyrl': 'Жами саволлар', ru: 'Всего вопросов'},
   'session.correctAnswers': {uz: 'To\'g\'ri javoblar', 'uz-cyrl': 'Тўғри жавоблар', ru: 'Правильные ответы'},
   'session.incorrectAnswers': {uz: 'Noto\'g\'ri javoblar', 'uz-cyrl': 'Нотўғри жавоблар', ru: 'Неправильные ответы'},
-  'session.scorePoints': {uz: 'Ballar', 'uz-cyrl': 'Баллар', ru: 'Баллы'},
+  'session.scorePoints': {uz: 'Ball', 'uz-cyrl': 'Балл', ru: 'Балл'},
   'session.questions': {uz: 'SAVOLLAR', 'uz-cyrl': 'САВОЛЛАР', ru: 'ВОПРОСЫ'},
   'session.questionTitle': {uz: 'SAVOL MATNI', 'uz-cyrl': 'САВОЛ МАТНИ', ru: 'ТЕКСТ ВОПРОСА'},
   'session.correctAnswer': {uz: 'TO\'G\'RI JAVOB', 'uz-cyrl': 'ТЎҒРИ ЖАВОБ', ru: 'ПРАВИЛЬНЫЙ ОТВЕТ'},

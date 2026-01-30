@@ -101,6 +101,7 @@ const UserSessionDetailsPage: FC = () => {
   const totalQuestions = questions.length;
   const correctAnswers = questions.filter((q: any) => q.answer && q.answer.is_correct).length;
   const incorrectAnswers = totalQuestions - correctAnswers;
+  const sessionScore = session?.score || correctAnswers;
 
   // Use session data for additional statistics
   // Handle both string and number percentage values
@@ -253,7 +254,7 @@ const UserSessionDetailsPage: FC = () => {
               {userData?.name
                 ? t('session.personalizedGreeting', {
                   name: userData.name,
-                  score: correctAnswers
+                  score: sessionScore
                 })
                 : t('session.testDesc')
               }
@@ -276,7 +277,7 @@ const UserSessionDetailsPage: FC = () => {
                   color: 'text-red-600'
                 },
                 {
-                  value: correctAnswers,
+                  value: sessionScore,
                   label: t('session.scorePoints'),
                   color: 'text-purple-600'
                 }
