@@ -294,6 +294,7 @@ const SessionDetailsPage: FC = () => {
   const totalQuestions = questions.length;
   const correctAnswers = questions.filter((q: any) => q.answer && q.answer.is_correct).length;
   const incorrectAnswers = totalQuestions - correctAnswers;
+  const sessionScore = sessionData?.session?.score || correctAnswers;
 
   const getAnswerStatus = (question: any) => {
     if (!question.answer) return { status: 'incorrect', text: t('session.incorrect') };
@@ -458,7 +459,7 @@ const SessionDetailsPage: FC = () => {
               {userData?.name
                 ? t('session.personalizedGreeting', {
                   name: userData.name,
-                  score: correctAnswers
+                  score: sessionScore
                 })
                 : t('session.testDesc')
               }
@@ -481,7 +482,7 @@ const SessionDetailsPage: FC = () => {
                   color: 'text-red-600'
                 },
                 {
-                  value: correctAnswers,
+                  value: sessionScore,
                   label: t('session.scorePoints'),
                   color: 'text-purple-600'
                 }
