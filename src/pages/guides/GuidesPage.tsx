@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useI18n } from '../../i18n';
 import { GUIDES_TREE, findNode } from './guidesData';
-import type { GuideNode, GuideFile } from './guidesData';
+import type { GuideNode, GuideFile, GuideLink } from './guidesData';
 import { PageTransition, FadeIn, StaggeredFadeIn } from '../../components/animations';
 
 const CategoryIcon: FC<{ icon?: string }> = ({ icon }) => {
@@ -86,6 +86,35 @@ const FileCard: FC<{ file: GuideFile; t: (key: string) => string }> = ({ file, t
       </svg>
       <span className="text-xs font-medium">{t('guides.download')}</span>
     </div>
+  </a>
+);
+
+const LinkCard: FC<{ link: GuideLink; index: number }> = ({ link, index }) => (
+  <a
+    href={link.url}
+    target="_blank"
+    rel="noopener noreferrer"
+    className="flex items-start gap-4 p-4 bg-white rounded-xl border border-gray-200 hover:border-[#00A2DE]/40 hover:shadow-md transition-all duration-200 group"
+  >
+    <div className="flex-shrink-0 w-8 h-8 rounded-lg bg-[#00A2DE]/10 flex items-center justify-center text-sm font-semibold text-[#00A2DE]">
+      {index + 1}
+    </div>
+    <div className="flex-1 min-w-0">
+      <h4 className="text-sm font-medium text-gray-800 group-hover:text-[#00A2DE] transition-colors leading-snug">
+        {link.title}
+      </h4>
+      <div className="flex items-center gap-2 mt-1.5">
+        {link.number && (
+          <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-600">
+            {link.number}
+          </span>
+        )}
+        <span className="text-xs text-gray-400">{link.date}</span>
+      </div>
+    </div>
+    <svg className="w-4 h-4 text-gray-400 group-hover:text-[#00A2DE] transition-colors flex-shrink-0 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+    </svg>
   </a>
 );
 
@@ -267,8 +296,17 @@ const GuidesPage: FC = () => {
           </StaggeredFadeIn>
         )}
 
+        {/* Links */}
+        {node.links && (
+          <StaggeredFadeIn direction="bottom" staggerDelay={40} className="flex flex-col gap-3">
+            {node.links.map((link, index) => (
+              <LinkCard key={link.id} link={link} index={index} />
+            ))}
+          </StaggeredFadeIn>
+        )}
+
         {/* Placeholder */}
-        {node.placeholder && !node.children && !node.files && (
+        {node.placeholder && !node.children && !node.files && !node.links && (
           <FadeIn direction="bottom" delay={100}>
             <PlaceholderCard t={t} />
           </FadeIn>
