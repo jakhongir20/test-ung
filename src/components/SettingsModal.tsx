@@ -4,6 +4,7 @@ import { Controller, useForm } from "react-hook-form";
 import { useI18n } from "../i18n";
 import { logout, useUpdateUserProfile } from "../api/auth";
 import { useUsersMeRetrieve } from "../api/generated/respondentWebAPI";
+import { useNavigate } from 'react-router-dom';
 import { useBodyScrollLock } from '../hooks/useBodyScrollLock';
 
 interface Props {
@@ -21,6 +22,7 @@ export const SettingsModal: FC<Props> = ({isOpen, onClose}) => {
   const {t, lang} = useI18n();
   const {data: user} = useUsersMeRetrieve();
   const updateProfile = useUpdateUserProfile();
+  const navigate = useNavigate();
 
   useBodyScrollLock(isOpen);
 
@@ -111,6 +113,11 @@ export const SettingsModal: FC<Props> = ({isOpen, onClose}) => {
   const handleLogout = () => {
     onClose();
     logout();
+  };
+
+  const handleGuidesClick = () => {
+    onClose();
+    navigate('/guides');
   };
 
   if (!isOpen) return null;
@@ -218,8 +225,9 @@ export const SettingsModal: FC<Props> = ({isOpen, onClose}) => {
 
             {/* Useful Guides Link */}
             <div className="mt-4 pt-4 border-t border-gray-200">
-              <a
-                href="/"
+              <button
+                type="button"
+                onClick={handleGuidesClick}
                 className="flex items-center justify-between w-full px-4 py-3 text-base font-medium text-gray-700 bg-gray-50 border border-gray-200 rounded-lg hover:bg-gray-100 hover:border-gray-300 transition-all duration-200"
               >
                 <span className="flex items-center">
@@ -232,7 +240,7 @@ export const SettingsModal: FC<Props> = ({isOpen, onClose}) => {
                 <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7"/>
                 </svg>
-              </a>
+              </button>
             </div>
           </div>
 

@@ -1191,6 +1191,138 @@ const dictionary: Dictionary = {
     'uz-cyrl': 'дақиқа',
     ru: 'мин'
   },
+
+  // Guides Page
+  'guides.title': {
+    uz: 'Foydali qo\'llanmalar',
+    'uz-cyrl': 'Фойдали қўлланмалар',
+    ru: 'Полезные руководства'
+  },
+  'guides.subtitle': {
+    uz: 'Kerakli bo\'limni tanlang',
+    'uz-cyrl': 'Керакли бўлимни танланг',
+    ru: 'Выберите нужный раздел'
+  },
+  'guides.back': {
+    uz: 'Orqaga',
+    'uz-cyrl': 'Орқага',
+    ru: 'Назад'
+  },
+  'guides.home': {
+    uz: 'Bosh sahifa',
+    'uz-cyrl': 'Бош саҳифа',
+    ru: 'Главная'
+  },
+  'guides.placeholder': {
+    uz: 'Havolalar tez orada beriladi',
+    'uz-cyrl': 'Ҳаволалар тез орада берилади',
+    ru: 'Ссылки будут добавлены в ближайшее время'
+  },
+  'guides.download': {
+    uz: 'Yuklab olish',
+    'uz-cyrl': 'Юклаб олиш',
+    ru: 'Скачать'
+  },
+  'guides.cat1.title': {
+    uz: 'Sohaga oid Prezident qarorlari va Vazirlar Mahkamasi qarorlari',
+    'uz-cyrl': 'Соҳага оид Президент қарорлари ва Вазирлар Маҳкамаси қарорлари',
+    ru: 'Указы Президента и постановления Кабинета Министров по отрасли'
+  },
+  'guides.cat1.description': {
+    uz: 'Gaz ta\'minoti sohasiga oid qonunchilik hujjatlari',
+    'uz-cyrl': 'Газ таъминоти соҳасига оид қонунчилик ҳужжатлари',
+    ru: 'Законодательные документы в сфере газоснабжения'
+  },
+  'guides.cat2.title': {
+    uz: '"Hududgazta\'minot" ichki me\'yoriy hujjatlari',
+    'uz-cyrl': '"Ҳудудгазтаъминот" ички меъёрий ҳужжатлари',
+    ru: 'Внутренние нормативные документы "Худудгазтаъминот"'
+  },
+  'guides.cat2.description': {
+    uz: 'Ijro apparati va quyi tizim tashkilotlari hujjatlari',
+    'uz-cyrl': 'Ижро аппарати ва қуйи тизим ташкилотлари ҳужжатлари',
+    ru: 'Документы исполнительного аппарата и подведомственных организаций'
+  },
+  'guides.cat2_1.title': {
+    uz: 'Ijro apparati ichki me\'yoriy hujjatlari',
+    'uz-cyrl': 'Ижро аппарати ички меъёрий ҳужжатлари',
+    ru: 'Внутренние нормативные документы исполнительного аппарата'
+  },
+  'guides.cat2_1.description': {
+    uz: 'Jamoa shartnomasi, ichki tartib qoidalari va boshqa hujjatlar',
+    'uz-cyrl': 'Жамоа шартномаси, ички тартиб қоидалари ва бошқа ҳужжатлар',
+    ru: 'Коллективный договор, внутренние правила и другие документы'
+  },
+  'guides.cat2_1_1.title': {
+    uz: 'Jamoa shartnomasi, Ichki tartib qoidalari va boshqa me\'yoriy hujjatlar',
+    'uz-cyrl': 'Жамоа шартномаси, Ички тартиб қоидалари ва бошқа меъёрий ҳужжатлар',
+    ru: 'Коллективный договор, Внутренние правила и другие нормативные документы'
+  },
+  'guides.cat2_1_2.title': {
+    uz: 'Boshqarma va bo\'limlarining nizomlar',
+    'uz-cyrl': 'Бошқарма ва бўлимларининг низомлар',
+    ru: 'Положения управлений и отделов'
+  },
+  'guides.cat2_1_3.title': {
+    uz: 'Lavozim yo\'riqnomalar',
+    'uz-cyrl': 'Лавозим йўриқномалар',
+    ru: 'Должностные инструкции'
+  },
+  'guides.cat2_2.title': {
+    uz: 'Quyi tizim tashkilotlarining namunaviy hujjatlari',
+    'uz-cyrl': 'Қуйи тизим ташкилотларининг намунавий ҳужжатлари',
+    ru: 'Типовые документы подведомственных организаций'
+  },
+  'guides.cat2_2.description': {
+    uz: 'Namunaviy nizomlar va lavozim yo\'riqnomalari',
+    'uz-cyrl': 'Намунавий низомлар ва лавозим йўриқномалари',
+    ru: 'Типовые положения и должностные инструкции'
+  },
+  'guides.cat2_2_1.title': {
+    uz: 'Bo\'lim va xizmatlarning namunaviy nizomlar',
+    'uz-cyrl': 'Бўлим ва хизматларнинг намунавий низомлар',
+    ru: 'Типовые положения отделов и служб'
+  },
+  'guides.cat2_2_2.title': {
+    uz: 'Namunaviy lavozim yo\'riqnomalar',
+    'uz-cyrl': 'Намунавий лавозим йўриқномалар',
+    ru: 'Типовые должностные инструкции'
+  },
+  'guides.cat3.title': {
+    uz: 'Sohaga oid o\'quv-uslubiy qo\'llanmalar',
+    'uz-cyrl': 'Соҳага оид ўқув-услубий қўлланмалар',
+    ru: 'Учебно-методические пособия по отрасли'
+  },
+  'guides.cat3.description': {
+    uz: 'O\'quv materiallari va taqdimotlar',
+    'uz-cyrl': 'Ўқув материаллари ва тақдимотлар',
+    ru: 'Учебные материалы и презентации'
+  },
+  'guides.file1.title': {
+    uz: 'Davlat kadastrlari yagona tizimi bo\'yicha taqdimot',
+    'uz-cyrl': 'Давлат кадастрлари ягона тизими бўйича тақдимот',
+    ru: 'Презентация по единой системе государственных кадастров'
+  },
+  'guides.file2.title': {
+    uz: 'Mehnat muhofazasi bo\'yicha o\'qitish dasturi',
+    'uz-cyrl': 'Меҳнат муҳофазаси бўйича ўқитиш дастури',
+    ru: 'Программа обучения по охране труда'
+  },
+  'guides.file3.title': {
+    uz: 'O\'zbekiston Respublikasining "Xavfli ishlab chiqarish obyektlarining xavfsizligi to\'g\'risida"gi Qonuni',
+    'uz-cyrl': 'Ўзбекистон Республикасининг "Хавфли ишлаб чиқариш объектларининг хавфсизлиги тўғрисида"ги Қонуни',
+    ru: 'Закон Республики Узбекистан "О безопасности опасных производственных объектов"'
+  },
+  'guides.file4.title': {
+    uz: 'Texnogen xavf yuqori bo\'lgan zonalar davlat kadastri bo\'yicha taqdimot',
+    'uz-cyrl': 'Технoген хавф юқори бўлган зоналар давлат кадастри бўйича тақдимот',
+    ru: 'Презентация по государственному кадастру зон повышенной техногенной опасности'
+  },
+  'guides.file5.title': {
+    uz: 'Turmushda gazdan xavfsiz foydalanish',
+    'uz-cyrl': 'Турмушда газдан хавфсиз фойдаланиш',
+    ru: 'Безопасное использование газа в быту'
+  },
 };
 
 type I18nContextValue = {

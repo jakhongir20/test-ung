@@ -20,6 +20,7 @@ import AuthLayout from './layouts/AuthLayout.tsx';
 import CertificateLayout from './layouts/CertificateLayout.tsx';
 import ProfileCompletionPage from "./pages/ProfileCompletionPage.tsx";
 import SurveySelectionPage from "./pages/SurveySelectionPage.tsx";
+import GuidesPage from "./pages/guides/GuidesPage.tsx";
 
 const router = createBrowserRouter([
   {
@@ -79,6 +80,13 @@ const router = createBrowserRouter([
         path: 'session/:id', element: (
           <ProtectedRoute>
             <SessionDetailsPage />
+          </ProtectedRoute>
+        )
+      },
+      {
+        path: 'guides', element: (
+          <ProtectedRoute>
+            <GuidesPage />
           </ProtectedRoute>
         )
       }
