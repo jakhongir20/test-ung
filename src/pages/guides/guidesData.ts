@@ -291,6 +291,18 @@ export const GUIDES_TREE: GuideNode[] = [
         fileName: 'turmushda-gazdan-xavfsiz-foydalanish.pptx',
         fileType: 'pptx',
       },
+      {
+        id: 'file6',
+        titleKey: 'guides.file6.title',
+        fileName: 'Газ_тўлдириш_станциялари_ва_шохобчалари_ходимлари_учун_техник_хавфсизлиги.pdf',
+        fileType: 'pdf',
+      },
+      {
+        id: 'file7',
+        titleKey: 'guides.file7.title',
+        fileName: 'Газ_тўлдириш_станциялари_ва_шохобчалари_ходимлари_учун_ўқув_дастури.pdf',
+        fileType: 'pdf',
+      },
     ],
   },
 ];

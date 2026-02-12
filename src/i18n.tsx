@@ -1323,6 +1323,16 @@ const dictionary: Dictionary = {
     'uz-cyrl': 'Турмушда газдан хавфсиз фойдаланиш',
     ru: 'Безопасное использование газа в быту'
   },
+  'guides.file6.title': {
+    uz: 'Gaz to\'ldirish stantsiyalari va shoxobchalari xodimlari uchun texnik xavfsizligi',
+    'uz-cyrl': 'Газ тўлдириш станциялари ва шохобчалари ходимлари учун техник хавфсизлиги',
+    ru: 'Техническая безопасность для сотрудников газонаполнительных станций и отделений'
+  },
+  'guides.file7.title': {
+    uz: 'Gaz to\'ldirish stantsiyalari va shoxobchalari xodimlari uchun o\'quv dasturi',
+    'uz-cyrl': 'Газ тўлдириш станциялари ва шохобчалари ходимлари учун ўқув дастури',
+    ru: 'Учебная программа для сотрудников газонаполнительных станций и отделений'
+  },
 };
 
 type I18nContextValue = {
