@@ -1233,6 +1233,16 @@ const dictionary: Dictionary = {
     'uz-cyrl': 'Қайта уриниш',
     ru: 'Повторить'
   },
+  'guides.view': {
+    uz: 'Ko\'rish',
+    'uz-cyrl': 'Кўриш',
+    ru: 'Просмотр'
+  },
+  'guides.close': {
+    uz: 'Yopish',
+    'uz-cyrl': 'Ёпиш',
+    ru: 'Закрыть'
+  },
 };
 
 type I18nContextValue = {
