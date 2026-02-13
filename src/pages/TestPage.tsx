@@ -436,19 +436,17 @@ const TestPage: FC = () => {
     setTextAnswers((prev) => ({ ...prev, [order]: value }));
   }
 
-  const MAX_WARNING_ATTEMPTS = 8;
-
-
-  useEffect(() => {
-    if (faceViolationCount >= MAX_WARNING_ATTEMPTS) {
-      finishTest().then(() => {
-        setFaceViolationCount(0);
-      }).catch((error) => {
-        console.error('Error finishing test:', error);
-      });
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [faceViolationCount]);
+  // Violation limit kick-out disabled — detection only
+  // const MAX_WARNING_ATTEMPTS = 8;
+  // useEffect(() => {
+  //   if (faceViolationCount >= MAX_WARNING_ATTEMPTS) {
+  //     finishTest().then(() => {
+  //       setFaceViolationCount(0);
+  //     }).catch((error) => {
+  //       console.error('Error finishing test:', error);
+  //     });
+  //   }
+  // }, [faceViolationCount]);
 
 
 

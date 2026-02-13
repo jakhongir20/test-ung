@@ -298,14 +298,13 @@ export const FaceMonitoring: FC<FaceMonitoringProps> = ({
     }
   }, [referenceDescriptor]);
 
-  // Handle server-side termination
-  useEffect(() => {
-    if (shouldTerminate) {
-
-      setIsMonitoring(false);
-      onTestTerminated();
-    }
-  }, [shouldTerminate, onTestTerminated]);
+  // Server-side termination disabled — detection only
+  // useEffect(() => {
+  //   if (shouldTerminate) {
+  //     setIsMonitoring(false);
+  //     onTestTerminated();
+  //   }
+  // }, [shouldTerminate, onTestTerminated]);
 
   // Update violation alert when server count changes
   useEffect(() => {
@@ -315,17 +314,15 @@ export const FaceMonitoring: FC<FaceMonitoringProps> = ({
     }
   }, [serverViolationCount, showViolationAlert]);
 
-  // Check for max warnings (3) and show modal, and navigate to main page
-  useEffect(() => {
-    if (serverViolationCount >= maxWarnings && !showMaxWarningsModal) {
-      console.log(`⚠️ Face Monitoring: Maximum warnings (${maxWarnings}) reached. Terminating test.`);
-      setShowMaxWarningsModal(true);
-      setIsMonitoring(false);
-      onTestTerminated();
-      // Navigate to main page immediately
-      navigate('/', { replace: true });
-    }
-  }, [serverViolationCount, maxWarnings, showMaxWarningsModal, onTestTerminated, navigate]);
+  // Max warnings termination disabled — detection only
+  // useEffect(() => {
+  //   if (serverViolationCount >= maxWarnings && !showMaxWarningsModal) {
+  //     setShowMaxWarningsModal(true);
+  //     setIsMonitoring(false);
+  //     onTestTerminated();
+  //     navigate('/', { replace: true });
+  //   }
+  // }, [serverViolationCount, maxWarnings, showMaxWarningsModal, onTestTerminated, navigate]);
 
   // Page Visibility API detection
   // Load face-api.js models
