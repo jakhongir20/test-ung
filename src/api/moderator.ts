@@ -1,4 +1,4 @@
-import { useModeratorUsersList, useModeratorUsersRetrieve } from './generated/respondentWebAPI';
+import { useModeratorUsersList, useModeratorUsersRetrieve, useModeratorSurveysList } from './generated/respondentWebAPI';
 import { useQuery } from '@tanstack/react-query';
 import { customInstance } from './mutator/custom-instance';
 
@@ -7,10 +7,20 @@ export function useModeratorUsers(params?: {
   position?: string;
   search?: string;
   status?: string;
+  survey?: number;
 }) {
-  return useModeratorUsersList(params, {
+  return useModeratorUsersList(params as any, {
     query: {
       enabled: true,
+      retry: 1,
+      retryDelay: 1000
+    }
+  });
+}
+
+export function useModeratorSurveys() {
+  return useModeratorSurveysList({
+    query: {
       retry: 1,
       retryDelay: 1000
     }

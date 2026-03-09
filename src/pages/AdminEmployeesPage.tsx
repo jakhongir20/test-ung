@@ -1,6 +1,6 @@
 import type { FC } from 'react';
 import { useMemo, useState } from 'react';
-import { useModeratorUserDetails, useModeratorUsers } from '../api/moderator';
+import { useModeratorUserDetails, useModeratorUsers, useModeratorSurveys } from '../api/moderator';
 import { useI18n } from '../i18n';
 import { customInstance } from '../api/mutator/custom-instance';
 import type { Column } from "../components/DataTable.tsx";
@@ -18,6 +18,7 @@ import { useDebounce } from '../hooks/useDebounce';
 const AdminEmployeesPage: FC = () => {
   const {t, lang} = useI18n();
   const [testStatus, setTestStatus] = useState<string>('');
+  const [selectedSurvey, setSelectedSurvey] = useState<string>('');
   const [isExporting, setIsExporting] = useState(false);
   const [isExportingOrganizations, setIsExportingOrganizations] = useState(false);
   const [search, setSearch] = useState<string>('');
@@ -42,10 +43,14 @@ const AdminEmployeesPage: FC = () => {
   const queryParams = useMemo(() => ({
     search: debouncedSearch || undefined,
     status: testStatus || undefined,
-  }), [debouncedSearch, testStatus]);
+    survey: selectedSurvey ? Number(selectedSurvey) : undefined,
+  }), [debouncedSearch, testStatus, selectedSurvey]);
 
   // Fetch users list
   const usersQuery = useModeratorUsers(queryParams);
+
+  // Fetch surveys list for filter dropdown
+  const surveysQuery = useModeratorSurveys();
   const usersData = usersQuery.data as any;
   const users = usersData?.results || usersData || [];
 
@@ -111,6 +116,10 @@ const AdminEmployeesPage: FC = () => {
         exportParams.status = testStatus;
       }
 
+      if (selectedSurvey) {
+        exportParams.survey = selectedSurvey;
+      }
+
       const response = await customInstance<Blob>({
         method: 'GET',
         url: '/api/moderator/users/export/',
@@ -154,6 +163,10 @@ const AdminEmployeesPage: FC = () => {
 
       if (testStatus) {
         exportParams.status = testStatus;
+      }
+
+      if (selectedSurvey) {
+        exportParams.survey = selectedSurvey;
       }
 
       const response = await customInstance<Blob>({
@@ -530,6 +543,16 @@ const AdminEmployeesPage: FC = () => {
                     <option value="">{t('admin.allStatuses')}</option>
                     {(['refunded', 'passed', 'failed'] as const).map((s) => (
                       <option key={s} value={s}>{t(`status.${s}` as any)}</option>
+                    ))}
+                  </select>
+                  <select
+                    value={selectedSurvey}
+                    onChange={(e) => setSelectedSurvey(e.target.value)}
+                    className="w-full px-4 py-2 rounded-lg border border-gray-300 bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 cursor-pointer"
+                  >
+                    <option value="">{t('admin.allSurveys')}</option>
+                    {((surveysQuery.data as any) || []).flat().map((survey: any) => (
+                      <option key={survey.id} value={survey.id}>{survey.title}</option>
                     ))}
                   </select>
                 </div>
