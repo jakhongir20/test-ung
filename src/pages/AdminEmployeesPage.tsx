@@ -419,7 +419,7 @@ const AdminEmployeesPage: FC = () => {
                           <div className="rounded-xl ring-1 ring-gray-200 p-3 text-center">
                             <div className="text-xs text-gray-500">{t('admin.completedTests')}</div>
                             <div className="text-2xl font-bold text-cyan-700">
-                              {String(selectedUser.total_statistics?.completed_surveys || 0)}
+                              {String(selectedUser.total_statistics?.passed_attempts || 0)}
                             </div>
                           </div>
                           <div className="rounded-xl ring-1 ring-gray-200 p-3 text-center">
