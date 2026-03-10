@@ -379,6 +379,7 @@ const dictionary: Dictionary = {
   'admin.allBranches': {uz: 'Barcha GTFlar', 'uz-cyrl': 'Барча ГТФлар', ru: 'Все ГТФ'},
   'admin.allPositions': {uz: 'Barcha lavozimlar', 'uz-cyrl': 'Барча лавозимлар', ru: 'Все должности'},
   'admin.allStatuses': {uz: 'Barcha holatlar', 'uz-cyrl': 'Барча ҳолатлар', ru: 'Все статусы'},
+  'admin.allSurveys': {uz: 'Barcha testlar', 'uz-cyrl': 'Барча тестлар', ru: 'Все тесты'},
   'admin.previous': {uz: 'Oldingi', 'uz-cyrl': 'Олдинги', ru: 'Предыдущий'},
   'admin.next': {uz: 'Keyingi', 'uz-cyrl': 'Кейинги', ru: 'Следующий'},
   'admin.showingResults': {

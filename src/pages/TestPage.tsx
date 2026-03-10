@@ -121,7 +121,6 @@ const TestPage: FC = () => {
 
   // Face monitoring state
   const [isFaceMonitoringActive, setIsFaceMonitoringActive] = useState(false);
-  const [faceViolationCount, setFaceViolationCount] = useState(0);
 
   // Get current question using the navigation endpoint - only call when we have valid data
   const questionQuery = useGetQuestion(sessionId, current ?? undefined);
@@ -228,9 +227,9 @@ const TestPage: FC = () => {
   }, [current, isExpired, sessionId]);
 
   // Face monitoring handlers
-  const handleFaceViolation = (violationType: 'no_face' | 'multiple_faces' | 'face_lost' | 'tab_switched' | 'face_mismatch') => {
-
-    setFaceViolationCount(prev => prev + 1);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const handleFaceViolation = (_violationType: 'no_face' | 'multiple_faces' | 'face_lost' | 'tab_switched' | 'face_mismatch') => {
+    // Violation count is tracked by the server via survey settings
   };
 
   const handleTestTermination = async () => {
@@ -435,20 +434,6 @@ const TestPage: FC = () => {
   function handleTextChange(value: string) {
     setTextAnswers((prev) => ({ ...prev, [order]: value }));
   }
-
-  // Violation limit kick-out disabled — detection only
-  // const MAX_WARNING_ATTEMPTS = 8;
-  // useEffect(() => {
-  //   if (faceViolationCount >= MAX_WARNING_ATTEMPTS) {
-  //     finishTest().then(() => {
-  //       setFaceViolationCount(0);
-  //     }).catch((error) => {
-  //       console.error('Error finishing test:', error);
-  //     });
-  //   }
-  // }, [faceViolationCount]);
-
-
 
   const [isFinishing, setIsFinishing] = useState(false);
 
