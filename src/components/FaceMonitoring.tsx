@@ -21,8 +21,7 @@ interface FaceMonitoringProps {
 interface ViolationAlertProps {
   isOpen: boolean;
   violationType: 'no_face' | 'multiple_faces' | 'face_lost' | 'tab_switched' | 'face_mismatch';
-  attemptCount: number;
-  maxAttempts: number;
+  shouldTerminate: boolean;
   onClose: () => void;
 }
 
@@ -118,18 +117,14 @@ const MaxWarningsModal: FC<MaxWarningsModalProps> = ({
 const ViolationAlert: FC<ViolationAlertProps> = ({
   isOpen,
   violationType,
-  attemptCount,
-  maxAttempts,
+  shouldTerminate,
   onClose
 }) => {
   const { t } = useI18n();
 
   useBodyScrollLock(isOpen);
 
-  // Debug the values being passed to the alert
-  console.log(`🔍 Face Monitoring Alert: isOpen=${isOpen}, violationType=${violationType}, attemptCount=${attemptCount}, maxAttempts=${maxAttempts}`);
-
-  const isLastAttempt = attemptCount >= maxAttempts;
+  const isLastAttempt = shouldTerminate;
   const autoCloseSeconds = 5;
   const [remainingSeconds, setRemainingSeconds] = useState<number>(autoCloseSeconds);
 
@@ -270,8 +265,6 @@ export const FaceMonitoring: FC<FaceMonitoringProps> = ({
   const [showMaxWarningsModal, setShowMaxWarningsModal] = useState(false);
   const [currentViolationType, setCurrentViolationType] = useState<'no_face' | 'multiple_faces' | 'face_lost' | 'tab_switched' | 'face_mismatch'>('no_face');
   const [lastViolationTime, setLastViolationTime] = useState<number>(0);
-  const maxViolations = 3;
-  const maxWarnings = 8; // Maximum warnings before termination
   const violationCooldown = 1500; // shorter cooldown between violations for faster feedback
   const hiddenTabCheckInterval = 1500; // how often to re-check hidden tab violations
   const faceMismatchThreshold = 0.58; // Euclidean distance threshold for face mismatch detection
@@ -298,14 +291,6 @@ export const FaceMonitoring: FC<FaceMonitoringProps> = ({
     }
   }, [referenceDescriptor]);
 
-  // Server-side termination disabled — detection only
-  // useEffect(() => {
-  //   if (shouldTerminate) {
-  //     setIsMonitoring(false);
-  //     onTestTerminated();
-  //   }
-  // }, [shouldTerminate, onTestTerminated]);
-
   // Update violation alert when server count changes
   useEffect(() => {
     if (serverViolationCount > 0 && !showViolationAlert) {
@@ -313,16 +298,6 @@ export const FaceMonitoring: FC<FaceMonitoringProps> = ({
       setShowViolationAlert(true);
     }
   }, [serverViolationCount, showViolationAlert]);
-
-  // Max warnings termination disabled — detection only
-  // useEffect(() => {
-  //   if (serverViolationCount >= maxWarnings && !showMaxWarningsModal) {
-  //     setShowMaxWarningsModal(true);
-  //     setIsMonitoring(false);
-  //     onTestTerminated();
-  //     navigate('/', { replace: true });
-  //   }
-  // }, [serverViolationCount, maxWarnings, showMaxWarningsModal, onTestTerminated, navigate]);
 
   // Page Visibility API detection
   // Load face-api.js models
@@ -996,8 +971,7 @@ export const FaceMonitoring: FC<FaceMonitoringProps> = ({
       <ViolationAlert
         isOpen={showViolationAlert}
         violationType={currentViolationType}
-        attemptCount={serverViolationCount}
-        maxAttempts={maxViolations}
+        shouldTerminate={shouldTerminate}
         onClose={handleViolationAlertClose}
       />
 
