@@ -28,15 +28,18 @@ React + TypeScript + Vite application for an employee testing/certification plat
 - **React Router v7** (createBrowserRouter) for routing
 - **Orval 7** for generating React Query hooks from OpenAPI spec
 - **react-hook-form** for form handling
+- **@headlessui/react** + **@heroicons/react** for UI primitives and icons
 - **face-api.js** for face verification during tests
+- **hls.js** for HLS video streaming in guides page
 
 ### Key Files & Patterns
 
 **API Layer** (`src/api/`):
 - `config.ts` — `BASE_URL` from `VITE_PUBLIC_API_URL` env var (defaults to `https://api.malaka.hududgaz.uz`)
-- `generated/` — **DO NOT EDIT** — Orval auto-generates `respondentWebAPI.ts` and `models/` from `swagger.json`. Orval config in `orval.config.cjs` uses `react-query` client mode with `customInstance` mutator
+- `generated/` — **DO NOT EDIT** — Orval auto-generates `respondentWebAPI.ts` and `models/` from `swagger.json`. Orval config in `orval.config.cjs` uses `react-query` client mode with `customInstance` mutator. Swagger source: `https://api.savollar.leetcode.uz/api/schema/?format=json`
 - `mutator/custom-instance.ts` — Axios instance with request interceptor (adds JWT Bearer token + Accept-Language header) and response interceptor (automatic 401 → token refresh with queued retry, redirects to `/login` on refresh failure)
 - `auth.ts` — Auth hooks (`useLogin`, `usePasswordLogin`, `useRegister`, `useSendOtp`, `useRefresh`, `useUpdateUserProfile`) and `tokenStorage` helper for JWT access/refresh in localStorage. Also exports `logout()` and `handleAuthError()`
+- `moderator.ts` — Wrapper hooks for moderator/admin API endpoints (`useModeratorUsers`, `useModeratorSurveys`, `useModeratorUserDetails`)
 
 **Authentication Flow**:
 1. Login via OTP (`/login` → `/otp`) or password (`/login`)
@@ -46,10 +49,11 @@ React + TypeScript + Vite application for an employee testing/certification plat
 5. Custom axios instance auto-refreshes expired tokens and queues concurrent failing requests
 
 **Routing** (defined in `src/main.tsx`):
-- Main app routes under `<App>` → `<MainLayout>` (Header + Outlet): `/` (profile), `/test`, `/surveys/select`, `/session/:id`, `/rules`, `/guides`, `/admin/employees`, `/admin/create-candidate`
+- Main app routes under `<App>` → `<MainLayout>` (Header + Outlet): `/` (profile), `/myprofile`, `/test`, `/surveys/select`, `/session/:id`, `/rules`, `/guides`, `/admin/employees`, `/admin/create-candidate`
 - Auth routes under `<AuthLayout>`: `/login`, `/register`, `/otp`, `/profile-completion`
 - Certificate route under `<CertificateLayout>`: `/certificate/:id`
 - All main app routes are wrapped with `<ProtectedRoute>`
+- Admin routes (`/admin/*`) use moderator API endpoints; access is gated by `user.is_moderator` flag
 
 **i18n** (`src/i18n.tsx`):
 - Large inline dictionary object with keys like `'profile.title'`, `'test.submit'`
@@ -59,13 +63,20 @@ React + TypeScript + Vite application for an employee testing/certification plat
 
 **State Management**:
 - Server state: TanStack Query (via Orval-generated hooks from `src/api/generated/`)
-- Client state: `useAuthStore` (Zustand with `persist` middleware, stored as `auth-user` in localStorage)
+- Client state: `useAuthStore` (Zustand with `persist` middleware, stored as `auth-user` in localStorage) in `src/stores/authStore.ts`
+- `AuthUser` type includes `is_moderator` flag that controls admin route visibility
 
 **Components** (`src/components/`):
 - Barrel export in `src/components/index.ts` for shared components (Header, BackgroundWrapper, animations, FaceVerificationModal, FaceMonitoring)
 - `auth/` — form components (LoginForm, RegisterForm, OtpForm, ProfileCompletionForm, FieldForm, FormButton, FormContainer)
 - `test/` — test-taking UI (QuestionCard, QuestionNavigator, CachedTimer, ProgressBar)
+- Reusable shared components: `DataTable`, `StatusBadge`, `ConfirmationModal`, `SettingsModal`, `LoadingSvg`
+
+**Custom Hooks** (`src/hooks/`):
+- `useDebounce` — debounced value hook (used in admin search)
+- `useBodyScrollLock` — locks body scroll when modals are open
+- `useRandomBackground` — random background selection for auth pages
 
 ### Environment Variables
 
-- `VITE_PUBLIC_API_URL` — Backend API base URL (required for production, defaults to dev server for local development)
+- `VITE_PUBLIC_API_URL` — Backend API base URL (required for production, defaults to `https://api.malaka.hududgaz.uz` for local development)
