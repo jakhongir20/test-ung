@@ -1,9 +1,10 @@
 import type { FC } from 'react';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useI18n } from '../i18n';
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useCurrentSession, useMyHistory } from '../api/surveys';
 import { handleAuthError } from '../api/auth';
+import { useSessionsAllAnswersRetrieve } from '../api/generated/respondentWebAPI';
 import { MyProfileBanner } from "../components/MyProfileBanner.tsx";
 import { ProfileCardItem } from "../components/ProfileCardItem.tsx";
 import { BackgroundWrapper } from "../components/BackgroundWrapper.tsx";
@@ -82,6 +83,22 @@ const ProfilePage: FC = () => {
   const historyData = myHistory.data as Session[] | undefined;
   const surveyHistory = historyData || [];
 
+  // Get the last completed session for stats
+  const lastCompletedSession = surveyHistory.find((s: Session) => s.status === 'completed');
+
+  // Fetch all answers for the last completed session
+  const lastSessionAnswersQuery = useSessionsAllAnswersRetrieve(
+    lastCompletedSession?.id ?? '',
+    { query: { enabled: !!lastCompletedSession?.id } }
+  );
+
+  // Calculate statistics for last completed session
+  const lastSessionQuestions = (lastSessionAnswersQuery.data as any)?.questions || [];
+  const lastTotalQuestions = lastSessionQuestions.length;
+  const lastCorrectAnswers = lastSessionQuestions.filter((q: any) => q.answer && q.answer.is_correct).length;
+  const lastIncorrectAnswers = lastTotalQuestions - lastCorrectAnswers;
+  const lastSessionScore = lastCompletedSession?.score || lastCorrectAnswers;
+
   const handleStartTest = async () => {
     // Navigate to survey selection page instead of directly starting survey
     navigate('/surveys/select');
@@ -143,6 +160,55 @@ const ProfilePage: FC = () => {
             <MyProfileBanner />
           </FadeIn>
 
+
+          {lastCompletedSession && lastSessionQuestions.length > 0 && (
+            <FadeIn delay={150}>
+              <section className="p-4 md:p-8 bg-[#F8FAFC] border border-[#F1F5F9] rounded-[16px]">
+                <h2 className="text-lg md:text-2xl font-bold text-gray-900 mb-6">
+                  {user?.name
+                    ? t('session.personalizedGreeting', {
+                        name: user.name,
+                        score: lastSessionScore
+                      })
+                    : t('session.testDesc')
+                  }
+                </h2>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  {[
+                    {
+                      value: lastTotalQuestions,
+                      label: t('session.totalQuestions'),
+                      color: 'text-[#00A2DE]'
+                    },
+                    {
+                      value: lastCorrectAnswers,
+                      label: t('session.correctAnswers'),
+                      color: 'text-green-600'
+                    },
+                    {
+                      value: lastIncorrectAnswers,
+                      label: t('session.incorrectAnswers'),
+                      color: 'text-red-600'
+                    },
+                    {
+                      value: lastSessionScore,
+                      label: t('session.scorePoints'),
+                      color: 'text-purple-600'
+                    }
+                  ].map((stat, idx) => (
+                    <div className="bg-white border border-[#E2E8F0] rounded-xl p-6" key={idx}>
+                      <div className={`text-3xl font-medium mb-2 ${stat.color}`}>
+                        {stat.value}
+                      </div>
+                      <div className="text-[#334155] text-[18px] font-medium">
+                        {stat.label}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </section>
+            </FadeIn>
+          )}
 
           <FadeIn delay={200}>
             <section

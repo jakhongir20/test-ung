@@ -43,7 +43,7 @@ const API_URL = '/api/resources/';
 export const resourcesAPI = {
   // Получить список всех ресурсов
   getAll: async (params?: { resource_type?: string; search?: string }) => {
-    const response = await axios.get<UsefulResource[]>(API_URL, { params });
+    const response = await axios.get<UsefulResource[]>(API_URL, {params});
     return response.data;
   },
 
@@ -114,7 +114,7 @@ export const resourcesAPI = {
   move: async (id: number, targetId: number, position: string = 'last-child') => {
     const response = await axios.post<UsefulResource>(
       `${API_URL}${id}/move/`,
-      { target_id: targetId, position }
+      {target_id: targetId, position}
     );
     return response.data;
   },
@@ -157,7 +157,7 @@ export const useResourceTree = () => {
     loadTree();
   }, []);
 
-  return { tree, loading, error, reload: loadTree };
+  return {tree, loading, error, reload: loadTree};
 };
 
 export const useResourceChildren = (parentId?: number) => {
@@ -170,7 +170,7 @@ export const useResourceChildren = (parentId?: number) => {
       setChildren(roots);
       return;
     }
-    
+
     setLoading(true);
     try {
       const data = await resourcesAPI.getChildren(parentId);
@@ -184,7 +184,7 @@ export const useResourceChildren = (parentId?: number) => {
     loadChildren();
   }, [parentId]);
 
-  return { children, loading, reload: loadChildren };
+  return {children, loading, reload: loadChildren};
 };
 ```
 
@@ -203,16 +203,20 @@ interface TreeNodeProps {
   onUpdate?: () => void;
 }
 
-const TreeNodeComponent: React.FC<TreeNodeProps> = ({ node, level = 0, onUpdate }) => {
+const TreeNodeComponent: React.FC<TreeNodeProps> = ({node, level = 0, onUpdate}) => {
   const [expanded, setExpanded] = useState(false);
   const [loading, setLoading] = useState(false);
 
   const getIcon = () => {
     switch (node.resource_type) {
-      case 'folder': return expanded ? '📂' : '📁';
-      case 'link': return '🔗';
-      case 'file': return '📄';
-      default: return '📌';
+      case 'folder':
+        return expanded ? '📂' : '📁';
+      case 'link':
+        return '🔗';
+      case 'file':
+        return '📄';
+      default:
+        return '📌';
     }
   };
 
@@ -242,57 +246,84 @@ const TreeNodeComponent: React.FC<TreeNodeProps> = ({ node, level = 0, onUpdate 
   };
 
   return (
-    <div className="tree-node">
-      <div
-        className="tree-node-content"
-        style={{ paddingLeft: `${level * 20}px` }}
-        onClick={handleClick}
-      >
-        <span className="icon">{getIcon()}</span>
-        <span className="title">{node.title}</span>
-        {node.description && (
-          <span className="description">{node.description}</span>
-        )}
-        <button onClick={handleDelete} disabled={loading}>
+    <div className = "tree-node" >
+    <div
+      className = "tree-node-content"
+  style = {
+  {
+    paddingLeft: `${level * 20}px`
+  }
+}
+  onClick = {handleClick}
+  >
+  <span className = "icon" > {getIcon()} < /span>
+    < span
+  className = "title" > {node.title} < /span>
+  {
+    node.description && (
+      <span className = "description" > {node.description} < /span>
+    )
+  }
+  <button onClick = {handleDelete}
+  disabled = {loading} >
           🗑️
         </button>
-      </div>
-      
-      {expanded && node.children && node.children.length > 0 && (
-        <div className="tree-node-children">
-          {node.children.map(child => (
+        < /div>
+
+  {
+    expanded && node.children && node.children.length > 0 && (
+      <div className = "tree-node-children" >
+        {
+          node.children.map(child => (
             <TreeNodeComponent
-              key={child.id}
-              node={child}
-              level={level + 1}
-              onUpdate={onUpdate}
-            />
-          ))}
-        </div>
-      )}
+              key = {child.id}
+          node = {child}
+          level = {level +1}
+          onUpdate = {onUpdate}
+    />
+  ))
+  }
     </div>
-  );
+  )
+  }
+  </div>
+)
+  ;
 };
 
 export const ResourceTree: React.FC = () => {
-  const { tree, loading, error, reload } = useResourceTree();
+  const {tree, loading, error, reload} = useResourceTree();
 
-  if (loading) return <div>Загрузка...</div>;
-  if (error) return <div>Ошибка: {error}</div>;
+  if (loading) return <div>Загрузка
+...
+  </div>;
+  if (error) return <div>Ошибка
+:
+  {
+    error
+  }
+  </div>;
 
   return (
-    <div className="resource-tree">
-      <div className="resource-tree-header">
-        <h2>Полезные ресурсы</h2>
-        <button onClick={reload}>🔄 Обновить</button>
-      </div>
-      <div className="resource-tree-content">
-        {tree.map(node => (
-          <TreeNodeComponent key={node.id} node={node} onUpdate={reload} />
-        ))}
-      </div>
-    </div>
-  );
+    <div className = "resource-tree" >
+    <div className = "resource-tree-header" >
+      <h2>Полезные
+  ресурсы < /h2>
+  < button
+  onClick = {reload} >🔄 Обновить < /button>
+  < /div>
+  < div
+  className = "resource-tree-content" >
+    {
+      tree.map(node => (
+        <TreeNodeComponent key = {node.id} node = {node} onUpdate = {reload}
+  />
+))
+}
+  </div>
+  < /div>
+)
+  ;
 };
 ```
 
@@ -308,10 +339,10 @@ interface CreateResourceFormProps {
   onSuccess?: () => void;
 }
 
-export const CreateResourceForm: React.FC<CreateResourceFormProps> = ({ 
-  parentId, 
-  onSuccess 
-}) => {
+export const CreateResourceForm: React.FC<CreateResourceFormProps> = ({
+                                                                        parentId,
+                                                                        onSuccess
+                                                                      }) => {
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -334,12 +365,12 @@ export const CreateResourceForm: React.FC<CreateResourceFormProps> = ({
         formDataToSend.append('resource_type', formData.resource_type);
         if (parentId) formDataToSend.append('parent', parentId.toString());
         formDataToSend.append('file', file);
-        
+
         await resourcesAPI.create(formDataToSend);
       } else {
         await resourcesAPI.create(formData);
       }
-      
+
       onSuccess?.();
       setFormData({
         title: '',
@@ -357,70 +388,98 @@ export const CreateResourceForm: React.FC<CreateResourceFormProps> = ({
   };
 
   return (
-    <form onSubmit={handleSubmit} className="create-resource-form">
-      <h3>Создать ресурс</h3>
-      
-      <div className="form-group">
-        <label>Название *</label>
-        <input
-          type="text"
-          value={formData.title}
-          onChange={e => setFormData({ ...formData, title: e.target.value })}
-          required
-        />
-      </div>
+    <form onSubmit = {handleSubmit}
+  className = "create-resource-form" >
+    <h3>Создать
+  ресурс < /h3>
 
-      <div className="form-group">
-        <label>Описание</label>
-        <textarea
-          value={formData.description}
-          onChange={e => setFormData({ ...formData, description: e.target.value })}
-        />
-      </div>
+  < div
+  className = "form-group" >
+    <label>Название * </label>
+    < input
+  type = "text"
+  value = {formData.title}
+  onChange = {e
+=>
+  setFormData({...formData, title: e.target.value})
+}
+  required
+  / >
+  </div>
 
-      <div className="form-group">
-        <label>Тип *</label>
-        <select
-          value={formData.resource_type}
-          onChange={e => setFormData({ 
-            ...formData, 
-            resource_type: e.target.value as any 
-          })}
-        >
-          <option value="folder">📁 Папка</option>
-          <option value="link">🔗 Ссылка</option>
-          <option value="file">📄 Файл</option>
-        </select>
-      </div>
+  < div
+  className = "form-group" >
+    <label>Описание < /label>
+    < textarea
+  value = {formData.description}
+  onChange = {e
+=>
+  setFormData({...formData, description: e.target.value})
+}
+  />
+  < /div>
 
-      {formData.resource_type === 'link' && (
-        <div className="form-group">
-          <label>URL *</label>
-          <input
-            type="url"
-            value={formData.url}
-            onChange={e => setFormData({ ...formData, url: e.target.value })}
-            required
-          />
-        </div>
-      )}
+  < div
+  className = "form-group" >
+    <label>Тип * </label>
+    < select
+  value = {formData.resource_type}
+  onChange = {e
+=>
+  setFormData({
+    ...formData,
+    resource_type: e.target.value as any
+  })
+}
+>
+  <option value = "folder" >📁 Папка < /option>
+  < option
+  value = "link" >🔗 Ссылка < /option>
+  < option
+  value = "file" >📄 Файл < /option>
+  < /select>
+  < /div>
 
-      {formData.resource_type === 'file' && (
-        <div className="form-group">
-          <label>Файл *</label>
-          <input
-            type="file"
-            onChange={e => setFile(e.target.files?.[0] || null)}
-            required
-          />
-        </div>
-      )}
+  {
+    formData.resource_type === 'link' && (
+      <div className = "form-group" >
+        <label>URL * </label>
+        < input
+    type = "url"
+    value = {formData.url}
+    onChange = {e
+  =>
+    setFormData({...formData, url: e.target.value})
+  }
+    required
+    / >
+    </div>
+  )
+  }
 
-      <button type="submit" disabled={loading}>
-        {loading ? 'Создание...' : 'Создать'}
-      </button>
-    </form>
-  );
+  {
+    formData.resource_type === 'file' && (
+      <div className = "form-group" >
+        <label>Файл * </label>
+        < input
+    type = "file"
+    onChange = {e
+  =>
+    setFile(e.target.files?.[0] || null)
+  }
+    required
+    / >
+    </div>
+  )
+  }
+
+  <button type = "submit"
+  disabled = {loading} >
+    {loading ? 'Создание...' : 'Создать'}
+    < /button>
+    < /form>
+)
+  ;
 };
 ```
 
@@ -443,9 +502,9 @@ interface ResourceBreadcrumbsProps {
 }
 
 export const ResourceBreadcrumbs: React.FC<ResourceBreadcrumbsProps> = ({
-  resourceId,
-  onNavigate,
-}) => {
+                                                                          resourceId,
+                                                                          onNavigate,
+                                                                        }) => {
   const [breadcrumbs, setBreadcrumbs] = useState<BreadcrumbItem[]>([]);
 
   useEffect(() => {
@@ -462,21 +521,30 @@ export const ResourceBreadcrumbs: React.FC<ResourceBreadcrumbsProps> = ({
   }, [resourceId]);
 
   return (
-    <nav className="breadcrumbs">
-      {breadcrumbs.map((item, index) => (
-        <React.Fragment key={item.id}>
-          {index > 0 && <span className="separator"> / </span>}
-          <button
-            className="breadcrumb-item"
-            onClick={() => onNavigate?.(item.id)}
-          >
-            {item.title}
-          </button>
-        </React.Fragment>
-      ))}
-    </nav>
-  );
-};
+    <nav className = "breadcrumbs" >
+      {
+        breadcrumbs.map((item, index) => (
+          <React.Fragment key = {item.id} >
+          {index > 0 && <span className = "separator" > / </span>}
+            < button
+        className = "breadcrumb-item"
+        onClick = {()
+=>
+  onNavigate?.(item.id)
+}
+>
+  {
+    item.title
+  }
+  </button>
+  < /React.Fragment>
+))
+}
+  </nav>
+)
+  ;
+}
+  ;
 ```
 
 ### 7. Пример использования с React Query
@@ -505,7 +573,7 @@ export const useResourceMutation = () => {
   );
 
   const updateMutation = useMutation(
-    ({ id, data }: { id: number; data: any }) => 
+    ({id, data}: { id: number; data: any }) =>
       resourcesAPI.update(id, data),
     {
       onSuccess: () => {
@@ -523,7 +591,7 @@ export const useResourceMutation = () => {
     }
   );
 
-  return { createMutation, updateMutation, deleteMutation };
+  return {createMutation, updateMutation, deleteMutation};
 };
 ```
 
@@ -683,4 +751,5 @@ export const useResources = () => {
 }
 ```
 
+w
 Эти примеры покрывают основные сценарии использования API на фронтенде!
