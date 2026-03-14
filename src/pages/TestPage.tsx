@@ -18,6 +18,7 @@ import { BackgroundWrapper } from "../components/BackgroundWrapper.tsx";
 import { FaceMonitoring } from "../components/FaceMonitoring.tsx";
 import { FadeIn, PageTransition } from "../components/animations";
 import { useAuthStore } from "../stores/authStore";
+import { BASE_URL } from "../api/config";
 
 type BuiltQuestion = {
   title: string;
@@ -26,6 +27,7 @@ type BuiltQuestion = {
   isOpen: boolean;
   choiceLetterToId: Record<string, number>;
   mediaUrl?: string;
+  videoUrl?: string;
   // Keep original question object so we can rebuild on language change
   sourceQuestion: any;
 };
@@ -341,6 +343,7 @@ const TestPage: FC = () => {
       isOpen,
       choiceLetterToId,
       mediaUrl: q.image ?? undefined,
+      videoUrl: q.video ?? undefined,
       sourceQuestion: qObj,
     };
   }
@@ -636,7 +639,16 @@ const TestPage: FC = () => {
                 textAnswer={textAnswer}
                 onToggle={toggleOption}
                 onTextChange={handleTextChange}
-                media={built.mediaUrl ? (
+                media={built.videoUrl ? (
+                  <div className="aspect-video mb-4 md:mb-0 w-full h-full rounded-xl overflow-hidden bg-gray-100">
+                    <video
+                      src={built.videoUrl.startsWith('http') ? built.videoUrl : `${BASE_URL}${built.videoUrl}`}
+                      controls
+                      playsInline
+                      className="h-full w-full object-cover"
+                    />
+                  </div>
+                ) : built.mediaUrl ? (
                   <div className="aspect-video mb-4 md:mb-0 w-full h-full rounded-xl overflow-hidden bg-gray-100">
                     <img
                       src={built.mediaUrl}

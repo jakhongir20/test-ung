@@ -379,14 +379,16 @@ export const RegisterForm: FC<Props> = ({ }) => {
         <Controller
           name="login"
           control={control}
-          rules={loginValidationRules}
+          rules={{}}
           render={({ field }) => (
             <input
               {...field}
               type="text"
               placeholder={t('auth.loginPlaceholder')}
-              className={authInputStyle}
-                autoComplete="username"
+              className={authInputStyle + ' bg-gray-50 cursor-not-allowed'}
+              autoComplete="username"
+              disabled
+              readOnly
             />
           )}
         />
@@ -398,7 +400,7 @@ export const RegisterForm: FC<Props> = ({ }) => {
           <Controller
             name="name"
             control={control}
-            rules={nameValidationRules}
+            rules={{}}
             render={({ field }) => (
               <input
                 {...field}
